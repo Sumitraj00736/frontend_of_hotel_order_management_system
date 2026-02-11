@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getToken } from './session.js';
 
 const api = axios.create({
-  baseURL:  'http://localhost:4000'
+  baseURL: 'https://hotel-order-management-system.onrender.com'
 });
 
 api.interceptors.request.use((config) => {
