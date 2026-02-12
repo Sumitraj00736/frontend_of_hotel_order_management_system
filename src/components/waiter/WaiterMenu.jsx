@@ -14,7 +14,7 @@ const WaiterMenu = ({ search, onSearch, menuItems, onAdd }) => (
         <button key={item._id} className="list-group-item list-group-item-action" onClick={() => onAdd(item)}>
           <div className="d-flex justify-content-between">
             <span>{item.name}</span>
-            <span>${item.price}</span>
+            <span>NPR {item.price}</span>
           </div>
           <small className="text-muted">{item.category}</small>
         </button>

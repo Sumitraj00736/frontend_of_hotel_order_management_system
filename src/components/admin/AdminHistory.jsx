@@ -15,10 +15,10 @@ const AdminHistory = ({ history }) => (
           <div className="small text-muted">Paid At: {new Date(item.paidAt).toLocaleString()}</div>
           <ul className="small mt-2">
             {item.items.map((menu, index) => (
-              <li key={index}>{menu.name} x {menu.quantity} (${menu.priceAtOrderTime})</li>
+              <li key={index}>{menu.name} x {menu.quantity} (NPR {menu.priceAtOrderTime})</li>
             ))}
           </ul>
-          <strong>Total: ${item.totalAmount.toFixed(2)}</strong>
+          <strong>Total: NPR {item.totalAmount.toFixed(2)}</strong>
         </li>
       ))}
     </ul>

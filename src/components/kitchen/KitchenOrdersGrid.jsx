@@ -16,6 +16,10 @@ const KitchenOrdersGrid = ({ orders, onUpdateStatus }) => (
               </li>
             ))}
           </ul>
+          <div className="small text-muted mb-2">Spice: {order.spiceLevel || 'medium'}</div>
+          {order.specialInstructions && (
+            <div className="small text-muted mb-2">Notes: {order.specialInstructions}</div>
+          )}
           <div className="d-flex flex-wrap gap-2 mt-auto">
             <button className="btn btn-sm btn-outline-light" onClick={() => onUpdateStatus(order._id, 'preparing')}>
               Preparing

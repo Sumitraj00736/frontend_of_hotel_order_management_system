@@ -12,6 +12,7 @@ import AdminTables from '../components/admin/AdminTables.jsx';
 import AdminMenus from '../components/admin/AdminMenus.jsx';
 import AdminReports from '../components/admin/AdminReports.jsx';
 import AdminHistory from '../components/admin/AdminHistory.jsx';
+import AdminPromotionTimeline from '../components/admin/AdminPromotionTimeline.jsx';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
@@ -20,23 +21,38 @@ const AdminDashboard = () => {
   const [menus, setMenus] = useState([]);
   const [orders, setOrders] = useState([]);
   const [report, setReport] = useState(null);
+  const [overview, setOverview] = useState({ activeByWaiter: [] });
+  const [analytics, setAnalytics] = useState(null);
   const [history, setHistory] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState({});
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [selectedPromotionUser, setSelectedPromotionUser] = useState(null);
+  const [promotions, setPromotions] = useState([]);
 
-  const [userForm, setUserForm] = useState({ name: '', email: '', password: '', role: 'waiter' });
+  const [userForm, setUserForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'waiter',
+    dateOfJoining: '',
+    salary: '',
+    shiftStart: '',
+    shiftEnd: ''
+  });
   const [tableForm, setTableForm] = useState({ tableNumber: '' });
   const [menuForm, setMenuForm] = useState({ name: '', category: '', price: '' });
 
   const loadAll = async () => {
-    const [u, t, m, o, r, h] = await Promise.all([
+    const [u, t, m, o, r, h, ov, an] = await Promise.all([
       api.get('/api/users'),
       api.get('/api/tables'),
       api.get('/api/menus'),
       api.get('/api/orders'),
       api.get('/api/reports/summary'),
-      api.get('/api/reports/history')
+      api.get('/api/reports/history'),
+      api.get('/api/reports/overview'),
+      api.get('/api/reports/analytics')
     ]);
     setUsers(u.data);
     setTables(t.data);
@@ -44,11 +60,33 @@ const AdminDashboard = () => {
     setOrders(o.data);
     setReport(r.data);
     setHistory(h.data);
+    setOverview(ov.data);
+    setAnalytics(an.data);
   };
 
   const loadNotifications = async () => {
     const res = await api.get('/api/notifications');
     setNotifications(res.data);
+  };
+
+  const loadPromotions = async (userId) => {
+    const user = users.find((u) => u._id === userId) || selectedPromotionUser;
+    if (user) setSelectedPromotionUser(user);
+    const res = await api.get(`/api/promotions/${userId}`);
+    setPromotions(res.data);
+  };
+
+  const addPromotion = async (userId, form) => {
+    const payload = {
+      title: form.title,
+      amount: form.amount ? Number(form.amount) : undefined,
+      effectiveDate: form.effectiveDate,
+      note: form.note
+    };
+    await api.post(`/api/promotions/${userId}`, payload);
+    const res = await api.get(`/api/promotions/${userId}`);
+    setPromotions(res.data);
+    loadAll();
   };
 
   useEffect(() => {
@@ -84,10 +122,63 @@ const AdminDashboard = () => {
   const createUser = async () => {
     try {
       await api.post('/api/users', userForm);
-      setUserForm({ name: '', email: '', password: '', role: 'waiter' });
+      setUserForm({ name: '', email: '', password: '', role: 'waiter', dateOfJoining: '', salary: '', shiftStart: '', shiftEnd: '' });
       loadAll();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to create user');
+    }
+  };
+
+  const editUser = async (user) => {
+    const nameInput = prompt('Name', user.name);
+    if (nameInput === null) return;
+    const name = nameInput.trim() || user.name;
+
+    const emailInput = prompt('Email', user.email);
+    if (emailInput === null) return;
+    const email = emailInput.trim() || user.email;
+
+    const roleInput = prompt('Role (admin/waiter/kitchen)', user.role);
+    if (roleInput === null) return;
+    const role = roleInput.trim().toLowerCase() || user.role;
+    if (!['admin', 'waiter', 'kitchen'].includes(role)) {
+      alert('Role must be admin, waiter, or kitchen');
+      return;
+    }
+
+    const dojInput = prompt('Date of Joining (YYYY-MM-DD)', user.dateOfJoining ? user.dateOfJoining.slice(0, 10) : '');
+    if (dojInput === null) return;
+    const dateOfJoining = dojInput.trim() || (user.dateOfJoining ? user.dateOfJoining.slice(0, 10) : '');
+
+    const salaryRaw = prompt('Salary', user.salary ?? '');
+    if (salaryRaw === null) return;
+    const salary = salaryRaw === '' ? user.salary : Number(salaryRaw);
+    if (Number.isNaN(salary)) {
+      alert('Salary must be a number');
+      return;
+    }
+
+    const shiftStartInput = prompt('Shift Start (e.g. 09:00)', user.shiftStart || '');
+    if (shiftStartInput === null) return;
+    const shiftStart = shiftStartInput.trim() || user.shiftStart;
+
+    const shiftEndInput = prompt('Shift End (e.g. 18:00)', user.shiftEnd || '');
+    if (shiftEndInput === null) return;
+    const shiftEnd = shiftEndInput.trim() || user.shiftEnd;
+
+    try {
+      await api.put(`/api/users/${user._id}`, {
+        name,
+        email,
+        role,
+        dateOfJoining: dateOfJoining || undefined,
+        salary,
+        shiftStart: shiftStart || undefined,
+        shiftEnd: shiftEnd || undefined
+      });
+      loadAll();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to update user');
     }
   };
 
@@ -155,10 +246,10 @@ const AdminDashboard = () => {
           <hr />
           <ul>
             ${bill.items
-              .map((item) => `<li>${item.name} x ${item.quantity} - $${item.price}</li>`)
+              .map((item) => `<li>${item.name} x ${item.quantity} - NPR ${item.price}</li>`)
               .join('')}
           </ul>
-          <h3>Total: $${bill.totalAmount.toFixed(2)}</h3>
+          <h3>Total: NPR ${bill.totalAmount.toFixed(2)}</h3>
         </body>
       </html>
     `;
@@ -178,7 +269,7 @@ const AdminDashboard = () => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const analytics = useMemo(() => {
+  const frequentItems = useMemo(() => {
     const itemCounts = {};
     history.forEach((entry) => {
       entry.items.forEach((item) => {
@@ -206,7 +297,7 @@ const AdminDashboard = () => {
         <AdminSidebar activeSection={activeSection} onSelect={setActiveSection} />
 
         <div className="content">
-          {activeSection === 'overview' && <AdminOverview report={report} />}
+          {activeSection === 'overview' && <AdminOverview report={report} overview={overview} />}
           {activeSection === 'orders' && (
             <AdminOrders
               orders={orders}
@@ -217,7 +308,23 @@ const AdminDashboard = () => {
             />
           )}
           {activeSection === 'users' && (
-            <AdminUsers users={users} userForm={userForm} setUserForm={setUserForm} onCreateUser={createUser} />
+            <>
+              <AdminUsers
+                users={users}
+                userForm={userForm}
+                setUserForm={setUserForm}
+                onCreateUser={createUser}
+                onEditUser={editUser}
+                onLoadPromotions={(u) => loadPromotions(u._id)}
+              />
+              {selectedPromotionUser && (
+                <AdminPromotionTimeline
+                  user={selectedPromotionUser}
+                  promotions={promotions}
+                  onAdd={addPromotion}
+                />
+              )}
+            </>
           )}
           {activeSection === 'tables' && (
             <AdminTables
@@ -237,7 +344,15 @@ const AdminDashboard = () => {
               onEditMenu={editMenu}
             />
           )}
-          {activeSection === 'reports' && <AdminReports analytics={analytics} />}
+          {activeSection === 'reports' && (
+            <AdminReports
+              analytics={{ ...analytics, frequentItems }}
+              salesSummary={analytics?.salesSummary}
+              onLoadPromotions={loadPromotions}
+              promotionUser={selectedPromotionUser}
+              promotionList={promotions}
+            />
+          )}
           {activeSection === 'history' && <AdminHistory history={history} />}
         </div>
       </div>

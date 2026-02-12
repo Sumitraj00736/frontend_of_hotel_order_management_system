@@ -18,7 +18,7 @@ const WaiterOrders = ({ orders, onEdit, onBill }) => (
               </button>
             )}
             <button className="btn btn-sm btn-outline-secondary" onClick={() => onBill(order._id)}>
-              Bill
+              Bill (NPR)
             </button>
           </div>
         </div>

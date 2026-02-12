@@ -65,10 +65,18 @@ const AdminOrders = ({
                 {order.kitchenAssigned?.name || "Unassigned"}
               </div>
 
-              <div className="small text-secondary mb-3">
+              <div className="small text-secondary mb-1">
                 Order Time:{" "}
                 {new Date(order.createdAt).toLocaleString()}
               </div>
+              <div className="small text-secondary mb-1">
+                Spice Level: {order.spiceLevel || "medium"}
+              </div>
+              {order.specialInstructions && (
+                <div className="small text-secondary mb-3">
+                  Instructions: {order.specialInstructions}
+                </div>
+              )}
 
               {/* Items */}
               <div className="bg-dark rounded-3 p-3 mb-3 border border-secondary">
@@ -81,7 +89,7 @@ const AdminOrders = ({
                       {item.menuItem?.name} x {item.quantity}
                     </span>
                     <span>
-                      ${item.priceAtOrderTime}
+                      NPR {item.priceAtOrderTime}
                     </span>
                   </div>
                 ))}

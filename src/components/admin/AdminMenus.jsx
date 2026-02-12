@@ -20,7 +20,7 @@ const AdminMenus = ({ menus, menuForm, setMenuForm, onCreateMenu, onEditMenu }) 
     <ul className="list-group">
       {menus.map((menu) => (
         <li key={menu._id} className="list-group-item d-flex justify-content-between align-items-center">
-          <span>{menu.name} (${menu.price})</span>
+          <span>{menu.name} (NPR {menu.price})</span>
           <button className="btn btn-sm btn-outline-light" onClick={() => onEditMenu(menu)}>Edit</button>
         </li>
       ))}
