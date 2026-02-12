@@ -1,7 +1,7 @@
 import React from 'react';
 
 const KitchenOrdersGrid = ({ orders, onUpdateStatus }) => (
-  <div className="row g-3">
+  <div className="row g-3 scrollable">
     {orders.map((order) => (
       <div key={order._id} className="col-12 col-md-6 col-lg-4">
         <div className="card glass-card h-100">

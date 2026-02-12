@@ -3,7 +3,7 @@ import React from 'react';
 const WaiterOrders = ({ orders, onEdit, onBill }) => (
   <div className="card glass-card">
     <h5 className="mb-3">My Orders</h5>
-    <div className="list-group">
+    <div className="list-group scrollable">
       {orders.map((order) => (
         <div key={order._id} className="list-group-item">
           <div className="d-flex justify-content-between">

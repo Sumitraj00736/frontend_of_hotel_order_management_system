@@ -43,7 +43,7 @@ const AdminOrders = ({
           <div>No active orders</div>
         </div>
       ) : (
-        <div className="d-flex flex-column gap-4">
+        <div className="d-flex flex-column gap-4 scrollable">
           {orders.map((order) => (
             <div
               key={order._id}

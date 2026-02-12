@@ -9,7 +9,7 @@ const WaiterMenu = ({ search, onSearch, menuItems, onAdd }) => (
       value={search}
       onChange={(e) => onSearch(e.target.value)}
     />
-    <div className="list-group">
+    <div className="list-group scrollable">
       {menuItems.map((item) => (
         <button key={item._id} className="list-group-item list-group-item-action" onClick={() => onAdd(item)}>
           <div className="d-flex justify-content-between">

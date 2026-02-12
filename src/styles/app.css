@@ -93,6 +93,7 @@ a:visited {
   display: grid;
   grid-template-columns: 260px 1fr;
   gap: 20px;
+  height: calc(100vh - 140px);
 }
 
 .sidebar {
@@ -101,6 +102,10 @@ a:visited {
   padding: 18px;
   border: 1px solid var(--border);
   backdrop-filter: blur(12px);
+  height: fit-content;
+  align-self: flex-start;
+  position: sticky;
+  top: 16px;
 }
 
 .sidebar-button {
@@ -123,12 +128,17 @@ a:visited {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow-y: auto;
+  padding-right: 8px;
 }
 
 .content.grid-3 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
+  align-items: start;
+  align-content: start;
+  grid-auto-rows: min-content;
 }
 
 .card.glass-card {
@@ -137,6 +147,26 @@ a:visited {
   border-radius: 16px;
   padding: 18px;
   backdrop-filter: blur(14px);
+  height: auto;
+  align-self: start;
+}
+
+/* Prevent grid items from stretching to tallest row */
+.content.grid-3 > * {
+  align-self: start;
+}
+
+/* Section-only scroll */
+.scrollable {
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.scrollable-tight {
+  max-height: 40vh;
+  overflow-y: auto;
+  padding-right: 6px;
 }
 
 .table-chip {
@@ -279,9 +309,15 @@ a:visited {
 @media (max-width: 992px) {
   .admin-body {
     grid-template-columns: 1fr;
+    height: auto;
   }
   .sidebar {
     order: 2;
+    position: relative;
+    top: auto;
+  }
+  .content {
+    overflow: visible;
   }
 }
 
