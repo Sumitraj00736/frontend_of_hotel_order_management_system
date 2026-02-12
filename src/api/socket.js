@@ -2,7 +2,8 @@ import { io } from 'socket.io-client';
 import { getCurrentUser } from './session.js';
 
 export const createSocket = () => {
-  const socket = io('http://localhost:4000');
+  const socket = io('https://hotel-order-management-system.onrender.com');
+  // const socket = io('http://localhost:4000');
   const user = getCurrentUser();
   if (user?.role) {
     socket.emit('join-role', user.role);
