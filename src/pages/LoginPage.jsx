@@ -5,7 +5,7 @@ import { saveSession } from '../api/session.js';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -13,7 +13,7 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     try {
-      const res = await api.post('/api/auth/login', { email, password });
+      const res = await api.post('/api/auth/login', { identifier, password });
       saveSession(res.data.token, res.data.user);
       if (res.data.user.role === 'admin') navigate('/admin');
       if (res.data.user.role === 'waiter') navigate('/waiter');
@@ -31,8 +31,13 @@ const LoginPage = () => {
         {error && <div className="alert alert-danger">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label">Email</label>
-            <input className="form-control" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <label className="form-label">Email or Phone</label>
+            <input
+              className="form-control"
+              placeholder="admin@example.com or 9800000001"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+            />
           </div>
           <div className="mb-3">
             <label className="form-label">Password</label>

@@ -1,13 +1,20 @@
 import React from 'react';
 import { getCurrentUser, clearSession } from '../api/session.js';
 
-const HeaderBar = ({ title, unreadCount, onToggleNotifications }) => {
+const HeaderBar = ({ title, unreadCount, onToggleNotifications, onToggleSidebar }) => {
   const user = getCurrentUser();
 
   return (
     <div className="header-bar">
       <div>
-        <h2 className="mb-0">{title}</h2>
+        <h2 className="mb-0 d-flex align-items-center gap-2">
+          {onToggleSidebar && (
+            <button className="icon-button ghost" onClick={onToggleSidebar} aria-label="Toggle sidebar">
+              ☰
+            </button>
+          )}
+          {title}
+        </h2>
         <small>{user?.name} ({user?.role})</small>
       </div>
       <div className="d-flex align-items-center gap-3">

@@ -2,26 +2,32 @@ import React from 'react';
 
 const AdminHistory = ({ history }) => (
   <div className="card glass-card">
-    <h5 className="mb-3">Customer History (Paid)</h5>
-    <ul className="list-group">
+    <h5 className="mb-3">History (Paid Orders)</h5>
+    <div className="content grid-3">
       {history.map((item) => (
-        <li key={item._id} className="list-group-item">
+        <div key={item._id} className="card glass-card">
           <div className="d-flex justify-content-between">
-            <span>Table {item.tableNumber}</span>
+            <div className="fw-semibold">Table {item.tableNumber}</div>
             <span className="badge bg-success">{item.paymentMethod}</span>
           </div>
-          <div className="small text-muted">Waiter: {item.waiter?.name || 'N/A'} | Kitchen: {item.kitchen?.name || 'N/A'}</div>
-          <div className="small text-muted">Order Taken: {new Date(item.orderTakenAt).toLocaleString()}</div>
-          <div className="small text-muted">Paid At: {new Date(item.paidAt).toLocaleString()}</div>
-          <ul className="small mt-2">
+          <div className="text-muted small">Waiter: {item.waiter?.name || 'N/A'}</div>
+          <div className="text-muted small">Kitchen: {item.kitchen?.name || 'N/A'}</div>
+          <div className="text-muted small">Order: {new Date(item.orderTakenAt).toLocaleString()}</div>
+          <div className="text-muted small">Paid: {new Date(item.paidAt).toLocaleString()}</div>
+          <div className="mt-2">
             {item.items.map((menu, index) => (
-              <li key={index}>{menu.name} x {menu.quantity} (NPR {menu.priceAtOrderTime})</li>
+              <div key={index} className="d-flex justify-content-between small border-bottom py-1">
+                <span>
+                  {menu.name} x {menu.quantity}
+                </span>
+                <span>NPR {menu.priceAtOrderTime}</span>
+              </div>
             ))}
-          </ul>
-          <strong>Total: NPR {item.totalAmount.toFixed(2)}</strong>
-        </li>
+          </div>
+          <div className="fw-bold mt-2">Total: NPR {item.totalAmount.toFixed(2)}</div>
+        </div>
       ))}
-    </ul>
+    </div>
   </div>
 );
 

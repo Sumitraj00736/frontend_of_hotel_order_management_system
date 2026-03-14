@@ -4,19 +4,18 @@ const WaiterMenu = ({ search, onSearch, menuItems, onAdd }) => (
   <div className="card glass-card">
     <h5 className="mb-3">Menu</h5>
     <input
-      className="form-control mb-2"
+      className="form-control mb-3"
       placeholder="Search menu"
       value={search}
       onChange={(e) => onSearch(e.target.value)}
     />
-    <div className="list-group scrollable">
+    <div className="waiter-menu-grid scrollable">
       {menuItems.map((item) => (
-        <button key={item._id} className="list-group-item list-group-item-action" onClick={() => onAdd(item)}>
-          <div className="d-flex justify-content-between">
-            <span>{item.name}</span>
-            <span>NPR {item.price}</span>
-          </div>
-          <small className="text-muted">{item.category}</small>
+        <button key={item._id} className="menu-card" onClick={() => onAdd(item)}>
+          {item.imageUrl && <img src={item.imageUrl} alt={item.name} className="menu-thumb" />}
+          <div className="fw-semibold">{item.name}</div>
+          <div className="tiny-text text-muted">{item.category}</div>
+          <div className="fw-bold">NPR {item.price}</div>
         </button>
       ))}
     </div>

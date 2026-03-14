@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -13,22 +13,22 @@ import {
   Line,
   Legend
 } from 'recharts';
+import { TrendingUp, PieChart as PieIcon, Users as UsersIcon, Utensils, Wallet, Activity } from 'lucide-react';
 import AdminPromotionTimeline from './AdminPromotionTimeline.jsx';
 
-const TAB_OPTIONS = ['company', 'waiter', 'kitchen'];
-const CHART_COLORS = ['#f97316', '#22d3ee', '#e2e8f0', '#94a3b8', '#38bdf8'];
+const TAB_OPTIONS = [
+  { value: 'company', label: 'Company' },
+  { value: 'waiter', label: 'Waiter' },
+  { value: 'kitchen', label: 'Kitchen' }
+];
+// Cool palette (no gray/orange): blue, green, purple, teal, light blue
+const CHART_COLORS = ['#2563eb', '#10b981', '#a855f7', '#14b8a6', '#0ea5e9'];
 const TREND_OPTIONS = [
   { value: 'week', label: 'Last 1 Week' },
   { value: 'month1', label: 'Last 1 Month' },
   { value: 'month3', label: 'Last 3 Months' },
   { value: 'month6', label: 'Last 6 Months' }
 ];
-
-const TabButton = ({ active, onClick, label }) => (
-  <button className={`sidebar-button ${active ? 'active' : ''}`} onClick={onClick}>
-    {label}
-  </button>
-);
 
 const PerformanceList = ({ title, data }) => (
   <div className="stat-card">
@@ -44,18 +44,20 @@ const PerformanceList = ({ title, data }) => (
   </div>
 );
 
-const ChartCard = ({ title, children }) => (
+const ChartCard = ({ title, icon, children }) => (
   <div className="stat-card">
-    <h6 className="mb-3">{title}</h6>
+    <div className="d-flex align-items-center gap-2 mb-2">
+      {icon}
+      <h6 className="mb-0">{title}</h6>
+    </div>
     <div style={{ width: '100%', height: 220 }}>{children}</div>
   </div>
 );
 
-const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser, promotionList }) => {
-  const [activeTab, setActiveTab] = useState('company');
-  const [selectedWaiterId, setSelectedWaiterId] = useState('');
-  const [selectedKitchenId, setSelectedKitchenId] = useState('');
-  const [trendRange, setTrendRange] = useState('month6');
+const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser, promotionList, view = 'company', onChangeView }) => {
+  const [selectedWaiterId, setSelectedWaiterId] = React.useState('');
+  const [selectedKitchenId, setSelectedKitchenId] = React.useState('');
+  const [trendRange, setTrendRange] = React.useState('month6');
 
   const waiterRanks = analytics?.waiterRanking || [];
   const kitchenRanks = analytics?.kitchenRanking || [];
@@ -100,125 +102,83 @@ const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser
   );
 
   return (
-    <div className="card glass-card">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="mb-0">Reports & Analytics</h5>
-        <div className="d-flex gap-2">
-          {TAB_OPTIONS.map((tab) => (
-            <TabButton
-              key={tab}
-              label={tab.toUpperCase()}
-              active={activeTab === tab}
-              onClick={() => setActiveTab(tab)}
-            />
-          ))}
-        </div>
-      </div>
+    <div className="card glass-card full-width-card full-screen-card reports-card">
+      <h5 className="mb-3">Reports & Analytics</h5>
 
-      {activeTab === 'company' && (
-        <div className="d-flex flex-column gap-4">
-          <div className="row g-3">
-            <div className="col-12 col-md-4">
-              <div className="stat-card">
-                <h6>Total Sales</h6>
-          <div className="fs-4">NPR {salesSummary?.totalSales?.toFixed(2) || '0.00'}</div>
-                <div className="text-muted small">Total Orders: {salesSummary?.totalOrders || 0}</div>
-              </div>
+      {view === 'company' && (
+        <div className="reports-grid">
+          <div className="stat-card tall span-2">
+            <div className="d-flex align-items-center gap-2 mb-1">
+              <Wallet size={18} />
+              <h6 className="mb-0">Total Sales</h6>
             </div>
-            <div className="col-12 col-md-4">
-              <div className="stat-card">
-                <h6>Top Waiter</h6>
-                <div className="fs-5">{topWaiter?.name || 'N/A'}</div>
-                <div className="text-muted small">NPR {topWaiter?.sales?.toFixed(2) || '0.00'}</div>
-              </div>
-            </div>
-            <div className="col-12 col-md-4">
-              <div className="stat-card">
-                <h6>Top Kitchen</h6>
-                <div className="fs-5">{topKitchen?.name || 'N/A'}</div>
-                <div className="text-muted small">NPR {topKitchen?.sales?.toFixed(2) || '0.00'}</div>
-              </div>
+            <div className="fs-3 fw-bold">NPR {salesSummary?.totalSales?.toFixed(2) || '0.00'}</div>
+            <div className="text-muted small">Total Orders: {salesSummary?.totalOrders || 0}</div>
+            <div className="info-pill mt-2">
+              <UsersIcon size={14} /> Top Waiter: {topWaiter?.name || 'N/A'}
+              <span className="ms-2">|</span>
+              <Utensils size={14} className="ms-2" /> Top Kitchen: {topKitchen?.name || 'N/A'}
             </div>
           </div>
-
-          <div className="row g-3">
-            <div className="col-12 col-lg-6">
-              <ChartCard title="Company Sales Trend (6 months)">
-                <ResponsiveContainer>
-                  <LineChart data={analytics?.companyMonthly || []}>
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="sales" stroke={CHART_COLORS[0]} strokeWidth={2} />
-                    <Line type="monotone" dataKey="orders" stroke={CHART_COLORS[1]} strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartCard>
-            </div>
-            <div className="col-12 col-lg-6">
-              <ChartCard title="Frequent Menu Items">
-                <ResponsiveContainer>
-                  <BarChart data={frequentItems.map(([name, count]) => ({ name, count }))}>
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill={CHART_COLORS[0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartCard>
-            </div>
-          </div>
+          <ChartCard title="Company Sales Trend (6 months)" icon={<TrendingUp size={16} />}>
+            <ResponsiveContainer>
+              <LineChart data={analytics?.companyMonthly || []}>
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="sales" stroke={CHART_COLORS[0]} strokeWidth={2} />
+                <Line type="monotone" dataKey="orders" stroke={CHART_COLORS[1]} strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartCard>
+          <ChartCard title="Frequent Menu Items" icon={<PieIcon size={16} />}>
+            <ResponsiveContainer>
+              <BarChart data={frequentItems.map(([name, count]) => ({ name, count }))}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill={CHART_COLORS[0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
         </div>
       )}
 
-      {activeTab === 'waiter' && (
-        <div className="d-flex flex-column gap-4">
-          <div className="row g-3">
-            <div className="col-12 col-md-4">
-              <PerformanceList title="Last 1 Month" data={analytics?.waiterPerformance?.last1Month || []} />
-            </div>
-            <div className="col-12 col-md-4">
-              <PerformanceList title="Last 3 Months" data={analytics?.waiterPerformance?.last3Months || []} />
-            </div>
-            <div className="col-12 col-md-4">
-              <PerformanceList title="Last 6 Months" data={analytics?.waiterPerformance?.last6Months || []} />
-            </div>
-          </div>
+      {view === 'waiter' && (
+        <div className="reports-grid">
+          <PerformanceList title="Last 1 Month" data={analytics?.waiterPerformance?.last1Month || []} />
+          <PerformanceList title="Last 3 Months" data={analytics?.waiterPerformance?.last3Months || []} />
+          <PerformanceList title="Last 6 Months" data={analytics?.waiterPerformance?.last6Months || []} />
 
-          <div className="row g-3">
-            <div className="col-12 col-lg-4">
-              <ChartCard title="Waiter Sales Share">
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie data={waiterPie} dataKey="value" nameKey="name" outerRadius={80} label>
-                      {waiterPie.map((entry, index) => (
-                        <Cell key={entry.name} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartCard>
-            </div>
-            <div className="col-12 col-lg-8">
-              <ChartCard title="Waiter Ranking (Sales / Orders / Tables)">
-                <ResponsiveContainer>
-                  <BarChart data={waiterBars}>
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="sales" fill={CHART_COLORS[0]} />
-                    <Bar dataKey="orders" fill={CHART_COLORS[1]} />
-                    <Bar dataKey="tables" fill={CHART_COLORS[2]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartCard>
-            </div>
-          </div>
+          <ChartCard title="Waiter Sales Share" icon={<PieIcon size={16} />}>
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie data={waiterPie} dataKey="value" nameKey="name" outerRadius={80} label>
+                  {waiterPie.map((entry, index) => (
+                    <Cell key={entry.name} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </ChartCard>
 
-          <div className="stat-card">
+          <ChartCard title="Waiter Ranking (Sales / Orders / Tables)" icon={<UsersIcon size={16} />}>
+            <ResponsiveContainer>
+              <BarChart data={waiterBars}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="sales" fill={CHART_COLORS[0]} />
+                <Bar dataKey="orders" fill={CHART_COLORS[1]} />
+                <Bar dataKey="tables" fill={CHART_COLORS[2]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          <div className="stat-card span-2">
             <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
               <h6 className="mb-0">Individual Waiter Trend</h6>
               <div className="d-flex gap-2">
@@ -250,7 +210,7 @@ const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser
                 </select>
               </div>
             </div>
-            <div style={{ width: '100%', height: 240 }}>
+            <div style={{ width: '100%', height: 260 }}>
               <ResponsiveContainer>
                 <LineChart data={waiterLine}>
                   <XAxis dataKey={trendRange === 'week' ? 'day' : 'month'} />
@@ -270,7 +230,7 @@ const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser
         </div>
       )}
 
-      {activeTab === 'kitchen' && (
+      {view === 'kitchen' && (
         <div className="d-flex flex-column gap-4">
           <div className="row g-3">
             <div className="col-12 col-md-4">

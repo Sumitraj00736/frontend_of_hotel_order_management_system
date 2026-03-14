@@ -1,40 +1,74 @@
-import React from 'react';
+import React from "react";
+import { Clock, ChefHat, CheckCircle, Utensils, AlertCircle } from "lucide-react";
 
-const KitchenOrdersGrid = ({ orders, onUpdateStatus }) => (
-  <div className="row g-3 scrollable">
-    {orders.map((order) => (
-      <div key={order._id} className="col-12 col-md-6 col-lg-4">
-        <div className="card glass-card h-100">
-          <div className="d-flex justify-content-between mb-2">
-            <strong>Table {order.table?.tableNumber}</strong>
-            <span className="badge bg-warning text-dark">{order.status}</span>
+const statusColor = (status) => {
+  if (status === "served") return "chip chip-served";
+  if (status === "ready") return "chip chip-ready";
+  if (status === "preparing") return "chip chip-preparing";
+  if (status === "paid") return "chip chip-paid";
+  return "chip";
+};
+
+const KitchenOrdersGrid = ({ orders, onUpdateStatus }) => {
+  return (
+    <div className="kitchen-grid full-height">
+      {orders.map((order) => (
+        <div key={order._id} className="k-card">
+          <div className="k-header">
+            <div className="k-title">
+              <Utensils size={18} />
+              <div>
+                <div className="eyebrow">Table</div>
+                <div className="k-table">#{order.table?.tableNumber || "N/A"}</div>
+              </div>
+            </div>
+            <div className="k-status">
+              <span className={statusColor(order.status)}>{order.status}</span>
+              <div className="tiny-text text-muted">
+                {new Date(order.createdAt).toLocaleTimeString()}
+              </div>
+            </div>
           </div>
-          <ul className="list-unstyled small">
+
+          <div className="k-meta">
+            <span className="pill subtle">
+              <ChefHat size={14} /> {order.kitchenAssigned?.name || "Unassigned"}
+            </span>
+            <span className="pill subtle">
+              <Clock size={14} /> Spice: {order.spiceLevel || "medium"}
+            </span>
+          </div>
+
+          <div className="k-items">
             {order.items.map((item) => (
-              <li key={item._id}>
-                {item.menuItem?.name} x {item.quantity}
-              </li>
+              <div key={item._id} className="k-item">
+                <div className="k-item-name">{item.menuItem?.name}</div>
+                <div className="k-item-qty">x{item.quantity}</div>
+              </div>
             ))}
-          </ul>
-          <div className="small text-muted mb-2">Spice: {order.spiceLevel || 'medium'}</div>
+          </div>
+
           {order.specialInstructions && (
-            <div className="small text-muted mb-2">Notes: {order.specialInstructions}</div>
+            <div className="k-note">
+              <AlertCircle size={14} /> {order.specialInstructions}
+            </div>
           )}
-          <div className="d-flex flex-wrap gap-2 mt-auto">
-            <button className="btn btn-sm btn-outline-light" onClick={() => onUpdateStatus(order._id, 'preparing')}>
+
+          <div className="k-actions">
+            <button className="k-btn ghost" onClick={() => onUpdateStatus(order._id, "preparing")}>
               Preparing
             </button>
-            <button className="btn btn-sm btn-outline-light" onClick={() => onUpdateStatus(order._id, 'ready')}>
+            <button className="k-btn warn" onClick={() => onUpdateStatus(order._id, "ready")}>
               Ready
             </button>
-            <button className="btn btn-sm btn-outline-light" onClick={() => onUpdateStatus(order._id, 'served')}>
+            <button className="k-btn success" onClick={() => onUpdateStatus(order._id, "served")}>
               Served
             </button>
           </div>
         </div>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
+};
 
 export default KitchenOrdersGrid;

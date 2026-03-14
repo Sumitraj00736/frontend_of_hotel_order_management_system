@@ -2,8 +2,7 @@ import axios from 'axios';
 import { getToken } from './session.js';
 
 const api = axios.create({
-  baseURL: 'https://hotel-order-management-system.onrender.com'
-  // baseURL: 'http://localhost:4000'
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000'
 });
 
 api.interceptors.request.use((config) => {
@@ -13,5 +12,17 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      // Clear potentially stale credentials and let routing redirect to login
+      localStorage.removeItem('hotel_token');
+      localStorage.removeItem('hotel_user');
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

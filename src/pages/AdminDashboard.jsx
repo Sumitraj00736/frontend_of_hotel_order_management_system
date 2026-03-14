@@ -13,6 +13,7 @@ import AdminMenus from '../components/admin/AdminMenus.jsx';
 import AdminReports from '../components/admin/AdminReports.jsx';
 import AdminHistory from '../components/admin/AdminHistory.jsx';
 import AdminPromotionTimeline from '../components/admin/AdminPromotionTimeline.jsx';
+import AdminInventory from '../components/admin/AdminInventory.jsx';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
@@ -29,10 +30,14 @@ const AdminDashboard = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedPromotionUser, setSelectedPromotionUser] = useState(null);
   const [promotions, setPromotions] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const [userForm, setUserForm] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     role: 'waiter',
     dateOfJoining: '',
@@ -40,8 +45,8 @@ const AdminDashboard = () => {
     shiftStart: '',
     shiftEnd: ''
   });
-  const [tableForm, setTableForm] = useState({ tableNumber: '' });
-  const [menuForm, setMenuForm] = useState({ name: '', category: '', price: '' });
+  const [tableForm, setTableForm] = useState({ tableNumber: '', row: '', column: '' });
+  const [menuForm, setMenuForm] = useState({ name: '', category: '', price: '', imageUrl: '' });
 
   const loadAll = async () => {
     const [u, t, m, o, r, h, ov, an] = await Promise.all([
@@ -76,6 +81,15 @@ const AdminDashboard = () => {
     setPromotions(res.data);
   };
 
+  const loadInventory = async () => {
+    const [ingRes, txnRes] = await Promise.all([
+      api.get('/api/inventory/ingredients'),
+      api.get('/api/inventory/transactions')
+    ]);
+    setIngredients(ingRes.data);
+    setTransactions(txnRes.data);
+  };
+
   const addPromotion = async (userId, form) => {
     const payload = {
       title: form.title,
@@ -93,6 +107,12 @@ const AdminDashboard = () => {
     loadAll();
     loadNotifications();
   }, []);
+
+  useEffect(() => {
+    if (activeSection.startsWith('inventory')) {
+      loadInventory();
+    }
+  }, [activeSection]);
 
   useEffect(() => {
     const socket = createSocket();
@@ -186,8 +206,12 @@ const AdminDashboard = () => {
     try {
       const tableNumber = Number.parseInt(tableForm.tableNumber, 10);
       if (!tableNumber) return alert('Enter a valid table number');
-      await api.post('/api/tables', { tableNumber });
-      setTableForm({ tableNumber: '' });
+      await api.post('/api/tables', {
+        tableNumber,
+        row: tableForm.row ? Number(tableForm.row) : undefined,
+        column: tableForm.column ? Number(tableForm.column) : undefined
+      });
+      setTableForm({ tableNumber: '', row: '', column: '' });
       loadAll();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to add table');
@@ -199,14 +223,19 @@ const AdminDashboard = () => {
     loadAll();
   };
 
+  const updateTable = async (tableId, payload) => {
+    await api.put(`/api/tables/${tableId}`, payload);
+    loadAll();
+  };
+
   const createMenu = async () => {
     try {
       const price = Number(menuForm.price);
       if (!menuForm.name || !menuForm.category || Number.isNaN(price)) {
         return alert('Fill out menu name, category, and price');
       }
-      await api.post('/api/menus', { name: menuForm.name, category: menuForm.category, price });
-      setMenuForm({ name: '', category: '', price: '' });
+      await api.post('/api/menus', { name: menuForm.name, category: menuForm.category, price, imageUrl: menuForm.imageUrl });
+      setMenuForm({ name: '', category: '', price: '', imageUrl: '' });
       loadAll();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to add menu');
@@ -221,14 +250,19 @@ const AdminDashboard = () => {
     const priceRaw = prompt('Price', String(menu.price));
     const price = Number(priceRaw);
     if (Number.isNaN(price)) return;
-    await api.put(`/api/menus/${menu._id}`, { name, category, price });
+    const imageUrl = prompt('Image URL (leave blank to keep current)', menu.imageUrl || '') || menu.imageUrl;
+    await api.put(`/api/menus/${menu._id}`, { name, category, price, imageUrl });
     loadAll();
   };
 
   const payOrder = async (orderId) => {
     const method = paymentMethods[orderId] || 'cash';
-    await api.post(`/api/bills/${orderId}/pay`, { paymentMethod: method });
-    loadAll();
+    try {
+      await api.post(`/api/bills/${orderId}/pay`, { paymentMethod: method });
+      loadAll();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to mark paid');
+    }
   };
 
   const printBill = async (orderId) => {
@@ -285,6 +319,7 @@ const AdminDashboard = () => {
         title="Admin Control Center"
         unreadCount={unreadCount}
         onToggleNotifications={() => setShowNotifications((prev) => !prev)}
+        onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
       />
       {showNotifications && (
         <div className="notification-drawer">
@@ -293,8 +328,10 @@ const AdminDashboard = () => {
       )}
       <NotificationToasts notifications={notifications} />
 
-      <div className="admin-body">
-        <AdminSidebar activeSection={activeSection} onSelect={setActiveSection} />
+      <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
+        <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
+          <AdminSidebar activeSection={activeSection} onSelect={setActiveSection} isOpen={sidebarOpen} />
+        </div>
 
         <div className="content">
           {activeSection === 'overview' && <AdminOverview report={report} overview={overview} />}
@@ -333,6 +370,7 @@ const AdminDashboard = () => {
               setTableForm={setTableForm}
               onCreateTable={createTable}
               onFreeTable={freeTable}
+              onUpdateTable={updateTable}
             />
           )}
           {activeSection === 'menus' && (
@@ -344,8 +382,19 @@ const AdminDashboard = () => {
               onEditMenu={editMenu}
             />
           )}
-          {activeSection === 'reports' && (
+          {activeSection.startsWith('inventory') && (
+            <AdminInventory
+              menus={menus}
+              ingredients={ingredients}
+              transactions={transactions}
+              reload={loadInventory}
+              externalView={activeSection.split(':')[1] || 'ingredients'}
+            />
+          )}
+          {activeSection.startsWith('reports') && (
             <AdminReports
+              view={activeSection.split(':')[1] || 'company'}
+              onChangeView={(view) => setActiveSection(`reports:${view}`)}
               analytics={{ ...analytics, frequentItems }}
               salesSummary={analytics?.salesSummary}
               onLoadPromotions={loadPromotions}

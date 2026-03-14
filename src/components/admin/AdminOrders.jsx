@@ -1,134 +1,89 @@
-import React from "react";
+import React, { useState } from 'react';
+import OrderDetailModal from './OrderDetailModal.jsx';
 
 const getStatusColor = (status) => {
   switch (status) {
-    case "paid":
-      return "bg-success";
-    case "pending":
-      return "bg-warning text-dark";
-    case "cancelled":
-      return "bg-danger";
+    case 'paid':
+      return 'bg-success';
+    case 'pending':
+      return 'bg-warning text-dark';
+    case 'cancelled':
+      return 'bg-danger';
     default:
-      return "bg-secondary";
+      return 'bg-secondary';
   }
 };
 
-const AdminOrders = ({
-  orders = [],
-  paymentMethods,
-  onChangePaymentMethod,
-  onPay,
-  onPrint,
-}) => {
+const AdminOrders = ({ orders = [], paymentMethods, onChangePaymentMethod, onPay, onPrint }) => {
+  const [selected, setSelected] = useState(null);
+
+  const openDetails = (order) => {
+    if (!paymentMethods[order._id]) {
+      onChangePaymentMethod(order._id, order.paymentMethod || 'cash');
+    }
+    setSelected(order);
+  };
+  const closeDetails = () => setSelected(null);
+
   return (
-    <div className="card border-0 rounded-4 p-4 shadow-lg bg-dark text-light">
-      
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h4 className="fw-semibold mb-1">Orders</h4>
-          <div className="text-muted small">
-            Manage and process active orders
-          </div>
+    <div className="card glass-card full-screen-card">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className="d-flex gap-2 align-items-center">
+          <h5 className="mb-0">Orders</h5>
+          <span className="badge bg-secondary px-3 py-2 rounded-pill">{orders.length} Active</span>
         </div>
-        <span className="badge bg-secondary px-3 py-2 rounded-pill">
-          {orders.length} Active
-        </span>
+        <div className="d-flex gap-2">
+          <button className="btn btn-outline-light" onClick={() => (window.location.href = '/waiter')}>
+            + Book Order
+          </button>
+          <button className="btn btn-primary" onClick={() => (window.location.href = '/admin#tables')}>
+            + Add Table
+          </button>
+        </div>
       </div>
 
-      {/* Orders List */}
       {orders.length === 0 ? (
-        <div className="text-center text-secondary py-5">
+        <div className="text-center text-muted py-5">
           <div className="fs-1">🧾</div>
           <div>No active orders</div>
         </div>
       ) : (
-        <div className="d-flex flex-column gap-4 scrollable">
+        <div className="orders-list-full">
           {orders.map((order) => (
-            <div
-              key={order._id}
-              className="p-4 rounded-4 bg-secondary bg-opacity-10 border border-secondary"
-            >
-              {/* Top Row */}
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <div className="fw-semibold fs-5">
-                  Table {order.table?.tableNumber}
+            <div key={order._id} className="order-row">
+              <div>
+                <div className="fw-semibold fs-5">Table {order.table?.tableNumber}</div>
+                <div className="text-muted small">
+                  Waiter: {order.createdBy?.name || 'N/A'} | Kitchen: {order.kitchenAssigned?.name || 'Unassigned'}
                 </div>
-                <span className={`badge ${getStatusColor(order.status)}`}>
-                  {order.status}
-                </span>
-              </div>
-
-              {/* Order Info */}
-              <div className="small text-secondary mb-2">
-                Waiter: {order.createdBy?.name || "N/A"} | Kitchen:{" "}
-                {order.kitchenAssigned?.name || "Unassigned"}
-              </div>
-
-              <div className="small text-secondary mb-1">
-                Order Time:{" "}
-                {new Date(order.createdAt).toLocaleString()}
-              </div>
-              <div className="small text-secondary mb-1">
-                Spice Level: {order.spiceLevel || "medium"}
-              </div>
-              {order.specialInstructions && (
-                <div className="small text-secondary mb-3">
-                  Instructions: {order.specialInstructions}
+                <div className="text-muted small">
+                  Order Time: {new Date(order.createdAt).toLocaleString()} | Spice: {order.spiceLevel || 'medium'}
                 </div>
-              )}
-
-              {/* Items */}
-              <div className="bg-dark rounded-3 p-3 mb-3 border border-secondary">
-                {order.items.map((item) => (
-                  <div
-                    key={item._id}
-                    className="d-flex justify-content-between small py-1"
-                  >
-                    <span>
-                      {item.menuItem?.name} x {item.quantity}
-                    </span>
-                    <span>
-                      NPR {item.priceAtOrderTime}
-                    </span>
-                  </div>
-                ))}
               </div>
-
-              {/* Actions */}
-              <div className="d-flex flex-wrap gap-3 align-items-center">
-                <button
-                  className="btn btn-sm btn-outline-light rounded-pill px-3"
-                  onClick={() => onPrint(order._id)}
-                >
-                  🖨 Print Bill
+              <div className="d-flex align-items-center gap-2">
+                <span className={`badge ${getStatusColor(order.status)}`}>{order.status}</span>
+                <div className="fw-bold">Total: NPR {order.totalAmount?.toFixed(2) ?? '0.00'}</div>
+                <button className="btn btn-sm btn-outline-light" onClick={() => openDetails(order)}>
+                  View Details
                 </button>
-
-                {order.status !== "paid" && (
-                  <>
-                    <select
-                      className="form-select form-select-sm bg-dark text-light border-secondary w-auto"
-                      value={paymentMethods[order._id] || "cash"}
-                      onChange={(e) =>
-                        onChangePaymentMethod(order._id, e.target.value)
-                      }
-                    >
-                      <option value="cash">Cash</option>
-                      <option value="fonepay">Fonepay</option>
-                    </select>
-
-                    <button
-                      className="btn btn-sm btn-success rounded-pill px-3"
-                      onClick={() => onPay(order._id)}
-                    >
-                      ✔ Mark Paid
-                    </button>
-                  </>
-                )}
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {selected && (
+        <OrderDetailModal
+          order={selected}
+          paymentMethods={paymentMethods}
+          onChangePaymentMethod={onChangePaymentMethod}
+          onPay={async (id) => {
+            await onPay(id);
+            closeDetails();
+          }}
+          onPrint={onPrint}
+          onClose={closeDetails}
+        />
       )}
     </div>
   );
