@@ -5,6 +5,7 @@ import AdminDashboard from './pages/AdminDashboard.jsx';
 import WaiterApp from './pages/WaiterApp.jsx';
 import KitchenDashboard from './pages/KitchenDashboard.jsx';
 import GuestTablePage from './pages/GuestTablePage.jsx';
+import PublicCafePage from './pages/PublicCafePage.jsx';
 import { getCurrentUser } from './api/session.js';
 
 const ProtectedRoute = ({ children, roles }) => {
@@ -43,6 +44,7 @@ const App = () => (
         </ProtectedRoute>
       }
     />
+    <Route path="/:cafeSlug" element={<PublicCafePage />} />
   </Routes>
 );
 

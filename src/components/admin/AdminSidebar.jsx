@@ -18,7 +18,8 @@ import {
   Bell,
   LogOut,
   Settings,
-  UserRound
+  UserRound,
+  Globe
 } from 'lucide-react';
 import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../api/session.js';
 import '../../common/css/admin/adminSidebar.css';
@@ -30,6 +31,7 @@ const iconMap = {
   tables: <TableIcon size={18} strokeWidth={1.5} />,
   menus: <BookOpen size={18} strokeWidth={1.5} />,
   inventory: <Boxes size={18} strokeWidth={1.5} />,
+  website: <Globe size={18} strokeWidth={1.5} />,
   reports: <BarChart size={18} strokeWidth={1.5} />,
   history: <History size={18} strokeWidth={1.5} />
 };
@@ -42,7 +44,7 @@ const menuSubIcons = {
   combos: <Package2 size={14} />
 };
 
-const coreSections = ['dashboard', 'orders', 'users', 'tables', 'notifications'];
+const coreSections = ['dashboard', 'orders', 'users', 'tables', 'website', 'notifications'];
 
 const AdminSidebar = ({
   activeSection = 'dashboard',
@@ -96,7 +98,7 @@ const AdminSidebar = ({
       <div className="sidebar-top">
         <div className="sidebar-brand blocky">
           <span className="brand-mark">V</span>
-          {isOpen && <span className="brand-text">RestroX</span>}
+          {isOpen && <span className="brand-text">merorestro</span>}
         </div>
         <button className="collapse-btn" onClick={onToggleSidebar} aria-label="Toggle sidebar">
           {isOpen ? '«' : '»'}

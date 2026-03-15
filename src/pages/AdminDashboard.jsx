@@ -18,6 +18,7 @@ import AdminReports from '../components/admin/AdminReports.jsx';
 import AdminHistory from '../components/admin/AdminHistory.jsx';
 import AdminPromotionTimeline from '../components/admin/AdminPromotionTimeline.jsx';
 import AdminInventory from '../components/admin/AdminInventory.jsx';
+import AdminWebsite from '../components/admin/AdminWebsite.jsx';
 import '../common/css/admin/adminLayout.css';
 
 const AdminDashboard = () => {
@@ -429,6 +430,7 @@ const AdminDashboard = () => {
               onEditMenu={editMenu}
             />
           )}
+          {activeSection === 'website' && <AdminWebsite />}
           {activeSection.startsWith('inventory') && (
             <AdminInventory
               menus={menus}
