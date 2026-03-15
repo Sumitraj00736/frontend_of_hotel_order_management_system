@@ -42,7 +42,7 @@ const menuSubIcons = {
   combos: <Package2 size={14} />
 };
 
-const coreSections = ['dashboard', 'orders', 'users', 'tables'];
+const coreSections = ['dashboard', 'orders', 'users', 'tables', 'notifications'];
 
 const AdminSidebar = ({
   activeSection = 'dashboard',
@@ -51,7 +51,7 @@ const AdminSidebar = ({
   onToggleSidebar,
   unreadCount = 0
 }) => {
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState(null);
@@ -128,16 +128,6 @@ const AdminSidebar = ({
       </div>
 
       <div className="sidebar-buttons">
-        <button
-          className={`sidebar-button ${activeSection === 'notifications' ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-          onClick={() => onSelect?.('notifications')}
-          title="NOTIFICATION"
-        >
-          <span className="sidebar-icon"><Bell size={18} /></span>
-          <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>NOTIFICATION</span>
-          {unreadCount > 0 && <span className="pill badge-red">{unreadCount}</span>}
-        </button>
-
         {coreSections.map((section) => (
           <button
             key={section}

@@ -1,7 +1,7 @@
 .admin-sidebar {
   background: #fff;
   border-radius: 0;
-  padding: 18px;
+  padding: 14px;
   border-right: 1px solid #f1f1f1;
   box-shadow: none;
   width: 260px;
@@ -9,13 +9,24 @@
   left: 0;
   top: 0;
   height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
   z-index: 500;
   transition: width 0.25s ease, padding 0.25s ease;
 }
 
+.admin-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+
 .admin-sidebar.slide.closed {
   width: 72px;
-  padding: 12px 10px;
+  padding: 10px 6px;
 }
 
 .admin-sidebar .sidebar-top {
@@ -128,9 +139,9 @@
   gap: 8px;
   width: 100%;
   text-align: left;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  border-radius: 10px;
+  padding: 7px 9px;
+  margin-bottom: 5px;
+  border-radius: 7px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--text);
@@ -152,7 +163,7 @@
 
 .admin-sidebar .sidebar-button.compact {
   justify-content: center;
-  padding: 10px;
+  padding: 6px;
 }
 
 .admin-sidebar .sidebar-label.hidden {
@@ -184,8 +195,8 @@
 }
 
 .admin-sidebar .sidebar-button.sub {
-  padding: 8px 10px;
-  border-radius: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
 }
 
 .admin-sidebar .sidebar-sub.open {
@@ -228,8 +239,13 @@
 }
 
 .admin-sidebar .sidebar-profile-wrapper {
-  margin-top: auto;
-  position: relative;
+  position: sticky;
+  bottom: 0;
+  margin-top: 12px;
+  padding-top: 10px;
+  background: linear-gradient(180deg, transparent 0%, #fff 30%);
+  display: flex;
+  justify-content: center;
 }
 
 .admin-sidebar .sidebar-profile {
@@ -247,6 +263,11 @@
 .admin-sidebar .sidebar-profile.compact {
   justify-content: center;
   padding: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #e8ecff;
+  border: none;
 }
 
 .admin-sidebar .avatar-circle {
