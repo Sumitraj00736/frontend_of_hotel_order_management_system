@@ -685,6 +685,14 @@ a:visited {
 .menu-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
 .menu-thumb { width: 100%; height: 100px; object-fit: cover; border-radius: 10px; }
 
+.guest-page { display: flex; flex-direction: column; gap: 16px; }
+.guest-hero { background: #fff; border: 1px solid #f1f1f1; border-radius: 14px; padding: 16px; box-shadow: 0 12px 28px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.guest-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.guest-body { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: start; }
+.menu-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.guest-form { position: sticky; top: 12px; }
+@media (max-width: 960px) { .guest-body { grid-template-columns: 1fr; } }
+
 
 .meta-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
 

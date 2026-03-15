@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
 import WaiterApp from './pages/WaiterApp.jsx';
 import KitchenDashboard from './pages/KitchenDashboard.jsx';
+import GuestTablePage from './pages/GuestTablePage.jsx';
 import { getCurrentUser } from './api/session.js';
 
 const ProtectedRoute = ({ children, roles }) => {
@@ -17,6 +18,7 @@ const App = () => (
   <Routes>
     <Route path="/" element={<Navigate to="/login" />} />
     <Route path="/login" element={<LoginPage />} />
+    <Route path="/guest/:tableId" element={<GuestTablePage />} />
     <Route
       path="/admin"
       element={
