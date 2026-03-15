@@ -13,13 +13,14 @@ import {
   Line,
   Legend
 } from 'recharts';
-import { TrendingUp, PieChart as PieIcon, Users as UsersIcon, Utensils, Wallet, Activity } from 'lucide-react';
+import { TrendingUp, PieChart as PieIcon, Users as UsersIcon, Utensils, Wallet, Activity, BarChart3 } from 'lucide-react';
 import AdminPromotionTimeline from './AdminPromotionTimeline.jsx';
 
 const TAB_OPTIONS = [
   { value: 'company', label: 'Company' },
   { value: 'waiter', label: 'Waiter' },
-  { value: 'kitchen', label: 'Kitchen' }
+  { value: 'kitchen', label: 'Kitchen' },
+  { value: 'stock', label: 'Stock' }
 ];
 // Cool palette (no gray/orange): blue, green, purple, teal, light blue
 const CHART_COLORS = ['#2563eb', '#10b981', '#a855f7', '#14b8a6', '#0ea5e9'];
@@ -54,7 +55,7 @@ const ChartCard = ({ title, icon, children }) => (
   </div>
 );
 
-const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser, promotionList, view = 'company', onChangeView }) => {
+const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser, promotionList, view = 'company', onChangeView, stock }) => {
   const [selectedWaiterId, setSelectedWaiterId] = React.useState('');
   const [selectedKitchenId, setSelectedKitchenId] = React.useState('');
   const [trendRange, setTrendRange] = React.useState('month6');
@@ -88,6 +89,7 @@ const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser
   }, [analytics, selectedKitchenId, trendRange]);
 
   const frequentItems = analytics?.frequentItems || [];
+  const stockData = stock || {};
 
   const topWaiter = waiterRanks[0];
   const topKitchen = kitchenRanks[0];
@@ -316,6 +318,81 @@ const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser
                   <Line type="monotone" dataKey="orders" stroke={CHART_COLORS[1]} strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {view === 'stock' && (
+        <div className="reports-grid">
+          <ChartCard title="Top Consumers" icon={<BarChart3 size={16} />}>
+            <ResponsiveContainer>
+              <BarChart data={(stockData.topConsumers || []).map((i) => ({ name: i.name || 'Ingredient', qty: i.totalConsumed }))}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="qty" fill={CHART_COLORS[0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          <div className="stat-card">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h6 className="mb-0">Low Stock</h6>
+              <span className="pill-amber pill">Count: {stockData.lowStock?.length || 0}</span>
+            </div>
+            <div className="scrollable-tight">
+              <ul className="list-group">
+                {(stockData.lowStock || []).map((i) => (
+                  <li key={i._id} className="list-group-item d-flex justify-content-between">
+                    <span>{i.name} ({i.unit})</span>
+                    <span className="text-muted tiny-text">{i.currentStock}/{i.reorderLevel}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="stat-card span-2">
+            <h6 className="mb-2">Usage vs Restock</h6>
+            <div className="scrollable-tight">
+              <table className="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Consumed</th>
+                    <th>Restocked</th>
+                    <th>Stock</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(stockData.byIngredient || []).map((i) => (
+                    <tr key={i.ingredientId}>
+                      <td>{i.name}</td>
+                      <td>{i.totalConsumed || 0}</td>
+                      <td>{i.totalRestocked || 0}</td>
+                      <td>{i.currentStock ?? '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="stat-card span-2">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h6 className="mb-0">Restock History</h6>
+              <span className="pill-neutral">Last 100</span>
+            </div>
+            <div className="scrollable-tight">
+              <ul className="list-group">
+                {(stockData.restocks || []).map((r) => (
+                  <li key={r._id} className="list-group-item">
+                    <div className="fw-semibold">{r.ingredient?.name || 'Ingredient'} +{r.delta}</div>
+                    <div className="tiny-text text-muted">{new Date(r.createdAt).toLocaleString()} · {r.createdBy?.name || 'N/A'}</div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>

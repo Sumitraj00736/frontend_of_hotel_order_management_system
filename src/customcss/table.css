@@ -1,0 +1,77 @@
+.table-chip {
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 12px;
+  padding: 6px 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.table-chip.active {
+  background: #ecfdf3;
+  border-color: #bbf7d0;
+  color: #166534;
+  font-weight: 600;
+}
+
+.table-chip.occupied {
+  background: #fff7f7;
+  border-color: #fecdd3;
+  color: #b91c1c;
+  cursor: not-allowed;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+.table-actions .btn { min-width: 64px; }
+
+.table-grid {
+  display: grid;
+  gap: 10px;
+}
+.table-grid-row {
+  display: grid;
+  gap: 10px;
+}
+.table-grid-cell {
+  min-height: 120px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+.table-grid-cell.occupied-cell {
+  border-style: solid;
+}
+
+.table-grid-wrapper {
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+@media (max-width: 640px) {
+  .table-grid-row {
+    gap: 8px;
+  }
+  .table-grid-cell {
+    min-height: 100px;
+    padding: 8px;
+  }
+  .table-chip {
+    padding: 8px;
+  }
+  .table-actions .btn {
+    min-width: 58px;
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}

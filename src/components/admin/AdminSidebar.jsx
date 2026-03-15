@@ -39,6 +39,7 @@ const AdminSidebar = ({ activeSection, onSelect, isOpen = true }) => {
             <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>{section.toUpperCase()}</span>
           </button>
         ))}
+        <div className="sidebar-separator" />
 
         {/* Inventory with sub-menu */}
         <div>
@@ -105,6 +106,12 @@ const AdminSidebar = ({ activeSection, onSelect, isOpen = true }) => {
                 onClick={() => onSelect('reports:kitchen')}
               >
                 Kitchen
+              </button>
+              <button
+                className={`sidebar-button sub ${activeSection === 'reports:stock' ? 'active' : ''}`}
+                onClick={() => onSelect('reports:stock')}
+              >
+                Stock
               </button>
             </div>
           )}

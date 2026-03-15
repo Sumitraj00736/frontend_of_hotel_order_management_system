@@ -24,6 +24,7 @@ const AdminDashboard = () => {
   const [report, setReport] = useState(null);
   const [overview, setOverview] = useState({ activeByWaiter: [] });
   const [analytics, setAnalytics] = useState(null);
+  const [stockReport, setStockReport] = useState(null);
   const [history, setHistory] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState({});
   const [notifications, setNotifications] = useState([]);
@@ -49,7 +50,7 @@ const AdminDashboard = () => {
   const [menuForm, setMenuForm] = useState({ name: '', category: '', price: '', imageUrl: '' });
 
   const loadAll = async () => {
-    const [u, t, m, o, r, h, ov, an] = await Promise.all([
+    const [u, t, m, o, r, h, ov, an, st] = await Promise.all([
       api.get('/api/users'),
       api.get('/api/tables'),
       api.get('/api/menus'),
@@ -57,7 +58,8 @@ const AdminDashboard = () => {
       api.get('/api/reports/summary'),
       api.get('/api/reports/history'),
       api.get('/api/reports/overview'),
-      api.get('/api/reports/analytics')
+      api.get('/api/reports/analytics'),
+      api.get('/api/reports/stock')
     ]);
     setUsers(u.data);
     setTables(t.data);
@@ -67,6 +69,7 @@ const AdminDashboard = () => {
     setHistory(h.data);
     setOverview(ov.data);
     setAnalytics(an.data);
+    setStockReport(st.data);
   };
 
   const loadOverviewOnly = async () => {
@@ -241,6 +244,11 @@ const AdminDashboard = () => {
     loadAll();
   };
 
+  const deleteTable = async (tableId) => {
+    await api.delete(`/api/tables/${tableId}`);
+    loadAll();
+  };
+
   const createMenu = async () => {
     try {
       const price = Number(menuForm.price);
@@ -384,6 +392,7 @@ const AdminDashboard = () => {
               onCreateTable={createTable}
               onFreeTable={freeTable}
               onUpdateTable={updateTable}
+              onDeleteTable={deleteTable}
             />
           )}
           {activeSection === 'menus' && (
@@ -413,6 +422,7 @@ const AdminDashboard = () => {
               onLoadPromotions={loadPromotions}
               promotionUser={selectedPromotionUser}
               promotionList={promotions}
+              stock={stockReport}
             />
           )}
           {activeSection === 'history' && <AdminHistory history={history} />}

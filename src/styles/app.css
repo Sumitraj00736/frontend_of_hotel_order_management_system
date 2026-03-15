@@ -198,27 +198,6 @@ a:visited {
   padding-right: 6px;
 }
 
-.table-chip {
-  border: 1px solid var(--border);
-  color: var(--text);
-  background: #fff;
-  border-radius: 12px;
-  padding: 6px 10px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
-}
-
-.table-chip.active {
-  background: var(--accent);
-  color: #1f2937;
-  font-weight: bold;
-}
-
-.table-chip.occupied {
-  background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: #b91c1c;
-  cursor: not-allowed;
-}
 
 .stat-card {
   background: #fff;
@@ -376,27 +355,6 @@ a:visited {
 .recharts-default-tooltip {
   fill: var(--text);
   color: var(--text);
-}
-.table-grid {
-  display: grid;
-  grid-template-rows: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-}
-.table-grid-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-}
-.table-grid-cell {
-  min-height: 120px;
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-  padding: 10px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.02);
-}
-.table-grid-cell.occupied-cell {
-  border-style: solid;
 }
 .tiny {
   font-size: 11px;
@@ -765,6 +723,7 @@ a:visited {
 .sidebar-icon { display: inline-flex; align-items: center; justify-content: center; }
 
 .sidebar-buttons { display: flex; flex-direction: column; gap: 6px; }
+.sidebar-separator { height: 1px; background: var(--border); margin: 6px 2px; }
 
 .sidebar-sub { padding-left: 28px; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.25s ease, opacity 0.25s ease; }
 .sidebar-button.sub { padding: 8px 10px; border-radius: 8px; }

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../../api/client.js';
 import IngredientModal from './IngredientModal.jsx';
+import CustomDropdown from '../ui/CustomDropdown.jsx';
 
 const AdminInventory = ({ menus, ingredients, transactions, reload, externalView }) => {
   const [view, setView] = useState(externalView || 'ingredients');
@@ -8,6 +9,7 @@ const AdminInventory = ({ menus, ingredients, transactions, reload, externalView
   const [recipeMenu, setRecipeMenu] = useState('');
   const [recipeItems, setRecipeItems] = useState([]);
   const [recipes, setRecipes] = useState([]);
+  const [showRecipeModal, setShowRecipeModal] = useState(false);
   const [localIngredients, setLocalIngredients] = useState(ingredients || []);
   const [localTransactions, setLocalTransactions] = useState(transactions || []);
   const [showIngredientModal, setShowIngredientModal] = useState(false);
@@ -88,6 +90,7 @@ const AdminInventory = ({ menus, ingredients, transactions, reload, externalView
         const res = await api.get('/api/inventory/recipes');
         setRecipes(res.data);
       }
+      setShowRecipeModal(false);
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to save recipe');
     }
@@ -118,11 +121,18 @@ const AdminInventory = ({ menus, ingredients, transactions, reload, externalView
     <div className="content">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Inventory</h5>
-        <select className="form-select w-auto" value={view} onChange={(e) => setView(e.target.value)}>
-          <option value="ingredients">Ingredients</option>
-          <option value="recipes">Recipes</option>
-          <option value="transactions">Stock Transactions</option>
-        </select>
+        <div style={{ width: 220 }}>
+          <CustomDropdown
+            value={view}
+            onChange={(e) => setView(e.target.value)}
+            options={[
+              { value: 'ingredients', label: 'Ingredients' },
+              { value: 'recipes', label: 'Recipes' },
+              { value: 'transactions', label: 'Stock Transactions' }
+            ]}
+            placeholder="Select view"
+          />
+        </div>
       </div>
 
       {view === 'ingredients' && (
@@ -179,35 +189,57 @@ const AdminInventory = ({ menus, ingredients, transactions, reload, externalView
       )}
 
       {view === 'recipes' && (
-        <div className="content grid-3">
-          <div className="card glass-card">
-            <h5 className="mb-2">Recipe (map ingredients to menu)</h5>
-            <div className="mb-2">
-              <label className="form-label">Menu Item</label>
-              <select className="form-select" value={recipeMenu} onChange={(e) => setRecipeMenu(e.target.value)}>
-                <option value="">Select menu</option>
-                {menus.map((m) => (
-                  <option key={m._id} value={m._id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
+        <div className="card glass-card full-screen-card">
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h5 className="mb-0">Recipes</h5>
+            <button className="btn btn-primary btn-sm" onClick={() => setShowRecipeModal(true)}>+ Add Recipe</button>
+          </div>
+          <div className="scrollable">
+            <ul className="list-group">
+              {recipes.map((r) => (
+                <li key={r._id} className="list-group-item">
+                  <div className="fw-semibold">{r.menuItem?.name || 'Menu'}</div>
+                  <div className="tiny-text text-muted mb-1">{r.menuItem?.category}</div>
+                  <div className="tiny-text">
+                    {r.ingredients
+                      .map((ing) => `${ing.ingredient?.name || ''} (${ing.quantity}${ing.ingredient?.unit || ''})`)
+                      .join(', ')}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {showRecipeModal && (
+        <div className="modal-overlay fullscreen" onClick={() => setShowRecipeModal(false)}>
+          <div className="modal-panel fullscreen small animate-in" onClick={(e) => e.stopPropagation()}>
+            <div className="d-flex justify-content-between align-items-center mb-3 modal-header-line">
+              <div>
+                <div className="eyebrow">Add Recipe</div>
+                <h5 className="mb-0">Map ingredients to menu</h5>
+              </div>
+              <button className="btn btn-outline-light" onClick={() => setShowRecipeModal(false)}>Close</button>
             </div>
             <div className="mb-2">
+              <label className="form-label">Menu Item</label>
+              <CustomDropdown
+                value={recipeMenu}
+                onChange={(e) => setRecipeMenu(e.target.value)}
+                options={menus.map((m) => ({ value: m._id, label: m.name }))}
+                placeholder="Select menu"
+              />
+            </div>
+            <div className="mb-3">
               {recipeItems.map((row, idx) => (
                 <div key={idx} className="d-flex gap-2 mb-2">
-                  <select
-                    className="form-select"
+                  <CustomDropdown
                     value={row.ingredient}
                     onChange={(e) => updateRecipeRow(idx, 'ingredient', e.target.value)}
-                  >
-                    <option value="">Ingredient</option>
-                    {ingredients.map((ing) => (
-                      <option key={ing._id} value={ing._id}>
-                        {ing.name} ({ing.unit})
-                      </option>
-                    ))}
-                  </select>
+                    options={ingredients.map((ing) => ({ value: ing._id, label: `${ing.name} (${ing.unit})` }))}
+                    placeholder="Ingredient"
+                  />
                   <input
                     className="form-control"
                     type="number"
@@ -221,27 +253,9 @@ const AdminInventory = ({ menus, ingredients, transactions, reload, externalView
                 + Add ingredient
               </button>
             </div>
-            <button className="btn btn-primary" onClick={saveRecipe}>
-              Save Recipe
-            </button>
-          </div>
-
-          <div className="card glass-card">
-            <h5 className="mb-2">All Recipes</h5>
-            <div className="scrollable-tight">
-              <ul className="list-group">
-                {recipes.map((r) => (
-                  <li key={r._id} className="list-group-item">
-                    <div className="fw-semibold">{r.menuItem?.name || 'Menu'}</div>
-                    <div className="tiny-text text-muted mb-1">{r.menuItem?.category}</div>
-                    <div className="tiny-text">
-                      {r.ingredients
-                        .map((ing) => `${ing.ingredient?.name || ''} (${ing.quantity}${ing.ingredient?.unit || ''})`)
-                        .join(', ')}
-                    </div>
-                  </li>
-                ))}
-              </ul>
+            <div className="d-flex justify-content-end gap-2">
+              <button className="btn btn-outline-light" onClick={() => setShowRecipeModal(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={saveRecipe}>Save Recipe</button>
             </div>
           </div>
         </div>
