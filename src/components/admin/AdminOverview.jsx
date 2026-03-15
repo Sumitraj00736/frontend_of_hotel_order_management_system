@@ -1,123 +1,204 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { Home, Wallet, ShoppingCart, Calendar, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import '../../common/css/admin/dashboard.css';
 
-const Stat = ({ label, value, sub, accent = 'primary' }) => (
-  <div className={`stat-tile accent-${accent}`}>
-    <div className="text-muted tiny-text">{label}</div>
-    <div className="fs-4 fw-semibold">{value}</div>
-    {sub && <div className="text-muted tiny-text">{sub}</div>}
+const tabs = [
+  { id: 'overview', label: 'Overview', icon: <Home size={18} /> },
+  { id: 'finance', label: 'Finance', icon: <Wallet size={18} /> },
+  { id: 'order', label: 'Order', icon: <ShoppingCart size={18} /> }
+];
+
+const OverviewCards = ({ report }) => {
+  const items = [
+    { title: 'Sales', value: report?.totalSales || 0, tone: 'blue', note: 'No changes!' },
+    { title: 'Purchase', value: report?.purchase || 0, tone: 'amber', note: 'No changes!' },
+    { title: 'Income', value: report?.income || 0, tone: 'green', note: 'No changes!' },
+    { title: 'Expenses', value: report?.expenses || 0, tone: 'red', note: 'No changes!' },
+    { title: 'Payment In', value: report?.paymentIn || 0, tone: 'teal', note: 'No changes!' },
+    { title: 'Payment Out', value: report?.paymentOut || 0, tone: 'purple', note: 'No changes!' }
+  ];
+  return (
+    <div className="dash-kpi-grid">
+      {items.map((item) => (
+        <div key={item.title} className={`dash-kpi tone-${item.tone}`}>
+          <div className="dash-kpi-title">{item.title}</div>
+          <div className="dash-kpi-value">Rs {item.value}</div>
+          <div className="dash-kpi-note">{item.note}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const FinanceCards = OverviewCards;
+
+const OrderCards = ({ overview }) => {
+  const items = [
+    { title: 'Sales', value: overview?.orderSales || 0, tone: 'green', note: 'No changes!' },
+    { title: 'Order Served', value: overview?.served || 0, tone: 'amber', note: 'No changes!' },
+    { title: 'KOT Taken', value: overview?.kot || 0, tone: 'blue', note: 'No changes!' },
+    { title: 'Avg Order Amount', value: overview?.avgOrder || 0, tone: 'pink', note: 'No changes!' }
+  ];
+  return (
+    <div className="dash-kpi-grid">
+      {items.map((item) => (
+        <div key={item.title} className={`dash-kpi tone-${item.tone}`}>
+          <div className="dash-kpi-title">{item.title}</div>
+          <div className="dash-kpi-value">{item.title === 'Sales' ? 'Rs ' : ''}{item.value}</div>
+          <div className="dash-kpi-note">{item.note}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const GradientSalesCard = ({ totalSales = 0, breakdown }) => (
+  <div className="panel gradient-panel">
+    <div className="panel-heading">
+      <div>
+        <div className="panel-eyebrow">Sales</div>
+        <div className="panel-value">Rs {totalSales}</div>
+        <div className="panel-sub">Total Sales</div>
+      </div>
+      <div className="chip danger"><ArrowDownRight size={14} /> No changes!</div>
+    </div>
+    <div className="mini-chart" aria-hidden />
+    <div className="breakdown">
+      {breakdown.map((row) => (
+        <div key={row.label} className="breakdown-row">
+          <span className="dot" style={{ background: row.color }} />
+          <span>{row.label}</span>
+          <span className="fw-600">Rs {row.value}</span>
+        </div>
+      ))}
+    </div>
   </div>
 );
 
-const Bar = ({ label, value, max }) => (
-  <div className="d-flex flex-column gap-1">
-    <div className="d-flex justify-content-between tiny-text">
-      <span>{label}</span>
-      <span>{value}</span>
+const SalesOverviewChart = () => (
+  <div className="panel">
+    <div className="panel-heading">
+      <div>
+        <div className="panel-title">Sales Overview</div>
+        <div className="panel-sub">Here is a live overview of your sales</div>
+      </div>
+      <button className="chip ghost"><Calendar size={16} /> Today</button>
     </div>
-    <div className="bar-track">
-      <div className="bar-fill" style={{ width: `${max === 0 ? 0 : Math.min(100, (value / max) * 100)}%` }} />
+    <div className="chart-placeholder">Line chart placeholder</div>
+  </div>
+);
+
+const SalesSummary = ({ paid = 0, unpaid = 0 }) => (
+  <div className="panel">
+    <div className="panel-heading">
+      <div className="panel-title">Sales Summary</div>
+      <div className="panel-sub">Real-time sales tracking.</div>
+    </div>
+    <div className="summary-body">
+      <div className="text-muted tiny-text mb-2">Total Sales</div>
+      <div className="panel-value mb-3">Rs {paid + unpaid}</div>
+      <div className="summary-row"><span className="dot blue" /> Paid <span className="fw-600">Rs {paid}</span></div>
+      <div className="summary-row"><span className="dot red" /> Unpaid Sales <span className="fw-600">Rs {unpaid}</span></div>
     </div>
   </div>
 );
 
-const Pill = ({ label, value, tone }) => (
-  <div className={`pill pill-${tone || 'neutral'}`}>
-    <span className="tiny-text text-uppercase">{label}</span>
-    <strong>{value}</strong>
+const OrderInsight = () => (
+  <div className="panel">
+    <div className="panel-heading">
+      <div>
+        <div className="panel-title">Order Insight</div>
+        <div className="panel-sub">Here is a live overview of your orders.</div>
+      </div>
+      <div className="chip ghost"><Calendar size={16} /> Today</div>
+    </div>
+    <div className="chart-placeholder">Orders chart placeholder</div>
+  </div>
+);
+
+const LiveOrderStatus = ({ completed = 0, pending = 0, cancelled = 0 }) => (
+  <div className="panel">
+    <div className="panel-heading">
+      <div className="panel-title">Live Order Status</div>
+      <div className="panel-sub">Here is a live overview of your orders status.</div>
+    </div>
+    <div className="summary-body center">
+      <div className="panel-value">{completed + pending + cancelled}</div>
+      <div className="panel-sub">Orders</div>
+      <div className="summary-row"><span className="dot green" /> Completed Order <span className="fw-600">{completed}</span></div>
+      <div className="summary-row"><span className="dot amber" /> Pending Order <span className="fw-600">{pending}</span></div>
+      <div className="summary-row"><span className="dot red" /> Cancelled Order <span className="fw-600">{cancelled}</span></div>
+    </div>
   </div>
 );
 
 const AdminOverview = ({ report, overview }) => {
-  const activeOrders = overview?.activeOrders || 0;
-  const activeOrderList = overview?.activeByWaiter?.flatMap((w) => w.tables) || [];
-  const topWaiter = overview?.topWaiter;
-  const topKitchen = overview?.topKitchen;
-  const activeCount = activeOrders;
-  const unpaidCount = overview?.unpaidOrders || 0;
-  const totalOrders = report?.totalOrders || 0;
-  const totalSales = report?.totalSales || 0;
-  const avgOrder = totalOrders ? (totalSales / totalOrders).toFixed(2) : '0.00';
-  const activeWaiters = overview?.activeByWaiter || [];
-  const kitchenLoads = overview?.kitchenLoads || [];
-  const statusCounts = overview?.statusCounts || {};
-  const paidCount = statusCounts.paid || 0;
-  const pending = statusCounts.pending || 0;
-  const preparing =
-    statusCounts.preparing ??
-    activeOrderList.filter((o) => o.status === 'preparing').length;
-  const ready =
-    statusCounts.ready ??
-    activeOrderList.filter((o) => o.status === 'ready').length;
-  const served =
-    statusCounts.served ??
-    activeOrderList.filter((o) => o.status === 'served').length;
+  const [tab, setTab] = useState('overview');
 
-  const maxTables = Math.max(1, ...(overview?.activeByWaiter || []).map((w) => w.tables.length));
-  const maxKitchen = Math.max(1, ...kitchenLoads.map((k) => k.orders));
+  const paid = report?.paid || 0;
+  const unpaid = report?.unpaid || 0;
+  const totalSales = report?.totalSales || 0;
+
+  const breakdown = useMemo(
+    () => [
+      { label: 'Dine In Service', value: report?.dineIn || 0, color: '#4f46e5' },
+      { label: 'Reservation Services', value: report?.reservation || 0, color: '#9333ea' },
+      { label: 'Delivery Services', value: report?.delivery || 0, color: '#22c55e' },
+      { label: 'Takeaway Services', value: report?.takeaway || 0, color: '#f97316' }
+    ],
+    [report]
+  );
 
   return (
-    <div className="card glass-card full-width-card">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h5 className="mb-0">Overview</h5>
-          <small className="text-muted">Live snapshot of floor + kitchen</small>
+    <div className="dashboard-screen">
+      <div className="dash-header">
+        <div className="dash-tabs">
+          {tabs.map((t) => (
+            <button key={t.id} className={`dash-tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
+              {t.icon}
+              {t.label}
+            </button>
+          ))}
         </div>
-        <div className="d-flex gap-2 flex-wrap">
-          <Pill label="Active" value={activeCount} tone="blue" />
-          <Pill label="Unpaid" value={unpaidCount} tone="amber" />
-          <Pill label="Paid" value={paidCount} tone="green" />
-        </div>
-      </div>
-
-      <div className="overview-grid horizontal">
-        <Stat label="Total Orders" value={totalOrders} sub="All time" accent="blue" />
-        <Stat label="Total Sales" value={`NPR ${totalSales.toFixed(2)}`} sub="All time" accent="green" />
-        <Stat label="Average Order" value={`NPR ${avgOrder}`} sub="Sales / Orders" accent="purple" />
-        <Stat label="Preparing" value={preparing} sub="Kitchen in progress" accent="orange" />
-        <div className="stat-tile ready-block">
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <div className="text-muted tiny-text">Ready</div>
-              <div className="fs-4 fw-semibold">{ready}</div>
-            </div>
-            <div>
-              <div className="text-muted tiny-text">Served</div>
-              <div className="fs-4 fw-semibold">{served}</div>
-            </div>
-          </div>
-          <div className="bar-track mt-2">
-            <div className="bar-fill" style={{ width: `${Math.min(100, (ready / Math.max(1, ready + served)) * 100)}%` }} />
-          </div>
+        <div className="dash-filters">
+          <button className="chip ghost"><Calendar size={16} /> Today</button>
+          <button className="chip ghost">Daybook: All</button>
         </div>
       </div>
 
-      <div className="load-row">
-        <div className="soft-card load-card">
-          <div className="d-flex justify-content-between align-items-center mb-2">
-            <h6 className="mb-0">Waiter Load</h6>
-            {topWaiter && <span className="pill">Top: {topWaiter.waiter}</span>}
+      {tab === 'overview' && (
+        <>
+          <OverviewCards report={report} />
+          <div className="panel-grid two-col">
+            <GradientSalesCard totalSales={totalSales} breakdown={breakdown} />
+            <SalesOverviewChart />
           </div>
-          {activeWaiters.length === 0 && <div className="text-muted small">No active orders.</div>}
-          <div className="d-flex flex-column gap-2">
-            {activeWaiters.map((entry) => (
-              <Bar key={entry.waiter} label={entry.waiter} value={entry.tables.length} max={maxTables} />
-            ))}
-          </div>
-        </div>
+        </>
+      )}
 
-        <div className="soft-card load-card">
-          <div className="d-flex justify-content-between align-items-center mb-2">
-            <h6 className="mb-0">Kitchen Load</h6>
-            {topKitchen && <span className="pill">Top: {topKitchen.name}</span>}
+      {tab === 'finance' && (
+        <>
+          <FinanceCards report={report} />
+          <div className="panel-grid two-col">
+            <SalesOverviewChart />
+            <SalesSummary paid={paid} unpaid={unpaid} />
           </div>
-          {kitchenLoads.length === 0 && <div className="text-muted small">No active kitchen assignments.</div>}
-          <div className="d-flex flex-column gap-2">
-            {kitchenLoads.map((k) => (
-              <Bar key={k.name} label={k.name} value={k.orders} max={maxKitchen} />
-            ))}
+        </>
+      )}
+
+      {tab === 'order' && (
+        <>
+          <OrderCards overview={overview} />
+          <div className="panel-grid two-col">
+            <OrderInsight />
+            <LiveOrderStatus
+              completed={overview?.completedOrders || 0}
+              pending={overview?.pendingOrders || 0}
+              cancelled={overview?.cancelledOrders || 0}
+            />
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

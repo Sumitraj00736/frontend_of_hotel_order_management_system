@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../api/client.js';
-import HeaderBar from '../components/HeaderBar.jsx';
-import NotificationPanel from '../components/NotificationPanel.jsx';
 import NotificationToasts from '../components/NotificationToasts.jsx';
+import NotificationPage from '../components/admin/NotificationPage.jsx';
 import { createSocket } from '../api/socket.js';
 import AdminSidebar from '../components/admin/AdminSidebar.jsx';
 import AdminOverview from '../components/admin/AdminOverview.jsx';
@@ -10,16 +9,26 @@ import AdminOrders from '../components/admin/AdminOrders.jsx';
 import AdminUsers from '../components/admin/AdminUsers.jsx';
 import AdminTables from '../components/admin/AdminTables.jsx';
 import AdminMenus from '../components/admin/AdminMenus.jsx';
+import AdminCategories from '../components/admin/AdminCategories.jsx';
+import AdminDishes from '../components/admin/AdminDishes.jsx';
+import AdminAddOns from '../components/admin/AdminAddOns.jsx';
+import AdminSubMenus from '../components/admin/AdminSubMenus.jsx';
+import AdminCombos from '../components/admin/AdminCombos.jsx';
 import AdminReports from '../components/admin/AdminReports.jsx';
 import AdminHistory from '../components/admin/AdminHistory.jsx';
 import AdminPromotionTimeline from '../components/admin/AdminPromotionTimeline.jsx';
 import AdminInventory from '../components/admin/AdminInventory.jsx';
+import '../common/css/admin/adminLayout.css';
 
 const AdminDashboard = () => {
-  const [activeSection, setActiveSection] = useState('overview');
+  const [activeSection, setActiveSection] = useState('dashboard');
   const [users, setUsers] = useState([]);
   const [tables, setTables] = useState([]);
   const [menus, setMenus] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [submenus, setSubmenus] = useState([]);
+  const [addons, setAddons] = useState([]);
+  const [combos, setCombos] = useState([]);
   const [orders, setOrders] = useState([]);
   const [report, setReport] = useState(null);
   const [overview, setOverview] = useState({ activeByWaiter: [] });
@@ -28,7 +37,6 @@ const AdminDashboard = () => {
   const [history, setHistory] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState({});
   const [notifications, setNotifications] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [selectedPromotionUser, setSelectedPromotionUser] = useState(null);
   const [promotions, setPromotions] = useState([]);
   const [ingredients, setIngredients] = useState([]);
@@ -50,7 +58,7 @@ const AdminDashboard = () => {
   const [menuForm, setMenuForm] = useState({ name: '', category: '', price: '', imageUrl: '' });
 
   const loadAll = async () => {
-    const [u, t, m, o, r, h, ov, an, st] = await Promise.all([
+    const [u, t, m, o, r, h, ov, an, st, cat, sub, add, combo] = await Promise.all([
       api.get('/api/users'),
       api.get('/api/tables'),
       api.get('/api/menus'),
@@ -59,7 +67,11 @@ const AdminDashboard = () => {
       api.get('/api/reports/history'),
       api.get('/api/reports/overview'),
       api.get('/api/reports/analytics'),
-      api.get('/api/reports/stock')
+      api.get('/api/reports/stock'),
+      api.get('/api/categories'),
+      api.get('/api/submenus'),
+      api.get('/api/addons'),
+      api.get('/api/combos')
     ]);
     setUsers(u.data);
     setTables(t.data);
@@ -70,6 +82,10 @@ const AdminDashboard = () => {
     setOverview(ov.data);
     setAnalytics(an.data);
     setStockReport(st.data);
+    setCategories(cat.data);
+    setSubmenus(sub.data);
+    setAddons(add.data);
+    setCombos(combo.data);
   };
 
   const loadOverviewOnly = async () => {
@@ -82,8 +98,10 @@ const AdminDashboard = () => {
     }
   };
 
-  const loadNotifications = async () => {
-    const res = await api.get('/api/notifications');
+  const [notificationFilters, setNotificationFilters] = useState({ category: 'activity' });
+
+  const loadNotifications = async (filters = notificationFilters) => {
+    const res = await api.get('/api/notifications', { params: filters });
     setNotifications(res.data);
   };
 
@@ -336,26 +354,33 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-shell">
-      <HeaderBar
-        title="Admin Control Center"
-        unreadCount={unreadCount}
-        onToggleNotifications={() => setShowNotifications((prev) => !prev)}
-        onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
-      />
-      {showNotifications && (
-        <div className="notification-drawer">
-          <NotificationPanel notifications={notifications} onMarkAll={markAllRead} />
-        </div>
-      )}
       <NotificationToasts notifications={notifications} />
 
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
-          <AdminSidebar activeSection={activeSection} onSelect={setActiveSection} isOpen={sidebarOpen} />
+          <AdminSidebar
+            activeSection={activeSection}
+            onSelect={setActiveSection}
+            isOpen={sidebarOpen}
+            onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+            unreadCount={unreadCount}
+          />
         </div>
 
         <div className="content">
-          {activeSection === 'overview' && <AdminOverview report={report} overview={overview} />}
+          {activeSection === 'dashboard' && <AdminOverview report={report} overview={overview} />}
+          {activeSection === 'notifications' && (
+            <NotificationPage
+              notifications={notifications}
+              filters={notificationFilters}
+              onFilterChange={(next) => {
+                const merged = { ...notificationFilters, ...next };
+                setNotificationFilters(merged);
+                loadNotifications(merged);
+              }}
+              onMarkAll={markAllRead}
+            />
+          )}
           {activeSection === 'orders' && (
             <AdminOrders
               orders={orders}
@@ -425,6 +450,55 @@ const AdminDashboard = () => {
               stock={stockReport}
             />
           )}
+          {activeSection.startsWith('menu') && (() => {
+            const view = activeSection.split(':')[1] || 'dishes';
+            if (view === 'categories') {
+              return (
+                <AdminCategories
+                  categories={categories}
+                  reload={loadAll}
+                  onCreate={async (payload) => { await api.post('/api/categories', payload); loadAll(); }}
+                  onUpdate={async (id, payload) => { await api.put(`/api/categories/${id}`, payload); loadAll(); }}
+                  onDelete={async (id) => { await api.delete(`/api/categories/${id}`); loadAll(); }}
+                />
+              );
+            }
+            if (view === 'addons') {
+              return (
+                <AdminAddOns
+                  addOns={addons}
+                  onRefresh={loadAll}
+                  onCreate={async (payload) => { await api.post('/api/addons', payload); loadAll(); }}
+                  onUpdate={async (id, payload) => { await api.put(`/api/addons/${id}`, payload); loadAll(); }}
+                  onDelete={async (id) => { await api.delete(`/api/addons/${id}`); loadAll(); }}
+                />
+              );
+            }
+            if (view === 'submenus') {
+              return (
+                <AdminSubMenus
+                  submenus={submenus}
+                  onCreate={async (payload) => { await api.post('/api/submenus', payload); loadAll(); }}
+                  onUpdate={async (id, payload) => { await api.put(`/api/submenus/${id}`, payload); loadAll(); }}
+                  onDelete={async (id) => { await api.delete(`/api/submenus/${id}`); loadAll(); }}
+                />
+              );
+            }
+            if (view === 'combos') {
+              return (
+                <AdminCombos combos={combos} onRefresh={loadAll} />
+              );
+            }
+            return (
+              <AdminDishes
+                dishes={menus}
+                categories={categories}
+                submenus={submenus}
+                onToggle={async (dish) => { await api.put(`/api/menus/${dish._id}`, { isAvailable: !dish.isAvailable }); loadAll(); }}
+                onRefresh={loadAll}
+              />
+            );
+          })()}
           {activeSection === 'history' && <AdminHistory history={history} />}
         </div>
       </div>

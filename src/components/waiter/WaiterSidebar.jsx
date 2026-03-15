@@ -1,7 +1,8 @@
 import React from 'react';
+import '../../common/css/waiter/waiterSidebar.css';
 
 const WaiterSidebar = ({ tables, selectedTable, onSelectTable, onFreeTable }) => (
-  <div className="sidebar">
+  <div className="sidebar waiter-sidebar">
     <h5 className="mb-3">Tables</h5>
     <div className="d-flex flex-wrap gap-2">
       {tables.map((table) => (

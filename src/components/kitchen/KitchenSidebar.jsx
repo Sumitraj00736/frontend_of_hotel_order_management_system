@@ -1,7 +1,8 @@
 import React from 'react';
+import '../../common/css/kitchen/kitchenSidebar.css';
 
 const KitchenSidebar = ({ statusFilter, onChange }) => (
-  <div className="sidebar">
+  <div className="sidebar kitchen-sidebar">
     <h5 className="mb-3">Filters</h5>
     <select className="form-select" value={statusFilter} onChange={(e) => onChange(e.target.value)}>
       <option value="">All</option>

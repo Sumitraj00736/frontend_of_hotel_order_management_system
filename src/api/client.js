@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getToken } from './session.js';
+import { getToken, getBranchId } from './session.js';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://hotel-order-management-system.onrender.com'
@@ -7,8 +7,12 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = getToken();
+  const branchId = getBranchId();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  if (branchId) {
+    config.headers['x-branch-id'] = branchId;
   }
   return config;
 });

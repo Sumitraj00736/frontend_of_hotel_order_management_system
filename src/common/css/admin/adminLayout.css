@@ -1,0 +1,41 @@
+.admin-shell {
+  min-height: 100vh;
+  padding: 20px 28px 28px 0;
+}
+
+.admin-body {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 28px;
+  min-height: calc(100vh - 140px);
+  position: relative;
+  margin-top: 0;
+}
+
+.sidebar-placeholder {
+  width: 280px;
+  transition: width 0.25s ease;
+}
+
+.sidebar-placeholder.closed {
+  width: 72px;
+}
+
+.admin-body.sidebar-collapsed {
+  grid-template-columns: 90px minmax(0, 1fr);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 992px) {
+  .admin-body {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .content {
+    overflow: visible;
+  }
+}
