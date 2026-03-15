@@ -69,6 +69,16 @@ const AdminDashboard = () => {
     setAnalytics(an.data);
   };
 
+  const loadOverviewOnly = async () => {
+    try {
+      const [ov, r] = await Promise.all([api.get('/api/reports/overview'), api.get('/api/reports/summary')]);
+      setOverview(ov.data);
+      setReport(r.data);
+    } catch (e) {
+      // ignore transient errors
+    }
+  };
+
   const loadNotifications = async () => {
     const res = await api.get('/api/notifications');
     setNotifications(res.data);
@@ -126,14 +136,17 @@ const AdminDashboard = () => {
 
     socket.on('orders:new', (order) => {
       setOrders((prev) => [order, ...prev]);
+      loadOverviewOnly();
     });
 
     socket.on('orders:update', (order) => {
       setOrders((prev) => prev.map((o) => (o._id === order._id ? order : o)));
+      loadOverviewOnly();
     });
 
     socket.on('tables:update', (table) => {
       setTables((prev) => prev.map((t) => (t._id === table._id ? table : t)));
+      loadOverviewOnly();
     });
 
     return () => socket.disconnect();

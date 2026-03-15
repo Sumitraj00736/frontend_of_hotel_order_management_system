@@ -581,6 +581,7 @@ a:visited {
 .stat-tile.accent-orange { border-color: rgba(249,115,22,0.2); box-shadow: 0 10px 22px rgba(249,115,22,0.08); }
 .stat-tile.accent-teal { border-color: rgba(13,148,136,0.2); box-shadow: 0 10px 22px rgba(13,148,136,0.08); }
 .stat-tile:hover { transform: translateY(-3px); box-shadow: 0 14px 28px rgba(0,0,0,0.08); }
+.ready-block { display: flex; flex-direction: column; gap: 8px; }
 
 .bar-track { height: 8px; background: #f3f4f6; border-radius: 999px; overflow: hidden; }
 

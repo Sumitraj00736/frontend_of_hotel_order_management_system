@@ -28,9 +28,11 @@ const Pill = ({ label, value, tone }) => (
 );
 
 const AdminOverview = ({ report, overview }) => {
+  const activeOrders = overview?.activeOrders || 0;
+  const activeOrderList = overview?.activeByWaiter?.flatMap((w) => w.tables) || [];
   const topWaiter = overview?.topWaiter;
   const topKitchen = overview?.topKitchen;
-  const activeCount = overview?.activeOrders || 0;
+  const activeCount = activeOrders;
   const unpaidCount = overview?.unpaidOrders || 0;
   const totalOrders = report?.totalOrders || 0;
   const totalSales = report?.totalSales || 0;
@@ -40,9 +42,15 @@ const AdminOverview = ({ report, overview }) => {
   const statusCounts = overview?.statusCounts || {};
   const paidCount = statusCounts.paid || 0;
   const pending = statusCounts.pending || 0;
-  const preparing = statusCounts.preparing || 0;
-  const ready = statusCounts.ready || 0;
-  const served = statusCounts.served || 0;
+  const preparing =
+    statusCounts.preparing ??
+    activeOrderList.filter((o) => o.status === 'preparing').length;
+  const ready =
+    statusCounts.ready ??
+    activeOrderList.filter((o) => o.status === 'ready').length;
+  const served =
+    statusCounts.served ??
+    activeOrderList.filter((o) => o.status === 'served').length;
 
   const maxTables = Math.max(1, ...(overview?.activeByWaiter || []).map((w) => w.tables.length));
   const maxKitchen = Math.max(1, ...kitchenLoads.map((k) => k.orders));
@@ -66,7 +74,21 @@ const AdminOverview = ({ report, overview }) => {
         <Stat label="Total Sales" value={`NPR ${totalSales.toFixed(2)}`} sub="All time" accent="green" />
         <Stat label="Average Order" value={`NPR ${avgOrder}`} sub="Sales / Orders" accent="purple" />
         <Stat label="Preparing" value={preparing} sub="Kitchen in progress" accent="orange" />
-        <Stat label="Ready/Served" value={`${ready}/${served}`} sub="Ready / Served" accent="teal" />
+        <div className="stat-tile ready-block">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <div className="text-muted tiny-text">Ready</div>
+              <div className="fs-4 fw-semibold">{ready}</div>
+            </div>
+            <div>
+              <div className="text-muted tiny-text">Served</div>
+              <div className="fs-4 fw-semibold">{served}</div>
+            </div>
+          </div>
+          <div className="bar-track mt-2">
+            <div className="bar-fill" style={{ width: `${Math.min(100, (ready / Math.max(1, ready + served)) * 100)}%` }} />
+          </div>
+        </div>
       </div>
 
       <div className="load-row">
