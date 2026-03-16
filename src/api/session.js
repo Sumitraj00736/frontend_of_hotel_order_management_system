@@ -7,7 +7,7 @@ export const saveSession = (token, user, branches = []) => {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   localStorage.setItem(BRANCHES_KEY, JSON.stringify(branches));
-  if (branches.length === 1) {
+  if (branches.length > 0) {
     localStorage.setItem(BRANCH_KEY, branches[0].branchId || branches[0]._id);
   }
 };

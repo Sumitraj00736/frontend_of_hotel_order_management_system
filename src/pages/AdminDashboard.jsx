@@ -322,10 +322,23 @@ const AdminDashboard = () => {
     loadAll();
   };
 
-  const payOrder = async (orderId) => {
-    const method = paymentMethods[orderId] || 'cash';
+  const payOrder = async (payload) => {
+    const orderId = typeof payload === 'string' ? payload : payload?.orderId;
+    const method =
+      typeof payload === 'object' && payload.paymentMethod
+        ? payload.paymentMethod
+        : paymentMethods[orderId] || 'cash';
     try {
-      await api.post(`/api/bills/${orderId}/pay`, { paymentMethod: method });
+      await api.post(`/api/bills/${orderId}/pay`, {
+        paymentMethod: method,
+        paymentStatus: payload?.paymentStatus || 'paid',
+        discountType: payload?.discountType,
+        discountValue: payload?.discountValue,
+        tenderAmount: payload?.tenderAmount,
+        taxRate: payload?.taxRate,
+        tipsAmount: payload?.tipsAmount,
+        roundOff: payload?.roundOff
+      });
       loadAll();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to mark paid');

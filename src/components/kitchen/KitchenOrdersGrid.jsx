@@ -40,8 +40,8 @@ const KitchenOrdersGrid = ({ orders, onUpdateStatus }) => {
           </div>
 
           <div className="k-items">
-            {order.items.map((item) => (
-              <div key={item._id} className="k-item">
+            {order.items.map((item, idx) => (
+              <div key={item._id || item.menuItem?._id || `${order._id}-${idx}`} className="k-item">
                 <div className="k-item-name">{item.menuItem?.name}</div>
                 <div className="k-item-qty">x{item.quantity}</div>
               </div>

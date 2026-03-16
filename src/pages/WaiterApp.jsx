@@ -83,11 +83,16 @@ const WaiterApp = () => {
   }, [currentUser?.id]);
 
   const filteredMenu = useMemo(() => {
-    if (!search) return menus;
-    return menus.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
+    const available = menus.filter((item) => item.isAvailable !== false);
+    if (!search) return available;
+    return available.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
   }, [menus, search]);
 
   const addToCart = (item) => {
+    if (item.isAvailable === false) {
+      alert('This item is unavailable');
+      return;
+    }
     setCart((prev) => {
       const existing = prev.find((c) => c.menuItem === item._id);
       if (existing) {
@@ -98,13 +103,18 @@ const WaiterApp = () => {
   };
 
   const updateQty = (menuItem, quantity) => {
-    setCart((prev) => prev.map((c) => (c.menuItem === menuItem ? { ...c, quantity } : c)));
+    const safeQty = Math.max(1, Number(quantity) || 1);
+    setCart((prev) => prev.map((c) => (c.menuItem === menuItem ? { ...c, quantity: safeQty } : c)));
   };
 
   const cartTotal = cart.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
   const placeOrder = async () => {
-    if (!selectedTable) return;
+    if (!selectedTable) return alert('Select a table first');
+    if (cart.length === 0) return alert('Add at least one item');
+    if (cart.some((c) => !c.quantity || c.quantity < 1)) {
+      return alert('Quantity must be at least 1 for all items');
+    }
     const payload = {
       table: selectedTable,
       items: cart.map((c) => ({ menuItem: c.menuItem, quantity: c.quantity })),
@@ -112,10 +122,15 @@ const WaiterApp = () => {
       specialInstructions: instructions
     };
 
-    if (editingOrderId) {
-      await api.put(`/api/orders/${editingOrderId}`, payload);
-    } else {
-      await api.post('/api/orders', payload);
+    try {
+      if (editingOrderId) {
+        await api.put(`/api/orders/${editingOrderId}`, payload);
+      } else {
+        await api.post('/api/orders', payload);
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || error.response?.data?.error || 'Failed to place order');
+      return;
     }
 
     setCart([]);

@@ -22,8 +22,7 @@ const LoginPage = () => {
         const res = await api.post('/api/auth/login', { identifier, password });
         const branches = res.data.branches || [];
         saveSession(res.data.token, res.data.user, branches);
-        if (branches.length === 1) setBranchId(branches[0].branchId || branches[0]._id);
-        if (branches.length > 1) setBranchId(branches[branches.length - 1].branchId || branches[branches.length - 1]._id);
+        if (branches.length > 0) setBranchId(branches[0].branchId || branches[0]._id);
         if (res.data.user.role === 'admin') navigate('/admin');
         if (res.data.user.role === 'waiter') navigate('/waiter');
         if (res.data.user.role === 'kitchen') navigate('/kitchen');
@@ -37,8 +36,7 @@ const LoginPage = () => {
         });
         const branches = res.data.branches || [];
         saveSession(res.data.token, res.data.user, branches);
-        if (branches.length === 1) setBranchId(branches[0].branchId || branches[0]._id);
-        if (branches.length > 1) setBranchId(branches[branches.length - 1].branchId || branches[branches.length - 1]._id);
+        if (branches.length > 0) setBranchId(branches[0].branchId || branches[0]._id);
         navigate('/admin');
       }
     } catch (err) {
