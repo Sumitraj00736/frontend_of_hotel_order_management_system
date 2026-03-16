@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { uploadToCloudinary } from '../../api/upload.js';
+import { uploadToCloudinary } from '../../../api/upload.js';
 
 const AdminMenus = ({ menus, menuForm, setMenuForm, onCreateMenu, onEditMenu }) => {
   const [uploading, setUploading] = useState(false);

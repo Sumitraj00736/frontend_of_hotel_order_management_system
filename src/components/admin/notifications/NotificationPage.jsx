@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import '../../common/css/admin/notification.css';
+import '../../../common/css/admin/notifications/notification.css';
 
 const tabs = [
   { id: 'order', label: 'Order' },

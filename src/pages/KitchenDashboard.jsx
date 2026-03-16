@@ -6,7 +6,7 @@ import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
 import KitchenSidebar from '../components/kitchen/KitchenSidebar.jsx';
 import KitchenOrdersGrid from '../components/kitchen/KitchenOrdersGrid.jsx';
-import '../common/css/admin/adminLayout.css';
+import '../common/css/admin/common/adminLayout.css';
 
 const KitchenDashboard = () => {
   const [orders, setOrders] = useState([]);

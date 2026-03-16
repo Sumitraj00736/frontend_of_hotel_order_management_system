@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import '../../common/css/admin/website.css';
-import { getBranches, getBranchId } from '../../api/session.js';
+import '../../../common/css/admin/website/website.css';
+import { getBranches, getBranchId } from '../../../api/session.js';
 import { Copy, ExternalLink, UploadCloud, QrCode } from 'lucide-react';
 
 const tabs = [

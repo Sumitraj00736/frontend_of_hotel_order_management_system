@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Home, Wallet, ShoppingCart, Calendar, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import '../../common/css/admin/dashboard.css';
+import '../../../common/css/admin/dashboard/dashboard.css';
 
 const tabs = [
   { id: 'overview', label: 'Overview', icon: <Home size={18} /> },

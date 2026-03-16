@@ -19,10 +19,16 @@ import {
   LogOut,
   Settings,
   UserRound,
-  Globe
+  Globe,
+  Wheat,
+  Soup,
+  Layers2,
+  BarChart3,
+  ChefHat,
+  PackageSearch
 } from 'lucide-react';
-import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../api/session.js';
-import '../../common/css/admin/adminSidebar.css';
+import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../../api/session.js';
+import '../../../common/css/admin/sidebar/adminSidebar.css';
 
 const iconMap = {
   dashboard: <Home size={18} strokeWidth={1.5} />,
@@ -42,6 +48,19 @@ const menuSubIcons = {
   addons: <PlusSquare size={14} />,
   submenus: <Grid3x3 size={14} />,
   combos: <Package2 size={14} />
+};
+
+const inventorySubIcons = {
+  ingredients: <Wheat size={14} />,
+  recipes: <Soup size={14} />,
+  transactions: <PackageSearch size={14} />
+};
+
+const reportsSubIcons = {
+  company: <BarChart3 size={14} />,
+  waiter: <Layers2 size={14} />,
+  kitchen: <ChefHat size={14} />,
+  stock: <Boxes size={14} />
 };
 
 const coreSections = ['dashboard', 'orders', 'users', 'tables', 'website', 'notifications'];
@@ -210,12 +229,15 @@ const AdminSidebar = ({
           {isOpen && (
             <div className={`sidebar-sub ${inventoryOpen ? 'open' : ''}`}>
               <button className={`sidebar-button sub ${activeSection === 'inventory:ingredients' ? 'active' : ''}`} onClick={() => onSelect?.('inventory:ingredients')}>
+                <span className="sidebar-icon">{inventorySubIcons.ingredients}</span>
                 Ingredients
               </button>
               <button className={`sidebar-button sub ${activeSection === 'inventory:recipes' ? 'active' : ''}`} onClick={() => onSelect?.('inventory:recipes')}>
+                <span className="sidebar-icon">{inventorySubIcons.recipes}</span>
                 Recipes
               </button>
               <button className={`sidebar-button sub ${activeSection === 'inventory:transactions' ? 'active' : ''}`} onClick={() => onSelect?.('inventory:transactions')}>
+                <span className="sidebar-icon">{inventorySubIcons.transactions}</span>
                 Stock Transactions
               </button>
             </div>
@@ -245,15 +267,19 @@ const AdminSidebar = ({
           {isOpen && (
             <div className={`sidebar-sub ${reportsOpen ? 'open' : ''}`}>
               <button className={`sidebar-button sub ${activeSection === 'reports:company' ? 'active' : ''}`} onClick={() => onSelect?.('reports:company')}>
+                <span className="sidebar-icon">{reportsSubIcons.company}</span>
                 Company
               </button>
               <button className={`sidebar-button sub ${activeSection === 'reports:waiter' ? 'active' : ''}`} onClick={() => onSelect?.('reports:waiter')}>
+                <span className="sidebar-icon">{reportsSubIcons.waiter}</span>
                 Waiter
               </button>
               <button className={`sidebar-button sub ${activeSection === 'reports:kitchen' ? 'active' : ''}`} onClick={() => onSelect?.('reports:kitchen')}>
+                <span className="sidebar-icon">{reportsSubIcons.kitchen}</span>
                 Kitchen
               </button>
               <button className={`sidebar-button sub ${activeSection === 'reports:stock' ? 'active' : ''}`} onClick={() => onSelect?.('reports:stock')}>
+                <span className="sidebar-icon">{reportsSubIcons.stock}</span>
                 Stock
               </button>
             </div>

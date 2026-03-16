@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/client.js';
 import { saveSession, setBranchId } from '../api/session.js';
-import '../common/css/admin/adminLayout.css';
+import '../common/css/admin/common/adminLayout.css';
 
 const LoginPage = () => {
   const navigate = useNavigate();

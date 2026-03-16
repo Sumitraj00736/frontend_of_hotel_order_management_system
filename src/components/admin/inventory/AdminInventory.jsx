@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import api from '../../api/client.js';
+import api from '../../../api/client.js';
 import IngredientModal from './IngredientModal.jsx';
-import CustomDropdown from '../ui/CustomDropdown.jsx';
+import CustomDropdown from '../../ui/CustomDropdown.jsx';
 
 const AdminInventory = ({ menus, ingredients, transactions, reload, externalView }) => {
   const [view, setView] = useState(externalView || 'ingredients');

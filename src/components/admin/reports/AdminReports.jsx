@@ -14,7 +14,7 @@ import {
   Legend
 } from 'recharts';
 import { TrendingUp, PieChart as PieIcon, Users as UsersIcon, Utensils, Wallet, Activity, BarChart3 } from 'lucide-react';
-import AdminPromotionTimeline from './AdminPromotionTimeline.jsx';
+import AdminPromotionTimeline from '../promotions/AdminPromotionTimeline.jsx';
 
 const TAB_OPTIONS = [
   { value: 'company', label: 'Company' },

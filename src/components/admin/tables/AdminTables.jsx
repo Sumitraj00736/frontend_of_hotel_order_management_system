@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import CustomDropdown from '../ui/CustomDropdown.jsx';
+import CustomDropdown from '../../ui/CustomDropdown.jsx';
 
 const AdminTables = ({ tables, tableForm, setTableForm, onCreateTable, onFreeTable, onUpdateTable, onDeleteTable }) => {
   const [dragId, setDragId] = useState(null);

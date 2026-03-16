@@ -12,7 +12,7 @@ import WaiterOrders from '../components/waiter/WaiterOrders.jsx';
 import WaiterProfile from '../components/waiter/WaiterProfile.jsx';
 import WaiterAnalytics from '../components/waiter/WaiterAnalytics.jsx';
 import WaiterPromotionTimeline from '../components/waiter/WaiterPromotionTimeline.jsx';
-import '../common/css/admin/adminLayout.css';
+import '../common/css/admin/common/adminLayout.css';
 
 const WaiterApp = () => {
   const currentUser = getCurrentUser();

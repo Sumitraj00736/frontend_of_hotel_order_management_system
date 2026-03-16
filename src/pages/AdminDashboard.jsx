@@ -1,25 +1,25 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
-import NotificationPage from '../components/admin/NotificationPage.jsx';
+import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import { createSocket } from '../api/socket.js';
-import AdminSidebar from '../components/admin/AdminSidebar.jsx';
-import AdminOverview from '../components/admin/AdminOverview.jsx';
-import AdminOrders from '../components/admin/AdminOrders.jsx';
-import AdminUsers from '../components/admin/AdminUsers.jsx';
-import AdminTables from '../components/admin/AdminTables.jsx';
-import AdminMenus from '../components/admin/AdminMenus.jsx';
-import AdminCategories from '../components/admin/AdminCategories.jsx';
-import AdminDishes from '../components/admin/AdminDishes.jsx';
-import AdminAddOns from '../components/admin/AdminAddOns.jsx';
-import AdminSubMenus from '../components/admin/AdminSubMenus.jsx';
-import AdminCombos from '../components/admin/AdminCombos.jsx';
-import AdminReports from '../components/admin/AdminReports.jsx';
-import AdminHistory from '../components/admin/AdminHistory.jsx';
-import AdminPromotionTimeline from '../components/admin/AdminPromotionTimeline.jsx';
-import AdminInventory from '../components/admin/AdminInventory.jsx';
-import AdminWebsite from '../components/admin/AdminWebsite.jsx';
-import '../common/css/admin/adminLayout.css';
+import AdminSidebar from '../components/admin/sidebar/AdminSidebar.jsx';
+import AdminOverview from '../components/admin/dashboard/AdminOverview.jsx';
+import AdminOrders from '../components/admin/orders/AdminOrders.jsx';
+import AdminUsers from '../components/admin/users/AdminUsers.jsx';
+import AdminTables from '../components/admin/tables/AdminTables.jsx';
+import AdminMenus from '../components/admin/menu/AdminMenus.jsx';
+import AdminCategories from '../components/admin/menu/AdminCategories.jsx';
+import AdminDishes from '../components/admin/menu/AdminDishes.jsx';
+import AdminAddOns from '../components/admin/menu/AdminAddOns.jsx';
+import AdminSubMenus from '../components/admin/menu/AdminSubMenus.jsx';
+import AdminCombos from '../components/admin/menu/AdminCombos.jsx';
+import AdminReports from '../components/admin/reports/AdminReports.jsx';
+import AdminHistory from '../components/admin/history/AdminHistory.jsx';
+import AdminPromotionTimeline from '../components/admin/promotions/AdminPromotionTimeline.jsx';
+import AdminInventory from '../components/admin/inventory/AdminInventory.jsx';
+import AdminWebsite from '../components/admin/website/AdminWebsite.jsx';
+import '../common/css/admin/common/adminLayout.css';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -282,6 +282,33 @@ const AdminDashboard = () => {
     }
   };
 
+  const createDish = async (payload) => {
+    try {
+      await api.post('/api/menus', payload);
+      loadAll();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to add dish');
+    }
+  };
+
+  const updateDish = async (id, payload) => {
+    try {
+      await api.put(`/api/menus/${id}`, payload);
+      loadAll();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to update dish');
+    }
+  };
+
+  const deleteDish = async (id) => {
+    try {
+      await api.delete(`/api/menus/${id}`);
+      loadAll();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to delete dish');
+    }
+  };
+
   const editMenu = async (menu) => {
     const name = prompt('Menu name', menu.name);
     if (!name) return;
@@ -458,6 +485,7 @@ const AdminDashboard = () => {
               return (
                 <AdminCategories
                   categories={categories}
+                  menus={menus}
                   reload={loadAll}
                   onCreate={async (payload) => { await api.post('/api/categories', payload); loadAll(); }}
                   onUpdate={async (id, payload) => { await api.put(`/api/categories/${id}`, payload); loadAll(); }}
@@ -469,6 +497,7 @@ const AdminDashboard = () => {
               return (
                 <AdminAddOns
                   addOns={addons}
+                  menus={menus}
                   onRefresh={loadAll}
                   onCreate={async (payload) => { await api.post('/api/addons', payload); loadAll(); }}
                   onUpdate={async (id, payload) => { await api.put(`/api/addons/${id}`, payload); loadAll(); }}
@@ -480,6 +509,8 @@ const AdminDashboard = () => {
               return (
                 <AdminSubMenus
                   submenus={submenus}
+                  menus={menus}
+                  combos={combos}
                   onCreate={async (payload) => { await api.post('/api/submenus', payload); loadAll(); }}
                   onUpdate={async (id, payload) => { await api.put(`/api/submenus/${id}`, payload); loadAll(); }}
                   onDelete={async (id) => { await api.delete(`/api/submenus/${id}`); loadAll(); }}
@@ -491,13 +522,17 @@ const AdminDashboard = () => {
                 <AdminCombos combos={combos} onRefresh={loadAll} />
               );
             }
-            return (
-              <AdminDishes
-                dishes={menus}
-                categories={categories}
-                submenus={submenus}
-                onToggle={async (dish) => { await api.put(`/api/menus/${dish._id}`, { isAvailable: !dish.isAvailable }); loadAll(); }}
-                onRefresh={loadAll}
+              return (
+                <AdminDishes
+                  dishes={menus}
+                  categories={categories}
+                  submenus={submenus}
+                  addOns={addons}
+                  onToggle={async (dish) => { await api.put(`/api/menus/${dish._id}`, { isAvailable: !dish.isAvailable }); loadAll(); }}
+                  onRefresh={loadAll}
+                  onCreate={createDish}
+                  onUpdate={updateDish}
+                  onDelete={deleteDish}
               />
             );
           })()}
