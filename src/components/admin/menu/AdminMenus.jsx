@@ -3,6 +3,7 @@ import { uploadToCloudinary } from '../../../api/upload.js';
 
 const AdminMenus = ({ menus, menuForm, setMenuForm, onCreateMenu, onEditMenu }) => {
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const handleImage = async (file) => {
     try {
@@ -45,7 +46,21 @@ const AdminMenus = ({ menus, menuForm, setMenuForm, onCreateMenu, onEditMenu }) 
         </div>
         <div className="col-12 d-flex justify-content-between align-items-center">
           {menuForm.imageUrl && <img src={menuForm.imageUrl} alt="preview" style={{ height: 60, borderRadius: 8 }} />}
-          <button className="btn btn-primary" onClick={onCreateMenu}>Add Menu</button>
+          <button
+            className="btn btn-primary"
+            disabled={uploading || saving}
+            onClick={async () => {
+              if (saving || uploading) return;
+              setSaving(true);
+              try {
+                await onCreateMenu();
+              } finally {
+                setSaving(false);
+              }
+            }}
+          >
+            {saving ? 'Saving...' : 'Add Menu'}
+          </button>
         </div>
       </div>
 
