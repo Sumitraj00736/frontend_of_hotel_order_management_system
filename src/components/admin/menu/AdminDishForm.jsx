@@ -12,6 +12,7 @@ const defaultForm = {
   category: '',
   price: '',
   discount: '',
+  variants: [],
   addOns: [],
   description: ''
 };
@@ -30,6 +31,7 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
       category: dish.category || '',
       price: dish.price ?? '',
       discount: '',
+      variants: dish.variants || [],
       addOns: dish.addOns || [],
       description: dish.description || ''
     };
@@ -77,6 +79,7 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
       category: form.category,
       subMenu: form.subMenu,
       price: Number(form.price) || 0,
+      variants: (form.variants || []).filter((v) => v.name && Number(v.price) >= 0),
       addOns: form.addOns,
       description: form.description || undefined
     };
@@ -157,26 +160,68 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
             </div>
           </div>
 
-          <div className="form-card">
-            <div className="form-card-title">Default Price</div>
-            <div className="form-row">
-              <div className="form-field grow">
-                <label>Actual Price *</label>
-                <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Rs 0" />
+            <div className="form-card">
+              <div className="form-card-title">Default Price</div>
+              <div className="form-row">
+                <div className="form-field grow">
+                  <label>Actual Price *</label>
+                  <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Rs 0" />
+                </div>
+                <div className="form-field grow">
+                  <label>Discount</label>
+                  <input type="number" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} placeholder="Rs 0" />
+                </div>
+                <button
+                  className="btn-outline"
+                  onClick={() => setForm({ ...form, variants: [...form.variants, { name: '', price: '' }] })}
+                >
+                  + Add Variant
+                </button>
               </div>
-              <div className="form-field grow">
-                <label>Discount</label>
-                <input type="number" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} placeholder="Rs 0" />
+              <div className="price-meta">
+                <span>Listed Price: Rs {computedPrice.listed.toFixed(2)}</span>
+                <span>COGS: Rs {computedPrice.cogs.toFixed(2)}</span>
+                <span className="profit">Gross Profit: Rs {computedPrice.profit.toFixed(2)}</span>
+                <span className="stock-link">Setup stock consumption</span>
               </div>
-              <button className="btn-outline">+ Add Variant</button>
+              {form.variants.length > 0 && (
+                <div className="variant-list">
+                  {form.variants.map((variant, idx) => (
+                    <div key={idx} className="variant-row">
+                      <input
+                        type="text"
+                        placeholder="Variant name"
+                        value={variant.name}
+                        onChange={(e) => {
+                          const next = [...form.variants];
+                          next[idx] = { ...next[idx], name: e.target.value };
+                          setForm({ ...form, variants: next });
+                        }}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Price"
+                        value={variant.price}
+                        onChange={(e) => {
+                          const next = [...form.variants];
+                          next[idx] = { ...next[idx], price: e.target.value };
+                          setForm({ ...form, variants: next });
+                        }}
+                      />
+                      <button
+                        className="btn-light"
+                        onClick={() => {
+                          const next = form.variants.filter((_, i) => i !== idx);
+                          setForm({ ...form, variants: next });
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="price-meta">
-              <span>Listed Price: Rs {computedPrice.listed.toFixed(2)}</span>
-              <span>COGS: Rs {computedPrice.cogs.toFixed(2)}</span>
-              <span className="profit">Gross Profit: Rs {computedPrice.profit.toFixed(2)}</span>
-              <span className="stock-link">Setup stock consumption</span>
-            </div>
-          </div>
 
           <div className="form-card">
             <div className="form-card-title">Add-Ons / Extras</div>

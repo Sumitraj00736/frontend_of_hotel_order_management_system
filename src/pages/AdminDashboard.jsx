@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import { createSocket } from '../api/socket.js';
 import AdminSidebar from '../components/admin/sidebar/AdminSidebar.jsx';
 import AdminOverview from '../components/admin/dashboard/AdminOverview.jsx';
-import AdminOrders from '../components/admin/orders/AdminOrders.jsx';
+import AdminOrders from '../components/admin/orders/adminOrders/AdminOrders.jsx';
 import AdminUsers from '../components/admin/users/AdminUsers.jsx';
 import AdminTables from '../components/admin/tables/AdminTables.jsx';
 import AdminMenus from '../components/admin/menu/AdminMenus.jsx';
@@ -36,6 +36,8 @@ const AdminDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
   const [stockReport, setStockReport] = useState(null);
   const [history, setHistory] = useState([]);
+  const [purchases, setPurchases] = useState([]);
+  const [expenses, setExpenses] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState({});
   const [notifications, setNotifications] = useState([]);
   const [selectedPromotionUser, setSelectedPromotionUser] = useState(null);
@@ -43,6 +45,23 @@ const AdminDashboard = () => {
   const [ingredients, setIngredients] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [financeFilters, setFinanceFilters] = useState({ dateFrom: '', dateTo: '' });
+  const [dashboardOptions, setDashboardOptions] = useState({
+    includeAnalytics: true,
+    includeStock: true,
+    includeHistory: true,
+    includeNotifications: true
+  });
+  const [ordersPage, setOrdersPage] = useState(1);
+  const [ordersLimit, setOrdersLimit] = useState(12);
+  const [ordersTotal, setOrdersTotal] = useState(0);
+  const [orderDashboardData, setOrderDashboardData] = useState(null);
+  const [overviewDashboardData, setOverviewDashboardData] = useState(null);
+  const [financeDashboardData, setFinanceDashboardData] = useState(null);
+  const [transactionHistory, setTransactionHistory] = useState([]);
+  const [transactionMeta, setTransactionMeta] = useState({ page: 1, limit: 20, total: 0 });
+  const [transactionFilters, setTransactionFilters] = useState({ dateFrom: '', dateTo: '' });
+  const dashboardLoadedRef = React.useRef(false);
 
   const [userForm, setUserForm] = useState({
     name: '',
@@ -57,36 +76,37 @@ const AdminDashboard = () => {
   });
   const [tableForm, setTableForm] = useState({ tableNumber: '', row: '', column: '' });
   const [menuForm, setMenuForm] = useState({ name: '', category: '', price: '', imageUrl: '' });
+  const menuCreateRef = React.useRef(false);
 
-  const loadAll = async () => {
-    const [u, t, m, o, r, h, ov, an, st, cat, sub, add, combo] = await Promise.all([
-      api.get('/api/users'),
-      api.get('/api/tables'),
-      api.get('/api/menus'),
-      api.get('/api/orders'),
-      api.get('/api/reports/summary'),
-      api.get('/api/reports/history'),
-      api.get('/api/reports/overview'),
-      api.get('/api/reports/analytics'),
-      api.get('/api/reports/stock'),
-      api.get('/api/categories'),
-      api.get('/api/submenus'),
-      api.get('/api/addons'),
-      api.get('/api/combos')
-    ]);
-    setUsers(u.data);
-    setTables(t.data);
-    setMenus(m.data);
-    setOrders(o.data);
-    setReport(r.data);
-    setHistory(h.data);
-    setOverview(ov.data);
-    setAnalytics(an.data);
-    setStockReport(st.data);
-    setCategories(cat.data);
-    setSubmenus(sub.data);
-    setAddons(add.data);
-    setCombos(combo.data);
+  const loadAll = async (options = dashboardOptions) => {
+    const res = await api.get('/api/dashboard', {
+      params: {
+        ordersLimit: 100,
+        includeAnalytics: options.includeAnalytics,
+        includeStock: options.includeStock,
+        includeHistory: options.includeHistory,
+        includeNotifications: options.includeNotifications
+      }
+    });
+    const data = res.data || {};
+    setUsers(data.users || []);
+    setTables(data.tables || []);
+    setMenus(data.menus || []);
+    setOrders(data.orders || []);
+    setReport(data.report || null);
+    setHistory(data.history || []);
+    setOverview(data.overview || { activeByWaiter: [] });
+    setAnalytics(data.analytics || null);
+    setStockReport(data.stockReport || null);
+    setCategories(data.categories || []);
+    setSubmenus(data.submenus || []);
+    setAddons(data.addons || []);
+    setCombos(data.combos || []);
+    setPurchases(data.purchases || []);
+    setExpenses(data.expenses || []);
+    if (Array.isArray(data.notifications)) {
+      setNotifications(data.notifications);
+    }
   };
 
   const loadOverviewOnly = async () => {
@@ -97,6 +117,20 @@ const AdminDashboard = () => {
     } catch (e) {
       // ignore transient errors
     }
+  };
+
+  const loadFinance = async (filters = financeFilters) => {
+    const params = {};
+    if (filters.dateFrom) params.dateFrom = filters.dateFrom;
+    if (filters.dateTo) params.dateTo = filters.dateTo;
+    const [summaryRes, purchaseRes, expenseRes] = await Promise.all([
+      api.get('/api/reports/summary', { params }),
+      api.get('/api/purchases', { params }),
+      api.get('/api/expenses', { params })
+    ]);
+    setReport(summaryRes.data);
+    setPurchases(purchaseRes.data);
+    setExpenses(expenseRes.data);
   };
 
   const [notificationFilters, setNotificationFilters] = useState({ category: 'activity' });
@@ -113,14 +147,14 @@ const AdminDashboard = () => {
     setPromotions(res.data);
   };
 
-  const loadInventory = async () => {
+  const loadInventory = useCallback(async () => {
     const [ingRes, txnRes] = await Promise.all([
       api.get('/api/inventory/ingredients'),
       api.get('/api/inventory/transactions')
     ]);
     setIngredients(ingRes.data);
     setTransactions(txnRes.data);
-  };
+  }, []);
 
   const addPromotion = async (userId, form) => {
     const payload = {
@@ -141,10 +175,72 @@ const AdminDashboard = () => {
   }, []);
 
   useEffect(() => {
+    loadAll(dashboardOptions);
+  }, [dashboardOptions]);
+
+  useEffect(() => {
+    loadFinance(financeFilters);
+  }, [financeFilters]);
+
+  useEffect(() => {
     if (activeSection.startsWith('inventory')) {
       loadInventory();
     }
   }, [activeSection]);
+
+  const loadTransactionHistory = useCallback(
+    async (nextFilters = transactionFilters, page = transactionMeta.page, limit = transactionMeta.limit) => {
+      const res = await api.get('/api/reports/transactions', {
+        params: { ...nextFilters, page, limit }
+      });
+      const payload = res.data;
+      if (Array.isArray(payload?.data)) {
+        setTransactionHistory(payload.data);
+        setTransactionMeta({ page: payload.page || page, limit: payload.limit || limit, total: payload.total || 0 });
+        return;
+      }
+      setTransactionHistory(Array.isArray(payload) ? payload : []);
+    },
+    [transactionFilters, transactionMeta.page, transactionMeta.limit]
+  );
+
+  const loadDashboardExtras = useCallback(async () => {
+    const [orderRes, overviewRes, financeRes] = await Promise.all([
+      api.get('/api/reports/order-dashboard'),
+      api.get('/api/reports/overview-dashboard'),
+      api.get('/api/reports/finance-dashboard')
+    ]);
+    setOrderDashboardData(orderRes.data);
+    setOverviewDashboardData(overviewRes.data);
+    setFinanceDashboardData(financeRes.data);
+    await loadTransactionHistory(transactionFilters, transactionMeta.page, transactionMeta.limit);
+  }, [loadTransactionHistory, transactionFilters, transactionMeta.page, transactionMeta.limit]);
+
+  useEffect(() => {
+    if (activeSection === 'dashboard' && !dashboardLoadedRef.current) {
+      dashboardLoadedRef.current = true;
+      loadDashboardExtras();
+    }
+  }, [activeSection, loadDashboardExtras]);
+
+  const loadOrdersPage = async (page = ordersPage, limit = ordersLimit) => {
+    const res = await api.get('/api/orders', { params: { paginate: 1, page, limit } });
+    const payload = res.data;
+    if (Array.isArray(payload?.data)) {
+      setOrders(payload.data);
+      setOrdersTotal(payload.total || 0);
+      setOrdersPage(payload.page || page);
+      setOrdersLimit(payload.limit || limit);
+      return;
+    }
+    setOrders(Array.isArray(payload) ? payload : []);
+  };
+
+  useEffect(() => {
+    if (activeSection === 'orders') {
+      loadOrdersPage(ordersPage, ordersLimit);
+    }
+  }, [activeSection, ordersPage, ordersLimit]);
 
   useEffect(() => {
     const socket = createSocket();
@@ -152,7 +248,7 @@ const AdminDashboard = () => {
     socket.on('notify', (payload) => {
       setNotifications((prev) => [{ ...payload, read: false }, ...prev].slice(0, 50));
       if (payload.type === 'order:paid') {
-        loadAll();
+        loadOverviewOnly();
       }
     });
 
@@ -269,16 +365,20 @@ const AdminDashboard = () => {
   };
 
   const createMenu = async () => {
+    if (menuCreateRef.current) return;
     try {
+      menuCreateRef.current = true;
       const price = Number(menuForm.price);
       if (!menuForm.name || !menuForm.category || Number.isNaN(price)) {
         return alert('Fill out menu name, category, and price');
       }
-      await api.post('/api/menus', { name: menuForm.name, category: menuForm.category, price, imageUrl: menuForm.imageUrl });
+      const res = await api.post('/api/menus', { name: menuForm.name, category: menuForm.category, price, imageUrl: menuForm.imageUrl });
+      setMenus((prev) => [res.data, ...prev]);
       setMenuForm({ name: '', category: '', price: '', imageUrl: '' });
-      loadAll();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to add menu');
+    } finally {
+      menuCreateRef.current = false;
     }
   };
 
@@ -409,7 +509,31 @@ const AdminDashboard = () => {
         </div>
 
         <div className="content">
-          {activeSection === 'dashboard' && <AdminOverview report={report} overview={overview} />}
+          {activeSection === 'dashboard' && (
+            <AdminOverview
+              report={report}
+              overview={overview}
+              orderDashboardData={orderDashboardData}
+              overviewDashboardData={overviewDashboardData}
+              financeDashboardData={financeDashboardData}
+              transactionHistory={transactionHistory}
+              transactionMeta={transactionMeta}
+              transactionFilters={transactionFilters}
+              onTransactionFilterChange={(next) => {
+                const merged = { ...transactionFilters, ...next };
+                setTransactionFilters(merged);
+                loadTransactionHistory(merged, 1, transactionMeta.limit);
+              }}
+              onTransactionPageChange={(nextPage) => loadTransactionHistory(transactionFilters, nextPage, transactionMeta.limit)}
+              onTransactionLimitChange={(nextLimit) => loadTransactionHistory(transactionFilters, 1, nextLimit)}
+              onTransactionExport={() => {
+                const params = new URLSearchParams({ ...transactionFilters, format: 'csv' }).toString();
+                window.open(`/api/reports/transactions?${params}`, '_blank');
+              }}
+              dashboardOptions={dashboardOptions}
+              onChangeDashboardOptions={setDashboardOptions}
+            />
+          )}
           {activeSection === 'notifications' && (
             <NotificationPage
               notifications={notifications}
@@ -425,10 +549,25 @@ const AdminDashboard = () => {
           {activeSection === 'orders' && (
             <AdminOrders
               orders={orders}
+              menus={menus}
+              staff={users}
               paymentMethods={paymentMethods}
               onChangePaymentMethod={(id, value) => setPaymentMethods({ ...paymentMethods, [id]: value })}
               onPay={payOrder}
               onPrint={printBill}
+              onUpdateOrder={async (payload) => {
+                const res = await api.put(`/api/orders/${payload.orderId}`, payload);
+                await loadAll();
+                return res.data;
+              }}
+              page={ordersPage}
+              limit={ordersLimit}
+              total={ordersTotal}
+              onPageChange={(next) => setOrdersPage(next)}
+              onLimitChange={(next) => {
+                setOrdersLimit(next);
+                setOrdersPage(1);
+              }}
             />
           )}
           {activeSection === 'users' && (
@@ -485,11 +624,17 @@ const AdminDashboard = () => {
               view={activeSection.split(':')[1] || 'company'}
               onChangeView={(view) => setActiveSection(`reports:${view}`)}
               analytics={{ ...analytics, frequentItems }}
-              salesSummary={analytics?.salesSummary}
+              salesSummary={report}
               onLoadPromotions={loadPromotions}
               promotionUser={selectedPromotionUser}
               promotionList={promotions}
               stock={stockReport}
+              purchases={purchases}
+              expenses={expenses}
+              financeFilters={financeFilters}
+              onChangeFinanceFilters={setFinanceFilters}
+              onCreatePurchase={async (payload) => { await api.post('/api/purchases', payload); loadFinance(financeFilters); }}
+              onCreateExpense={async (payload) => { await api.post('/api/expenses', payload); loadFinance(financeFilters); }}
             />
           )}
           {activeSection.startsWith('menu') && (() => {

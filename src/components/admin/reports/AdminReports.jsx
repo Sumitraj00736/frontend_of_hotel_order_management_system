@@ -55,10 +55,27 @@ const ChartCard = ({ title, icon, children }) => (
   </div>
 );
 
-const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser, promotionList, view = 'company', onChangeView, stock }) => {
+const AdminReports = ({
+  analytics,
+  salesSummary,
+  onLoadPromotions,
+  promotionUser,
+  promotionList,
+  view = 'company',
+  onChangeView,
+  stock,
+  purchases = [],
+  expenses = [],
+  financeFilters = {},
+  onChangeFinanceFilters,
+  onCreatePurchase,
+  onCreateExpense
+}) => {
   const [selectedWaiterId, setSelectedWaiterId] = React.useState('');
   const [selectedKitchenId, setSelectedKitchenId] = React.useState('');
   const [trendRange, setTrendRange] = React.useState('month6');
+  const [purchaseForm, setPurchaseForm] = React.useState({ title: '', amount: '', paymentMethod: 'cash', paidAt: '' });
+  const [expenseForm, setExpenseForm] = React.useState({ title: '', amount: '', paymentMethod: 'cash', paidAt: '' });
 
   const waiterRanks = analytics?.waiterRanking || [];
   const kitchenRanks = analytics?.kitchenRanking || [];
@@ -103,12 +120,66 @@ const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser
     [kitchenList]
   );
 
+  const financeSeries = useMemo(() => {
+    const toKey = (d) => new Date(d).toISOString().slice(0, 10);
+    const start = financeFilters?.dateFrom ? new Date(financeFilters.dateFrom) : new Date(Date.now() - 6 * 86400000);
+    const end = financeFilters?.dateTo ? new Date(financeFilters.dateTo) : new Date();
+    const days = [];
+    const cursor = new Date(start);
+    while (cursor <= end) {
+      days.push(toKey(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    const purchaseMap = new Map();
+    purchases.forEach((p) => {
+      const key = toKey(p.paidAt || p.createdAt || new Date());
+      purchaseMap.set(key, (purchaseMap.get(key) || 0) + (p.amount || 0));
+    });
+    const expenseMap = new Map();
+    expenses.forEach((e) => {
+      const key = toKey(e.paidAt || e.createdAt || new Date());
+      expenseMap.set(key, (expenseMap.get(key) || 0) + (e.amount || 0));
+    });
+    return days.map((d) => ({
+      day: d,
+      purchase: purchaseMap.get(d) || 0,
+      expense: expenseMap.get(d) || 0
+    }));
+  }, [purchases, expenses, financeFilters]);
+
   return (
     <div className="card glass-card full-width-card full-screen-card reports-card">
       <h5 className="mb-3">Reports & Analytics</h5>
 
       {view === 'company' && (
         <div className="reports-grid">
+          <div className="stat-card span-2">
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div className="fw-semibold">Finance Filters</div>
+              <div className="d-flex gap-2 flex-wrap">
+                <input
+                  type="date"
+                  className="form-control form-control-sm"
+                  value={financeFilters?.dateFrom || ''}
+                  onChange={(e) => onChangeFinanceFilters?.({ ...financeFilters, dateFrom: e.target.value })}
+                />
+                <input
+                  type="date"
+                  className="form-control form-control-sm"
+                  value={financeFilters?.dateTo || ''}
+                  onChange={(e) => onChangeFinanceFilters?.({ ...financeFilters, dateTo: e.target.value })}
+                />
+                <button
+                  className="btn btn-outline-light btn-sm"
+                  onClick={() => onChangeFinanceFilters?.({ dateFrom: '', dateTo: '' })}
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+            <div className="tiny-text text-muted mt-2">Filters affect Sales, Purchase, Expenses, Payment In/Out cards.</div>
+          </div>
+
           <div className="stat-card tall span-2">
             <div className="d-flex align-items-center gap-2 mb-1">
               <Wallet size={18} />
@@ -144,6 +215,161 @@ const AdminReports = ({ analytics, salesSummary, onLoadPromotions, promotionUser
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
+
+          <ChartCard title="Purchase vs Expense" icon={<Activity size={16} />}>
+            <ResponsiveContainer>
+              <BarChart data={financeSeries}>
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="purchase" fill={CHART_COLORS[2]} />
+                <Bar dataKey="expense" fill={CHART_COLORS[3]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          <div className="stat-card">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h6 className="mb-0">Add Purchase</h6>
+            </div>
+            <div className="d-flex flex-column gap-2">
+              <input
+                className="form-control form-control-sm"
+                placeholder="Title"
+                value={purchaseForm.title}
+                onChange={(e) => setPurchaseForm({ ...purchaseForm, title: e.target.value })}
+              />
+              <input
+                className="form-control form-control-sm"
+                type="number"
+                min="0"
+                placeholder="Amount"
+                value={purchaseForm.amount}
+                onChange={(e) => setPurchaseForm({ ...purchaseForm, amount: e.target.value })}
+              />
+              <select
+                className="form-select form-select-sm"
+                value={purchaseForm.paymentMethod}
+                onChange={(e) => setPurchaseForm({ ...purchaseForm, paymentMethod: e.target.value })}
+              >
+                <option value="cash">Cash</option>
+                <option value="fonepay">Fonepay</option>
+                <option value="card">Card</option>
+                <option value="bank">Bank</option>
+              </select>
+              <input
+                className="form-control form-control-sm"
+                type="date"
+                value={purchaseForm.paidAt}
+                onChange={(e) => setPurchaseForm({ ...purchaseForm, paidAt: e.target.value })}
+              />
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  if (!purchaseForm.amount) return;
+                  onCreatePurchase?.({
+                    title: purchaseForm.title,
+                    amount: Number(purchaseForm.amount || 0),
+                    paymentMethod: purchaseForm.paymentMethod,
+                    paidAt: purchaseForm.paidAt || undefined
+                  });
+                  setPurchaseForm({ title: '', amount: '', paymentMethod: 'cash', paidAt: '' });
+                }}
+              >
+                Save Purchase
+              </button>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h6 className="mb-0">Add Expense</h6>
+            </div>
+            <div className="d-flex flex-column gap-2">
+              <input
+                className="form-control form-control-sm"
+                placeholder="Title"
+                value={expenseForm.title}
+                onChange={(e) => setExpenseForm({ ...expenseForm, title: e.target.value })}
+              />
+              <input
+                className="form-control form-control-sm"
+                type="number"
+                min="0"
+                placeholder="Amount"
+                value={expenseForm.amount}
+                onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+              />
+              <select
+                className="form-select form-select-sm"
+                value={expenseForm.paymentMethod}
+                onChange={(e) => setExpenseForm({ ...expenseForm, paymentMethod: e.target.value })}
+              >
+                <option value="cash">Cash</option>
+                <option value="fonepay">Fonepay</option>
+                <option value="card">Card</option>
+                <option value="bank">Bank</option>
+              </select>
+              <input
+                className="form-control form-control-sm"
+                type="date"
+                value={expenseForm.paidAt}
+                onChange={(e) => setExpenseForm({ ...expenseForm, paidAt: e.target.value })}
+              />
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  if (!expenseForm.amount || !expenseForm.title) return;
+                  onCreateExpense?.({
+                    title: expenseForm.title,
+                    amount: Number(expenseForm.amount || 0),
+                    paymentMethod: expenseForm.paymentMethod,
+                    paidAt: expenseForm.paidAt || undefined
+                  });
+                  setExpenseForm({ title: '', amount: '', paymentMethod: 'cash', paidAt: '' });
+                }}
+              >
+                Save Expense
+              </button>
+            </div>
+          </div>
+
+          <div className="stat-card span-2">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h6 className="mb-0">Recent Purchases</h6>
+              <span className="pill-neutral">Latest 5</span>
+            </div>
+            <div className="scrollable-tight">
+              <ul className="list-group">
+                {purchases.slice(0, 5).map((p) => (
+                  <li key={p._id} className="list-group-item d-flex justify-content-between">
+                    <span>{p.title || 'Purchase'}</span>
+                    <span className="fw-semibold">NPR {Number(p.amount || 0).toFixed(2)}</span>
+                  </li>
+                ))}
+                {purchases.length === 0 && <li className="list-group-item text-muted">No purchases yet.</li>}
+              </ul>
+            </div>
+          </div>
+
+          <div className="stat-card span-2">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h6 className="mb-0">Recent Expenses</h6>
+              <span className="pill-neutral">Latest 5</span>
+            </div>
+            <div className="scrollable-tight">
+              <ul className="list-group">
+                {expenses.slice(0, 5).map((e) => (
+                  <li key={e._id} className="list-group-item d-flex justify-content-between">
+                    <span>{e.title || 'Expense'}</span>
+                    <span className="fw-semibold">NPR {Number(e.amount || 0).toFixed(2)}</span>
+                  </li>
+                ))}
+                {expenses.length === 0 && <li className="list-group-item text-muted">No expenses yet.</li>}
+              </ul>
+            </div>
+          </div>
         </div>
       )}
 

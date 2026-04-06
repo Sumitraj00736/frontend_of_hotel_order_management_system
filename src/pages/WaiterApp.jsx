@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../api/client.js';
-import HeaderBar from '../components/HeaderBar.jsx';
-import NotificationPanel from '../components/NotificationPanel.jsx';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
 import { getCurrentUser } from '../api/session.js';
@@ -12,6 +10,7 @@ import WaiterOrders from '../components/waiter/WaiterOrders.jsx';
 import WaiterProfile from '../components/waiter/WaiterProfile.jsx';
 import WaiterAnalytics from '../components/waiter/WaiterAnalytics.jsx';
 import WaiterPromotionTimeline from '../components/waiter/WaiterPromotionTimeline.jsx';
+import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import '../common/css/admin/common/adminLayout.css';
 
 const WaiterApp = () => {
@@ -24,12 +23,14 @@ const WaiterApp = () => {
   const [search, setSearch] = useState('');
   const [editingOrderId, setEditingOrderId] = useState(null);
   const [notifications, setNotifications] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [spiceLevel, setSpiceLevel] = useState('medium');
   const [instructions, setInstructions] = useState('');
   const [profile, setProfile] = useState(null);
   const [myAnalytics, setMyAnalytics] = useState(null);
   const [promotions, setPromotions] = useState([]);
+  const [activeSection, setActiveSection] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [notificationFilters, setNotificationFilters] = useState({});
 
   const loadData = async () => {
     const results = await Promise.allSettled([
@@ -43,14 +44,17 @@ const WaiterApp = () => {
 
     if (results[0].status === 'fulfilled') setTables(results[0].value.data);
     if (results[1].status === 'fulfilled') setMenus(results[1].value.data);
-    if (results[2].status === 'fulfilled') setOrders(results[2].value.data);
+    if (results[2].status === 'fulfilled') {
+      const payload = results[2].value.data;
+      setOrders(Array.isArray(payload?.data) ? payload.data : payload);
+    }
     if (results[3].status === 'fulfilled') setProfile(results[3].value.data);
     if (results[4].status === 'fulfilled') setMyAnalytics(results[4].value.data);
     if (results[5].status === 'fulfilled') setPromotions(results[5].value.data);
   };
 
-  const loadNotifications = async () => {
-    const res = await api.get('/api/notifications');
+  const loadNotifications = async (filters = {}) => {
+    const res = await api.get('/api/notifications', { params: filters });
     setNotifications(res.data);
   };
 
@@ -58,6 +62,10 @@ const WaiterApp = () => {
     loadData();
     loadNotifications();
   }, []);
+
+  useEffect(() => {
+    loadNotifications(notificationFilters);
+  }, [notificationFilters]);
 
   useEffect(() => {
     const socket = createSocket();
@@ -176,44 +184,78 @@ const WaiterApp = () => {
 
   return (
     <div className="admin-shell">
-      <HeaderBar
-        title="Waiter Live Station"
-        unreadCount={unreadCount}
-        onToggleNotifications={() => setShowNotifications((prev) => !prev)}
-      />
-      {showNotifications && (
-        <div className="notification-drawer">
-          <NotificationPanel notifications={notifications} onMarkAll={markAllRead} />
-        </div>
-      )}
       <NotificationToasts notifications={notifications} />
 
-      <div className="admin-body">
-        <WaiterSidebar
-          tables={tables}
-          selectedTable={selectedTable}
-          onSelectTable={setSelectedTable}
-          onFreeTable={freeTable}
-        />
-
-        <div className="content grid-3">
-          <WaiterCart
-            cart={cart}
-            cartTotal={cartTotal}
-            onUpdateQty={updateQty}
-            onPlaceOrder={placeOrder}
-            editing={Boolean(editingOrderId)}
-            spiceLevel={spiceLevel}
-            onSpiceChange={setSpiceLevel}
-            instructions={instructions}
-            onInstructionsChange={setInstructions}
+      <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
+        <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
+          <WaiterSidebar
+            activeSection={activeSection}
+            onSelect={setActiveSection}
+            isOpen={sidebarOpen}
+            onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+            unreadCount={unreadCount}
           />
-          <WaiterMenu search={search} onSearch={setSearch} menuItems={filteredMenu} onAdd={addToCart} />
-          <WaiterOrders orders={orders} onEdit={loadOrderToEdit} onBill={generateBill} />
-          <WaiterProfile profile={profile} />
-          <WaiterAnalytics analytics={myAnalytics} />
-          <WaiterPromotionTimeline promotions={promotions} />
         </div>
+
+        {activeSection === 'dashboard' && (
+          <div className="content grid-3">
+            <WaiterCart
+              cart={cart}
+              cartTotal={cartTotal}
+              onUpdateQty={updateQty}
+              onPlaceOrder={placeOrder}
+              editing={Boolean(editingOrderId)}
+              spiceLevel={spiceLevel}
+              onSpiceChange={setSpiceLevel}
+              instructions={instructions}
+              onInstructionsChange={setInstructions}
+              tables={tables}
+              selectedTable={selectedTable}
+              onSelectTable={setSelectedTable}
+              onFreeTable={freeTable}
+            />
+            <WaiterMenu search={search} onSearch={setSearch} menuItems={filteredMenu} onAdd={addToCart} />
+            <WaiterOrders orders={orders} onEdit={loadOrderToEdit} onBill={generateBill} />
+            <WaiterProfile profile={profile} />
+            <WaiterAnalytics analytics={myAnalytics} />
+            <WaiterPromotionTimeline promotions={promotions} />
+          </div>
+        )}
+
+        {activeSection === 'orders' && (
+          <div className="content">
+            <WaiterOrders orders={orders} onEdit={loadOrderToEdit} onBill={generateBill} />
+          </div>
+        )}
+
+        {activeSection === 'menu' && (
+          <div className="content">
+            <WaiterMenu search={search} onSearch={setSearch} menuItems={filteredMenu} onAdd={addToCart} />
+          </div>
+        )}
+
+        {activeSection === 'notifications' && (
+          <div className="content">
+            <NotificationPage
+              notifications={notifications}
+              filters={notificationFilters}
+              onFilterChange={(next) => {
+                const merged = { ...notificationFilters, ...next };
+                setNotificationFilters(merged);
+                loadNotifications(merged);
+              }}
+              onMarkAll={markAllRead}
+            />
+          </div>
+        )}
+
+        {activeSection === 'profile' && (
+          <div className="content grid-3">
+            <WaiterProfile profile={profile} />
+            <WaiterAnalytics analytics={myAnalytics} />
+            <WaiterPromotionTimeline promotions={promotions} />
+          </div>
+        )}
       </div>
     </div>
   );

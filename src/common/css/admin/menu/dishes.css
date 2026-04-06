@@ -413,6 +413,26 @@
   cursor: pointer;
 }
 
+.variant-list {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.variant-row {
+  display: grid;
+  grid-template-columns: 1fr 140px auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.variant-row input {
+  border: 1px solid #e6e8ef;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
 .addon-banner {
   display: flex;
   gap: 12px;
