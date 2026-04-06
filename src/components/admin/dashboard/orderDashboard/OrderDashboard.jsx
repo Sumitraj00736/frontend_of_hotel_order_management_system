@@ -12,7 +12,7 @@ const OrderDashboard = ({ overview, data }) => {
     <div className="dash-tab-stack">
       <OrderKpiGrid overview={overview} data={data} />
       <div className="panel-grid two-col">
-        <OrderInsightPanel />
+        <OrderInsightPanel series={data?.orderSeries} />
         <LiveOrderStatusPanel overview={overview} data={data} />
       </div>
       <div className="panel-grid two-col">

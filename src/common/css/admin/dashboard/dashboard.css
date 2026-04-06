@@ -282,6 +282,20 @@
   overflow-x: auto;
 }
 
+.transaction-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.transaction-actions input[type='date'] {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
 .transaction-empty {
   display: flex;
   flex-direction: column;
@@ -369,6 +383,11 @@
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.mini-line-chart {
+  width: 100%;
+  height: 180px;
 }
 
 .panel-title {

@@ -18,6 +18,12 @@ const AdminOverview = ({
   overviewDashboardData,
   financeDashboardData,
   transactionHistory,
+  transactionMeta,
+  transactionFilters,
+  onTransactionFilterChange,
+  onTransactionPageChange,
+  onTransactionLimitChange,
+  onTransactionExport,
   dashboardOptions,
   onChangeDashboardOptions
 }) => {
@@ -62,11 +68,31 @@ const AdminOverview = ({
       </div>
 
       {tab === 'overview' && (
-        <OverviewDashboard report={report} data={overviewDashboardData} transactions={transactionHistory} />
+        <OverviewDashboard
+          report={report}
+          data={overviewDashboardData}
+          transactions={transactionHistory}
+          transactionMeta={transactionMeta}
+          transactionFilters={transactionFilters}
+          onTransactionFilterChange={onTransactionFilterChange}
+          onTransactionPageChange={onTransactionPageChange}
+          onTransactionLimitChange={onTransactionLimitChange}
+          onTransactionExport={onTransactionExport}
+        />
       )}
 
       {tab === 'finance' && (
-        <FinanceDashboard report={report} data={financeDashboardData} transactions={transactionHistory} />
+        <FinanceDashboard
+          report={report}
+          data={financeDashboardData}
+          transactions={transactionHistory}
+          transactionMeta={transactionMeta}
+          transactionFilters={transactionFilters}
+          onTransactionFilterChange={onTransactionFilterChange}
+          onTransactionPageChange={onTransactionPageChange}
+          onTransactionLimitChange={onTransactionLimitChange}
+          onTransactionExport={onTransactionExport}
+        />
       )}
 
       {tab === 'order' && (

@@ -59,6 +59,8 @@ const AdminDashboard = () => {
   const [overviewDashboardData, setOverviewDashboardData] = useState(null);
   const [financeDashboardData, setFinanceDashboardData] = useState(null);
   const [transactionHistory, setTransactionHistory] = useState([]);
+  const [transactionMeta, setTransactionMeta] = useState({ page: 1, limit: 20, total: 0 });
+  const [transactionFilters, setTransactionFilters] = useState({ dateFrom: '', dateTo: '' });
   const dashboardLoadedRef = React.useRef(false);
 
   const [userForm, setUserForm] = useState({
@@ -186,18 +188,33 @@ const AdminDashboard = () => {
     }
   }, [activeSection]);
 
+  const loadTransactionHistory = useCallback(
+    async (nextFilters = transactionFilters, page = transactionMeta.page, limit = transactionMeta.limit) => {
+      const res = await api.get('/api/reports/transactions', {
+        params: { ...nextFilters, page, limit }
+      });
+      const payload = res.data;
+      if (Array.isArray(payload?.data)) {
+        setTransactionHistory(payload.data);
+        setTransactionMeta({ page: payload.page || page, limit: payload.limit || limit, total: payload.total || 0 });
+        return;
+      }
+      setTransactionHistory(Array.isArray(payload) ? payload : []);
+    },
+    [transactionFilters, transactionMeta.page, transactionMeta.limit]
+  );
+
   const loadDashboardExtras = useCallback(async () => {
-    const [orderRes, overviewRes, financeRes, transactionsRes] = await Promise.all([
+    const [orderRes, overviewRes, financeRes] = await Promise.all([
       api.get('/api/reports/order-dashboard'),
       api.get('/api/reports/overview-dashboard'),
-      api.get('/api/reports/finance-dashboard'),
-      api.get('/api/reports/transactions', { params: { limit: 20 } })
+      api.get('/api/reports/finance-dashboard')
     ]);
     setOrderDashboardData(orderRes.data);
     setOverviewDashboardData(overviewRes.data);
     setFinanceDashboardData(financeRes.data);
-    setTransactionHistory(transactionsRes.data || []);
-  }, []);
+    await loadTransactionHistory(transactionFilters, transactionMeta.page, transactionMeta.limit);
+  }, [loadTransactionHistory, transactionFilters, transactionMeta.page, transactionMeta.limit]);
 
   useEffect(() => {
     if (activeSection === 'dashboard' && !dashboardLoadedRef.current) {
@@ -500,6 +517,19 @@ const AdminDashboard = () => {
               overviewDashboardData={overviewDashboardData}
               financeDashboardData={financeDashboardData}
               transactionHistory={transactionHistory}
+              transactionMeta={transactionMeta}
+              transactionFilters={transactionFilters}
+              onTransactionFilterChange={(next) => {
+                const merged = { ...transactionFilters, ...next };
+                setTransactionFilters(merged);
+                loadTransactionHistory(merged, 1, transactionMeta.limit);
+              }}
+              onTransactionPageChange={(nextPage) => loadTransactionHistory(transactionFilters, nextPage, transactionMeta.limit)}
+              onTransactionLimitChange={(nextLimit) => loadTransactionHistory(transactionFilters, 1, nextLimit)}
+              onTransactionExport={() => {
+                const params = new URLSearchParams({ ...transactionFilters, format: 'csv' }).toString();
+                window.open(`/api/reports/transactions?${params}`, '_blank');
+              }}
               dashboardOptions={dashboardOptions}
               onChangeDashboardOptions={setDashboardOptions}
             />

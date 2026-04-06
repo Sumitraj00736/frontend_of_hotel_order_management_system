@@ -1,7 +1,8 @@
 import React from 'react';
 import { Calendar } from 'lucide-react';
+import LineChart from '../common/LineChart.jsx';
 
-const OrderInsightPanel = () => (
+const OrderInsightPanel = ({ series }) => (
   <div className="panel">
     <div className="panel-heading">
       <div>
@@ -10,7 +11,7 @@ const OrderInsightPanel = () => (
       </div>
       <button className="chip ghost"><Calendar size={16} /> Today</button>
     </div>
-    <div className="chart-placeholder">Line chart placeholder</div>
+    <LineChart data={series || []} xKey="month" yKey="orders" />
   </div>
 );
 

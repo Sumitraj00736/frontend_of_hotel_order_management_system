@@ -5,7 +5,17 @@ import OverviewTopCustomers from './OverviewTopCustomers.jsx';
 import OverviewBestSellingBanner from './OverviewBestSellingBanner.jsx';
 import OverviewTransactionHistory from './OverviewTransactionHistory.jsx';
 
-const OverviewDashboard = ({ report, data, transactions }) => {
+const OverviewDashboard = ({
+  report,
+  data,
+  transactions,
+  transactionMeta,
+  transactionFilters,
+  onTransactionFilterChange,
+  onTransactionPageChange,
+  onTransactionLimitChange,
+  onTransactionExport
+}) => {
   return (
     <div className="dash-tab-stack">
       <OverviewKpiGrid report={report} />
@@ -14,7 +24,17 @@ const OverviewDashboard = ({ report, data, transactions }) => {
         <OverviewTopCustomers items={data?.topCustomers || []} />
       </div>
       <OverviewBestSellingBanner bestSelling={data?.bestSelling} />
-      <OverviewTransactionHistory rows={transactions || []} />
+      <OverviewTransactionHistory
+        rows={transactions || []}
+        page={transactionMeta?.page}
+        limit={transactionMeta?.limit}
+        total={transactionMeta?.total}
+        filters={transactionFilters}
+        onFilterChange={onTransactionFilterChange}
+        onPageChange={onTransactionPageChange}
+        onLimitChange={onTransactionLimitChange}
+        onExport={onTransactionExport}
+      />
     </div>
   );
 };
