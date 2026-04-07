@@ -51,10 +51,10 @@ const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [financeFilters, setFinanceFilters] = useState({ dateFrom: '', dateTo: '' });
   const [dashboardOptions, setDashboardOptions] = useState({
-    includeAnalytics: true,
-    includeStock: true,
-    includeHistory: true,
-    includeNotifications: true
+    includeAnalytics: false,
+    includeStock: false,
+    includeHistory: false,
+    includeNotifications: false
   });
   const [ordersPage, setOrdersPage] = useState(1);
   const [ordersLimit, setOrdersLimit] = useState(12);
