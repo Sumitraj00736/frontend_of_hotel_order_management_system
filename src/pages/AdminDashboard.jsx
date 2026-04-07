@@ -169,7 +169,6 @@ const AdminDashboard = () => {
         { value: 'manager', label: 'Manager' },
         { value: 'waiter', label: 'Waiter' },
         { value: 'kitchen', label: 'Kitchen' },
-        { value: 'server', label: 'Server' },
         { value: 'billing', label: 'Billing' },
         { value: 'superadmin', label: 'SuperAdmin' }
       ];
@@ -181,7 +180,6 @@ const AdminDashboard = () => {
         { value: 'manager', label: 'Manager' },
         { value: 'waiter', label: 'Waiter' },
         { value: 'kitchen', label: 'Kitchen' },
-        { value: 'server', label: 'Server' },
         { value: 'billing', label: 'Billing' },
         { value: 'superadmin', label: 'SuperAdmin' }
       ]);

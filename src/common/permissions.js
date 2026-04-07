@@ -32,6 +32,30 @@ export const PERMISSION_GROUPS = [
       { key: 'billing:view', label: 'View Billing' },
       { key: 'billing:edit', label: 'Edit Billing' }
     ]
+  },
+  {
+    title: 'Order Settings',
+    items: [
+      { key: 'settings:invoice', label: 'Invoice Setting' },
+      { key: 'settings:kot', label: 'KOT Setting' },
+      { key: 'settings:printer', label: 'Printer Setting' }
+    ]
+  },
+  {
+    title: 'Reports',
+    items: [
+      { key: 'reports:company', label: 'Company Report' },
+      { key: 'reports:waiter', label: 'Waiter Report' },
+      { key: 'reports:kitchen', label: 'Kitchen Report' },
+      { key: 'reports:stock', label: 'Stock Report' }
+    ]
+  },
+  {
+    title: 'Misc',
+    items: [
+      { key: 'support:view', label: 'Support & Feedback' },
+      { key: 'release:view', label: 'Release Notes' }
+    ]
   }
 ];
 
@@ -40,7 +64,6 @@ export const DEFAULT_ROLE_OPTIONS = [
   { value: 'manager', label: 'Manager' },
   { value: 'waiter', label: 'Waiter' },
   { value: 'kitchen', label: 'Kitchen' },
-  { value: 'server', label: 'Server' },
   { value: 'billing', label: 'Billing' },
   { value: 'superadmin', label: 'SuperAdmin' }
 ];

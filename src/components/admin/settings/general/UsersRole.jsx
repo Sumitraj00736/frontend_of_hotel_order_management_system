@@ -5,7 +5,7 @@ const defaultCards = [
   { name: 'Admin', icon: '🧭' },
   { name: 'Billing', icon: '💳' },
   { name: 'Kitchen', icon: '🍳' },
-  { name: 'Server', icon: '🍽️' },
+  { name: 'Waiter', icon: '🍽️' },
   { name: 'SuperAdmin', icon: '🛡️' }
 ];
 
@@ -18,6 +18,7 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
     const map = {};
     (data?.counts || []).forEach((c) => {
       map[c._id] = c.total;
+      map[String(c._id || '').toLowerCase()] = c.total;
     });
     return map;
   }, [data]);
@@ -59,7 +60,7 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
               <div className="role-icon">{card.icon}</div>
               <div>
                 <div className="role-name">{card.name}</div>
-                <div className="role-meta">Total User: {counts[card.name.toLowerCase()] || 0}</div>
+                <div className="role-meta">Total User: {counts[card.name.toLowerCase()] || counts[card.name] || 0}</div>
               </div>
             </div>
           ))}

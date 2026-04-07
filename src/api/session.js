@@ -33,6 +33,19 @@ export const getBranches = () => {
   return raw ? JSON.parse(raw) : [];
 };
 
+export const updateBranchName = (branchId, branchName) => {
+  if (!branchId || !branchName) return;
+  const branches = getBranches();
+  const updated = branches.map((b) => {
+    const id = b.branchId || b._id;
+    if (id === branchId) {
+      return { ...b, branchName, name: branchName };
+    }
+    return b;
+  });
+  localStorage.setItem(BRANCHES_KEY, JSON.stringify(updated));
+};
+
 export const getBranchPermissions = () => {
   const branches = getBranches();
   const branchId = getBranchId();
