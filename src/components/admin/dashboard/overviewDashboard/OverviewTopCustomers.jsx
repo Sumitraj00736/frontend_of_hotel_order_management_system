@@ -15,8 +15,8 @@ const OverviewTopCustomers = ({ items = [] }) => (
       <div className="empty-illustration">No Customer Orders Yet!</div>
     ) : (
       <div className="list-stack">
-        {items.map((row) => (
-          <div key={row._id || row.name} className="list-row">
+        {items.map((row, idx) => (
+          <div key={row._id || row.name || `customer-${idx}`} className="list-row">
             <span>{row._id || row.name || 'Customer'}</span>
             <span className="fw-600">Rs {row.total || 0}</span>
           </div>

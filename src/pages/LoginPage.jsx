@@ -13,6 +13,7 @@ const LoginPage = () => {
   const [cafeName, setCafeName] = useState('');
   const [branchName, setBranchName] = useState('');
   const [error, setError] = useState('');
+  const [blockedInfo, setBlockedInfo] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +41,16 @@ const LoginPage = () => {
         navigate('/admin');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      const payload = err.response?.data;
+      if (err.response?.status === 403 && payload?.pendingUser) {
+        setBlockedInfo({
+          name: payload.pendingUser,
+          branch: payload.branchName,
+          status: payload.status
+        });
+      } else {
+        setError(payload?.message || 'Login failed');
+      }
     }
   };
 
@@ -94,6 +104,25 @@ const LoginPage = () => {
           </button>
         </form>
       </div>
+      {blockedInfo && (
+        <div className="modal-overlay fullscreen" onClick={() => setBlockedInfo(null)}>
+          <div className="modal-panel fullscreen small animate-in" onClick={(e) => e.stopPropagation()}>
+            <div className="d-flex justify-content-between align-items-center mb-3 modal-header-line">
+              <div>
+                <div className="eyebrow">Access denied</div>
+                <h5 className="mb-0">Account not active</h5>
+              </div>
+              <button className="btn btn-outline-light" onClick={() => setBlockedInfo(null)}>
+                Close
+              </button>
+            </div>
+            <div className="text-muted">
+              {blockedInfo.name}, you are a {blockedInfo.status} user so you can't login. Contact to your branch{' '}
+              {blockedInfo.branch} to set you as an active user.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

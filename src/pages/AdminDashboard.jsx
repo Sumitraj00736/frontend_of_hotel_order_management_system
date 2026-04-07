@@ -69,6 +69,7 @@ const AdminDashboard = () => {
     phone: '',
     password: '',
     role: 'waiter',
+    status: 'active',
     dateOfJoining: '',
     salary: '',
     shiftStart: '',
@@ -89,7 +90,8 @@ const AdminDashboard = () => {
       }
     });
     const data = res.data || {};
-    setUsers(data.users || []);
+    const normalizedUsers = (data.users || []).map((u) => ({ ...u, _id: u._id || u.id }));
+    setUsers(normalizedUsers);
     setTables(data.tables || []);
     setMenus(data.menus || []);
     setOrders(data.orders || []);
@@ -147,6 +149,12 @@ const AdminDashboard = () => {
     setPromotions(res.data);
   };
 
+  const loadUsers = async () => {
+    const res = await api.get('/api/users');
+    const payload = Array.isArray(res.data) ? res.data : [];
+    setUsers(payload.map((u) => ({ ...u, _id: u._id || u.id })));
+  };
+
   const loadInventory = useCallback(async () => {
     const [ingRes, txnRes] = await Promise.all([
       api.get('/api/inventory/ingredients'),
@@ -185,6 +193,12 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (activeSection.startsWith('inventory')) {
       loadInventory();
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
+    if (activeSection === 'users') {
+      loadUsers();
     }
   }, [activeSection]);
 
@@ -273,11 +287,27 @@ const AdminDashboard = () => {
   const createUser = async () => {
     try {
       await api.post('/api/users', userForm);
-      setUserForm({ name: '', email: '', password: '', role: 'waiter', dateOfJoining: '', salary: '', shiftStart: '', shiftEnd: '' });
+      setUserForm({
+        name: '',
+        email: '',
+        phone: '',
+        password: '',
+        role: 'waiter',
+        status: 'active',
+        dateOfJoining: '',
+        salary: '',
+        shiftStart: '',
+        shiftEnd: ''
+      });
       loadAll();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to create user');
     }
+  };
+
+  const setUserStatus = async (userId, status) => {
+    await api.patch(`/api/users/${userId}/status`, { status });
+    loadUsers();
   };
 
   const editUser = async (user) => {
@@ -579,6 +609,7 @@ const AdminDashboard = () => {
                 onCreateUser={createUser}
                 onEditUser={editUser}
                 onLoadPromotions={(u) => loadPromotions(u._id)}
+                onSetStatus={setUserStatus}
               />
               {selectedPromotionUser && (
                 <AdminPromotionTimeline
