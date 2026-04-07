@@ -4,6 +4,7 @@ import NotificationToasts from '../components/NotificationToasts.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import { createSocket } from '../api/socket.js';
 import AdminSidebar from '../components/admin/sidebar/AdminSidebar.jsx';
+import { hasPermission } from '../api/session.js';
 import AdminOverview from '../components/admin/dashboard/AdminOverview.jsx';
 import AdminOrders from '../components/admin/orders/adminOrders/AdminOrders.jsx';
 import AdminUsers from '../components/admin/users/AdminUsers.jsx';
@@ -19,11 +20,14 @@ import AdminHistory from '../components/admin/history/AdminHistory.jsx';
 import AdminPromotionTimeline from '../components/admin/promotions/AdminPromotionTimeline.jsx';
 import AdminInventory from '../components/admin/inventory/AdminInventory.jsx';
 import AdminWebsite from '../components/admin/website/AdminWebsite.jsx';
+import AdminSettings from '../components/admin/settings/AdminSettings.jsx';
+import SettingsSidebar from '../components/admin/settings/SettingsSidebar.jsx';
 import '../common/css/admin/common/adminLayout.css';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [tables, setTables] = useState([]);
   const [menus, setMenus] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -155,6 +159,35 @@ const AdminDashboard = () => {
     setUsers(payload.map((u) => ({ ...u, _id: u._id || u.id })));
   };
 
+  const loadRoles = async () => {
+    try {
+      const res = await api.get('/api/roles');
+      const payload = res.data || {};
+      const custom = Array.isArray(payload.roles) ? payload.roles : [];
+      const baseRoles = [
+        { value: 'admin', label: 'Admin' },
+        { value: 'manager', label: 'Manager' },
+        { value: 'waiter', label: 'Waiter' },
+        { value: 'kitchen', label: 'Kitchen' },
+        { value: 'server', label: 'Server' },
+        { value: 'billing', label: 'Billing' },
+        { value: 'superadmin', label: 'SuperAdmin' }
+      ];
+      const customRoles = custom.map((r) => ({ ...r, label: r.name, value: r.name }));
+      setRoles([...baseRoles, ...customRoles]);
+    } catch (e) {
+      setRoles([
+        { value: 'admin', label: 'Admin' },
+        { value: 'manager', label: 'Manager' },
+        { value: 'waiter', label: 'Waiter' },
+        { value: 'kitchen', label: 'Kitchen' },
+        { value: 'server', label: 'Server' },
+        { value: 'billing', label: 'Billing' },
+        { value: 'superadmin', label: 'SuperAdmin' }
+      ]);
+    }
+  };
+
   const loadInventory = useCallback(async () => {
     const [ingRes, txnRes] = await Promise.all([
       api.get('/api/inventory/ingredients'),
@@ -180,6 +213,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     loadAll();
     loadNotifications();
+    loadRoles();
   }, []);
 
   useEffect(() => {
@@ -307,6 +341,15 @@ const AdminDashboard = () => {
 
   const setUserStatus = async (userId, status) => {
     await api.patch(`/api/users/${userId}/status`, { status });
+    loadUsers();
+  };
+
+  const assignUserRole = async (userId, role) => {
+    if (!role) return;
+    const payload = role._id
+      ? { roleId: role._id }
+      : { roleName: role.value || role.name || role.label };
+    await api.patch(`/api/users/${userId}/role`, payload);
     loadUsers();
   };
 
@@ -529,17 +572,25 @@ const AdminDashboard = () => {
 
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
-          <AdminSidebar
-            activeSection={activeSection}
-            onSelect={setActiveSection}
-            isOpen={sidebarOpen}
-            onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
-            unreadCount={unreadCount}
-          />
+          {activeSection.startsWith('settings') ? (
+            <SettingsSidebar
+              active={activeSection.split(':')[1] || 'restaurant-details'}
+              onSelect={(view) => setActiveSection(`settings:${view}`)}
+              onBack={() => setActiveSection('dashboard')}
+            />
+          ) : (
+            <AdminSidebar
+              activeSection={activeSection}
+              onSelect={setActiveSection}
+              isOpen={sidebarOpen}
+              onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+              unreadCount={unreadCount}
+            />
+          )}
         </div>
 
         <div className="content">
-          {activeSection === 'dashboard' && (
+          {activeSection === 'dashboard' && hasPermission('dashboard:view') && (
             <AdminOverview
               report={report}
               overview={overview}
@@ -564,7 +615,7 @@ const AdminDashboard = () => {
               onChangeDashboardOptions={setDashboardOptions}
             />
           )}
-          {activeSection === 'notifications' && (
+          {activeSection === 'notifications' && hasPermission('notifications:view') && (
             <NotificationPage
               notifications={notifications}
               filters={notificationFilters}
@@ -576,7 +627,7 @@ const AdminDashboard = () => {
               onMarkAll={markAllRead}
             />
           )}
-          {activeSection === 'orders' && (
+          {activeSection === 'orders' && hasPermission('orders:view') && (
             <AdminOrders
               orders={orders}
               menus={menus}
@@ -600,16 +651,18 @@ const AdminDashboard = () => {
               }}
             />
           )}
-          {activeSection === 'users' && (
+          {activeSection === 'users' && hasPermission('staff:view') && (
             <>
               <AdminUsers
                 users={users}
+                roles={roles}
                 userForm={userForm}
                 setUserForm={setUserForm}
                 onCreateUser={createUser}
                 onEditUser={editUser}
                 onLoadPromotions={(u) => loadPromotions(u._id)}
                 onSetStatus={setUserStatus}
+                onAssignRole={assignUserRole}
               />
               {selectedPromotionUser && (
                 <AdminPromotionTimeline
@@ -620,7 +673,7 @@ const AdminDashboard = () => {
               )}
             </>
           )}
-          {activeSection === 'tables' && (
+          {activeSection === 'tables' && hasPermission('tables:view') && (
             <AdminTables
               tables={tables}
               tableForm={tableForm}
@@ -631,7 +684,7 @@ const AdminDashboard = () => {
               onDeleteTable={deleteTable}
             />
           )}
-          {activeSection === 'menus' && (
+          {activeSection === 'menus' && hasPermission('menu:view') && (
             <AdminMenus
               menus={menus}
               menuForm={menuForm}
@@ -640,8 +693,13 @@ const AdminDashboard = () => {
               onEditMenu={editMenu}
             />
           )}
-          {activeSection === 'website' && <AdminWebsite />}
-          {activeSection.startsWith('inventory') && (
+          {activeSection === 'website' && hasPermission('website:view') && <AdminWebsite />}
+          {activeSection.startsWith('settings') && hasPermission('settings:view') && (
+            <AdminSettings
+              activeView={activeSection.split(':')[1] || 'restaurant-details'}
+            />
+          )}
+          {activeSection.startsWith('inventory') && hasPermission('inventory:view') && (
             <AdminInventory
               menus={menus}
               ingredients={ingredients}
@@ -650,7 +708,7 @@ const AdminDashboard = () => {
               externalView={activeSection.split(':')[1] || 'ingredients'}
             />
           )}
-          {activeSection.startsWith('reports') && (
+          {activeSection.startsWith('reports') && hasPermission('reports:view') && (
             <AdminReports
               view={activeSection.split(':')[1] || 'company'}
               onChangeView={(view) => setActiveSection(`reports:${view}`)}
@@ -668,7 +726,7 @@ const AdminDashboard = () => {
               onCreateExpense={async (payload) => { await api.post('/api/expenses', payload); loadFinance(financeFilters); }}
             />
           )}
-          {activeSection.startsWith('menu') && (() => {
+          {activeSection.startsWith('menu') && hasPermission('menu:view') && (() => {
             const view = activeSection.split(':')[1] || 'dishes';
             if (view === 'categories') {
               return (
@@ -725,7 +783,7 @@ const AdminDashboard = () => {
               />
             );
           })()}
-          {activeSection === 'history' && <AdminHistory history={history} />}
+          {activeSection === 'history' && hasPermission('reports:view') && <AdminHistory history={history} />}
         </div>
       </div>
     </div>

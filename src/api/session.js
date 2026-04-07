@@ -32,3 +32,19 @@ export const getBranches = () => {
   const raw = localStorage.getItem(BRANCHES_KEY);
   return raw ? JSON.parse(raw) : [];
 };
+
+export const getBranchPermissions = () => {
+  const branches = getBranches();
+  const branchId = getBranchId();
+  const active = branches.find((b) => (b.branchId || b._id) === branchId) || branches[0];
+  return active?.permissions || [];
+};
+
+export const hasPermission = (permission) => {
+  const user = getCurrentUser();
+  if (!permission) return true;
+  const perms = getBranchPermissions();
+  if (perms.includes('*')) return true;
+  if (user?.role && ['admin', 'superadmin'].includes(user.role.toLowerCase())) return true;
+  return perms.map((p) => p.toLowerCase()).includes(permission.toLowerCase());
+};

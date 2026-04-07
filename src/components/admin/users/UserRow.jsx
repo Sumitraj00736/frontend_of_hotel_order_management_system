@@ -3,7 +3,7 @@ import { MoreHorizontal } from 'lucide-react';
 
 const initials = (name = '') => name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
 
-const UserRow = ({ index, user, onEdit, onLoadPromotions, onSetStatus }) => {
+const UserRow = ({ index, user, roles = [], onEdit, onLoadPromotions, onSetStatus, onAssignRole }) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -40,6 +40,18 @@ const UserRow = ({ index, user, onEdit, onLoadPromotions, onSetStatus }) => {
           <div className="users-menu" ref={menuRef}>
             <button onClick={() => onEdit?.(user)}>Edit</button>
             <button onClick={() => onLoadPromotions?.(user)}>Promotions</button>
+            {roles.length > 0 && <div className="users-menu-divider">Assign Role</div>}
+            {roles.map((role) => (
+              <button
+                key={role.id || role._id || role.value || role.name}
+                onClick={() => {
+                  onAssignRole?.(user._id, role);
+                  setOpen(false);
+                }}
+              >
+                {role.label || role.name || role.value}
+              </button>
+            ))}
             <button onClick={() => onSetStatus?.(user._id, 'active')}>Mark Active</button>
             <button onClick={() => onSetStatus?.(user._id, 'pending')}>Mark Pending</button>
             <button onClick={() => onSetStatus?.(user._id, 'inactive')}>Mark Inactive</button>

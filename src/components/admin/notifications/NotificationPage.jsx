@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import '../../../common/css/admin/notifications/notification.css';
 
 const tabs = [
@@ -24,6 +24,7 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
   const [tab, setTab] = useState(filters?.category || 'activity');
   const [filterOpen, setFilterOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('dateRange');
+  const prevCountRef = useRef(notifications.length);
 
   const grouped = useMemo(() => {
     const byDay = {};
@@ -36,6 +37,39 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
     return byDay;
   }, [notifications]);
 
+  useEffect(() => {
+    const prevCount = prevCountRef.current;
+    if (notifications.length > prevCount) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 880;
+        gain.gain.value = 0.15;
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + 0.18);
+      } catch (err) {
+        // ignore audio errors
+      }
+    }
+    prevCountRef.current = notifications.length;
+  }, [notifications.length]);
+
+  const formatDayLabel = (date) => {
+    const today = new Date();
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diffDays = Math.round((startOfToday - startOfDate) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    return date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+  };
+
   const handleTab = (nextTab) => {
     setTab(nextTab);
     onFilterChange?.({ category: nextTab });
@@ -46,6 +80,15 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
       <div className="notify-top">
         <h3 className="page-title mb-0">Notification</h3>
         <div className="notify-actions">
+          {tab === 'activity' && (
+            <button
+              className={`notify-filter-toggle ${filterOpen ? 'active' : ''}`}
+              onClick={() => setFilterOpen((v) => !v)}
+            >
+              <span className="filter-icon">⎚</span>
+              Filter
+            </button>
+          )}
           <button className="chip" onClick={onMarkAll}>Mark all read</button>
         </div>
       </div>
@@ -58,14 +101,8 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
         ))}
       </div>
 
-      {tab === 'activity' && (
+      {tab === 'activity' && filterOpen && (
         <div className="notify-filters">
-          <button
-            className={`filter-chip ${filterOpen ? 'active' : ''}`}
-            onClick={() => setFilterOpen((v) => !v)}
-          >
-            Filters
-          </button>
           {filterChips.map((chip) => {
             const val = filters?.[chip.id];
             const label = typeof chip.label === 'function' ? chip.label(val) : chip.label;
@@ -73,69 +110,65 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
               <button
                 key={chip.id}
                 className={`filter-chip ${activeFilter === chip.id ? 'active' : ''}`}
-                onClick={() => { setActiveFilter(chip.id); setFilterOpen(true); }}
+                onClick={() => setActiveFilter(chip.id)}
               >
                 {label}
               </button>
             );
           })}
-          {filterOpen && (
-            <div className="filter-popover">
-              {activeFilter === 'dateRange' && (
-                <div className="filter-list">
-                  {dateOptions.map((opt) => (
-                    <button
-                      key={opt}
-                      className={`filter-option ${filters?.dateRange === opt ? 'selected' : ''}`}
-                      onClick={() => { setFilterOpen(false); onFilterChange?.({ dateRange: opt === 'Lifetime' ? undefined : opt }); }}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {activeFilter === 'type' && (
-                <div className="filter-list">
-                  {typeOptions.map((opt) => (
-                    <button
-                      key={opt}
-                      className={`filter-option ${filters?.type === opt ? 'selected' : ''}`}
-                      onClick={() => { setFilterOpen(false); onFilterChange?.({ type: opt === 'All' ? undefined : opt }); }}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {activeFilter !== 'dateRange' && activeFilter !== 'type' && (
-                <div className="filter-list">
-                  <input
-                    className="filter-input"
-                    placeholder="Enter value"
-                    defaultValue={filters?.[activeFilter] || ''}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        setFilterOpen(false);
-                        const value = e.target.value || undefined;
-                        onFilterChange?.({ [activeFilter]: value });
-                      }
-                    }}
-                  />
+          <div className="filter-popover">
+            {activeFilter === 'dateRange' && (
+              <div className="filter-list">
+                {dateOptions.map((opt) => (
                   <button
-                    className="chip apply"
-                    onClick={() => {
-                      const input = document.querySelector('.filter-input');
-                      const value = input?.value || undefined;
-                      setFilterOpen(false);
-                      onFilterChange?.({ [activeFilter]: value });
-                    }}
+                    key={opt}
+                    className={`filter-option ${filters?.dateRange === opt ? 'selected' : ''}`}
+                    onClick={() => { onFilterChange?.({ dateRange: opt === 'Lifetime' ? undefined : opt }); }}
                   >
-                    Apply
+                    {opt}
                   </button>
-                </div>
-              )}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+            {activeFilter === 'type' && (
+              <div className="filter-list">
+                {typeOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    className={`filter-option ${filters?.type === opt ? 'selected' : ''}`}
+                    onClick={() => { onFilterChange?.({ type: opt === 'All' ? undefined : opt }); }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            )}
+            {activeFilter !== 'dateRange' && activeFilter !== 'type' && (
+              <div className="filter-list">
+                <input
+                  className="filter-input"
+                  placeholder="Enter value"
+                  defaultValue={filters?.[activeFilter] || ''}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const value = e.target.value || undefined;
+                      onFilterChange?.({ [activeFilter]: value });
+                    }
+                  }}
+                />
+                <button
+                  className="chip apply"
+                  onClick={() => {
+                    const input = document.querySelector('.filter-input');
+                    const value = input?.value || undefined;
+                    onFilterChange?.({ [activeFilter]: value });
+                  }}
+                >
+                  Apply
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -143,17 +176,20 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
 
       {Object.entries(grouped).map(([day, items]) => (
         <div key={day} className="notify-day">
-          <div className="notify-day-title">{day}</div>
-          <div className="notify-list">
+          <div className="notify-day-title">{formatDayLabel(items[0]?.date || new Date(day))}</div>
+          <div className={`notify-list ${tab === 'activity' ? 'activity' : 'order'}`}>
             {items.map((n, idx) => (
               <div key={idx} className="notify-item">
                 <div className="notify-icon">🔔</div>
                 <div className="notify-body">
                   <div className="notify-title">{n.title || n.type || 'Notification'}</div>
                   <div className="notify-text">{n.message || n.msg || ''}</div>
+                  {tab === 'order' && (
+                    <button className="notify-link">View KOT</button>
+                  )}
                 </div>
                 <div className="notify-time">
-                  {n.date?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}{' '}
+                  {n.date?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}/{' '}
                   {n.date?.toLocaleDateString()}
                 </div>
               </div>

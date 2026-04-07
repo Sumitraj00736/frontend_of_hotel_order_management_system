@@ -5,7 +5,7 @@ import UserTable from './UserTable.jsx';
 import UserInviteModal from './UserInviteModal.jsx';
 import '../../../common/css/admin/users/users.css';
 
-const AdminUsers = ({ users, userForm, setUserForm, onCreateUser, onEditUser, onLoadPromotions, onSetStatus }) => {
+const AdminUsers = ({ users, roles = [], userForm, setUserForm, onCreateUser, onEditUser, onLoadPromotions, onSetStatus, onAssignRole }) => {
   const [openModal, setOpenModal] = useState(false);
   const [tab, setTab] = useState('active');
   const [search, setSearch] = useState('');
@@ -39,6 +39,8 @@ const AdminUsers = ({ users, userForm, setUserForm, onCreateUser, onEditUser, on
         onEdit={onEditUser}
         onLoadPromotions={onLoadPromotions}
         onSetStatus={onSetStatus}
+        roles={roles}
+        onAssignRole={onAssignRole}
       />
 
       {openModal && (
@@ -47,6 +49,7 @@ const AdminUsers = ({ users, userForm, setUserForm, onCreateUser, onEditUser, on
           setUserForm={setUserForm}
           onClose={() => setOpenModal(false)}
           onCreate={handleCreate}
+          roles={roles}
         />
       )}
     </div>

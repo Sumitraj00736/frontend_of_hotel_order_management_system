@@ -1,6 +1,6 @@
 import React from 'react';
 
-const UserInviteModal = ({ userForm, setUserForm, onClose, onCreate }) => {
+const UserInviteModal = ({ userForm, setUserForm, onClose, onCreate, roles = [] }) => {
   return (
     <div className="modal-overlay fullscreen" onClick={onClose}>
       <div className="modal-panel fullscreen small animate-in" onClick={(e) => e.stopPropagation()}>
@@ -35,9 +35,19 @@ const UserInviteModal = ({ userForm, setUserForm, onClose, onCreate }) => {
             <div className="col-6">
               <label className="form-label">Role</label>
               <select className="form-select" value={userForm.role} onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}>
-                <option value="waiter">Waiter</option>
-                <option value="kitchen">Kitchen</option>
-                <option value="admin">Admin</option>
+                {roles.length === 0 ? (
+                  <>
+                    <option value="waiter">Waiter</option>
+                    <option value="kitchen">Kitchen</option>
+                    <option value="admin">Admin</option>
+                  </>
+                ) : (
+                  roles.map((role) => (
+                    <option key={role.value || role._id || role.name} value={role.value || role.name}>
+                      {role.label || role.name}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
             <div className="col-6">

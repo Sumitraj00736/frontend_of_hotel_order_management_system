@@ -27,7 +27,7 @@ import {
   ChefHat,
   PackageSearch
 } from 'lucide-react';
-import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../../api/session.js';
+import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId, hasPermission } from '../../../api/session.js';
 import '../../../common/css/admin/sidebar/adminSidebar.css';
 
 const iconMap = {
@@ -39,7 +39,8 @@ const iconMap = {
   inventory: <Boxes size={18} strokeWidth={1.5} />,
   website: <Globe size={18} strokeWidth={1.5} />,
   reports: <BarChart size={18} strokeWidth={1.5} />,
-  history: <History size={18} strokeWidth={1.5} />
+  history: <History size={18} strokeWidth={1.5} />,
+  settings: <Settings size={18} strokeWidth={1.5} />
 };
 
 const menuSubIcons = {
@@ -64,6 +65,17 @@ const reportsSubIcons = {
 };
 
 const coreSections = ['dashboard', 'orders', 'users', 'tables', 'website', 'notifications'];
+
+const sectionPermissions = {
+  dashboard: 'dashboard:view',
+  orders: 'orders:view',
+  users: 'staff:view',
+  tables: 'tables:view',
+  website: 'website:view',
+  notifications: 'notifications:view',
+  settings: 'settings:view',
+  history: 'reports:view'
+};
 
 const AdminSidebar = ({
   activeSection = 'dashboard',
@@ -97,7 +109,9 @@ const AdminSidebar = ({
         <div className="popover-card">
           <div className="popover-title">{title}</div>
           <div className="popover-list">
-            {links.map(({ id: linkId, label }) => (
+            {links
+              .filter((link) => !link.permission || hasPermission(link.permission))
+              .map(({ id: linkId, label }) => (
               <button
                 key={linkId}
                 className={`sidebar-button sub ${activeSection === linkId ? 'active' : ''}`}
@@ -149,11 +163,13 @@ const AdminSidebar = ({
       </div>
 
       <div className="sidebar-buttons">
-        {coreSections.map((section) => (
+        {coreSections
+          .filter((section) => hasPermission(sectionPermissions[section]))
+          .map((section) => (
           <button
             key={section}
-            className={`sidebar-button ${activeSection === section ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-            onClick={() => onSelect?.(section)}
+            className={`sidebar-button ${activeSection === section || activeSection.startsWith(`${section}:`) ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
+            onClick={() => onSelect?.(section === 'settings' ? 'settings:restaurant-details' : section)}
             title={section.toUpperCase()}
           >
             <span className="sidebar-icon">{iconMap[section]}</span>
@@ -169,6 +185,7 @@ const AdminSidebar = ({
           onMouseEnter={() => !isOpen && setHoveredMenu('menu')}
           onMouseLeave={() => !isOpen && setHoveredMenu(null)}
         >
+          {hasPermission('menu:view') && (
           <button
             className={`sidebar-button ${activeSection.startsWith('menu') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
             onClick={() => (isOpen ? setMenuOpen((v) => !v) : setHoveredMenu('menu'))}
@@ -178,36 +195,47 @@ const AdminSidebar = ({
             <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Menu</span>
             {isOpen && <span className="ms-auto">{menuOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>}
           </button>
+          )}
           {isOpen && (
             <div className={`sidebar-sub ${menuOpen ? 'open' : ''}`}>
+              {hasPermission('menu:view') && (
               <button className={`sidebar-button sub ${activeSection === 'menu:dishes' ? 'active' : ''}`} onClick={() => onSelect?.('menu:dishes')}>
                 <span className="sidebar-icon">{menuSubIcons.dishes}</span>
                 Dishes
               </button>
+              )}
+              {hasPermission('menu:view') && (
               <button className={`sidebar-button sub ${activeSection === 'menu:categories' ? 'active' : ''}`} onClick={() => onSelect?.('menu:categories')}>
                 <span className="sidebar-icon">{menuSubIcons.categories}</span>
                 Category
               </button>
+              )}
+              {hasPermission('menu:view') && (
               <button className={`sidebar-button sub ${activeSection === 'menu:addons' ? 'active' : ''}`} onClick={() => onSelect?.('menu:addons')}>
                 <span className="sidebar-icon">{menuSubIcons.addons}</span>
                 Ad-Ons & Extras
               </button>
+              )}
+              {hasPermission('menu:view') && (
               <button className={`sidebar-button sub ${activeSection === 'menu:submenus' ? 'active' : ''}`} onClick={() => onSelect?.('menu:submenus')}>
                 <span className="sidebar-icon">{menuSubIcons.submenus}</span>
                 Sub Menu
               </button>
+              )}
+              {hasPermission('menu:view') && (
               <button className={`sidebar-button sub ${activeSection === 'menu:combos' ? 'active' : ''}`} onClick={() => onSelect?.('menu:combos')}>
                 <span className="sidebar-icon">{menuSubIcons.combos}</span>
                 Combo Offer
               </button>
+              )}
             </div>
           )}
           {renderCollapsedPopover('menu', 'Menu', [
-            { id: 'menu:dishes', label: 'Dishes' },
-            { id: 'menu:categories', label: 'Category' },
-            { id: 'menu:addons', label: 'Ad-Ons & Extras' },
-            { id: 'menu:submenus', label: 'Sub Menu' },
-            { id: 'menu:combos', label: 'Combo Offer' }
+            { id: 'menu:dishes', label: 'Dishes', permission: 'menu:view' },
+            { id: 'menu:categories', label: 'Category', permission: 'menu:view' },
+            { id: 'menu:addons', label: 'Ad-Ons & Extras', permission: 'menu:view' },
+            { id: 'menu:submenus', label: 'Sub Menu', permission: 'menu:view' },
+            { id: 'menu:combos', label: 'Combo Offer', permission: 'menu:view' }
           ])}
         </div>
 
@@ -217,6 +245,7 @@ const AdminSidebar = ({
           onMouseEnter={() => !isOpen && setHoveredMenu('inventory')}
           onMouseLeave={() => !isOpen && setHoveredMenu(null)}
         >
+          {hasPermission('inventory:view') && (
           <button
             className={`sidebar-button ${activeSection.startsWith('inventory') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
             onClick={() => (isOpen ? setInventoryOpen((v) => !v) : setHoveredMenu('inventory'))}
@@ -226,26 +255,33 @@ const AdminSidebar = ({
             <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Inventory</span>
             {isOpen && <span className="ms-auto">{inventoryOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>}
           </button>
+          )}
           {isOpen && (
             <div className={`sidebar-sub ${inventoryOpen ? 'open' : ''}`}>
+              {hasPermission('inventory:view') && (
               <button className={`sidebar-button sub ${activeSection === 'inventory:ingredients' ? 'active' : ''}`} onClick={() => onSelect?.('inventory:ingredients')}>
                 <span className="sidebar-icon">{inventorySubIcons.ingredients}</span>
                 Ingredients
               </button>
+              )}
+              {hasPermission('inventory:view') && (
               <button className={`sidebar-button sub ${activeSection === 'inventory:recipes' ? 'active' : ''}`} onClick={() => onSelect?.('inventory:recipes')}>
                 <span className="sidebar-icon">{inventorySubIcons.recipes}</span>
                 Recipes
               </button>
+              )}
+              {hasPermission('inventory:view') && (
               <button className={`sidebar-button sub ${activeSection === 'inventory:transactions' ? 'active' : ''}`} onClick={() => onSelect?.('inventory:transactions')}>
                 <span className="sidebar-icon">{inventorySubIcons.transactions}</span>
                 Stock Transactions
               </button>
+              )}
             </div>
           )}
           {renderCollapsedPopover('inventory', 'Inventory', [
-            { id: 'inventory:ingredients', label: 'Ingredients' },
-            { id: 'inventory:recipes', label: 'Recipes' },
-            { id: 'inventory:transactions', label: 'Stock Transactions' }
+            { id: 'inventory:ingredients', label: 'Ingredients', permission: 'inventory:view' },
+            { id: 'inventory:recipes', label: 'Recipes', permission: 'inventory:view' },
+            { id: 'inventory:transactions', label: 'Stock Transactions', permission: 'inventory:view' }
           ])}
         </div>
 
@@ -255,6 +291,7 @@ const AdminSidebar = ({
           onMouseEnter={() => !isOpen && setHoveredMenu('reports')}
           onMouseLeave={() => !isOpen && setHoveredMenu(null)}
         >
+          {hasPermission('reports:view') && (
           <button
             className={`sidebar-button ${activeSection.startsWith('reports') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
             onClick={() => (isOpen ? setReportsOpen((v) => !v) : setHoveredMenu('reports'))}
@@ -264,43 +301,66 @@ const AdminSidebar = ({
             <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Reports</span>
             {isOpen && <span className="ms-auto">{reportsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>}
           </button>
+          )}
           {isOpen && (
             <div className={`sidebar-sub ${reportsOpen ? 'open' : ''}`}>
+              {hasPermission('reports:view') && (
               <button className={`sidebar-button sub ${activeSection === 'reports:company' ? 'active' : ''}`} onClick={() => onSelect?.('reports:company')}>
                 <span className="sidebar-icon">{reportsSubIcons.company}</span>
                 Company
               </button>
+              )}
+              {hasPermission('reports:view') && (
               <button className={`sidebar-button sub ${activeSection === 'reports:waiter' ? 'active' : ''}`} onClick={() => onSelect?.('reports:waiter')}>
                 <span className="sidebar-icon">{reportsSubIcons.waiter}</span>
                 Waiter
               </button>
+              )}
+              {hasPermission('reports:view') && (
               <button className={`sidebar-button sub ${activeSection === 'reports:kitchen' ? 'active' : ''}`} onClick={() => onSelect?.('reports:kitchen')}>
                 <span className="sidebar-icon">{reportsSubIcons.kitchen}</span>
                 Kitchen
               </button>
+              )}
+              {hasPermission('reports:view') && (
               <button className={`sidebar-button sub ${activeSection === 'reports:stock' ? 'active' : ''}`} onClick={() => onSelect?.('reports:stock')}>
                 <span className="sidebar-icon">{reportsSubIcons.stock}</span>
                 Stock
               </button>
+              )}
             </div>
           )}
           {renderCollapsedPopover('reports', 'Reports', [
-            { id: 'reports:company', label: 'Company' },
-            { id: 'reports:waiter', label: 'Waiter' },
-            { id: 'reports:kitchen', label: 'Kitchen' },
-            { id: 'reports:stock', label: 'Stock' }
+            { id: 'reports:company', label: 'Company', permission: 'reports:view' },
+            { id: 'reports:waiter', label: 'Waiter', permission: 'reports:view' },
+            { id: 'reports:kitchen', label: 'Kitchen', permission: 'reports:view' },
+            { id: 'reports:stock', label: 'Stock', permission: 'reports:view' }
           ])}
         </div>
 
         {/* History */}
-        <button
-          className={`sidebar-button ${activeSection === 'history' ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-          onClick={() => onSelect?.('history')}
-          title="HISTORY"
-        >
-          <span className="sidebar-icon">{iconMap.history}</span>
-          <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>History</span>
-        </button>
+        {hasPermission('reports:view') && (
+          <button
+            className={`sidebar-button ${activeSection === 'history' ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
+            onClick={() => onSelect?.('history')}
+            title="HISTORY"
+          >
+            <span className="sidebar-icon">{iconMap.history}</span>
+            <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>History</span>
+          </button>
+        )}
+
+        {/* Settings */}
+        {hasPermission('settings:view') && (
+          <button
+            className={`sidebar-button ${activeSection.startsWith('settings') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
+            onClick={() => onSelect?.('settings:restaurant-details')}
+            title="SETTINGS"
+          >
+            <span className="sidebar-icon">{iconMap.settings}</span>
+            <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Settings</span>
+          </button>
+        )}
       </div>
 
       <div className="sidebar-profile-wrapper" onMouseLeave={() => setProfileOpen(false)}>
