@@ -1,129 +1,178 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import api from '../api/client.js';
 import { saveSession, setBranchId } from '../api/session.js';
-import '../common/css/admin/common/adminLayout.css';
+import '../common/css/Login.css'; // ✅ CSS FILE
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [mode, setMode] = useState('login'); // login | register
+
+  const [mode, setMode] = useState('login');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
   const [name, setName] = useState('');
   const [cafeName, setCafeName] = useState('');
   const [branchName, setBranchName] = useState('');
+
   const [error, setError] = useState('');
-  const [blockedInfo, setBlockedInfo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [shake, setShake] = useState(false);
+
+  const triggerShake = () => {
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
+
     try {
       if (mode === 'login') {
-        const res = await api.post('/api/auth/login', { identifier, password });
-        
-        const branches = res.data.branches || [];
-        saveSession(res.data.token, res.data.user, branches);
-        if (branches.length > 0) setBranchId(branches[0].branchId || branches[0]._id);
-        if (res.data.user.role.includes('admin') || res.data.user.role.includes('superadmin')) navigate('/admin');
-        if (res.data.user.role === 'waiter') navigate('/waiter');
-        if (res.data.user.role === 'kitchen') navigate('/kitchen');
+        const res = await api.post('/api/auth/login', {
+          identifier: identifier.trim().toLowerCase(),
+          password
+        });
+
+        const { token, user, branches = [] } = res.data;
+
+        saveSession(token, user, branches);
+
+        if (branches.length > 0) {
+          setBranchId(branches[0].branchId);
+        }
+
+        const role = branches?.[0]?.role;
+
+        if (role === 'admin' || role === 'superadmin') navigate('/admin');
+        else if (role === 'waiter') navigate('/waiter');
+        else if (role === 'kitchen') navigate('/kitchen');
+        else navigate('/');
       } else {
         const res = await api.post('/api/auth/register', {
           name,
           email: identifier,
           password,
           cafeName,
-          branchName
+          branchName: branchName || 'Main Branch'
         });
-        const branches = res.data.branches || [];
-        saveSession(res.data.token, res.data.user, branches);
-        if (branches.length > 0) setBranchId(branches[0].branchId || branches[0]._id);
+
+        const { token, user, branch, organization } = res.data;
+
+        const branches = [{
+          branchId: branch.id,
+          branchName: branch.name,
+          code: branch.code,
+          orgName: organization.name,
+          orgSlug: organization.slug,
+          role: 'superadmin',
+          permissions: []
+        }];
+
+        saveSession(token, user, branches);
+        setBranchId(branches[0].branchId);
+
         navigate('/admin');
       }
     } catch (err) {
       const payload = err.response?.data;
-      if (err.response?.status === 403 && payload?.pendingUser) {
-        setBlockedInfo({
-          name: payload.pendingUser,
-          branch: payload.branchName,
-          status: payload.status
-        });
-      } else {
-        setError(payload?.message || 'Login failed');
-      }
+      triggerShake();
+      setError(payload?.message || 'Invalid credentials');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="admin-shell">
-      <div className="card glass-card" style={{ maxWidth: 520, margin: '0 auto' }}>
-        <div className="d-flex gap-2 mb-3">
-          <button className={`btn ${mode === 'login' ? 'btn-primary' : 'btn-outline-light'}`} onClick={() => setMode('login')}>
-            Already have an account
+    <div className="login-bg">
+
+      <motion.div
+        initial={{ opacity: 0, y: 40, scale: 0.96 }}
+        animate={{
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          x: shake ? [-10, 10, -6, 6, 0] : 0
+        }}
+        transition={{ duration: 0.4, type: 'spring' }}
+        className={`login-card ${error ? 'error' : ''}`}
+      >
+
+        {/* Logo */}
+        <div className="logo-box">🍽️</div>
+
+        {/* Branding */}
+        <h2 className="brand">MeroRestro</h2>
+        <p className="subtitle">
+          {mode === 'login'
+            ? 'Sign in to manage your restaurant'
+            : 'Create and launch your restaurant'}
+        </p>
+
+        {/* Toggle */}
+        <div className="toggle">
+          <button
+            className={mode === 'login' ? 'active' : ''}
+            onClick={() => setMode('login')}
+          >
+            Login
           </button>
-          <button className={`btn ${mode === 'register' ? 'btn-primary' : 'btn-outline-light'}`} onClick={() => setMode('register')}>
-            New cafe (register)
+          <button
+            className={mode === 'register' ? 'active' : ''}
+            onClick={() => setMode('register')}
+          >
+            Register
           </button>
         </div>
-        <h2 className="mb-2">{mode === 'login' ? 'Sign in' : 'Create your cafe'}</h2>
-        <p className="text-muted">{mode === 'login' ? 'Access your existing cafe' : 'Create a new cafe/branch with admin access'}</p>
-        {error && <div className="alert alert-danger">{error}</div>}
+
+        {error && <div className="error-text">{error}</div>}
+
         <form onSubmit={handleSubmit}>
+
           {mode === 'register' && (
             <>
-              <div className="mb-3">
-                <label className="form-label">Your Name</label>
-                <input className="form-control" value={name} onChange={(e) => setName(e.target.value)} required />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Cafe / Restaurant Name</label>
-                <input className="form-control" value={cafeName} onChange={(e) => setCafeName(e.target.value)} required />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Branch Name (optional)</label>
-                <input className="form-control" value={branchName} onChange={(e) => setBranchName(e.target.value)} placeholder="Main Branch" />
-              </div>
+              <input className="input" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} required />
+              <input className="input" placeholder="Cafe Name" value={cafeName} onChange={(e) => setCafeName(e.target.value)} required />
+              <input className="input" placeholder="Branch (optional)" value={branchName} onChange={(e) => setBranchName(e.target.value)} />
             </>
           )}
-          <div className="mb-3">
-            <label className="form-label">{mode === 'login' ? 'Email or Phone' : 'Email'}</label>
+
+          <input
+            className="input"
+            placeholder="Email or Phone"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            required
+          />
+
+          <div className="password-box">
             <input
-              className="form-control"
-              placeholder="admin@example.com or 9800000001"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              className="input"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <span onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? '🙈' : '👁️'}
+            </span>
           </div>
-          <div className="mb-3">
-            <label className="form-label">Password</label>
-            <input className="form-control" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </div>
-          <button className="btn btn-primary w-100" type="submit">
-            {mode === 'login' ? 'Login' : 'Create cafe'}
-          </button>
+
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            whileHover={{ scale: 1.02 }}
+            className="login-btn"
+            disabled={loading}
+          >
+            {loading ? 'Processing...' : mode === 'login' ? 'Login' : 'Create Cafe'}
+          </motion.button>
         </form>
-      </div>
-      {blockedInfo && (
-        <div className="modal-overlay fullscreen" onClick={() => setBlockedInfo(null)}>
-          <div className="modal-panel fullscreen small animate-in" onClick={(e) => e.stopPropagation()}>
-            <div className="d-flex justify-content-between align-items-center mb-3 modal-header-line">
-              <div>
-                <div className="eyebrow">Access denied</div>
-                <h5 className="mb-0">Account not active</h5>
-              </div>
-              <button className="btn btn-outline-light" onClick={() => setBlockedInfo(null)}>
-                Close
-              </button>
-            </div>
-            <div className="text-muted">
-              {blockedInfo.name}, you are a {blockedInfo.status} user so you can't login. Contact to your branch{' '}
-              {blockedInfo.branch} to set you as an active user.
-            </div>
-          </div>
-        </div>
-      )}
+      </motion.div>
     </div>
   );
 };
