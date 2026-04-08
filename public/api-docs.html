@@ -5,304 +5,1239 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Order Management System - API Documentation</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .method-get { background-color: #10b981; }
-        .method-post { background-color: #3b82f6; }
-        .method-put { background-color: #f59e0b; }
-        .method-patch { background-color: #8b5cf6; }
-        .method-delete { background-color: #ef4444; }
-        .dark .method-get { background-color: #059669; }
-        .dark .method-post { background-color: #2563eb; }
-        .dark .method-put { background-color: #d97706; }
-        .dark .method-patch { background-color: #7c3aed; }
-        .dark .method-delete { background-color: #dc2626; }
+        :root {
+            --bg: #f8f7f4;
+            --surface: #ffffff;
+            --border: #e5e2da;
+            --text: #1a1814;
+            --muted: #6b6860;
+            --accent: #c8521a;
+            --accent2: #1a4acc;
+        }
+        .dark {
+            --bg: #111110;
+            --surface: #1c1c1a;
+            --border: #2a2a27;
+            --text: #f0ede8;
+            --muted: #888680;
+            --accent: #e8672e;
+            --accent2: #4a72f0;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            transition: background .25s, color .25s;
+        }
+        code, pre, .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Sidebar */
+        #sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            transition: transform .25s ease, background .25s;
+        }
+        #search {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            transition: border-color .2s;
+        }
+        #search:focus { outline: none; border-color: var(--accent); }
+        #search::placeholder { color: var(--muted); }
+
+        /* Nav links */
+        .nav-link {
+            display: flex; align-items: center; gap: 8px;
+            padding: 7px 10px; border-radius: 6px;
+            color: var(--muted); font-size: .85rem; font-weight: 600;
+            text-decoration: none; transition: all .15s;
+        }
+        .nav-link:hover { background: var(--bg); color: var(--text); }
+        .nav-link.active { background: var(--accent); color: #fff; }
+
+        /* Method badges */
+        .badge {
+            display: inline-block; padding: 3px 9px; border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .7rem; font-weight: 700; letter-spacing: .04em;
+            text-transform: uppercase; flex-shrink: 0;
+        }
+        .GET    { background: #16a34a22; color: #16a34a; border: 1px solid #16a34a44; }
+        .POST   { background: #2563eb22; color: #2563eb; border: 1px solid #2563eb44; }
+        .PUT    { background: #d9770622; color: #d97706; border: 1px solid #d9770644; }
+        .PATCH  { background: #7c3aed22; color: #7c3aed; border: 1px solid #7c3aed44; }
+        .DELETE { background: #dc262622; color: #dc2626; border: 1px solid #dc262644; }
+
+        .dark .GET    { background: #16a34a30; color: #4ade80; border-color: #16a34a55; }
+        .dark .POST   { background: #2563eb30; color: #60a5fa; border-color: #2563eb55; }
+        .dark .PUT    { background: #d9770630; color: #fbbf24; border-color: #d9770655; }
+        .dark .PATCH  { background: #7c3aed30; color: #a78bfa; border-color: #7c3aed55; }
+        .dark .DELETE { background: #dc262630; color: #f87171; border-color: #dc262655; }
+
+        /* Endpoint card */
+        .endpoint-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .endpoint-card:hover { border-color: var(--accent); box-shadow: 0 4px 24px rgba(0,0,0,.07); }
+
+        .ep-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+            cursor: pointer; user-select: none;
+        }
+        .ep-path { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text); }
+        .ep-desc { color: var(--muted); font-size: .875rem; flex: 1 1 100%; }
+        .ep-auth { font-size: .75rem; padding: 2px 8px; border-radius: 4px; font-weight: 600;
+                   background: var(--bg); border: 1px solid var(--border); color: var(--muted); margin-left: auto; }
+
+        .ep-body { padding: 22px; display: none; }
+        .ep-body.open { display: block; }
+
+        /* Tables */
+        .param-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+        .param-table th { text-align: left; padding: 8px 12px; background: var(--bg); color: var(--muted); font-weight: 700; letter-spacing: .04em; font-size: .72rem; text-transform: uppercase; }
+        .param-table td { padding: 8px 12px; border-top: 1px solid var(--border); color: var(--text); vertical-align: top; }
+        .param-table tr:hover td { background: var(--bg); }
+        .req  { background: #dc262618; color: #dc2626; padding: 1px 7px; border-radius: 4px; font-size: .7rem; font-weight: 700; }
+        .dark .req { background: #dc262630; color: #f87171; }
+        .opt  { background: var(--bg); color: var(--muted); padding: 1px 7px; border-radius: 4px; font-size: .7rem; font-weight: 700; border: 1px solid var(--border); }
+
+        /* Code blocks */
+        .code-block { background: #16161400; border-radius: 8px; overflow: hidden; margin: 0; }
+        .code-block-header { background: #1e1e1c; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; }
+        .code-block-label { font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        .code-block-label.req-label { color: #4ade80; }
+        .code-block-label.res-label { color: #60a5fa; }
+        .code-block pre { background: #1a1a18; margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height: 1.6; color: #c9c5b8; }
+
+        /* Copy button */
+        .copy-btn { background: none; border: 1px solid #3a3a38; color: #888; padding: 2px 10px; border-radius: 4px; cursor: pointer; font-size: .7rem; font-family: 'JetBrains Mono', monospace; transition: all .15s; }
+        .copy-btn:hover { background: #3a3a38; color: #fff; }
+
+        /* Section headers */
+        .section-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; padding-bottom: 12px; border-bottom: 2px solid var(--border); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .section-dot { width: 10px; height: 10px; border-radius: 2px; background: var(--accent); flex-shrink: 0; }
+
+        /* Info cards */
+        .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; }
+        .info-card-label { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+        .info-card-value { font-size: 1rem; font-weight: 700; color: var(--text); }
+        .info-card-sub { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+        /* Accent stripe on top */
+        .accent-stripe { height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+        /* Toggle */
+        .theme-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 10px; cursor: pointer; transition: all .15s; }
+        .theme-btn:hover { border-color: var(--accent); }
+
+        /* Sidebar toggle (mobile) */
+        .menu-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+
+        @media (max-width: 1023px) {
+            #sidebar { position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; transform: translateX(-100%); width: 260px; }
+            #sidebar.open { transform: translateX(0); }
+            #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 40; }
+            #overlay.show { display: block; }
+        }
+
+        /* Quick start */
+        .quickstart { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 32px; }
+        .step-num { width: 24px; height: 24px; border-radius: 6px; background: var(--accent); color: #fff; font-size: .75rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+        /* Footer */
+        footer { background: var(--surface); border-top: 1px solid var(--border); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* Section hidden via search */
+        .section-hidden { display: none; }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-200">
-    <div class="flex">
-        <!-- Sidebar -->
-        <div id="sidebar" class="w-64 bg-white dark:bg-gray-800 shadow-lg fixed h-full overflow-y-auto z-20 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out">
-            <div class="p-6">
-                <h1 class="text-2xl font-bold mb-4">API Docs</h1>
-                <input type="text" id="search" placeholder="Search endpoints..." class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 mb-4">
-                <nav id="nav">
-                    <ul class="space-y-2"></ul>
-                </nav>
+<body>
+<div class="accent-stripe"></div>
+
+<div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" style="width:260px; flex-shrink:0;">
+        <div style="position:sticky; top:0; height:100vh; overflow-y:auto; display:flex; flex-direction:column;">
+            <div style="padding:20px 16px; border-bottom:1px solid var(--border);">
+                <div style="font-size:1.1rem; font-weight:800; letter-spacing:-.02em; margin-bottom:4px;">API Docs</div>
+                <div style="font-size:.75rem; color:var(--muted);">Hotel Order Management v1.0</div>
+            </div>
+            <div style="padding:14px 16px; border-bottom:1px solid var(--border);">
+                <input type="text" id="search" placeholder="Search endpoints…" style="width:100%; padding:8px 10px; border-radius:7px; font-size:.82rem;">
+            </div>
+            <nav style="padding:10px 10px; flex:1; overflow-y:auto;" id="nav"></nav>
+            <div style="padding:14px 16px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:center;">
+                <button class="theme-btn" id="toggle-theme" style="font-size:.75rem; display:flex; align-items:center; gap:5px;">
+                    <span id="theme-icon">🌙</span> <span id="theme-label">Dark</span>
+                </button>
+                <span style="color:var(--muted); font-size:.72rem; margin-left:auto;">v1.0.0</span>
             </div>
         </div>
-        <!-- Overlay -->
-        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden hidden"></div>
-        <!-- Main Content -->
-        <div class="flex-1 lg:ml-64 p-8">
-            <button id="toggle-sidebar" class="lg:hidden p-2 rounded-lg bg-gray-200 dark:bg-gray-700 mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
+    </aside>
+
+    <!-- Overlay (mobile) -->
+    <div id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- Main -->
+    <main style="flex:1; min-width:0; padding:32px 40px 60px; max-width:980px;">
+
+        <!-- Mobile header -->
+        <div class="lg:hidden" style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
+            <button class="menu-btn" onclick="toggleSidebar()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
-            <h1 class="text-4xl font-bold mb-8">Hotel Order Management API</h1>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-blue-500 text-white p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold mb-2">Base URL</h2>
-                    <code class="bg-white bg-opacity-20 px-3 py-1 rounded text-sm">http://localhost:3000/api</code>
+            <span style="font-weight:800; font-size:1rem;">Hotel OMS API</span>
+            <button class="theme-btn" id="toggle-theme-mobile" style="margin-left:auto; font-size:.75rem;">🌙</button>
+        </div>
+
+        <!-- Hero -->
+        <div style="margin-bottom:36px;">
+            <div style="font-size:.72rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:8px;">REST API Documentation</div>
+            <h1 style="font-size:2.4rem; font-weight:800; letter-spacing:-.03em; line-height:1.15; margin-bottom:10px;">Hotel Order<br>Management API</h1>
+            <p style="color:var(--muted); font-size:.95rem; line-height:1.7; max-width:560px;">Comprehensive restaurant management — real-time order tracking, inventory control, billing, and seamless staff coordination across all operations.</p>
+        </div>
+
+        <!-- Info cards -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:32px;">
+            <div class="info-card">
+                <div class="info-card-label">Base URL</div>
+                <div class="info-card-value mono" style="font-size:.85rem; word-break:break-all;">http://localhost:3000/api</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">Version</div>
+                <div class="info-card-value">v1.0.0</div>
+                <div class="info-card-sub">April 8, 2026</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">Authentication</div>
+                <div class="info-card-value">JWT Bearer</div>
+                <div class="info-card-sub mono" style="font-size:.72rem;">Authorization: Bearer &lt;token&gt;</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">Format</div>
+                <div class="info-card-value">JSON</div>
+                <div class="info-card-sub mono" style="font-size:.72rem;">Content-Type: application/json</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">Rate Limit</div>
+                <div class="info-card-value">300 req/15m</div>
+                <div class="info-card-sub">Tighter limits for auth endpoints</div>
+            </div>
+        </div>
+
+        <!-- Quick start -->
+        <div class="quickstart">
+            <div style="font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin-bottom:12px;">🚀 Quick Start</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; flex-wrap:wrap;">
+                <div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                        <div class="step-num">1</div>
+                        <span style="font-weight:700; font-size:.9rem;">Get a JWT Token</span>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-block-header"><span class="code-block-label req-label">Request</span></div>
+                        <pre>POST /api/auth/login
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}</pre>
+                    </div>
                 </div>
-                <div class="bg-green-500 text-white p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold mb-2">Auth</h2>
-                    <p class="text-sm">Bearer token in Authorization header</p>
-                </div>
-                <div class="bg-purple-500 text-white p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold mb-2">Rate Limited</h2>
-                    <p class="text-sm">300 req/15min global, tighter for auth</p>
+                <div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                        <div class="step-num">2</div>
+                        <span style="font-weight:700; font-size:.9rem;">Use the Token</span>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-block-header"><span class="code-block-label res-label">Request</span></div>
+                        <pre>GET /api/menus
+Authorization: Bearer eyJhbGci...</pre>
+                    </div>
                 </div>
             </div>
-            <div id="content" class="mt-12 space-y-8"></div>
+        </div>
+
+        <!-- Endpoint sections -->
+        <div id="content"></div>
+    </main>
+</div>
+
+<!-- Footer -->
+<footer style="padding:40px;">
+    <div style="max-width:980px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr 1fr; gap:32px; font-size:.85rem;">
+        <div>
+            <div style="font-weight:800; font-size:1rem; margin-bottom:8px;">MeroRestro</div>
+            <div style="color:var(--muted); line-height:1.7;">A comprehensive restaurant management solution with real-time order tracking and seamless staff coordination.</div>
+        </div>
+        <div>
+            <div style="font-weight:700; margin-bottom:10px; color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em;">Resources</div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <a href="#auth" style="color:var(--text); text-decoration:none;" class="nav-link" style="display:inline;">Authentication</a>
+                <a href="#orders" style="color:var(--text); text-decoration:none;">Order Management</a>
+                <a href="#menus" style="color:var(--text); text-decoration:none;">Menu Items</a>
+                <a href="#bills" style="color:var(--text); text-decoration:none;">Billing & Payments</a>
+            </div>
+        </div>
+        <div>
+            <div style="font-weight:700; margin-bottom:10px; color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em;">Support</div>
+            <div style="color:var(--muted); line-height:2;">
+                📧 support@merorestro.com<br>
+                📞 +977 9819898007<br>
+                ⚡ Status: <span style="color:#4ade80;">Operational</span><br>
+                🔄 Last updated: April 8, 2026
+            </div>
         </div>
     </div>
+    <div style="max-width:980px; margin:24px auto 0; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:.78rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <span>© 2026 Hotel Order Management System. All rights reserved.</span>
+        <span class="mono">API v1.0.0</span>
+    </div>
+</footer>
 
-    <script>
-        const apis = {
-            root: {
-                title: 'Root Endpoints',
-                endpoints: [
-                    { path: 'GET /', desc: 'Service status check', auth: 'No' },
-                    { path: 'GET /healthz', desc: 'Health check with MongoDB status', auth: 'No' }
-                ]
+<script>
+// ─── Data ─────────────────────────────────────────────────────────────────
+const apis = {
+    root: {
+        title: 'Root & Health',
+        icon: '🏥',
+        description: 'Basic service health and status endpoints. No authentication required.',
+        endpoints: [
+            {
+                method: 'GET', path: '/', auth: 'None',
+                desc: 'Check if the API service is running and accessible.',
+                example: {
+                    request: 'GET /api/',
+                    response: `{
+  "success": true,
+  "message": "Hotel Order Management API is running",
+  "version": "1.0.0",
+  "timestamp": "2026-04-08T10:30:00Z"
+}`
+                }
             },
-            auth: {
-                title: 'Authentication',
-                endpoints: [
-                    { method: 'POST', path: '/auth/register', desc: 'Register new user (admin creates staff)', auth: 'No', body: '{ "name": "string", "email": "email", "phone"?: "string", "password": "min6" }' },
-                    { method: 'POST', path: '/auth/login', desc: 'Login with email/phone/password', auth: 'No', body: '{ "email"?: "email", "phone"?: "string", "password": "required" }' }
-                ]
+            {
+                method: 'GET', path: '/healthz', auth: 'None',
+                desc: 'Comprehensive health check including database connectivity and system status.',
+                example: {
+                    request: 'GET /api/healthz',
+                    response: `{
+  "success": true,
+  "status": "healthy",
+  "services": {
+    "database": "connected",
+    "redis": "connected"
+  },
+  "uptime": "7d 4h 23m",
+  "timestamp": "2026-04-08T10:30:00Z"
+}`
+                }
+            }
+        ]
+    },
+    auth: {
+        title: 'Authentication',
+        icon: '🔐',
+        description: 'User authentication and session management. No authentication required for login/register.',
+        endpoints: [
+            {
+                method: 'POST', path: '/auth/register', auth: 'None',
+                desc: 'Register a new user account. Only administrators can create staff accounts.',
+                params: [
+                    { name: 'name', type: 'string', required: true, desc: 'Full name of the user' },
+                    { name: 'email', type: 'string', required: true, desc: 'Valid email address' },
+                    { name: 'phone', type: 'string', required: false, desc: 'Phone number' },
+                    { name: 'password', type: 'string', required: true, desc: 'Password (min 6 characters)' },
+                    { name: 'role', type: 'string', required: false, desc: 'User role: admin | waiter | kitchen (admin only)' }
+                ],
+                example: {
+                    request: `POST /api/auth/register
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "phone": "+1234567890",
+  "password": "securepass123",
+  "role": "waiter"
+}`,
+                    response: `{
+  "success": true,
+  "message": "User registered successfully",
+  "user": {
+    "id": "64f1a2b3c4d5e6f7g8h9i0j",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "role": "waiter",
+    "isActive": true
+  },
+  "token": "eyJhbGciOiJIUzI1NiIs..."
+}`
+                }
             },
-            users: {
-                title: 'Users (Admin only)',
-                endpoints: [
-                    { method: 'GET', path: '/users', desc: 'List users', auth: 'Admin' },
-                    { method: 'GET', path: '/users/:id', desc: 'Get user by ID', auth: 'Admin' },
-                    { method: 'POST', path: '/users', desc: 'Create user', auth: 'Admin', body: '{ "name": "req", "email": "email", "role": ["admin","waiter","kitchen"] }' },
-                    { method: 'PUT', path: '/users/:id', desc: 'Update user', auth: 'Admin' },
-                    { method: 'DELETE', path: '/users/:id', desc: 'Delete user', auth: 'Admin' }
-                ]
+            {
+                method: 'POST', path: '/auth/login', auth: 'None',
+                desc: 'Authenticate with email/phone and password. Returns JWT token for API access.',
+                params: [
+                    { name: 'email', type: 'string', required: false, desc: 'User email address' },
+                    { name: 'phone', type: 'string', required: false, desc: 'User phone number' },
+                    { name: 'password', type: 'string', required: true, desc: 'User password' }
+                ],
+                example: {
+                    request: `POST /api/auth/login
+{
+  "email": "john.doe@example.com",
+  "password": "securepass123"
+}`,
+                    response: `{
+  "success": true,
+  "message": "Login successful",
+  "user": {
+    "id": "64f1a2b3c4d5e6f7g8h9i0j",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "role": "waiter",
+    "branch": "main"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "expiresIn": "24h"
+}`
+                }
+            }
+        ]
+    },
+    users: {
+        title: 'User Management',
+        icon: '👥',
+        description: 'Administrative endpoints for managing user accounts, roles, and permissions. Requires admin authentication.',
+        endpoints: [
+            {
+                method: 'GET', path: '/users', auth: 'Admin',
+                desc: 'Retrieve a paginated list of all users with filtering and search.',
+                params: [
+                    { name: 'page', type: 'integer', required: false, desc: 'Page number (default: 1)' },
+                    { name: 'limit', type: 'integer', required: false, desc: 'Items per page (default: 10, max: 100)' },
+                    { name: 'role', type: 'string', required: false, desc: 'Filter by role: admin | waiter | kitchen' },
+                    { name: 'search', type: 'string', required: false, desc: 'Search by name or email' },
+                    { name: 'isActive', type: 'boolean', required: false, desc: 'Filter by active status' }
+                ],
+                example: {
+                    request: 'GET /api/users?page=1&limit=5&role=waiter',
+                    response: `{
+  "success": true,
+  "data": {
+    "users": [
+      {
+        "id": "64f1a2b3c4d5e6f7g8h9i0j",
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "phone": "+1234567890",
+        "role": "waiter",
+        "isActive": true,
+        "lastLogin": "2026-04-08T09:15:00Z",
+        "createdAt": "2026-01-15T10:30:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1, "limit": 5, "total": 25,
+      "pages": 5, "hasNext": true, "hasPrev": false
+    }
+  }
+}`
+                }
             },
-            menus: {
-                title: 'Menu Items',
-                endpoints: [
-                    { method: 'GET', path: '/menus', desc: 'List menu items', auth: 'Yes' },
-                    { method: 'GET', path: '/menus/:id', desc: 'Get menu item', auth: 'Yes' },
-                    { method: 'POST', path: '/menus', desc: 'Create menu item (admin)', auth: 'Admin', body: '{ "name": "req", "price": "float>0", "category"?: "id" }' },
-                    { method: 'PUT', path: '/menus/:id', desc: 'Update menu item (admin)', auth: 'Admin' },
-                    { method: 'DELETE', path: '/menus/:id', desc: 'Delete menu item (admin)', auth: 'Admin' }
-                ]
+            {
+                method: 'GET', path: '/users/:id', auth: 'Admin',
+                desc: 'Get detailed information about a specific user by ID.',
+                params: [{ name: 'id', type: 'string', required: true, desc: 'User ID (MongoDB ObjectId)' }],
+                example: {
+                    request: 'GET /api/users/64f1a2b3c4d5e6f7g8h9i0j',
+                    response: `{
+  "success": true,
+  "user": {
+    "id": "64f1a2b3c4d5e6f7g8h9i0j",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "role": "waiter",
+    "isActive": true,
+    "permissions": ["orders:create", "tables:view"],
+    "lastLogin": "2026-04-08T09:15:00Z"
+  }
+}`
+                }
             },
-            tables: {
-                title: 'Tables',
-                endpoints: [
-                    { method: 'GET', path: '/tables', desc: 'List tables', auth: 'Yes' },
-                    { method: 'GET', path: '/tables/:id', desc: 'Get table', auth: 'Yes' },
-                    { method: 'POST', path: '/tables', desc: 'Create table (admin)', auth: 'Admin', body: '{ "tableNumber": "int>0" }' },
-                    { method: 'PUT', path: '/tables/:id', desc: 'Update table (admin)', auth: 'Admin' },
-                    { method: 'DELETE', path: '/tables/:id', desc: 'Delete table (admin)', auth: 'Admin' },
-                    { method: 'PATCH', path: '/tables/:id/free', desc: 'Free table', auth: 'Admin/Waiter' }
-                ]
+            {
+                method: 'POST', path: '/users', auth: 'Admin',
+                desc: 'Create a new user account.',
+                params: [
+                    { name: 'name', type: 'string', required: true, desc: 'Full name' },
+                    { name: 'email', type: 'string', required: true, desc: 'Unique email address' },
+                    { name: 'phone', type: 'string', required: false, desc: 'Phone number' },
+                    { name: 'password', type: 'string', required: true, desc: 'Password (min 6 chars)' },
+                    { name: 'role', type: 'string', required: true, desc: 'Role: admin | waiter | kitchen' }
+                ],
+                example: {
+                    request: `POST /api/users
+{
+  "name": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "password": "securepass456",
+  "role": "kitchen"
+}`,
+                    response: `{
+  "success": true,
+  "message": "User created successfully",
+  "user": {
+    "id": "64f2b3c4d5e6f7g8h9i0j1k",
+    "name": "Jane Smith",
+    "role": "kitchen",
+    "isActive": true
+  }
+}`
+                }
             },
-            orders: {
-                title: 'Orders',
-                endpoints: [
-                    { method: 'GET', path: '/orders', desc: 'List orders', auth: 'Yes' },
-                    { method: 'GET', path: '/orders/:id', desc: 'Get order', auth: 'Yes' },
-                    { method: 'POST', path: '/orders', desc: 'Create order', auth: 'Admin/Waiter', body: '{ "table": "id", "items": [{ "menuItem": "id", "quantity": "int>0" }] }' },
-                    { method: 'PUT', path: '/orders/:id', desc: 'Update order', auth: 'Admin/Waiter' },
-                    { method: 'PATCH', path: '/orders/:id/status', desc: 'Update status (kitchen)', auth: 'Admin/Kitchen', body: '{ "status": ["pending","preparing","ready","served"] }' }
-                ]
+            {
+                method: 'PUT', path: '/users/:id', auth: 'Admin',
+                desc: 'Update an existing user account.',
+                params: [
+                    { name: 'id', type: 'string', required: true, desc: 'User ID' },
+                    { name: 'name', type: 'string', required: false, desc: 'Updated name' },
+                    { name: 'email', type: 'string', required: false, desc: 'Updated email' },
+                    { name: 'phone', type: 'string', required: false, desc: 'Updated phone' },
+                    { name: 'role', type: 'string', required: false, desc: 'Updated role' },
+                    { name: 'isActive', type: 'boolean', required: false, desc: 'Account active status' }
+                ],
+                example: {
+                    request: `PUT /api/users/64f1a2b3c4d5e6f7g8h9i0j
+{
+  "name": "John Smith",
+  "phone": "+1555123456"
+}`,
+                    response: `{
+  "success": true,
+  "message": "User updated successfully",
+  "user": {
+    "id": "64f1a2b3c4d5e6f7g8h9i0j",
+    "name": "John Smith",
+    "phone": "+1555123456"
+  }
+}`
+                }
             },
-            reports: {
-                title: 'Reports (Admin)',
-                endpoints: [
-                    { method: 'GET', path: '/reports/summary', desc: 'Summary report', auth: 'Admin' },
-                    { method: 'GET', path: '/reports/overview', desc: 'Overview report', auth: 'Admin' },
-                    { method: 'GET', path: '/reports/analytics', desc: 'Analytics report', auth: 'Admin' },
-                    { method: 'GET', path: '/reports/history', desc: 'Customer history', auth: 'Admin' },
-                    { method: 'GET', path: '/reports/stock', desc: 'Stock report', auth: 'Admin' }
-                ]
+            {
+                method: 'DELETE', path: '/users/:id', auth: 'Admin',
+                desc: 'Deactivate or remove a user account. Admin accounts cannot be deleted.',
+                params: [{ name: 'id', type: 'string', required: true, desc: 'User ID to delete' }],
+                example: {
+                    request: 'DELETE /api/users/64f1a2b3c4d5e6f7g8h9i0j',
+                    response: `{
+  "success": true,
+  "message": "User deleted successfully"
+}`
+                }
+            }
+        ]
+    },
+    menus: {
+        title: 'Menu Management',
+        icon: '🍽️',
+        description: 'Full menu item lifecycle — creation, updates, categorization, and availability control.',
+        endpoints: [
+            {
+                method: 'GET', path: '/menus', auth: 'Any',
+                desc: 'Retrieve a paginated list of menu items with optional filtering.',
+                params: [
+                    { name: 'page', type: 'integer', required: false, desc: 'Page number (default: 1)' },
+                    { name: 'limit', type: 'integer', required: false, desc: 'Items per page (default: 10)' },
+                    { name: 'category', type: 'string', required: false, desc: 'Filter by category ID' },
+                    { name: 'available', type: 'boolean', required: false, desc: 'Filter by availability' },
+                    { name: 'search', type: 'string', required: false, desc: 'Search by name or description' }
+                ],
+                example: {
+                    request: 'GET /api/menus?page=1&limit=5&available=true',
+                    response: `{
+  "success": true,
+  "data": {
+    "menuItems": [
+      {
+        "id": "64f3c4d5e6f7g8h9i0j1k2l",
+        "name": "Chicken Biryani",
+        "description": "Fragrant basmati rice with tender chicken",
+        "price": 18.99,
+        "category": { "id": "...", "name": "Main Course" },
+        "isAvailable": true,
+        "isVegetarian": false,
+        "spicyLevel": "medium",
+        "preparationTime": 25
+      }
+    ],
+    "pagination": { "page": 1, "limit": 5, "total": 45, "pages": 9 }
+  }
+}`
+                }
             },
-            bills: {
-                title: 'Bills',
-                endpoints: [
-                    { method: 'GET', path: '/bills/:id', desc: 'Generate bill PDF', auth: 'Admin/Waiter' },
-                    { method: 'POST', path: '/bills/:id/pay', desc: 'Pay bill (admin)', auth: 'Admin', body: '{ "paymentMethod": ["cash","fonepay"] }' }
-                ]
+            {
+                method: 'GET', path: '/menus/:id', auth: 'Any',
+                desc: 'Get detailed info about a specific menu item including ingredients and nutritional info.',
+                params: [{ name: 'id', type: 'string', required: true, desc: 'Menu item ID' }],
+                example: {
+                    request: 'GET /api/menus/64f3c4d5e6f7g8h9i0j1k2l',
+                    response: `{
+  "success": true,
+  "menuItem": {
+    "id": "64f3c4d5e6f7g8h9i0j1k2l",
+    "name": "Chicken Biryani",
+    "price": 18.99,
+    "allergens": ["nuts"],
+    "ingredients": ["chicken", "rice", "onions", "spices"],
+    "nutritionalInfo": {
+      "calories": 650,
+      "protein": 35,
+      "carbs": 75,
+      "fat": 22
+    },
+    "preparationTime": 25
+  }
+}`
+                }
             },
-            notifications: {
-                title: 'Notifications',
-                endpoints: [
-                    { method: 'GET', path: '/notifications', desc: 'List notifications', auth: 'Yes' },
-                    { method: 'PATCH', path: '/notifications/:id/read', desc: 'Mark single read', auth: 'Yes' },
-                    { method: 'PATCH', path: '/notifications/read/all', desc: 'Mark all read', auth: 'Yes' }
-                ]
+            {
+                method: 'POST', path: '/menus', auth: 'Admin',
+                desc: 'Create a new menu item.',
+                params: [
+                    { name: 'name', type: 'string', required: true, desc: 'Menu item name' },
+                    { name: 'description', type: 'string', required: false, desc: 'Detailed description' },
+                    { name: 'price', type: 'number', required: true, desc: 'Price in dollars (> 0)' },
+                    { name: 'category', type: 'string', required: false, desc: 'Category ID' },
+                    { name: 'image', type: 'string', required: false, desc: 'Image URL' },
+                    { name: 'isAvailable', type: 'boolean', required: false, desc: 'Availability (default: true)' },
+                    { name: 'isVegetarian', type: 'boolean', required: false, desc: 'Vegetarian flag' },
+                    { name: 'spicyLevel', type: 'string', required: false, desc: 'mild | medium | hot' },
+                    { name: 'preparationTime', type: 'integer', required: false, desc: 'Prep time in minutes' }
+                ],
+                example: {
+                    request: `POST /api/menus
+{
+  "name": "Paneer Tikka Masala",
+  "description": "Creamy tomato-based curry with grilled paneer",
+  "price": 16.99,
+  "isVegetarian": true,
+  "spicyLevel": "medium",
+  "preparationTime": 20
+}`,
+                    response: `{
+  "success": true,
+  "message": "Menu item created successfully",
+  "menuItem": {
+    "id": "64f4d5e6f7g8h9i0j1k2l3m",
+    "name": "Paneer Tikka Masala",
+    "price": 16.99,
+    "isAvailable": true
+  }
+}`
+                }
             },
-            profile: {
-                title: 'Profile',
-                endpoints: [
-                    { method: 'GET', path: '/profile/me', desc: 'Get current user profile', auth: 'Yes' },
-                    { method: 'GET', path: '/profile/waiter/analytics', desc: 'Waiter analytics', auth: 'Waiter' }
-                ]
+            {
+                method: 'PUT', path: '/menus/:id', auth: 'Admin',
+                desc: 'Update an existing menu item.',
+                params: [
+                    { name: 'id', type: 'string', required: true, desc: 'Menu item ID' },
+                    { name: 'name', type: 'string', required: false, desc: 'Updated name' },
+                    { name: 'price', type: 'number', required: false, desc: 'Updated price' },
+                    { name: 'isAvailable', type: 'boolean', required: false, desc: 'Updated availability' }
+                ],
+                example: {
+                    request: `PUT /api/menus/64f3c4d5e6f7g8h9i0j1k2l
+{
+  "price": 19.99,
+  "isAvailable": false
+}`,
+                    response: `{
+  "success": true,
+  "message": "Menu item updated successfully",
+  "menuItem": {
+    "id": "64f3c4d5e6f7g8h9i0j1k2l",
+    "price": 19.99,
+    "isAvailable": false
+  }
+}`
+                }
             },
-            promotions: {
-                title: 'Promotions',
-                endpoints: [
-                    { method: 'GET', path: '/promotions/me', desc: 'My promotions', auth: 'Yes' },
-                    { method: 'GET', path: '/promotions/:id', desc: 'List promotions (admin)', auth: 'Admin' },
-                    { method: 'POST', path: '/promotions/:id', desc: 'Add promotion (admin)', auth: 'Admin', body: '{ "title": "req", "effectiveDate": "ISO" }' }
-                ]
+            {
+                method: 'DELETE', path: '/menus/:id', auth: 'Admin',
+                desc: 'Remove a menu item from the menu.',
+                params: [{ name: 'id', type: 'string', required: true, desc: 'Menu item ID' }],
+                example: {
+                    request: 'DELETE /api/menus/64f3c4d5e6f7g8h9i0j1k2l',
+                    response: `{ "success": true, "message": "Menu item deleted successfully" }`
+                }
+            }
+        ]
+    },
+    tables: {
+        title: 'Tables',
+        icon: '🪑',
+        description: 'Manage restaurant tables — create, update, and control table availability.',
+        endpoints: [
+            { method: 'GET', path: '/tables', auth: 'Any', desc: 'List all tables with current status.' },
+            { method: 'GET', path: '/tables/:id', auth: 'Any', desc: 'Get details of a specific table.' },
+            {
+                method: 'POST', path: '/tables', auth: 'Admin',
+                desc: 'Create a new table.',
+                params: [{ name: 'tableNumber', type: 'integer', required: true, desc: 'Table number (> 0)' }]
             },
-            inventory: {
-                title: 'Inventory (Admin)',
-                endpoints: [
-                    { method: 'GET', path: '/inventory/ingredients', desc: 'List ingredients', auth: 'Admin' },
-                    { method: 'POST', path: '/inventory/ingredients', desc: 'Create ingredient', auth: 'Admin' },
-                    { method: 'PUT', path: '/inventory/ingredients/:id', desc: 'Update ingredient', auth: 'Admin' },
-                    { method: 'POST', path: '/inventory/ingredients/:id/restock', desc: 'Restock', auth: 'Admin' },
-                    { method: 'GET', path: '/inventory/transactions', desc: 'Stock transactions', auth: 'Admin' },
-                    { method: 'POST', path: '/inventory/recipes', desc: 'Set recipe', auth: 'Admin' },
-                    { method: 'GET', path: '/inventory/recipes/:menuItem', desc: 'Get recipe', auth: 'Admin' },
-                    { method: 'GET', path: '/inventory/recipes', desc: 'List recipes', auth: 'Admin' }
-                ]
+            { method: 'PUT', path: '/tables/:id', auth: 'Admin', desc: 'Update table details.' },
+            { method: 'DELETE', path: '/tables/:id', auth: 'Admin', desc: 'Delete a table.' },
+            { method: 'PATCH', path: '/tables/:id/free', auth: 'Admin/Waiter', desc: 'Mark a table as free/available.' }
+        ]
+    },
+    orders: {
+        title: 'Order Management',
+        icon: '📋',
+        description: 'Full order lifecycle — creation to completion, status tracking, and kitchen coordination.',
+        endpoints: [
+            {
+                method: 'GET', path: '/orders', auth: 'Any',
+                desc: 'Retrieve orders with filtering by status, date, and table.',
+                params: [
+                    { name: 'page', type: 'integer', required: false, desc: 'Page number (default: 1)' },
+                    { name: 'limit', type: 'integer', required: false, desc: 'Orders per page (default: 10)' },
+                    { name: 'status', type: 'string', required: false, desc: 'pending | preparing | ready | served | cancelled' },
+                    { name: 'table', type: 'string', required: false, desc: 'Filter by table ID' },
+                    { name: 'startDate', type: 'string', required: false, desc: 'Start date (ISO format)' },
+                    { name: 'endDate', type: 'string', required: false, desc: 'End date (ISO format)' }
+                ],
+                example: {
+                    request: 'GET /api/orders?page=1&limit=5&status=preparing',
+                    response: `{
+  "success": true,
+  "data": {
+    "orders": [
+      {
+        "id": "64f5e6f7g8h9i0j1k2l3m4n",
+        "table": { "tableNumber": 5 },
+        "items": [
+          {
+            "menuItem": { "name": "Chicken Biryani", "price": 18.99 },
+            "quantity": 2,
+            "subtotal": 41.98
+          }
+        ],
+        "totalAmount": 41.98,
+        "status": "preparing",
+        "priority": "normal",
+        "createdAt": "2026-04-08T12:30:00Z"
+      }
+    ],
+    "pagination": { "page": 1, "limit": 5, "total": 23 }
+  }
+}`
+                }
             },
-            guest: {
-                title: 'Guest API (Limited)',
-                endpoints: [
-                    { method: 'GET', path: '/guest/menu', desc: 'Public menu', auth: 'No' },
-                    { method: 'GET', path: '/guest/tables/:tableId/status', desc: 'Table status', auth: 'No' },
-                    { method: 'POST', path: '/guest/orders', desc: 'Guest order', auth: 'No', body: '{ "table": "id", "items": [...] }' }
-                ]
+            {
+                method: 'GET', path: '/orders/:id', auth: 'Any',
+                desc: 'Get detailed information about a specific order including status history.',
+                params: [{ name: 'id', type: 'string', required: true, desc: 'Order ID' }],
+                example: {
+                    request: 'GET /api/orders/64f5e6f7g8h9i0j1k2l3m4n',
+                    response: `{
+  "success": true,
+  "order": {
+    "id": "64f5e6f7g8h9i0j1k2l3m4n",
+    "totalAmount": 37.98,
+    "taxAmount": 3.42,
+    "serviceCharge": 1.90,
+    "grandTotal": 43.30,
+    "status": "preparing",
+    "statusHistory": [
+      { "status": "pending", "timestamp": "2026-04-08T12:30:00Z", "updatedBy": "John Doe" },
+      { "status": "preparing", "timestamp": "2026-04-08T12:35:00Z", "updatedBy": "Chef Maria" }
+    ]
+  }
+}`
+                }
             },
-            categories: {
-                title: 'Categories (Admin)',
-                endpoints: [
-                    { method: 'GET', path: '/categories', desc: 'List', auth: 'Admin' },
-                    { method: 'POST', path: '/categories', desc: 'Create', auth: 'Admin', body: '{ "name": "req" }' },
-                    { method: 'PUT', path: '/categories/:id', desc: 'Update', auth: 'Admin' },
-                    { method: 'DELETE', path: '/categories/:id', desc: 'Delete', auth: 'Admin' }
-                ]
+            {
+                method: 'POST', path: '/orders', auth: 'Admin/Waiter',
+                desc: 'Create a new order for a table. Items can include menu items and optional add-ons.',
+                params: [
+                    { name: 'table', type: 'string', required: true, desc: 'Table ID' },
+                    { name: 'items', type: 'array', required: true, desc: 'Array of order items' },
+                    { name: 'items[].menuItem', type: 'string', required: true, desc: 'Menu item ID' },
+                    { name: 'items[].quantity', type: 'integer', required: true, desc: 'Quantity (min 1)' },
+                    { name: 'items[].addOns', type: 'array', required: false, desc: 'Array of add-on IDs' },
+                    { name: 'items[].specialInstructions', type: 'string', required: false, desc: 'Item-specific instructions' },
+                    { name: 'specialInstructions', type: 'string', required: false, desc: 'Order-wide instructions' },
+                    { name: 'priority', type: 'string', required: false, desc: 'low | normal | high | urgent' }
+                ],
+                example: {
+                    request: `POST /api/orders
+{
+  "table": "64f6f7g8h9i0j1k2l3m4n5o",
+  "items": [
+    {
+      "menuItem": "64f3c4d5e6f7g8h9i0j1k2l",
+      "quantity": 2,
+      "specialInstructions": "Extra spicy"
+    }
+  ],
+  "priority": "high"
+}`,
+                    response: `{
+  "success": true,
+  "message": "Order created successfully",
+  "order": {
+    "id": "64f5e6f7g8h9i0j1k2l3m4n",
+    "totalAmount": 41.98,
+    "status": "pending",
+    "priority": "high",
+    "estimatedReadyTime": "2026-04-08T13:00:00Z"
+  }
+}`
+                }
             },
-            submenus: {
-                title: 'Sub Menus (Admin)',
-                endpoints: [
-                    { method: 'GET', path: '/submenus', desc: 'List', auth: 'Admin' },
-                    { method: 'POST', path: '/submenus', desc: 'Create', auth: 'Admin', body: '{ "name": "req" }' },
-                    { method: 'PUT', path: '/submenus/:id', desc: 'Update', auth: 'Admin' },
-                    { method: 'DELETE', path: '/submenus/:id', desc: 'Delete', auth: 'Admin' }
-                ]
+            {
+                method: 'PUT', path: '/orders/:id', auth: 'Admin/Waiter',
+                desc: 'Update an existing order — modify items, quantities, or instructions.',
+                params: [
+                    { name: 'id', type: 'string', required: true, desc: 'Order ID' },
+                    { name: 'items', type: 'array', required: false, desc: 'Updated order items' },
+                    { name: 'specialInstructions', type: 'string', required: false, desc: 'Updated instructions' }
+                ],
+                example: {
+                    request: `PUT /api/orders/64f5e6f7g8h9i0j1k2l3m4n
+{
+  "items": [{ "menuItem": "64f3c4d5e6f7g8h9i0j1k2l", "quantity": 1 }]
+}`,
+                    response: `{
+  "success": true,
+  "message": "Order updated successfully",
+  "order": { "id": "64f5e6f7g8h9i0j1k2l3m4n", "totalAmount": 20.99 }
+}`
+                }
             },
-            addons: {
-                title: 'Add Ons (Admin)',
-                endpoints: [
-                    { method: 'GET', path: '/addons', desc: 'List', auth: 'Admin' },
-                    { method: 'POST', path: '/addons', desc: 'Create', auth: 'Admin', body: '{ "name": "req", "price": "float>=0" }' },
-                    { method: 'PUT', path: '/addons/:id', desc: 'Update', auth: 'Admin' },
-                    { method: 'DELETE', path: '/addons/:id', desc: 'Delete', auth: 'Admin' }
-                ]
+            {
+                method: 'PATCH', path: '/orders/:id/status', auth: 'Admin/Kitchen',
+                desc: 'Update the status of an order. Used by kitchen staff to track preparation.',
+                params: [
+                    { name: 'id', type: 'string', required: true, desc: 'Order ID' },
+                    { name: 'status', type: 'string', required: true, desc: 'pending | preparing | ready | served | cancelled' }
+                ],
+                example: {
+                    request: `PATCH /api/orders/64f5e6f7g8h9i0j1k2l3m4n/status
+{
+  "status": "ready"
+}`,
+                    response: `{
+  "success": true,
+  "message": "Order status updated successfully",
+  "order": {
+    "id": "64f5e6f7g8h9i0j1k2l3m4n",
+    "status": "ready",
+    "readyAt": "2026-04-08T12:55:00Z"
+  }
+}`
+                }
+            }
+        ]
+    },
+    bills: {
+        title: 'Billing & Payments',
+        icon: '💳',
+        description: 'Bill generation, payment processing, and financial transaction management.',
+        endpoints: [
+            {
+                method: 'GET', path: '/bills/:id', auth: 'Admin/Waiter',
+                desc: 'Generate and retrieve a bill for a completed order with itemized breakdown.',
+                params: [{ name: 'id', type: 'string', required: true, desc: 'Order ID to generate bill for' }],
+                example: {
+                    request: 'GET /api/bills/64f5e6f7g8h9i0j1k2l3m4n',
+                    response: `{
+  "success": true,
+  "bill": {
+    "id": "64f9i0j1k2l3m4n5o6p7q8r",
+    "items": [
+      {
+        "name": "Chicken Biryani",
+        "quantity": 2,
+        "unitPrice": 18.99,
+        "subtotal": 41.98
+      }
+    ],
+    "subtotal": 41.98,
+    "taxRate": 8.25,
+    "taxAmount": 3.46,
+    "serviceChargeRate": 4.5,
+    "serviceCharge": 1.89,
+    "totalAmount": 47.33,
+    "status": "unpaid"
+  }
+}`
+                }
             },
-            combos: {
-                title: 'Combo Offers (Admin)',
-                endpoints: [
-                    { method: 'GET', path: '/combos', desc: 'List combos', auth: 'Admin' },
-                    { method: 'POST', path: '/combos', desc: 'Create combo', auth: 'Admin', body: '{ "name": "req", "items": [{menuItem, quantity, unitPrice}] }' },
-                    { method: 'PUT', path: '/combos/:id', desc: 'Update', auth: 'Admin' },
-                    { method: 'DELETE', path: '/combos/:id', desc: 'Delete', auth: 'Admin' }
-                ]
-            },
-            public: {
-                title: 'Public',
-                endpoints: [
-                    { method: 'GET', path: '/public/cafes/:slug', desc: 'Get cafe by slug', auth: 'No' }
+            {
+                method: 'POST', path: '/bills/:id/pay', auth: 'Admin',
+                desc: 'Process payment for a bill. Supports multiple payment methods.',
+                params: [
+                    { name: 'id', type: 'string', required: true, desc: 'Bill/Order ID' },
+                    { name: 'paymentMethod', type: 'string', required: true, desc: 'cash | card | fonepay | bank_transfer' },
+                    { name: 'amount', type: 'number', required: false, desc: 'Payment amount (default: full amount)' },
+                    { name: 'notes', type: 'string', required: false, desc: 'Payment notes or reference' }
+                ],
+                example: {
+                    request: `POST /api/bills/64f5e6f7g8h9i0j1k2l3m4n/pay
+{
+  "paymentMethod": "fonepay",
+  "amount": 47.33,
+  "notes": "Paid via Fonepay"
+}`,
+                    response: `{
+  "success": true,
+  "message": "Payment processed successfully",
+  "payment": {
+    "id": "64fa0j1k2l3m4n5o6p7q8r9s",
+    "amount": 47.33,
+    "paymentMethod": "fonepay",
+    "status": "completed",
+    "processedAt": "2026-04-08T13:20:00Z"
+  },
+  "bill": { "status": "paid", "paidAt": "2026-04-08T13:20:00Z" }
+}`
+                }
+            }
+        ]
+    },
+    reports: {
+        title: 'Reports',
+        icon: '📊',
+        description: 'Admin-only reporting endpoints for analytics, sales summaries, and operational insights.',
+        endpoints: [
+            { method: 'GET', path: '/reports/summary', auth: 'Admin', desc: 'Daily/weekly/monthly sales summary report.' },
+            { method: 'GET', path: '/reports/overview', auth: 'Admin', desc: 'High-level operational overview with key metrics.' },
+            { method: 'GET', path: '/reports/analytics', auth: 'Admin', desc: 'Detailed analytics including popular items and peak hours.' },
+            { method: 'GET', path: '/reports/history', auth: 'Admin', desc: 'Full customer order history and patterns.' },
+            { method: 'GET', path: '/reports/stock', auth: 'Admin', desc: 'Current stock levels and consumption report.' }
+        ]
+    },
+    inventory: {
+        title: 'Inventory',
+        icon: '📦',
+        description: 'Admin-only inventory management — track ingredients, recipes, and stock transactions.',
+        endpoints: [
+            { method: 'GET', path: '/inventory/ingredients', auth: 'Admin', desc: 'List all ingredients with current stock levels.' },
+            { method: 'POST', path: '/inventory/ingredients', auth: 'Admin', desc: 'Add a new ingredient to inventory.' },
+            { method: 'PUT', path: '/inventory/ingredients/:id', auth: 'Admin', desc: 'Update ingredient details or thresholds.' },
+            { method: 'POST', path: '/inventory/ingredients/:id/restock', auth: 'Admin', desc: 'Record a restock transaction for an ingredient.' },
+            { method: 'GET', path: '/inventory/transactions', auth: 'Admin', desc: 'List all stock transactions and movements.' },
+            { method: 'POST', path: '/inventory/recipes', auth: 'Admin', desc: 'Set recipe ingredients for a menu item.' },
+            { method: 'GET', path: '/inventory/recipes/:menuItem', auth: 'Admin', desc: 'Get the recipe for a specific menu item.' },
+            { method: 'GET', path: '/inventory/recipes', auth: 'Admin', desc: 'List all saved recipes.' }
+        ]
+    },
+    notifications: {
+        title: 'Notifications',
+        icon: '🔔',
+        description: 'In-app notification management for order updates, alerts, and system messages.',
+        endpoints: [
+            { method: 'GET', path: '/notifications', auth: 'Any', desc: 'List all notifications for the authenticated user.' },
+            { method: 'PATCH', path: '/notifications/:id/read', auth: 'Any', desc: 'Mark a single notification as read.' },
+            { method: 'PATCH', path: '/notifications/read/all', auth: 'Any', desc: 'Mark all notifications as read.' }
+        ]
+    },
+    profile: {
+        title: 'Profile',
+        icon: '👤',
+        description: 'User profile and personal analytics endpoints.',
+        endpoints: [
+            { method: 'GET', path: '/profile/me', auth: 'Any', desc: 'Get the currently authenticated user\'s profile.' },
+            { method: 'GET', path: '/profile/waiter/analytics', auth: 'Waiter', desc: 'Performance analytics for waiter — orders handled, tips, etc.' }
+        ]
+    },
+    promotions: {
+        title: 'Promotions',
+        icon: '🎉',
+        description: 'Manage promotional offers, discounts, and special deals.',
+        endpoints: [
+            { method: 'GET', path: '/promotions/me', auth: 'Any', desc: 'List promotions applicable to the current user.' },
+            { method: 'GET', path: '/promotions/:id', auth: 'Admin', desc: 'Get a specific promotion by ID.' },
+            {
+                method: 'POST', path: '/promotions/:id', auth: 'Admin',
+                desc: 'Add or update a promotion.',
+                params: [
+                    { name: 'title', type: 'string', required: true, desc: 'Promotion title' },
+                    { name: 'effectiveDate', type: 'string', required: true, desc: 'Effective date (ISO format)' }
                 ]
             }
-        };
+        ]
+    },
+    categories: {
+        title: 'Categories',
+        icon: '🏷️',
+        description: 'Menu category management for organizing menu items.',
+        endpoints: [
+            { method: 'GET', path: '/categories', auth: 'Admin', desc: 'List all menu categories.' },
+            {
+                method: 'POST', path: '/categories', auth: 'Admin',
+                desc: 'Create a new menu category.',
+                params: [{ name: 'name', type: 'string', required: true, desc: 'Category name' }]
+            },
+            { method: 'PUT', path: '/categories/:id', auth: 'Admin', desc: 'Update a category name or order.' },
+            { method: 'DELETE', path: '/categories/:id', auth: 'Admin', desc: 'Delete a category (must be empty).' }
+        ]
+    },
+    submenus: {
+        title: 'Sub Menus',
+        icon: '📑',
+        description: 'Sub-menu grouping within categories.',
+        endpoints: [
+            { method: 'GET', path: '/submenus', auth: 'Admin', desc: 'List all sub-menus.' },
+            {
+                method: 'POST', path: '/submenus', auth: 'Admin',
+                desc: 'Create a new sub-menu.',
+                params: [{ name: 'name', type: 'string', required: true, desc: 'Sub-menu name' }]
+            },
+            { method: 'PUT', path: '/submenus/:id', auth: 'Admin', desc: 'Update a sub-menu.' },
+            { method: 'DELETE', path: '/submenus/:id', auth: 'Admin', desc: 'Delete a sub-menu.' }
+        ]
+    },
+    addons: {
+        title: 'Add-Ons',
+        icon: '➕',
+        description: 'Manage optional add-ons that can be attached to menu items.',
+        endpoints: [
+            { method: 'GET', path: '/addons', auth: 'Admin', desc: 'List all available add-ons.' },
+            {
+                method: 'POST', path: '/addons', auth: 'Admin',
+                desc: 'Create a new add-on.',
+                params: [
+                    { name: 'name', type: 'string', required: true, desc: 'Add-on name' },
+                    { name: 'price', type: 'number', required: true, desc: 'Price (>= 0)' }
+                ]
+            },
+            { method: 'PUT', path: '/addons/:id', auth: 'Admin', desc: 'Update an add-on\'s name or price.' },
+            { method: 'DELETE', path: '/addons/:id', auth: 'Admin', desc: 'Delete an add-on.' }
+        ]
+    },
+    combos: {
+        title: 'Combo Offers',
+        icon: '🎁',
+        description: 'Create and manage combo meal deals bundling multiple items at a special price.',
+        endpoints: [
+            { method: 'GET', path: '/combos', auth: 'Admin', desc: 'List all combo offers.' },
+            {
+                method: 'POST', path: '/combos', auth: 'Admin',
+                desc: 'Create a new combo offer.',
+                params: [
+                    { name: 'name', type: 'string', required: true, desc: 'Combo name' },
+                    { name: 'items', type: 'array', required: true, desc: 'Array of { menuItem, quantity, unitPrice }' }
+                ]
+            },
+            { method: 'PUT', path: '/combos/:id', auth: 'Admin', desc: 'Update a combo offer.' },
+            { method: 'DELETE', path: '/combos/:id', auth: 'Admin', desc: 'Delete a combo offer.' }
+        ]
+    },
+    guest: {
+        title: 'Guest API',
+        icon: '🌐',
+        description: 'Limited public-facing endpoints for guests — no authentication required.',
+        endpoints: [
+            { method: 'GET', path: '/guest/menu', auth: 'None', desc: 'Get the public menu visible to all guests.' },
+            { method: 'GET', path: '/guest/tables/:tableId/status', auth: 'None', desc: 'Check availability status of a specific table.' },
+            {
+                method: 'POST', path: '/guest/orders', auth: 'None',
+                desc: 'Place a guest order without authentication.',
+                params: [
+                    { name: 'table', type: 'string', required: true, desc: 'Table ID' },
+                    { name: 'items', type: 'array', required: true, desc: 'Array of order items' }
+                ]
+            }
+        ]
+    },
+    public: {
+        title: 'Public',
+        icon: '🏨',
+        description: 'Publicly accessible endpoints for cafe/branch discovery.',
+        endpoints: [
+            { method: 'GET', path: '/public/cafes/:slug', auth: 'None', desc: 'Get cafe information by URL slug.' }
+        ]
+    }
+};
 
-        // Theme toggle
-        if (localStorage.theme === 'dark' || (!localStorage.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
+// ─── Theme ─────────────────────────────────────────────────────────────────
+let dark = localStorage.theme === 'dark' || (!localStorage.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+function applyTheme() {
+    document.documentElement.classList.toggle('dark', dark);
+    const icon = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+    if (icon) icon.textContent = dark ? '☀️' : '🌙';
+    if (label) label.textContent = dark ? 'Light' : 'Dark';
+}
+applyTheme();
+document.getElementById('toggle-theme').addEventListener('click', () => { dark = !dark; localStorage.theme = dark ? 'dark' : 'light'; applyTheme(); });
+const mobileTheme = document.getElementById('toggle-theme-mobile');
+if (mobileTheme) mobileTheme.addEventListener('click', () => { dark = !dark; localStorage.theme = dark ? 'dark' : 'light'; applyTheme(); });
+
+// ─── Sidebar ───────────────────────────────────────────────────────────────
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+}
+
+// ─── Render ─────────────────────────────────────────────────────────────────
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderNav() {
+    const nav = document.getElementById('nav');
+    nav.innerHTML = Object.entries(apis).map(([key, g]) =>
+        `<a href="#${key}" class="nav-link" data-key="${key}">${g.icon || ''} ${g.title}</a>`
+    ).join('');
+    nav.querySelectorAll('a').forEach(a => a.addEventListener('click', e => {
+        e.preventDefault();
+        const el = document.getElementById(a.dataset.key);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        nav.querySelectorAll('a').forEach(x => x.classList.remove('active'));
+        a.classList.add('active');
+        closeSidebar();
+    }));
+}
+
+let epCounter = 0;
+
+function renderEndpoint(ep) {
+    const id = 'ep-' + (epCounter++);
+    const hasDetails = (ep.params && ep.params.length) || ep.example;
+
+    let paramsHtml = '';
+    if (ep.params && ep.params.length) {
+        paramsHtml = `<div style="margin-bottom:20px;">
+            <div style="font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">Parameters</div>
+            <div style="overflow-x:auto; border-radius:8px; border:1px solid var(--border);">
+            <table class="param-table">
+                <thead><tr>
+                    <th>Name</th><th>Type</th><th>Required</th><th>Description</th>
+                </tr></thead>
+                <tbody>${ep.params.map(p => `<tr>
+                    <td class="mono" style="color:var(--accent2); font-size:.8rem;">${escHtml(p.name)}</td>
+                    <td style="color:var(--muted); font-size:.8rem;">${escHtml(p.type)}</td>
+                    <td><span class="${p.required ? 'req' : 'opt'}">${p.required ? 'Required' : 'Optional'}</span></td>
+                    <td style="font-size:.8rem;">${escHtml(p.desc)}</td>
+                </tr>`).join('')}</tbody>
+            </table></div></div>`;
+    }
+
+    let exampleHtml = '';
+    if (ep.example) {
+        exampleHtml = `<div style="margin-bottom:20px;">
+            <div style="font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">Example</div>
+            <div style="display:grid; gap:12px;">`;
+        if (ep.example.request) exampleHtml += `<div class="code-block">
+            <div class="code-block-header">
+                <span class="code-block-label req-label">Request</span>
+                <button class="copy-btn" onclick="copyCode(this,'${id}-req')">Copy</button>
+            </div>
+            <pre id="${id}-req">${escHtml(ep.example.request)}</pre></div>`;
+        if (ep.example.response) exampleHtml += `<div class="code-block">
+            <div class="code-block-header">
+                <span class="code-block-label res-label">Response</span>
+                <button class="copy-btn" onclick="copyCode(this,'${id}-res')">Copy</button>
+            </div>
+            <pre id="${id}-res">${escHtml(ep.example.response)}</pre></div>`;
+        exampleHtml += `</div></div>`;
+    }
+
+    return `<div class="endpoint-card" data-searchable="${escHtml((ep.method + ' ' + ep.path + ' ' + ep.desc).toLowerCase())}">
+        <div class="ep-header" onclick="toggleEp('${id}')">
+            <span class="badge ${ep.method}">${ep.method}</span>
+            <span class="ep-path">${escHtml(ep.path)}</span>
+            <span class="ep-auth">${escHtml(ep.auth)}</span>
+            <span class="ep-desc">${escHtml(ep.desc)}</span>
+            ${hasDetails ? `<svg style="margin-left:auto;flex-shrink:0;transition:transform .2s;color:var(--muted);" id="${id}-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>` : ''}
+        </div>
+        ${hasDetails ? `<div class="ep-body" id="${id}-body">${paramsHtml}${exampleHtml}</div>` : ''}
+    </div>`;
+}
+
+function toggleEp(id) {
+    const body = document.getElementById(id + '-body');
+    const chev = document.getElementById(id + '-chevron');
+    if (!body) return;
+    const open = body.classList.toggle('open');
+    if (chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+}
+
+function copyCode(btn, preId) {
+    const pre = document.getElementById(preId);
+    if (!pre) return;
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+}
+
+function renderContent() {
+    const content = document.getElementById('content');
+    content.innerHTML = Object.entries(apis).map(([key, g]) => `
+        <section id="${key}" style="margin-bottom:48px; scroll-margin-top:20px;">
+            <div class="section-title">
+                <div class="section-dot"></div>
+                <span style="font-size:1.1rem;">${g.icon || ''}</span>
+                ${escHtml(g.title)}
+                <span style="font-size:.75rem; color:var(--muted); font-weight:600; margin-left:4px;">${g.endpoints.length} endpoint${g.endpoints.length !== 1 ? 's' : ''}</span>
+            </div>
+            ${g.description ? `<p style="color:var(--muted); font-size:.88rem; margin-bottom:18px; line-height:1.7;">${escHtml(g.description)}</p>` : ''}
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                ${g.endpoints.map(renderEndpoint).join('')}
+            </div>
+        </section>
+    `).join('');
+}
+
+// ─── Search ─────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', function() {
+    const term = this.value.toLowerCase().trim();
+    document.querySelectorAll('.endpoint-card').forEach(card => {
+        const match = !term || card.dataset.searchable.includes(term);
+        card.style.display = match ? '' : 'none';
+    });
+    document.querySelectorAll('#content section').forEach(sec => {
+        const visible = Array.from(sec.querySelectorAll('.endpoint-card')).some(c => c.style.display !== 'none');
+        sec.style.display = visible ? '' : 'none';
+    });
+});
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+renderNav();
+renderContent();
+
+// Highlight active nav on scroll
+const sections = document.querySelectorAll('#content section');
+const navLinks = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            navLinks.forEach(l => l.classList.remove('active'));
+            const link = document.querySelector(`.nav-link[data-key="${e.target.id}"]`);
+            if (link) link.classList.add('active');
         }
-        document.getElementById('toggle-theme')?.addEventListener('click', () => {
-            document.documentElement.classList.toggle('dark');
-            localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        });
-
-        // Sidebar toggle
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        const toggleBtn = document.getElementById('toggle-sidebar');
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
-        });
-        overlay.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
-        });
-
-        // Build nav and content
-        const navUl = document.querySelector('#nav ul');
-        const content = document.getElementById('content');
-        const searchInput = document.getElementById('search');
-
-        function render() {
-            let html = '';
-            let navHtml = '';
-            Object.entries(apis).forEach(([key, group]) => {
-                navHtml += `<li><a href="#${key}" class="block py-2 px-3 rounded hover:bg-gray-200 dark:hover:bg-gray-700">${group.title}</a></li>`;
-                html += `<section id="${key}" class="group-section">
-                    <h2 class="text-3xl font-bold mb-6 border-b pb-4">${group.title}</h2>
-                    <div class="space-y-4">`;
-                group.endpoints.forEach(ep => {
-                    const methodClass = `method-${ep.method?.toLowerCase() || 'get'}`;
-                    html += `
-                        <div class="endpoint bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border-l-4 border-blue-500 hover:shadow-xl transition-all">
-                            <div class="flex items-center mb-4">
-                                <span class="method-badge ${methodClass} text-white px-4 py-2 rounded font-mono font-bold text-sm mr-4">${ep.method || 'GET'}</span>
-                                <code class="text-2xl font-mono flex-1">${ep.path}</code>
-                            </div>
-                            <p class="text-lg mb-4">${ep.desc}</p>
-                            <div class="grid md:grid-cols-2 gap-4 text-sm">
-                                <div><strong>Auth:</strong> <span class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">${ep.auth}</span></div>
-                                ${ep.body ? `<div><strong>Body:</strong><pre class="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded text-xs overflow-auto">${ep.body}</pre></div>` : ''}
-                            </div>
-                        </div>`;
-                });
-                html += '</div></section>';
-            });
-            navUl.innerHTML = navHtml;
-            content.innerHTML = html;
-
-            // Smooth scroll for nav links
-            document.querySelectorAll('#nav a').forEach(link => {
-                link.addEventListener('click', e => {
-                    e.preventDefault();
-                    document.querySelector(link.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
-                    sidebar.classList.add('-translate-x-full');
-                    overlay.classList.add('hidden');
-                });
-            });
-        }
-
-        // Search
-        searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            document.querySelectorAll('.endpoint').forEach(el => {
-                const text = el.textContent.toLowerCase();
-                el.style.display = text.includes(term) ? 'block' : 'none';
-            });
-            document.querySelectorAll('.group-section').forEach(section => {
-                const visible = Array.from(section.querySelectorAll('.endpoint')).some(el => el.style.display !== 'none');
-                section.style.display = visible ? 'block' : 'none';
-            });
-        });
-
-        render();
-    </script>
+    });
+}, { threshold: 0.15 });
+sections.forEach(s => observer.observe(s));
+</script>
 </body>
 </html>
