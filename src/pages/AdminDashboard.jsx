@@ -222,6 +222,15 @@ const AdminDashboard = () => {
     setTransactions(txnRes.data);
   }, []);
 
+  const loadHistoryData = useCallback(async () => {
+    try {
+      const res = await api.get('/api/reports/history');
+      setHistory(res.data || []);
+    } catch (e) {
+      console.error('Failed to load history', e);
+    }
+  }, []);
+
   const addPromotion = async (userId, form) => {
     const payload = {
       title: form.title,
@@ -324,6 +333,12 @@ const AdminDashboard = () => {
       }
     }
   }, [activeSection]);
+
+  useEffect(() => {
+    if (activeSection === 'history') {
+      loadHistoryData();
+    }
+  }, [activeSection, loadHistoryData]);
 
   useEffect(() => {
     const socket = createSocket();

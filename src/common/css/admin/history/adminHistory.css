@@ -1,0 +1,363 @@
+/* ==============================
+   History Page – Admin Dashboard
+   ============================== */
+
+/* Container */
+.hist-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 32px;
+}
+
+/* ── Stats ── */
+.hist-stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(245, 165, 36, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ── Toolbar ── */
+.hist-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hist-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.hist-search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.hist-search {
+  width: 100%;
+  padding: 9px 36px 9px 32px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  background: #fff;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hist-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(245, 165, 36, 0.12);
+}
+
+.hist-search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.hist-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  background: #fff;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.hist-select:focus {
+  border-color: var(--accent);
+}
+
+/* ── View Toggle ── */
+.hist-view-toggle {
+  display: flex;
+  gap: 2px;
+  background: #f3f4f6;
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.hist-view-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.hist-view-btn.active {
+  background: #fff;
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.hist-view-btn:hover:not(.active) {
+  color: var(--text);
+}
+
+/* ── Grid Layout ── */
+.hist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+/* ── List Layout ── */
+.hist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hist-list .hist-card {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.hist-list .hist-card-header {
+  flex: 0 0 auto;
+  min-width: 160px;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.hist-list .hist-meta {
+  flex: 1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.hist-list .hist-receipt {
+  display: none;
+}
+
+.hist-list .hist-card-footer {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  flex: 0 0 auto;
+}
+
+/* ── Card ── */
+.hist-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.hist-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 16px 16px 0 0;
+}
+
+.hist-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Header */
+.hist-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.hist-table-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(245, 165, 36, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-2);
+  flex-shrink: 0;
+}
+
+/* Meta */
+.hist-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* Receipt */
+.hist-receipt {
+  background: #fafafa;
+  border: 1px dashed #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.hist-receipt-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.hist-receipt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hist-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px dotted #e5e7eb;
+}
+
+.hist-receipt-row:last-child {
+  border-bottom: none;
+}
+
+.hist-item-price {
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.hist-receipt-more {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  margin-top: 2px;
+}
+
+/* Footer */
+.hist-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  margin-top: auto;
+  border-top: 1px solid #f3f4f6;
+}
+
+.hist-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.hist-total {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent-2);
+}
+
+/* ── Empty States ── */
+.hist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 80px 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.hist-empty-icon {
+  opacity: 0.2;
+  margin-bottom: 8px;
+}
+
+.hist-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  color: var(--muted);
+  font-size: 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-align: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .hist-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hist-grid {
+    grid-template-columns: 1fr;
+  }
+  .hist-list .hist-card {
+    flex-direction: column;
+  }
+}
