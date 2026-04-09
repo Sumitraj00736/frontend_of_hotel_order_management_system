@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Home,
   ListChecks,
@@ -25,22 +25,33 @@ import {
   Layers2,
   BarChart3,
   ChefHat,
-  PackageSearch
+  PackageSearch,
+  X
 } from 'lucide-react';
-import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId, hasPermission } from '../../../api/session.js';
+
+import {
+  clearSession,
+  getBranchId,
+  getBranches,
+  getCurrentUser,
+  setBranchId,
+  hasPermission
+} from '../../../api/session.js';
+
 import '../../../common/css/admin/sidebar/adminSidebar.css';
 
 const iconMap = {
-  dashboard: <Home size={18} strokeWidth={1.5} />,
-  orders: <ListChecks size={18} strokeWidth={1.5} />,
-  users: <Users size={18} strokeWidth={1.5} />,
-  tables: <TableIcon size={18} strokeWidth={1.5} />,
-  menus: <BookOpen size={18} strokeWidth={1.5} />,
-  inventory: <Boxes size={18} strokeWidth={1.5} />,
-  website: <Globe size={18} strokeWidth={1.5} />,
-  reports: <BarChart size={18} strokeWidth={1.5} />,
-  history: <History size={18} strokeWidth={1.5} />,
-  settings: <Settings size={18} strokeWidth={1.5} />
+  dashboard: <Home size={18} strokeWidth={1.7} />,
+  orders: <ListChecks size={18} strokeWidth={1.7} />,
+  users: <Users size={18} strokeWidth={1.7} />,
+  tables: <TableIcon size={18} strokeWidth={1.7} />,
+  menus: <BookOpen size={18} strokeWidth={1.7} />,
+  inventory: <Boxes size={18} strokeWidth={1.7} />,
+  website: <Globe size={18} strokeWidth={1.7} />,
+  reports: <BarChart size={18} strokeWidth={1.7} />,
+  history: <History size={18} strokeWidth={1.7} />,
+  settings: <Settings size={18} strokeWidth={1.7} />,
+  notifications: <Bell size={18} strokeWidth={1.7} />
 };
 
 const menuSubIcons = {
@@ -90,20 +101,40 @@ const AdminSidebar = ({
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [branchOpen, setBranchOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
 
   const user = getCurrentUser();
-  const branches = getBranches();
-  const activeBranchId = getBranchId() || branches[0]?.branchId;
+  const branches = getBranches() || [];
+  const activeBranchId = getBranchId() || branches[0]?.branchId || branches[0]?._id;
   const activeBranch = branches.find((b) => (b.branchId || b._id) === activeBranchId);
-  const restaurantName = activeBranch?.branchName || user?.restaurantName || user?.name || 'Restaurant';
+  const restaurantName =
+    activeBranch?.branchName || user?.restaurantName || user?.name || 'Restaurant';
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 992);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogout = () => {
     clearSession();
     window.location.href = '/login';
   };
 
+  const handleSelect = (section) => {
+    onSelect?.(section);
+
+    if (isMobile && isOpen) {
+      onToggleSidebar?.();
+    }
+  };
+
   const renderCollapsedPopover = (id, title, links) => {
-    if (isOpen || hoveredMenu !== id) return null;
+    if (isOpen || hoveredMenu !== id || isMobile) return null;
+
     return (
       <div className="collapsed-popover">
         <div className="popover-card">
@@ -112,14 +143,14 @@ const AdminSidebar = ({
             {links
               .filter((link) => !link.permission || hasPermission(link.permission))
               .map(({ id: linkId, label }) => (
-              <button
-                key={linkId}
-                className={`sidebar-button sub ${activeSection === linkId ? 'active' : ''}`}
-                onClick={() => onSelect?.(linkId)}
-              >
-                {label}
-              </button>
-            ))}
+                <button
+                  key={linkId}
+                  className={`sidebar-button sub ${activeSection === linkId ? 'active' : ''}`}
+                  onClick={() => handleSelect(linkId)}
+                >
+                  {label}
+                </button>
+              ))}
           </div>
         </div>
       </div>
@@ -127,273 +158,379 @@ const AdminSidebar = ({
   };
 
   return (
-    <div className={`sidebar admin-sidebar slide ${isOpen ? 'open' : 'closed'}`}>
-      <div className="sidebar-top">
-        <div className="sidebar-brand blocky">
-          <span className="brand-mark">V</span>
-          {isOpen && <span className="brand-text">merorestro</span>}
-        </div>
-        <button className="collapse-btn" onClick={onToggleSidebar} aria-label="Toggle sidebar">
-          {isOpen ? '«' : '»'}
-        </button>
-      </div>
+    <>
+      {isMobile && isOpen && <div className="sidebar-overlay" onClick={onToggleSidebar} />}
 
-      <div className={`location-card ${isOpen ? '' : 'compact'}`} onClick={() => setBranchOpen((v) => !v)}>
-        <div className="location-main">
-          <div className="location-title">{restaurantName}</div>
-          {isOpen && <span className="chevron"><ChevronDown size={14} /></span>}
+      <div
+        className={`sidebar admin-sidebar slide ${isOpen ? 'open' : 'closed'} ${
+          isMobile ? 'mobile-sidebar' : ''
+        }`}
+      >
+        <div className="sidebar-top">
+          <div className="sidebar-brand blocky">
+            <span className="brand-mark">V</span>
+            {isOpen && <span className="brand-text">merorestro</span>}
+          </div>
+
+          <button className="collapse-btn" onClick={onToggleSidebar} aria-label="Toggle sidebar">
+            {isMobile ? <X size={18} /> : isOpen ? '«' : '»'}
+          </button>
         </div>
-        {isOpen && <div className="pill badge-premium">Premium (Trial)</div>}
-        {branchOpen && isOpen && (
-          <div className="branch-popover">
-            {branches.map((b) => (
+
+        <div
+          className={`location-card ${isOpen ? '' : 'compact'}`}
+          onClick={() => isOpen && setBranchOpen((v) => !v)}
+        >
+          <div className="location-main">
+            <div className="location-title">{restaurantName}</div>
+            {isOpen && <span className="chevron"><ChevronDown size={14} /></span>}
+          </div>
+
+          {isOpen && <div className="pill badge-premium">Premium (Trial)</div>}
+
+          {branchOpen && isOpen && (
+            <div className="branch-popover">
+              {branches.map((b) => (
+                <button
+                  key={b.branchId || b._id}
+                  className={`branch-item ${
+                    activeBranchId === (b.branchId || b._id) ? 'active' : ''
+                  }`}
+                  onClick={() => {
+                    setBranchId(b.branchId || b._id);
+                    window.location.reload();
+                  }}
+                >
+                  {b.branchName || b.name || b.code || 'Branch'}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="sidebar-buttons">
+          {coreSections
+            .filter((section) => hasPermission(sectionPermissions[section]))
+            .map((section) => (
               <button
-                key={b.branchId || b._id}
-                className={`branch-item ${activeBranchId === (b.branchId || b._id) ? 'active' : ''}`}
-                onClick={() => {
-                  setBranchId(b.branchId || b._id);
-                  window.location.reload();
-                }}
+                key={section}
+                className={`sidebar-button ${
+                  activeSection === section || activeSection.startsWith(`${section}:`) ? 'active' : ''
+                } ${isOpen ? '' : 'compact'}`}
+                onClick={() =>
+                  handleSelect(section === 'settings' ? 'settings:restaurant-details' : section)
+                }
+                title={section.toUpperCase()}
               >
-                {b.branchName || b.name || b.code || 'Branch'}
+                <span className="sidebar-icon">{iconMap[section]}</span>
+                <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>
+                  {section.charAt(0).toUpperCase() + section.slice(1)}
+                </span>
+                {section === 'notifications' && unreadCount > 0 && isOpen && (
+                  <span className="pill badge-red">{unreadCount}</span>
+                )}
               </button>
             ))}
-          </div>
-        )}
-      </div>
 
-      <div className="sidebar-buttons">
-        {coreSections
-          .filter((section) => hasPermission(sectionPermissions[section]))
-          .map((section) => (
-          <button
-            key={section}
-            className={`sidebar-button ${activeSection === section || activeSection.startsWith(`${section}:`) ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-            onClick={() => onSelect?.(section === 'settings' ? 'settings:restaurant-details' : section)}
-            title={section.toUpperCase()}
-          >
-            <span className="sidebar-icon">{iconMap[section]}</span>
-            <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>{section.charAt(0).toUpperCase() + section.slice(1)}</span>
-          </button>
-        ))}
+          <div className="sidebar-separator" />
 
-        <div className="sidebar-separator" />
-
-        {/* Menu */}
-        <div
-          className="sidebar-group"
-          onMouseEnter={() => !isOpen && setHoveredMenu('menu')}
-          onMouseLeave={() => !isOpen && setHoveredMenu(null)}
-        >
+          {/* MENU */}
           {hasPermission('menu:view') && (
-          <button
-            className={`sidebar-button ${activeSection.startsWith('menu') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-            onClick={() => (isOpen ? setMenuOpen((v) => !v) : setHoveredMenu('menu'))}
-            title="MENU"
-          >
-            <span className="sidebar-icon">{iconMap.menus}</span>
-            <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Menu</span>
-            {isOpen && <span className="ms-auto">{menuOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>}
-          </button>
-          )}
-          {isOpen && (
-            <div className={`sidebar-sub ${menuOpen ? 'open' : ''}`}>
-              {hasPermission('menu:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'menu:dishes' ? 'active' : ''}`} onClick={() => onSelect?.('menu:dishes')}>
-                <span className="sidebar-icon">{menuSubIcons.dishes}</span>
-                Dishes
+            <div
+              className="sidebar-group"
+              onMouseEnter={() => !isOpen && !isMobile && setHoveredMenu('menu')}
+              onMouseLeave={() => !isOpen && !isMobile && setHoveredMenu(null)}
+            >
+              <button
+                className={`sidebar-button ${
+                  activeSection.startsWith('menu') ? 'active' : ''
+                } ${isOpen ? '' : 'compact'}`}
+                onClick={() => (isOpen ? setMenuOpen((v) => !v) : setHoveredMenu('menu'))}
+                title="MENU"
+              >
+                <span className="sidebar-icon">{iconMap.menus}</span>
+                <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Menu</span>
+                {isOpen && (
+                  <span className="ms-auto">
+                    {menuOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  </span>
+                )}
               </button>
+
+              {isOpen && (
+                <div className={`sidebar-sub ${menuOpen ? 'open' : ''}`}>
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'menu:dishes' ? 'active' : ''}`}
+                    onClick={() => handleSelect('menu:dishes')}
+                  >
+                    <span className="sidebar-icon">{menuSubIcons.dishes}</span>
+                    Dishes
+                  </button>
+
+                  <button
+                    className={`sidebar-button sub ${
+                      activeSection === 'menu:categories' ? 'active' : ''
+                    }`}
+                    onClick={() => handleSelect('menu:categories')}
+                  >
+                    <span className="sidebar-icon">{menuSubIcons.categories}</span>
+                    Category
+                  </button>
+
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'menu:addons' ? 'active' : ''}`}
+                    onClick={() => handleSelect('menu:addons')}
+                  >
+                    <span className="sidebar-icon">{menuSubIcons.addons}</span>
+                    Ad-Ons & Extras
+                  </button>
+
+                  <button
+                    className={`sidebar-button sub ${
+                      activeSection === 'menu:submenus' ? 'active' : ''
+                    }`}
+                    onClick={() => handleSelect('menu:submenus')}
+                  >
+                    <span className="sidebar-icon">{menuSubIcons.submenus}</span>
+                    Sub Menu
+                  </button>
+
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'menu:combos' ? 'active' : ''}`}
+                    onClick={() => handleSelect('menu:combos')}
+                  >
+                    <span className="sidebar-icon">{menuSubIcons.combos}</span>
+                    Combo Offer
+                  </button>
+                </div>
               )}
-              {hasPermission('menu:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'menu:categories' ? 'active' : ''}`} onClick={() => onSelect?.('menu:categories')}>
-                <span className="sidebar-icon">{menuSubIcons.categories}</span>
-                Category
-              </button>
-              )}
-              {hasPermission('menu:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'menu:addons' ? 'active' : ''}`} onClick={() => onSelect?.('menu:addons')}>
-                <span className="sidebar-icon">{menuSubIcons.addons}</span>
-                Ad-Ons & Extras
-              </button>
-              )}
-              {hasPermission('menu:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'menu:submenus' ? 'active' : ''}`} onClick={() => onSelect?.('menu:submenus')}>
-                <span className="sidebar-icon">{menuSubIcons.submenus}</span>
-                Sub Menu
-              </button>
-              )}
-              {hasPermission('menu:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'menu:combos' ? 'active' : ''}`} onClick={() => onSelect?.('menu:combos')}>
-                <span className="sidebar-icon">{menuSubIcons.combos}</span>
-                Combo Offer
-              </button>
-              )}
+
+              {renderCollapsedPopover('menu', 'Menu', [
+                { id: 'menu:dishes', label: 'Dishes', permission: 'menu:view' },
+                { id: 'menu:categories', label: 'Category', permission: 'menu:view' },
+                { id: 'menu:addons', label: 'Ad-Ons & Extras', permission: 'menu:view' },
+                { id: 'menu:submenus', label: 'Sub Menu', permission: 'menu:view' },
+                { id: 'menu:combos', label: 'Combo Offer', permission: 'menu:view' }
+              ])}
             </div>
           )}
-          {renderCollapsedPopover('menu', 'Menu', [
-            { id: 'menu:dishes', label: 'Dishes', permission: 'menu:view' },
-            { id: 'menu:categories', label: 'Category', permission: 'menu:view' },
-            { id: 'menu:addons', label: 'Ad-Ons & Extras', permission: 'menu:view' },
-            { id: 'menu:submenus', label: 'Sub Menu', permission: 'menu:view' },
-            { id: 'menu:combos', label: 'Combo Offer', permission: 'menu:view' }
-          ])}
-        </div>
 
-        {/* Inventory */}
-        <div
-          className="sidebar-group"
-          onMouseEnter={() => !isOpen && setHoveredMenu('inventory')}
-          onMouseLeave={() => !isOpen && setHoveredMenu(null)}
-        >
+          {/* INVENTORY */}
           {hasPermission('inventory:view') && (
-          <button
-            className={`sidebar-button ${activeSection.startsWith('inventory') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-            onClick={() => (isOpen ? setInventoryOpen((v) => !v) : setHoveredMenu('inventory'))}
-            title="INVENTORY"
-          >
-            <span className="sidebar-icon">{iconMap.inventory}</span>
-            <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Inventory</span>
-            {isOpen && <span className="ms-auto">{inventoryOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>}
-          </button>
-          )}
-          {isOpen && (
-            <div className={`sidebar-sub ${inventoryOpen ? 'open' : ''}`}>
-              {hasPermission('inventory:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'inventory:ingredients' ? 'active' : ''}`} onClick={() => onSelect?.('inventory:ingredients')}>
-                <span className="sidebar-icon">{inventorySubIcons.ingredients}</span>
-                Ingredients
+            <div
+              className="sidebar-group"
+              onMouseEnter={() => !isOpen && !isMobile && setHoveredMenu('inventory')}
+              onMouseLeave={() => !isOpen && !isMobile && setHoveredMenu(null)}
+            >
+              <button
+                className={`sidebar-button ${
+                  activeSection.startsWith('inventory') ? 'active' : ''
+                } ${isOpen ? '' : 'compact'}`}
+                onClick={() => (isOpen ? setInventoryOpen((v) => !v) : setHoveredMenu('inventory'))}
+                title="INVENTORY"
+              >
+                <span className="sidebar-icon">{iconMap.inventory}</span>
+                <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Inventory</span>
+                {isOpen && (
+                  <span className="ms-auto">
+                    {inventoryOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  </span>
+                )}
               </button>
+
+              {isOpen && (
+                <div className={`sidebar-sub ${inventoryOpen ? 'open' : ''}`}>
+                  <button
+                    className={`sidebar-button sub ${
+                      activeSection === 'inventory:ingredients' ? 'active' : ''
+                    }`}
+                    onClick={() => handleSelect('inventory:ingredients')}
+                  >
+                    <span className="sidebar-icon">{inventorySubIcons.ingredients}</span>
+                    Ingredients
+                  </button>
+
+                  <button
+                    className={`sidebar-button sub ${
+                      activeSection === 'inventory:recipes' ? 'active' : ''
+                    }`}
+                    onClick={() => handleSelect('inventory:recipes')}
+                  >
+                    <span className="sidebar-icon">{inventorySubIcons.recipes}</span>
+                    Recipes
+                  </button>
+
+                  <button
+                    className={`sidebar-button sub ${
+                      activeSection === 'inventory:transactions' ? 'active' : ''
+                    }`}
+                    onClick={() => handleSelect('inventory:transactions')}
+                  >
+                    <span className="sidebar-icon">{inventorySubIcons.transactions}</span>
+                    Stock Transactions
+                  </button>
+                </div>
               )}
-              {hasPermission('inventory:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'inventory:recipes' ? 'active' : ''}`} onClick={() => onSelect?.('inventory:recipes')}>
-                <span className="sidebar-icon">{inventorySubIcons.recipes}</span>
-                Recipes
-              </button>
-              )}
-              {hasPermission('inventory:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'inventory:transactions' ? 'active' : ''}`} onClick={() => onSelect?.('inventory:transactions')}>
-                <span className="sidebar-icon">{inventorySubIcons.transactions}</span>
-                Stock Transactions
-              </button>
-              )}
+
+              {renderCollapsedPopover('inventory', 'Inventory', [
+                { id: 'inventory:ingredients', label: 'Ingredients', permission: 'inventory:view' },
+                { id: 'inventory:recipes', label: 'Recipes', permission: 'inventory:view' },
+                { id: 'inventory:transactions', label: 'Stock Transactions', permission: 'inventory:view' }
+              ])}
             </div>
           )}
-          {renderCollapsedPopover('inventory', 'Inventory', [
-            { id: 'inventory:ingredients', label: 'Ingredients', permission: 'inventory:view' },
-            { id: 'inventory:recipes', label: 'Recipes', permission: 'inventory:view' },
-            { id: 'inventory:transactions', label: 'Stock Transactions', permission: 'inventory:view' }
-          ])}
-        </div>
 
-        {/* Reports */}
-        <div
-          className="sidebar-group"
-          onMouseEnter={() => !isOpen && setHoveredMenu('reports')}
-          onMouseLeave={() => !isOpen && setHoveredMenu(null)}
-        >
+          {/* REPORTS */}
           {hasPermission('reports:view') && (
-          <button
-            className={`sidebar-button ${activeSection.startsWith('reports') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-            onClick={() => (isOpen ? setReportsOpen((v) => !v) : setHoveredMenu('reports'))}
-            title="REPORTS"
-          >
-            <span className="sidebar-icon">{iconMap.reports}</span>
-            <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Reports</span>
-            {isOpen && <span className="ms-auto">{reportsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>}
-          </button>
-          )}
-          {isOpen && (
-            <div className={`sidebar-sub ${reportsOpen ? 'open' : ''}`}>
-              {hasPermission('reports:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'reports:company' ? 'active' : ''}`} onClick={() => onSelect?.('reports:company')}>
-                <span className="sidebar-icon">{reportsSubIcons.company}</span>
-                Company
+            <div
+              className="sidebar-group"
+              onMouseEnter={() => !isOpen && !isMobile && setHoveredMenu('reports')}
+              onMouseLeave={() => !isOpen && !isMobile && setHoveredMenu(null)}
+            >
+              <button
+                className={`sidebar-button ${
+                  activeSection.startsWith('reports') ? 'active' : ''
+                } ${isOpen ? '' : 'compact'}`}
+                onClick={() => (isOpen ? setReportsOpen((v) => !v) : setHoveredMenu('reports'))}
+                title="REPORTS"
+              >
+                <span className="sidebar-icon">{iconMap.reports}</span>
+                <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Reports</span>
+                {isOpen && (
+                  <span className="ms-auto">
+                    {reportsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  </span>
+                )}
               </button>
+
+              {isOpen && (
+                <div className={`sidebar-sub ${reportsOpen ? 'open' : ''}`}>
+                  <button
+                    className={`sidebar-button sub ${
+                      activeSection === 'reports:company' ? 'active' : ''
+                    }`}
+                    onClick={() => handleSelect('reports:company')}
+                  >
+                    <span className="sidebar-icon">{reportsSubIcons.company}</span>
+                    Company
+                  </button>
+
+                  <button
+                    className={`sidebar-button sub ${
+                      activeSection === 'reports:waiter' ? 'active' : ''
+                    }`}
+                    onClick={() => handleSelect('reports:waiter')}
+                  >
+                    <span className="sidebar-icon">{reportsSubIcons.waiter}</span>
+                    Waiter
+                  </button>
+
+                  <button
+                    className={`sidebar-button sub ${
+                      activeSection === 'reports:kitchen' ? 'active' : ''
+                    }`}
+                    onClick={() => handleSelect('reports:kitchen')}
+                  >
+                    <span className="sidebar-icon">{reportsSubIcons.kitchen}</span>
+                    Kitchen
+                  </button>
+
+                  <button
+                    className={`sidebar-button sub ${
+                      activeSection === 'reports:stock' ? 'active' : ''
+                    }`}
+                    onClick={() => handleSelect('reports:stock')}
+                  >
+                    <span className="sidebar-icon">{reportsSubIcons.stock}</span>
+                    Stock
+                  </button>
+                </div>
               )}
-              {hasPermission('reports:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'reports:waiter' ? 'active' : ''}`} onClick={() => onSelect?.('reports:waiter')}>
-                <span className="sidebar-icon">{reportsSubIcons.waiter}</span>
-                Waiter
-              </button>
-              )}
-              {hasPermission('reports:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'reports:kitchen' ? 'active' : ''}`} onClick={() => onSelect?.('reports:kitchen')}>
-                <span className="sidebar-icon">{reportsSubIcons.kitchen}</span>
-                Kitchen
-              </button>
-              )}
-              {hasPermission('reports:view') && (
-              <button className={`sidebar-button sub ${activeSection === 'reports:stock' ? 'active' : ''}`} onClick={() => onSelect?.('reports:stock')}>
-                <span className="sidebar-icon">{reportsSubIcons.stock}</span>
-                Stock
-              </button>
-              )}
+
+              {renderCollapsedPopover('reports', 'Reports', [
+                { id: 'reports:company', label: 'Company', permission: 'reports:view' },
+                { id: 'reports:waiter', label: 'Waiter', permission: 'reports:view' },
+                { id: 'reports:kitchen', label: 'Kitchen', permission: 'reports:view' },
+                { id: 'reports:stock', label: 'Stock', permission: 'reports:view' }
+              ])}
             </div>
           )}
-          {renderCollapsedPopover('reports', 'Reports', [
-            { id: 'reports:company', label: 'Company', permission: 'reports:view' },
-            { id: 'reports:waiter', label: 'Waiter', permission: 'reports:view' },
-            { id: 'reports:kitchen', label: 'Kitchen', permission: 'reports:view' },
-            { id: 'reports:stock', label: 'Stock', permission: 'reports:view' }
-          ])}
+
+          {/* HISTORY */}
+          {hasPermission('reports:view') && (
+            <button
+              className={`sidebar-button ${activeSection === 'history' ? 'active' : ''} ${
+                isOpen ? '' : 'compact'
+              }`}
+              onClick={() => handleSelect('history')}
+              title="HISTORY"
+            >
+              <span className="sidebar-icon">{iconMap.history}</span>
+              <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>History</span>
+            </button>
+          )}
+
+          {/* SETTINGS */}
+          {hasPermission('settings:view') && (
+            <button
+              className={`sidebar-button ${activeSection.startsWith('settings') ? 'active' : ''} ${
+                isOpen ? '' : 'compact'
+              }`}
+              onClick={() => handleSelect('settings:restaurant-details')}
+              title="SETTINGS"
+            >
+              <span className="sidebar-icon">{iconMap.settings}</span>
+              <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Settings</span>
+            </button>
+          )}
         </div>
 
-        {/* History */}
-        {hasPermission('reports:view') && (
+        <div className="sidebar-profile-wrapper" onMouseLeave={() => setProfileOpen(false)}>
           <button
-            className={`sidebar-button ${activeSection === 'history' ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-            onClick={() => onSelect?.('history')}
-            title="HISTORY"
+            className={`sidebar-profile ${isOpen ? '' : 'compact'}`}
+            onClick={() => setProfileOpen((v) => !v)}
           >
-            <span className="sidebar-icon">{iconMap.history}</span>
-            <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>History</span>
-          </button>
-        )}
+            <div className="avatar-circle">
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            </div>
 
-        {/* Settings */}
-        {hasPermission('settings:view') && (
-          <button
-            className={`sidebar-button ${activeSection.startsWith('settings') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-            onClick={() => onSelect?.('settings:restaurant-details')}
-            title="SETTINGS"
-          >
-            <span className="sidebar-icon">{iconMap.settings}</span>
-            <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Settings</span>
-          </button>
-        )}
-      </div>
+            {isOpen && (
+              <div className="profile-meta">
+                <div className="fw-semibold small">{user?.name || 'User'}</div>
+                <div className="tiny-text text-muted">{user?.email || ''}</div>
+              </div>
+            )}
 
-      <div className="sidebar-profile-wrapper" onMouseLeave={() => setProfileOpen(false)}>
-        <button className={`sidebar-profile ${isOpen ? '' : 'compact'}`} onClick={() => setProfileOpen((v) => !v)}>
-          <div className="avatar-circle">{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</div>
-          {isOpen && (
-            <div className="profile-meta">
-              <div className="fw-semibold small">{user?.name || 'User'}</div>
-              <div className="tiny-text text-muted">{user?.email || ''}</div>
+            {isOpen && (
+              <span className="sidebar-icon">
+                {profileOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+              </span>
+            )}
+          </button>
+
+          {profileOpen && (
+            <div className="profile-popover">
+              <div className="profile-popover-body">
+                <button className="sidebar-button sub" onClick={() => setProfileOpen(false)}>
+                  <span className="sidebar-icon"><UserRound size={14} /></span>
+                  Profile Setting
+                </button>
+
+                <button className="sidebar-button sub" onClick={() => setProfileOpen(false)}>
+                  <span className="sidebar-icon"><Settings size={14} /></span>
+                  Preferences
+                </button>
+
+                <button className="sidebar-button sub danger" onClick={handleLogout}>
+                  <span className="sidebar-icon"><LogOut size={14} /></span>
+                  Log out
+                </button>
+              </div>
             </div>
           )}
-          <span className="sidebar-icon">{profileOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>
-        </button>
-        {profileOpen && (
-          <div className="profile-popover">
-            <div className="profile-popover-body">
-              <button className="sidebar-button sub" onClick={() => setProfileOpen(false)}>
-                <span className="sidebar-icon"><UserRound size={14} /></span>
-                Profile Setting
-              </button>
-              <button className="sidebar-button sub" onClick={() => setProfileOpen(false)}>
-                <span className="sidebar-icon"><Settings size={14} /></span>
-                Preferences
-              </button>
-              <button className="sidebar-button sub danger" onClick={handleLogout}>
-                <span className="sidebar-icon"><LogOut size={14} /></span>
-                Log out
-              </button>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
