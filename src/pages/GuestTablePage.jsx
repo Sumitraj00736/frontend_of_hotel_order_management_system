@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { fetchGuestMenu, fetchGuestStatus, createGuestOrder } from '../api/guest.js';
 
 const GuestTablePage = () => {
   const { tableId } = useParams();
+  const [params] = useSearchParams();
+  const branchId = params.get('branchId');
   const [menu, setMenu] = useState([]);
   const [status, setStatus] = useState(null);
   const [cart, setCart] = useState({});
@@ -14,7 +16,7 @@ const GuestTablePage = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [m, s] = await Promise.all([fetchGuestMenu(), fetchGuestStatus(tableId)]);
+    const [m, s] = await Promise.all([fetchGuestMenu(branchId), fetchGuestStatus(tableId, branchId)]);
     setMenu(m.data);
     setStatus(s.data);
     setLoading(false);
@@ -41,7 +43,7 @@ const GuestTablePage = () => {
     const items = Object.entries(cart).map(([menuItem, quantity]) => ({ menuItem, quantity }));
     if (items.length === 0) return alert('Add at least one item.');
     try {
-      await createGuestOrder({ table: tableId, items, guestName, specialInstructions: note, spiceLevel: spice });
+      await createGuestOrder({ table: tableId, items, guestName, specialInstructions: note, spiceLevel: spice }, branchId);
       setCart({});
       setNote('');
       await loadData();

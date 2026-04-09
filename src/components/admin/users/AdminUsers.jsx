@@ -3,10 +3,25 @@ import UserHeader from './UserHeader.jsx';
 import UserTabs from './UserTabs.jsx';
 import UserTable from './UserTable.jsx';
 import UserInviteModal from './UserInviteModal.jsx';
+import UserEditModal from './UserEditModal.jsx';
 import '../../../common/css/admin/users/users.css';
 
-const AdminUsers = ({ users, roles = [], userForm, setUserForm, onCreateUser, onEditUser, onLoadPromotions, onSetStatus, onAssignRole }) => {
+const AdminUsers = ({
+  users,
+  roles = [],
+  userForm,
+  setUserForm,
+  onCreateUser,
+  onEditUser,
+  onLoadPromotions,
+  onSetStatus,
+  onAssignRole,
+  onDeleteUser,
+  canEdit = false
+}) => {
   const [openModal, setOpenModal] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editUser, setEditUser] = useState(null);
   const [tab, setTab] = useState('active');
   const [search, setSearch] = useState('');
 
@@ -36,11 +51,16 @@ const AdminUsers = ({ users, roles = [], userForm, setUserForm, onCreateUser, on
       <UserTabs tab={tab} counts={counts} onChange={setTab} />
       <UserTable
         users={filtered}
-        onEdit={onEditUser}
+        onEdit={(user) => {
+          setEditUser(user);
+          setEditOpen(true);
+        }}
         onLoadPromotions={onLoadPromotions}
         onSetStatus={onSetStatus}
         roles={roles}
         onAssignRole={onAssignRole}
+        onDelete={onDeleteUser}
+        canEdit={canEdit}
       />
 
       {openModal && (
@@ -50,6 +70,22 @@ const AdminUsers = ({ users, roles = [], userForm, setUserForm, onCreateUser, on
           onClose={() => setOpenModal(false)}
           onCreate={handleCreate}
           roles={roles}
+        />
+      )}
+
+      {editOpen && editUser && canEdit && (
+        <UserEditModal
+          user={editUser}
+          roles={roles}
+          onClose={() => {
+            setEditOpen(false);
+            setEditUser(null);
+          }}
+          onSave={async (payload) => {
+            await onEditUser?.(editUser, payload);
+            setEditOpen(false);
+            setEditUser(null);
+          }}
         />
       )}
     </div>

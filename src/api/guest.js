@@ -1,5 +1,9 @@
 import api from './client.js';
 
-export const fetchGuestMenu = () => api.get('/api/guest/menu');
-export const fetchGuestStatus = (tableId) => api.get(`/api/guest/tables/${tableId}/status`);
-export const createGuestOrder = (payload) => api.post('/api/guest/orders', payload);
+const withBranch = (branchId) => (branchId ? { headers: { 'x-branch-id': branchId } } : {});
+
+export const fetchGuestMenu = (branchId) => api.get('/api/guest/menu', withBranch(branchId));
+export const fetchGuestStatus = (tableId, branchId) =>
+  api.get(`/api/guest/tables/${tableId}/status`, withBranch(branchId));
+export const createGuestOrder = (payload, branchId) =>
+  api.post('/api/guest/orders', payload, withBranch(branchId));

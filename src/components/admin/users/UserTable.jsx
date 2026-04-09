@@ -1,7 +1,7 @@
 import React from 'react';
 import UserRow from './UserRow.jsx';
 
-const UserTable = ({ users, roles, onEdit, onLoadPromotions, onSetStatus, onAssignRole }) => {
+const UserTable = ({ users, roles, onEdit, onLoadPromotions, onSetStatus, onAssignRole, onDelete, canEdit }) => {
   return (
     <div className="users-table">
       <div className="users-table-head">
@@ -26,6 +26,8 @@ const UserTable = ({ users, roles, onEdit, onLoadPromotions, onSetStatus, onAssi
             onSetStatus={onSetStatus}
             roles={roles}
             onAssignRole={onAssignRole}
+            onDelete={onDelete}
+            canEdit={canEdit}
           />
         ))
       )}

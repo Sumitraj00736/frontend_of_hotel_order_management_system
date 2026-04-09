@@ -68,6 +68,12 @@ const inventorySubIcons = {
   transactions: <PackageSearch size={14} />
 };
 
+const tableSubIcons = {
+  table: <TableIcon size={14} />,
+  space: <Layers size={14} />,
+  qr: <Grid3x3 size={14} />
+};
+
 const reportsSubIcons = {
   company: <BarChart3 size={14} />,
   waiter: <Layers2 size={14} />,
@@ -75,7 +81,7 @@ const reportsSubIcons = {
   stock: <Boxes size={14} />
 };
 
-const coreSections = ['dashboard', 'orders', 'users', 'tables', 'website', 'notifications'];
+const coreSections = ['dashboard', 'orders', 'users', 'website', 'notifications'];
 
 const sectionPermissions = {
   dashboard: 'dashboard:view',
@@ -98,6 +104,7 @@ const AdminSidebar = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
+  const [tablesOpen, setTablesOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [branchOpen, setBranchOpen] = useState(false);
@@ -232,7 +239,51 @@ const AdminSidebar = ({
               </button>
             ))}
 
-          <div className="sidebar-separator" />
+        <div className="sidebar-separator" />
+
+        {/* Table & Space */}
+        <div
+          className="sidebar-group"
+          onMouseEnter={() => !isOpen && setHoveredMenu('tables')}
+          onMouseLeave={() => !isOpen && setHoveredMenu(null)}
+        >
+          {hasPermission('tables:view') && (
+            <button
+              className={`sidebar-button ${activeSection.startsWith('tables') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
+              onClick={() => (isOpen ? setTablesOpen((v) => !v) : setHoveredMenu('tables'))}
+              title="TABLE & SPACE"
+            >
+              <span className="sidebar-icon">{iconMap.tables}</span>
+              <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Table & Space</span>
+              {isOpen && <span className="ms-auto">{tablesOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>}
+            </button>
+          )}
+          {isOpen && (
+            <div className={`sidebar-sub ${tablesOpen ? 'open' : ''}`}>
+              {[
+                { id: 'tables:table', label: 'Table', icon: tableSubIcons.table, permission: 'tables:view' },
+                { id: 'tables:space', label: 'Space', icon: tableSubIcons.space, permission: 'tables:view' },
+                { id: 'tables:qr', label: 'QR Codes', icon: tableSubIcons.qr, permission: 'tables:view' }
+              ]
+                .filter((link) => !link.permission || hasPermission(link.permission))
+                .map((link) => (
+                  <button
+                    key={link.id}
+                    className={`sidebar-button sub ${activeSection === link.id ? 'active' : ''}`}
+                    onClick={() => onSelect?.(link.id)}
+                  >
+                    <span className="sidebar-sub-icon">{link.icon}</span>
+                    <span className="sidebar-label">{link.label}</span>
+                  </button>
+                ))}
+            </div>
+          )}
+          {renderCollapsedPopover('tables', 'Table & Space', [
+            { id: 'tables:table', label: 'Table' },
+            { id: 'tables:space', label: 'Space' },
+            { id: 'tables:qr', label: 'QR Codes' }
+          ])}
+        </div>
 
           {/* MENU */}
           {hasPermission('menu:view') && (

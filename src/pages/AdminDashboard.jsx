@@ -4,11 +4,13 @@ import NotificationToasts from '../components/NotificationToasts.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import { createSocket } from '../api/socket.js';
 import AdminSidebar from '../components/admin/sidebar/AdminSidebar.jsx';
-import { hasPermission } from '../api/session.js';
+import { getCurrentUser, hasPermission } from '../api/session.js';
 import AdminOverview from '../components/admin/dashboard/AdminOverview.jsx';
 import AdminOrders from '../components/admin/orders/adminOrders/AdminOrders.jsx';
 import AdminUsers from '../components/admin/users/AdminUsers.jsx';
-import AdminTables from '../components/admin/tables/AdminTables.jsx';
+import AdminTableList from '../components/admin/tables/AdminTableList.jsx';
+import AdminSpaces from '../components/admin/tables/AdminSpaces.jsx';
+import AdminQrCodes from '../components/admin/tables/AdminQrCodes.jsx';
 import AdminMenus from '../components/admin/menu/AdminMenus.jsx';
 import AdminCategories from '../components/admin/menu/AdminCategories.jsx';
 import AdminDishes from '../components/admin/menu/AdminDishes.jsx';
@@ -29,6 +31,8 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [tables, setTables] = useState([]);
+  const [spaces, setSpaces] = useState([]);
+  const [qrData, setQrData] = useState(null);
   const [menus, setMenus] = useState([]);
   const [categories, setCategories] = useState([]);
   const [submenus, setSubmenus] = useState([]);
@@ -56,6 +60,8 @@ const AdminDashboard = () => {
     includeHistory: false,
     includeNotifications: false
   });
+  const currentUser = getCurrentUser();
+  const isSuperAdmin = currentUser?.role?.toLowerCase() === 'superadmin';
   const [ordersPage, setOrdersPage] = useState(1);
   const [ordersLimit, setOrdersLimit] = useState(12);
   const [ordersTotal, setOrdersTotal] = useState(0);
@@ -65,6 +71,7 @@ const AdminDashboard = () => {
   const [transactionHistory, setTransactionHistory] = useState([]);
   const [transactionMeta, setTransactionMeta] = useState({ page: 1, limit: 20, total: 0 });
   const [transactionFilters, setTransactionFilters] = useState({ dateFrom: '', dateTo: '' });
+  const [toasts, setToasts] = useState([]);
   const dashboardLoadedRef = React.useRef(false);
 
   const [userForm, setUserForm] = useState({
@@ -79,9 +86,20 @@ const AdminDashboard = () => {
     shiftStart: '',
     shiftEnd: ''
   });
-  const [tableForm, setTableForm] = useState({ tableNumber: '', row: '', column: '' });
+  const [tableForm, setTableForm] = useState({ tableNumber: '', name: '', type: '', capacity: '', charge: '' });
+  const [spaceForm, setSpaceForm] = useState({ name: '', type: '', capacity: '', charge: '' });
+  const [qrSearch, setQrSearch] = useState('');
   const [menuForm, setMenuForm] = useState({ name: '', category: '', price: '', imageUrl: '' });
   const menuCreateRef = React.useRef(false);
+
+  const pushToast = useCallback((payload) => {
+    const id = payload.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const toast = { id, toast: true, ...payload };
+    setToasts((prev) => [toast, ...prev].slice(0, 5));
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, payload.duration || 3500);
+  }, []);
 
   const loadAll = async (options = dashboardOptions) => {
     const res = await api.get('/api/dashboard', {
@@ -159,29 +177,38 @@ const AdminDashboard = () => {
     setUsers(payload.map((u) => ({ ...u, _id: u._id || u.id })));
   };
 
+  const loadSpaces = async () => {
+    const res = await api.get('/api/spaces');
+    setSpaces(Array.isArray(res.data) ? res.data : []);
+  };
+
+  const loadQrCodes = async () => {
+    const res = await api.get('/api/qr-codes');
+    setQrData(res.data || null);
+  };
+
   const loadRoles = async () => {
     try {
       const res = await api.get('/api/roles');
       const payload = res.data || {};
       const custom = Array.isArray(payload.roles) ? payload.roles : [];
-      const baseRoles = [
-        { value: 'admin', label: 'Admin' },
-        { value: 'manager', label: 'Manager' },
-        { value: 'waiter', label: 'Waiter' },
-        { value: 'kitchen', label: 'Kitchen' },
-        { value: 'billing', label: 'Billing' },
-        { value: 'superadmin', label: 'SuperAdmin' }
-      ];
-      const customRoles = custom.map((r) => ({ ...r, label: r.name, value: r.name }));
-      setRoles([...baseRoles, ...customRoles]);
+      const allowed = new Set(['superadmin', 'admin', 'waiter', 'kitchen']);
+      const normalized = custom
+        .map((r) => ({ ...r, name: (r.name || '').toLowerCase() }))
+        .filter((r) => allowed.has(r.name));
+      const byValue = new Map();
+      normalized.forEach((r) => {
+        if (!byValue.has(r.name)) {
+          byValue.set(r.name, { ...r, label: r.name, value: r.name });
+        }
+      });
+      setRoles(Array.from(byValue.values()));
     } catch (e) {
       setRoles([
-        { value: 'admin', label: 'Admin' },
-        { value: 'manager', label: 'Manager' },
-        { value: 'waiter', label: 'Waiter' },
-        { value: 'kitchen', label: 'Kitchen' },
-        { value: 'billing', label: 'Billing' },
-        { value: 'superadmin', label: 'SuperAdmin' }
+        { value: 'superadmin', label: 'superadmin' },
+        { value: 'admin', label: 'admin' },
+        { value: 'waiter', label: 'waiter' },
+        { value: 'kitchen', label: 'kitchen' }
       ]);
     }
   };
@@ -289,6 +316,16 @@ const AdminDashboard = () => {
   }, [activeSection, ordersPage, ordersLimit]);
 
   useEffect(() => {
+    if (activeSection.startsWith('tables')) {
+      loadAll();
+      loadSpaces();
+      if (activeSection === 'tables:qr') {
+        loadQrCodes();
+      }
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
     const socket = createSocket();
 
     socket.on('notify', (payload) => {
@@ -333,7 +370,11 @@ const AdminDashboard = () => {
       });
       loadAll();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to create user');
+      pushToast({
+        title: 'User already exists',
+        message: error.response?.data?.message || 'Email or phone already exists. Please invite instead.',
+        type: 'error'
+      });
     }
   };
 
@@ -351,56 +392,33 @@ const AdminDashboard = () => {
     loadUsers();
   };
 
-  const editUser = async (user) => {
-    const nameInput = prompt('Name', user.name);
-    if (nameInput === null) return;
-    const name = nameInput.trim() || user.name;
-
-    const emailInput = prompt('Email', user.email);
-    if (emailInput === null) return;
-    const email = emailInput.trim() || user.email;
-
-    const roleInput = prompt('Role (admin/waiter/kitchen)', user.role);
-    if (roleInput === null) return;
-    const role = roleInput.trim().toLowerCase() || user.role;
-    if (!['admin', 'waiter', 'kitchen'].includes(role)) {
-      alert('Role must be admin, waiter, or kitchen');
-      return;
-    }
-
-    const dojInput = prompt('Date of Joining (YYYY-MM-DD)', user.dateOfJoining ? user.dateOfJoining.slice(0, 10) : '');
-    if (dojInput === null) return;
-    const dateOfJoining = dojInput.trim() || (user.dateOfJoining ? user.dateOfJoining.slice(0, 10) : '');
-
-    const salaryRaw = prompt('Salary', user.salary ?? '');
-    if (salaryRaw === null) return;
-    const salary = salaryRaw === '' ? user.salary : Number(salaryRaw);
-    if (Number.isNaN(salary)) {
-      alert('Salary must be a number');
-      return;
-    }
-
-    const shiftStartInput = prompt('Shift Start (e.g. 09:00)', user.shiftStart || '');
-    if (shiftStartInput === null) return;
-    const shiftStart = shiftStartInput.trim() || user.shiftStart;
-
-    const shiftEndInput = prompt('Shift End (e.g. 18:00)', user.shiftEnd || '');
-    if (shiftEndInput === null) return;
-    const shiftEnd = shiftEndInput.trim() || user.shiftEnd;
-
+  const editUser = async (user, payload) => {
     try {
-      await api.put(`/api/users/${user._id}`, {
-        name,
-        email,
-        role,
-        dateOfJoining: dateOfJoining || undefined,
-        salary,
-        shiftStart: shiftStart || undefined,
-        shiftEnd: shiftEnd || undefined
-      });
+      const { status, ...updatePayload } = payload;
+      await api.put(`/api/users/${user._id}`, updatePayload);
+      if (status && status !== user.status) {
+        await api.patch(`/api/users/${user._id}/status`, { status });
+      }
       loadAll();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update user');
+      pushToast({
+        title: 'Update failed',
+        message: error.response?.data?.message || 'Failed to update user',
+        type: 'error'
+      });
+    }
+  };
+
+  const deleteUser = async (user) => {
+    try {
+      await api.delete(`/api/users/${user._id}`);
+      loadUsers();
+    } catch (error) {
+      pushToast({
+        title: 'Delete failed',
+        message: error.response?.data?.message || 'Unable to delete user',
+        type: 'error'
+      });
     }
   };
 
@@ -410,10 +428,12 @@ const AdminDashboard = () => {
       if (!tableNumber) return alert('Enter a valid table number');
       await api.post('/api/tables', {
         tableNumber,
-        row: tableForm.row ? Number(tableForm.row) : undefined,
-        column: tableForm.column ? Number(tableForm.column) : undefined
+        name: tableForm.name || undefined,
+        type: tableForm.type || undefined,
+        capacity: tableForm.capacity ? Number(tableForm.capacity) : undefined,
+        charge: tableForm.charge ? Number(tableForm.charge) : undefined
       });
-      setTableForm({ tableNumber: '', row: '', column: '' });
+      setTableForm({ tableNumber: '', name: '', type: '', capacity: '', charge: '' });
       loadAll();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to add table');
@@ -433,6 +453,27 @@ const AdminDashboard = () => {
   const deleteTable = async (tableId) => {
     await api.delete(`/api/tables/${tableId}`);
     loadAll();
+  };
+
+  const createSpace = async () => {
+    await api.post('/api/spaces', {
+      name: spaceForm.name,
+      type: spaceForm.type || undefined,
+      capacity: spaceForm.capacity ? Number(spaceForm.capacity) : undefined,
+      charge: spaceForm.charge ? Number(spaceForm.charge) : undefined
+    });
+    setSpaceForm({ name: '', type: '', capacity: '', charge: '' });
+    loadSpaces();
+  };
+
+  const updateSpace = async (id, payload) => {
+    await api.put(`/api/spaces/${id}`, payload);
+    loadSpaces();
+  };
+
+  const deleteSpace = async (id) => {
+    await api.delete(`/api/spaces/${id}`);
+    loadSpaces();
   };
 
   const createMenu = async () => {
@@ -566,7 +607,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-shell">
-      <NotificationToasts notifications={notifications} />
+      <NotificationToasts notifications={toasts} />
 
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
@@ -661,6 +702,8 @@ const AdminDashboard = () => {
                 onLoadPromotions={(u) => loadPromotions(u._id)}
                 onSetStatus={setUserStatus}
                 onAssignRole={assignUserRole}
+                onDeleteUser={deleteUser}
+                canEdit={isSuperAdmin}
               />
               {selectedPromotionUser && (
                 <AdminPromotionTimeline
@@ -671,9 +714,10 @@ const AdminDashboard = () => {
               )}
             </>
           )}
-          {activeSection === 'tables' && hasPermission('tables:view') && (
-            <AdminTables
+          {activeSection === 'tables:table' && hasPermission('tables:view') && (
+            <AdminTableList
               tables={tables}
+              spaces={spaces}
               tableForm={tableForm}
               setTableForm={setTableForm}
               onCreateTable={createTable}
@@ -681,6 +725,19 @@ const AdminDashboard = () => {
               onUpdateTable={updateTable}
               onDeleteTable={deleteTable}
             />
+          )}
+          {activeSection === 'tables:space' && hasPermission('tables:view') && (
+            <AdminSpaces
+              spaces={spaces}
+              spaceForm={spaceForm}
+              setSpaceForm={setSpaceForm}
+              onCreateSpace={createSpace}
+              onUpdateSpace={updateSpace}
+              onDeleteSpace={deleteSpace}
+            />
+          )}
+          {activeSection === 'tables:qr' && hasPermission('tables:view') && (
+            <AdminQrCodes qrData={qrData} search={qrSearch} setSearch={setQrSearch} />
           )}
           {activeSection === 'menus' && hasPermission('menu:view') && (
             <AdminMenus

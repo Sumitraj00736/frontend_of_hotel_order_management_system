@@ -9,7 +9,9 @@ const OrderInvoicePanel = ({ order, total }) => {
         <div>Invoice No: ##</div>
         <div>Date: {new Date(order?.createdAt || Date.now()).toLocaleDateString()}</div>
         <div>Dine In: Table {order?.table?.tableNumber || '-'}</div>
-        <div>Waiter: {order?.createdBy?.name || 'N/A'}</div>
+        <div>
+          Waiter: {order?.source === 'guest' ? 'Order by QR code' : order?.createdBy?.name || 'N/A'}
+        </div>
         <div>Kitchen: {order?.kitchenAssigned?.name || 'N/A'}</div>
         <div>Customer: {order?.customerName || order?.customer?.name || 'Cash Customer'}</div>
       </div>
