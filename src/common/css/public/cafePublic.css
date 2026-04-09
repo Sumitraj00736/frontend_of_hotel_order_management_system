@@ -1,92 +1,333 @@
-.public-cafe {
-  min-height: 100vh;
-  background: linear-gradient(160deg, #fff6f1 0%, #ffffff 60%);
-  display: flex;
-  flex-direction: column;
-  color: #1f2933;
+/* ============================================
+   Public Cafe Landing Page — cafePublic.css
+   ============================================ */
+
+/* CSS Variables (overridden per palette) */
+:root {
+  --pub-bg:     #fff6f1;
+  --pub-accent: #e53a2d;
+  --pub-card:   #ffffff;
+  --pub-text:   #1f2933;
+  --pub-muted:  #667085;
 }
 
-.public-header {
-  padding: 24px 32px 8px;
+/* ── Shell ── */
+.pub-shell {
+  min-height: 100vh;
+  background: var(--pub-bg);
+  color: var(--pub-text);
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* ── Loading ── */
+.pub-loading {
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.pub-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0,0,0,0.08);
+  border-top-color: var(--pub-accent);
+  border-radius: 50%;
+  animation: pub-spin 0.7s linear infinite;
+}
+
+@keyframes pub-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Error ── */
+.pub-error-card {
+  margin: auto;
+  text-align: center;
+  padding: 48px 32px;
+  background: var(--pub-card);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  max-width: 400px;
+  width: 90vw;
+}
+.pub-error-icon { font-size: 48px; margin-bottom: 12px; }
+
+/* ── Header ── */
+.pub-header {
+  padding: 20px 24px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
-.public-header .brand {
-  font-size: 20px;
+.pub-brand {
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.3px;
+  color: var(--pub-accent);
 }
 
-.public-content {
+.pub-table-pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  background: var(--pub-card);
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.08);
+  color: var(--pub-muted);
+}
+
+/* ── Main ── */
+.pub-main {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  flex-direction: column;
+  gap: 28px;
+  padding: 28px 20px 40px;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-.public-card {
-  width: min(640px, 92vw);
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 36px;
-  box-shadow: 0 14px 40px rgba(17, 17, 17, 0.08);
+/* ── Hero ── */
+.pub-hero {
+  background: var(--pub-card);
+  border-radius: 24px;
+  padding: 32px 24px;
   text-align: center;
+  box-shadow: 0 10px 36px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-.public-card h1 {
-  font-size: 32px;
-  margin: 12px 0 6px;
-}
-
-.public-card p {
-  margin: 0 0 20px;
-  color: #667085;
-}
-
-.public-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 18px;
-  background: #ffe4da;
+.pub-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  background: rgba(229,58,45,0.12);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 22px;
-  color: #c53f2c;
+  font-size: 26px;
+  color: var(--pub-accent);
+  margin-bottom: 4px;
 }
 
-.public-actions {
+.pub-logo-img {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  object-fit: cover;
+  margin-bottom: 4px;
+}
+
+.pub-name {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--pub-text);
+}
+
+.pub-bio {
+  font-size: 14px;
+  color: var(--pub-muted);
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* ── Section ── */
+.pub-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pub-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pub-muted);
+  padding-left: 2px;
+}
+
+/* ── Service Cards ── */
+.pub-service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.pub-service-card {
+  background: var(--pub-card);
+  border: 1.5px solid rgba(0,0,0,0.06);
+  border-radius: 18px;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pub-text);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+}
+
+.pub-service-card:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+  border-color: var(--pub-accent);
+}
+
+.pub-service-card:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.pub-service-icon {
+  font-size: 28px;
+}
+
+.pub-service-hint {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--pub-muted);
+  text-align: center;
+}
+
+/* ── Contact ── */
+.pub-contact-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pub-contact-card {
+  background: var(--pub-card);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pub-text);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.pub-address {
+  font-size: 13px;
+  color: var(--pub-muted);
+}
+
+/* ── Social ── */
+.pub-social-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
+  gap: 8px;
 }
 
-.public-btn {
+.pub-social-chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--pub-card);
+  border: 1px solid rgba(0,0,0,0.08);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pub-text);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.pub-social-chip:hover {
+  border-color: var(--pub-accent);
+  color: var(--pub-accent);
+}
+
+/* ── Footer ── */
+.pub-footer {
+  text-align: center;
+  padding: 20px 24px;
+  font-size: 12px;
+  color: var(--pub-muted);
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* ── Website settings save button ── */
+.btn-save-website {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
   border: none;
-  padding: 10px 18px;
-  border-radius: 12px;
-  background: #e53a2d;
+  background: #111827;
   color: #fff;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.18s ease, transform 0.15s ease;
+  white-space: nowrap;
 }
 
-.public-btn.ghost {
-  background: #f7f7f7;
-  color: #1f2933;
+.btn-save-website:hover:not(:disabled) {
+  background: #1f2937;
+  transform: translateY(-1px);
 }
 
-@media (max-width: 640px) {
-  .public-card {
-    padding: 28px;
+.btn-save-website:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.web-loading {
+  padding: 48px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.phone-logo-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 6px;
+}
+
+.phone-bio {
+  font-size: 11px;
+  color: #6b7280;
+  text-align: center;
+  padding: 0 8px;
+}
+
+.phone-footer {
+  font-size: 10px;
+  color: #9ca3af;
+  text-align: center;
+  margin-top: 8px;
+  padding: 0 8px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .pub-main {
+    padding: 20px 16px 32px;
   }
-
-  .public-card h1 {
-    font-size: 26px;
+  .pub-hero {
+    padding: 24px 16px;
+  }
+  .pub-name {
+    font-size: 22px;
   }
 }

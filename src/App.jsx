@@ -44,6 +44,7 @@ const App = () => (
         </ProtectedRoute>
       }
     />
+    <Route path="/:cafeSlug/table/:tableId" element={<PublicCafePage />} />
     <Route path="/:cafeSlug" element={<PublicCafePage />} />
   </Routes>
 );
