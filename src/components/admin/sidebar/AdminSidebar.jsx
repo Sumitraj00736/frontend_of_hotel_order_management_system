@@ -173,27 +173,31 @@ const AdminSidebar = ({
           isMobile ? 'mobile-sidebar' : ''
         }`}
       >
-        <div className="sidebar-top">
-          <div className="sidebar-brand blocky">
-            <span className="brand-mark">V</span>
-            {isOpen && <span className="brand-text">merorestro</span>}
-          </div>
+        <div className="sidebar-header-fixed">
+          <div className="sidebar-top">
+            <div className="sidebar-brand blocky">
+              <span className="brand-mark">V</span>
+              {isOpen && <span className="brand-text">merorestro</span>}
+            </div>
 
-          <button className="collapse-btn" onClick={onToggleSidebar} aria-label="Toggle sidebar">
-            {isMobile ? <X size={18} /> : isOpen ? '«' : '»'}
-          </button>
+            <button className="collapse-btn" onClick={onToggleSidebar} aria-label="Toggle sidebar">
+              {isMobile ? <X size={18} /> : isOpen ? '«' : '»'}
+            </button>
+          </div>
         </div>
 
-        <div
-          className={`location-card ${isOpen ? '' : 'compact'}`}
-          onClick={() => isOpen && setBranchOpen((v) => !v)}
-        >
-          <div className="location-main">
-            <div className="location-title">{restaurantName}</div>
-            {isOpen && <span className="chevron"><ChevronDown size={14} /></span>}
-          </div>
+        <div className="sidebar-scroll-content">
+          <div
+            className={`location-card ${isOpen ? '' : 'compact'}`}
+            onClick={() => isOpen && setBranchOpen((v) => !v)}
+          >
+            <div className="location-main">
+              <div className="location-title">{restaurantName}</div>
+              {isOpen && <span className="chevron"><ChevronDown size={14} /></span>}
+            </div>
 
-          {isOpen && <div className="pill badge-premium">Premium (Trial)</div>}
+            {isOpen && <div className="pill badge-premium">Premium (Trial)</div>}
+          </div>
 
           {branchOpen && isOpen && (
             <div className="branch-popover">
@@ -213,7 +217,6 @@ const AdminSidebar = ({
               ))}
             </div>
           )}
-        </div>
 
         <div className="sidebar-buttons">
           {coreSections
@@ -581,6 +584,7 @@ const AdminSidebar = ({
           )}
         </div>
       </div>
+    </div>
     </>
   );
 };
