@@ -1,0 +1,135 @@
+import React, { useMemo, useState } from 'react';
+import CustomerHeader from './CustomerHeader.jsx';
+import CustomerKpiGrid from './CustomerKpiGrid.jsx';
+import CustomerTable from './CustomerTable.jsx';
+import CustomerModal from './CustomerModal.jsx';
+import RewardsModal from './RewardsModal.jsx';
+import '../../../common/css/admin/customers/customers.css';
+
+const AdminCustomers = ({
+  customers = [],
+  rewards,
+  setRewards,
+  onSaveRewards,
+  form,
+  setForm,
+  onCreateCustomer,
+  onUpdateCustomer
+}) => {
+  const [search, setSearch] = useState('');
+  const [showMenu, setShowMenu] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showRewards, setShowRewards] = useState(false);
+  const [editCustomer, setEditCustomer] = useState(null);
+
+  const filtered = useMemo(() => {
+    return customers
+      .filter((c) => {
+        const haystack = `${c.name || ''} ${c.email || ''} ${c.phone || ''}`.toLowerCase();
+        return haystack.includes(search.toLowerCase());
+      })
+      .map((c) => ({
+        ...c,
+        dueAmount: Number(c.openingAmount || 0)
+      }));
+  }, [customers, search]);
+
+  const totals = useMemo(() => {
+    let toReceive = 0;
+    let toPay = 0;
+    customers.forEach((c) => {
+      const amt = Number(c.openingAmount || 0);
+      if ((c.openingBalanceType || 'dr') === 'cr') {
+        toPay += amt;
+      } else {
+        toReceive += amt;
+      }
+    });
+    return {
+      toReceive,
+      toPay,
+      netToReceive: toReceive - toPay
+    };
+  }, [customers]);
+
+  const openCreate = () => {
+    setEditCustomer(null);
+    setShowModal(true);
+  };
+
+  const handleSave = async () => {
+    if (editCustomer) {
+      await onUpdateCustomer(editCustomer._id, form);
+    } else {
+      await onCreateCustomer();
+    }
+    setShowModal(false);
+  };
+
+  return (
+    <div className="card glass-card full-width-card customers-panel">
+      <div className="customers-menu">
+        <CustomerHeader
+          search={search}
+          onSearch={setSearch}
+          onAdd={openCreate}
+          onMenuToggle={() => setShowMenu((v) => !v)}
+        />
+        {showMenu && (
+          <div className="customers-menu-panel" onMouseLeave={() => setShowMenu(false)}>
+            <button onClick={() => setShowRewards(true)}>Rewards Setting</button>
+            <button>Export</button>
+            <button>Overview Cards</button>
+          </div>
+        )}
+      </div>
+
+      <CustomerKpiGrid totals={totals} />
+      <CustomerTable
+        customers={filtered}
+        onEdit={(c) => {
+          if (!c?._id) return openCreate();
+          setEditCustomer(c);
+          setForm({
+            name: c.name || '',
+            email: c.email || '',
+            phone: c.phone || '',
+            loyaltyDiscount: c.loyaltyDiscount || '',
+            openingBalanceType: c.openingBalanceType || 'dr',
+            openingAmount: c.openingAmount || '',
+            legalName: c.legalName || '',
+            taxNumber: c.taxNumber || '',
+            creditLimit: c.creditLimit || '',
+            creditTermDays: c.creditTermDays || '',
+            dob: c.dob ? new Date(c.dob).toISOString().slice(0, 10) : '',
+            address: c.address || ''
+          });
+          setShowModal(true);
+        }}
+      />
+
+      {showModal && (
+        <CustomerModal
+          form={form}
+          setForm={setForm}
+          onClose={() => setShowModal(false)}
+          onSave={handleSave}
+        />
+      )}
+
+      {showRewards && (
+        <RewardsModal
+          rewards={rewards}
+          setRewards={setRewards}
+          onClose={() => setShowRewards(false)}
+          onSave={async () => {
+            await onSaveRewards();
+            setShowRewards(false);
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+export default AdminCustomers;

@@ -51,7 +51,8 @@ const iconMap = {
   reports: <BarChart size={18} strokeWidth={1.7} />,
   history: <History size={18} strokeWidth={1.7} />,
   settings: <Settings size={18} strokeWidth={1.7} />,
-  notifications: <Bell size={18} strokeWidth={1.7} />
+  notifications: <Bell size={18} strokeWidth={1.7} />,
+  customers: <UserRound size={18} strokeWidth={1.7} />
 };
 
 const menuSubIcons = {
@@ -81,7 +82,7 @@ const reportsSubIcons = {
   stock: <Boxes size={14} />
 };
 
-const coreSections = ['dashboard', 'orders', 'users', 'website', 'notifications'];
+const coreSections = ['dashboard', 'orders', 'users', 'customers', 'website', 'notifications'];
 
 const sectionPermissions = {
   dashboard: 'dashboard:view',
@@ -89,6 +90,7 @@ const sectionPermissions = {
   users: 'staff:view',
   tables: 'tables:view',
   website: 'website:view',
+  customers: 'customers:view',
   notifications: 'notifications:view',
   settings: 'settings:view',
   history: 'reports:view'

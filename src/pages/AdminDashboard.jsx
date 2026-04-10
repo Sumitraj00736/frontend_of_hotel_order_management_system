@@ -24,6 +24,7 @@ import AdminInventory from '../components/admin/inventory/AdminInventory.jsx';
 import AdminWebsite from '../components/admin/website/AdminWebsite.jsx';
 import AdminSettings from '../components/admin/settings/AdminSettings.jsx';
 import SettingsSidebar from '../components/admin/settings/SettingsSidebar.jsx';
+import AdminCustomers from '../components/admin/customers/AdminCustomers.jsx';
 import '../common/css/admin/common/adminLayout.css';
 
 const AdminDashboard = () => {
@@ -52,6 +53,8 @@ const AdminDashboard = () => {
   const [promotions, setPromotions] = useState([]);
   const [ingredients, setIngredients] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [customerRewards, setCustomerRewards] = useState({ salesAmount: 0, rewardPoints: 0 });
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [financeFilters, setFinanceFilters] = useState({ dateFrom: '', dateTo: '' });
   const [dashboardOptions, setDashboardOptions] = useState({
@@ -85,6 +88,20 @@ const AdminDashboard = () => {
     salary: '',
     shiftStart: '',
     shiftEnd: ''
+  });
+  const [customerForm, setCustomerForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    loyaltyDiscount: '',
+    openingBalanceType: 'dr',
+    openingAmount: '',
+    legalName: '',
+    taxNumber: '',
+    creditLimit: '',
+    creditTermDays: '',
+    dob: '',
+    address: ''
   });
   const [tableForm, setTableForm] = useState({ tableNumber: '', name: '', type: '', capacity: '', charge: '' });
   const [spaceForm, setSpaceForm] = useState({ name: '', type: '', capacity: '', charge: '' });
@@ -222,6 +239,16 @@ const AdminDashboard = () => {
     setTransactions(txnRes.data);
   }, []);
 
+  const loadCustomers = async () => {
+    const res = await api.get('/api/customers');
+    setCustomers(Array.isArray(res.data) ? res.data : []);
+  };
+
+  const loadCustomerRewards = async () => {
+    const res = await api.get('/api/customers/rewards');
+    setCustomerRewards(res.data || { salesAmount: 0, rewardPoints: 0 });
+  };
+
   const loadHistoryData = useCallback(async () => {
     try {
       const res = await api.get('/api/reports/history');
@@ -267,6 +294,13 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (activeSection === 'users') {
       loadUsers();
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
+    if (activeSection === 'customers') {
+      loadCustomers();
+      loadCustomerRewards();
     }
   }, [activeSection]);
 
@@ -432,6 +466,68 @@ const AdminDashboard = () => {
       pushToast({
         title: 'Delete failed',
         message: error.response?.data?.message || 'Unable to delete user',
+        type: 'error'
+      });
+    }
+  };
+
+  const createCustomer = async () => {
+    try {
+      const payload = {
+        ...customerForm,
+        loyaltyDiscount: customerForm.loyaltyDiscount ? Number(customerForm.loyaltyDiscount) : 0,
+        openingAmount: customerForm.openingAmount ? Number(customerForm.openingAmount) : 0,
+        creditLimit: customerForm.creditLimit ? Number(customerForm.creditLimit) : 0,
+        creditTermDays: customerForm.creditTermDays ? Number(customerForm.creditTermDays) : 0
+      };
+      await api.post('/api/customers', payload);
+      setCustomerForm({
+        name: '',
+        email: '',
+        phone: '',
+        loyaltyDiscount: '',
+        openingBalanceType: 'dr',
+        openingAmount: '',
+        legalName: '',
+        taxNumber: '',
+        creditLimit: '',
+        creditTermDays: '',
+        dob: '',
+        address: ''
+      });
+      loadCustomers();
+    } catch (error) {
+      pushToast({
+        title: 'Customer error',
+        message: error.response?.data?.message || 'Failed to add customer',
+        type: 'error'
+      });
+    }
+  };
+
+  const updateCustomer = async (id, payload) => {
+    try {
+      await api.put(`/api/customers/${id}`, payload);
+      loadCustomers();
+    } catch (error) {
+      pushToast({
+        title: 'Update failed',
+        message: error.response?.data?.message || 'Failed to update customer',
+        type: 'error'
+      });
+    }
+  };
+
+  const saveCustomerRewards = async () => {
+    try {
+      await api.put('/api/customers/rewards', {
+        salesAmount: Number(customerRewards.salesAmount || 0),
+        rewardPoints: Number(customerRewards.rewardPoints || 0)
+      });
+    } catch (error) {
+      pushToast({
+        title: 'Rewards update failed',
+        message: error.response?.data?.message || 'Failed to update rewards',
         type: 'error'
       });
     }
@@ -728,6 +824,18 @@ const AdminDashboard = () => {
                 />
               )}
             </>
+          )}
+          {activeSection === 'customers' && hasPermission('customers:view') && (
+            <AdminCustomers
+              customers={customers}
+              rewards={customerRewards}
+              setRewards={setCustomerRewards}
+              onSaveRewards={saveCustomerRewards}
+              form={customerForm}
+              setForm={setCustomerForm}
+              onCreateCustomer={createCustomer}
+              onUpdateCustomer={updateCustomer}
+            />
           )}
           {activeSection === 'tables:table' && hasPermission('tables:view') && (
             <AdminTableList

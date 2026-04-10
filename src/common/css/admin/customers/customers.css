@@ -1,0 +1,267 @@
+.customers-panel {
+  padding: 16px;
+}
+
+.customers-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.customers-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.customers-subtitle {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.customers-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.customers-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: #fff;
+}
+
+.customers-search input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+}
+
+.customers-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.customers-kpi {
+  background: #fff;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.customers-kpi .kpi-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+}
+
+.customers-kpi .kpi-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.customers-kpi .kpi-value {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.customers-table {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.customers-table-head,
+.customers-row {
+  display: grid;
+  grid-template-columns: 60px 1.6fr 1.4fr 1.2fr 1fr 1fr 1fr 60px;
+  gap: 8px;
+  padding: 12px 16px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.customers-table-head {
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+.customers-row {
+  border-top: 1px solid #f1f5f9;
+}
+
+.customers-empty {
+  padding: 80px 16px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.customers-empty h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.customers-empty p {
+  margin-bottom: 16px;
+}
+
+.customers-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 80;
+}
+
+.customers-modal {
+  width: min(720px, 92vw);
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px 26px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+  position: relative;
+}
+
+.customers-modal h3 {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.customers-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  border: none;
+  background: #f3f4f6;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.customers-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.customers-form-grid label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.customers-form-grid input,
+.customers-form-grid select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.customers-balance-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.customers-toggle {
+  display: inline-flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.customers-toggle button {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.customers-toggle button.active {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.customers-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.customers-footer .btn-primary {
+  background: #e44a4a;
+}
+
+.customers-menu {
+  position: relative;
+}
+
+.customers-menu-panel {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  min-width: 180px;
+  padding: 6px 0;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+  z-index: 20;
+}
+
+.customers-menu-panel button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.customers-menu-panel button:hover {
+  background: #f8fafc;
+}
+
+.customers-reward-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+@media (max-width: 720px) {
+  .customers-form-grid,
+  .customers-reward-row {
+    grid-template-columns: 1fr;
+  }
+}
