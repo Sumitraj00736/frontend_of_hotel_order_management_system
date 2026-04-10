@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { PERMISSION_GROUPS } from '../../../../common/permissions.js';
+import { PERMISSION_GROUPS, WAITER_ALLOWED_PERMISSIONS } from '../../../../common/permissions.js';
 
 const defaultCards = [
   { name: 'Admin', icon: '🧭' },
@@ -25,13 +25,27 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
 
   const roles = data?.roles || [];
 
+  const normalizePermissions = (roleName, list) => {
+    if (!roleName) return list;
+    const key = roleName.toLowerCase().trim();
+    if (key !== 'waiter') return list;
+    return list.filter((perm) => waiterAllowed.has(perm));
+  };
+
   const togglePermission = (perm) => {
     setForm((prev) => {
       const has = prev.permissions.includes(perm);
       const next = has ? prev.permissions.filter((p) => p !== perm) : [...prev.permissions, perm];
-      return { ...prev, permissions: next };
+      return { ...prev, permissions: normalizePermissions(prev.name || editing?.name, next) };
     });
   };
+
+  const isWaiterRole = useMemo(() => {
+    const name = (editing?.name || form.name || '').toLowerCase().trim();
+    return name === 'waiter';
+  }, [editing?.name, form.name]);
+
+  const waiterAllowed = useMemo(() => new Set(WAITER_ALLOWED_PERMISSIONS), []);
 
   const submit = async () => {
     if (!form.name) return;
@@ -75,11 +89,12 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
                 className="role-edit-btn"
                 onClick={() => {
                   setEditing(role);
+                  const basePermissions = role.permissions || [];
                   setForm({
                     name: role.name,
                     description: role.description || '',
                     color: role.color || '#ef4444',
-                    permissions: role.permissions || []
+                    permissions: normalizePermissions(role.name, basePermissions)
                   });
                   setShowModal(true);
                 }}
@@ -124,17 +139,21 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
                       <span>Permission</span>
                       <span>Allow</span>
                     </div>
-                    {group.items.map((item) => (
-                      <label key={item.key} className="permission-row">
-                        <span>{item.label}</span>
-                        <input
-                          type="checkbox"
-                          checked={form.permissions.includes(item.key)}
-                          onChange={() => togglePermission(item.key)}
-                        />
-                        <span className="toggle-indicator" />
-                      </label>
-                    ))}
+                    {group.items.map((item) => {
+                      const disabled = isWaiterRole && !waiterAllowed.has(item.key);
+                      return (
+                        <label key={item.key} className={`permission-row ${disabled ? 'disabled' : ''}`}>
+                          <span>{item.label}</span>
+                          <input
+                            type="checkbox"
+                            checked={form.permissions.includes(item.key)}
+                            onChange={() => !disabled && togglePermission(item.key)}
+                            disabled={disabled}
+                          />
+                          <span className="toggle-indicator" />
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

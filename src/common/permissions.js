@@ -59,6 +59,20 @@ export const PERMISSION_GROUPS = [
   }
 ];
 
+export const WAITER_ALLOWED_PERMISSIONS = [
+  'dashboard:view',
+  'orders:view',
+  'orders:edit',
+  'orders:checkout:view',
+  'tables:view',
+  'tables:edit',
+  'menu:view',
+  'notifications:view',
+  'customers:view',
+  'customers:edit',
+  'billing:view'
+];
+
 export const DEFAULT_ROLE_OPTIONS = [
   { value: 'admin', label: 'Admin' },
   { value: 'manager', label: 'Manager' },

@@ -11,7 +11,7 @@ const iconMap = {
   profile: <UserRound size={18} strokeWidth={1.5} />
 };
 
-const WaiterSidebar = ({ activeSection = 'dashboard', onSelect, isOpen = true, onToggleSidebar, unreadCount = 0 }) => {
+const WaiterSidebar = ({ activeSection = 'dashboard', onSelect, isOpen = true, onToggleSidebar, unreadCount = 0, sections }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [branchOpen, setBranchOpen] = useState(false);
 
@@ -63,7 +63,7 @@ const WaiterSidebar = ({ activeSection = 'dashboard', onSelect, isOpen = true, o
       </div>
 
       <div className="sidebar-buttons">
-        {['dashboard', 'orders', 'menu', 'notifications', 'profile'].map((section) => (
+        {(sections?.length ? sections : ['dashboard', 'orders', 'menu', 'notifications', 'profile']).map((section) => (
           <button
             key={section}
             className={`sidebar-button ${activeSection === section ? 'active' : ''} ${isOpen ? '' : 'compact'}`}

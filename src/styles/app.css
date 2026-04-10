@@ -99,6 +99,14 @@ a:visited {
   grid-auto-rows: min-content;
 }
 
+.waiter-grid {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.waiter-main {
+  min-width: 0;
+}
+
 .reports-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
-import { getCurrentUser } from '../api/session.js';
+import { getBranchPermissions, getBranchRole, getCurrentUser } from '../api/session.js';
 import WaiterSidebar from '../components/waiter/WaiterSidebar.jsx';
 import WaiterCart from '../components/waiter/WaiterCart.jsx';
 import WaiterMenu from '../components/waiter/WaiterMenu.jsx';
@@ -18,6 +18,8 @@ const WaiterApp = () => {
   const [tables, setTables] = useState([]);
   const [menus, setMenus] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState('');
   const [selectedTable, setSelectedTable] = useState(null);
   const [cart, setCart] = useState([]);
   const [search, setSearch] = useState('');
@@ -29,6 +31,29 @@ const WaiterApp = () => {
   const [myAnalytics, setMyAnalytics] = useState(null);
   const [promotions, setPromotions] = useState([]);
   const [activeSection, setActiveSection] = useState('dashboard');
+  const allowedPermissions = useMemo(() => {
+    const perms = getBranchPermissions().map((p) => p.toLowerCase());
+    if (perms.includes('*')) return ['*'];
+    return perms;
+  }, []);
+  const branchRole = useMemo(() => (getBranchRole() || currentUser?.role || '').toLowerCase(), [currentUser?.role]);
+
+  const can = (perm) => {
+    if (!perm) return true;
+    if (branchRole && ['admin', 'superadmin'].includes(branchRole)) return true;
+    if (allowedPermissions.includes('*')) return true;
+    return allowedPermissions.includes(perm.toLowerCase());
+  };
+
+  const availableSections = useMemo(() => {
+    const items = [];
+    if (can('dashboard:view')) items.push('dashboard');
+    if (can('orders:view')) items.push('orders');
+    if (can('menu:view')) items.push('menu');
+    if (can('notifications:view')) items.push('notifications');
+    items.push('profile');
+    return items;
+  }, [allowedPermissions.join('|'), branchRole]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notificationFilters, setNotificationFilters] = useState({});
 
@@ -53,6 +78,16 @@ const WaiterApp = () => {
     if (results[5].status === 'fulfilled') setPromotions(results[5].value.data);
   };
 
+  const loadCustomers = async () => {
+    if (!can('customers:view')) return;
+    try {
+      const res = await api.get('/api/customers');
+      setCustomers(res.data || []);
+    } catch (error) {
+      setCustomers([]);
+    }
+  };
+
   const loadNotifications = async (filters = {}) => {
     const res = await api.get('/api/notifications', { params: filters });
     setNotifications(res.data);
@@ -61,7 +96,14 @@ const WaiterApp = () => {
   useEffect(() => {
     loadData();
     loadNotifications();
+    loadCustomers();
   }, []);
+
+  useEffect(() => {
+    if (!availableSections.includes(activeSection)) {
+      setActiveSection(availableSections[0] || 'dashboard');
+    }
+  }, [availableSections, activeSection]);
 
   useEffect(() => {
     loadNotifications(notificationFilters);
@@ -127,7 +169,8 @@ const WaiterApp = () => {
       table: selectedTable,
       items: cart.map((c) => ({ menuItem: c.menuItem, quantity: c.quantity })),
       spiceLevel,
-      specialInstructions: instructions
+      specialInstructions: instructions,
+      customerName: selectedCustomer || undefined
     };
 
     try {
@@ -143,6 +186,7 @@ const WaiterApp = () => {
 
     setCart([]);
     setSelectedTable(null);
+    setSelectedCustomer('');
     setEditingOrderId(null);
     setSpiceLevel('medium');
     setInstructions('');
@@ -194,47 +238,62 @@ const WaiterApp = () => {
             isOpen={sidebarOpen}
             onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
             unreadCount={unreadCount}
+            sections={availableSections}
           />
         </div>
 
-        {activeSection === 'dashboard' && (
-          <div className="content grid-3">
-            <WaiterCart
-              cart={cart}
-              cartTotal={cartTotal}
-              onUpdateQty={updateQty}
-              onPlaceOrder={placeOrder}
-              editing={Boolean(editingOrderId)}
-              spiceLevel={spiceLevel}
-              onSpiceChange={setSpiceLevel}
-              instructions={instructions}
-              onInstructionsChange={setInstructions}
-              tables={tables}
-              selectedTable={selectedTable}
-              onSelectTable={setSelectedTable}
-              onFreeTable={freeTable}
-            />
-            <WaiterMenu search={search} onSearch={setSearch} menuItems={filteredMenu} onAdd={addToCart} />
-            <WaiterOrders orders={orders} onEdit={loadOrderToEdit} onBill={generateBill} />
+        {activeSection === 'dashboard' && can('dashboard:view') && (
+          <div className="content grid-3 waiter-grid">
+            {can('orders:view') && (
+              <div className="waiter-main">
+                <WaiterCart
+                  cart={cart}
+                  cartTotal={cartTotal}
+                  onUpdateQty={updateQty}
+                  onPlaceOrder={placeOrder}
+                  editing={Boolean(editingOrderId)}
+                  spiceLevel={spiceLevel}
+                  onSpiceChange={setSpiceLevel}
+                  instructions={instructions}
+                  onInstructionsChange={setInstructions}
+                  tables={tables}
+                  selectedTable={selectedTable}
+                  onSelectTable={setSelectedTable}
+                  onFreeTable={freeTable}
+                  customers={customers}
+                  selectedCustomer={selectedCustomer}
+                  onSelectCustomer={setSelectedCustomer}
+                  showCustomer={can('customers:view')}
+                />
+              </div>
+            )}
+            {can('menu:view') && (
+              <div className="waiter-main">
+                <WaiterMenu search={search} onSearch={setSearch} menuItems={filteredMenu} onAdd={addToCart} />
+              </div>
+            )}
+            {can('orders:view') && (
+              <WaiterOrders orders={orders} onEdit={loadOrderToEdit} onBill={generateBill} />
+            )}
             <WaiterProfile profile={profile} />
             <WaiterAnalytics analytics={myAnalytics} />
             <WaiterPromotionTimeline promotions={promotions} />
           </div>
         )}
 
-        {activeSection === 'orders' && (
+        {activeSection === 'orders' && can('orders:view') && (
           <div className="content">
             <WaiterOrders orders={orders} onEdit={loadOrderToEdit} onBill={generateBill} />
           </div>
         )}
 
-        {activeSection === 'menu' && (
+        {activeSection === 'menu' && can('menu:view') && (
           <div className="content">
             <WaiterMenu search={search} onSearch={setSearch} menuItems={filteredMenu} onAdd={addToCart} />
           </div>
         )}
 
-        {activeSection === 'notifications' && (
+        {activeSection === 'notifications' && can('notifications:view') && (
           <div className="content">
             <NotificationPage
               notifications={notifications}

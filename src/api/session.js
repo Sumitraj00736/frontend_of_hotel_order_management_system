@@ -53,6 +53,13 @@ export const getBranchPermissions = () => {
   return active?.permissions || [];
 };
 
+export const getBranchRole = () => {
+  const branches = getBranches();
+  const branchId = getBranchId();
+  const active = branches.find((b) => (b.branchId || b._id) === branchId) || branches[0];
+  return active?.role || active?.roleName || '';
+};
+
 export const hasPermission = (permission) => {
   const user = getCurrentUser();
   if (!permission) return true;

@@ -13,7 +13,11 @@ const WaiterCart = ({
   tables = [],
   selectedTable,
   onSelectTable,
-  onFreeTable
+  onFreeTable,
+  customers = [],
+  selectedCustomer,
+  onSelectCustomer,
+  showCustomer = false
 }) => (
   <div className="card glass-card">
     <h5 className="mb-3">Cart</h5>
@@ -63,6 +67,23 @@ const WaiterCart = ({
       <strong>NPR {cartTotal.toFixed(2)}</strong>
     </div>
     <div className="mt-3">
+      {showCustomer && (
+        <div className="mb-3">
+          <label className="form-label">Customer</label>
+          <select
+            className="form-select"
+            value={selectedCustomer || ''}
+            onChange={(e) => onSelectCustomer?.(e.target.value)}
+          >
+            <option value="">Cash Customer</option>
+            {customers.map((customer) => (
+              <option key={customer._id} value={customer.name}>
+                {customer.name} {customer.phone ? `(${customer.phone})` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <label className="form-label">Spice Level</label>
       <select className="form-select" value={spiceLevel} onChange={(e) => onSpiceChange(e.target.value)}>
         <option value="mild">Mild</option>

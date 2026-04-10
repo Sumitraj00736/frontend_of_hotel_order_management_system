@@ -564,6 +564,15 @@
   position: relative;
 }
 
+.permission-row.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.permission-row.disabled input {
+  cursor: not-allowed;
+}
+
 .permission-row input {
   width: 34px;
   height: 18px;
