@@ -11,7 +11,11 @@ import { getCurrentUser } from './api/session.js';
 const ProtectedRoute = ({ children, roles }) => {
   const user = getCurrentUser();
   if (!user) return <Navigate to="/login" />;
-  if (roles && !roles.includes(user.role)) return <Navigate to="/login" />;
+  if (roles) {
+    const normalized = String(user.role || '').toLowerCase();
+    const allowed = roles.map((r) => String(r || '').toLowerCase());
+    if (!allowed.includes(normalized)) return <Navigate to="/login" />;
+  }
   return children;
 };
 
@@ -31,7 +35,7 @@ const App = () => (
     <Route
       path="/waiter"
       element={
-        <ProtectedRoute roles={['waiter', 'admin']}>
+        <ProtectedRoute roles={['waiter', 'admin', 'superadmin']}>
           <WaiterApp />
         </ProtectedRoute>
       }
