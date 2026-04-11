@@ -1,4 +1,5 @@
 import React from 'react';
+import { Minus, Plus, Trash2, Users, ReceiptText, Flame, MessageSquare, ClipboardList } from 'lucide-react';
 
 const WaiterCart = ({
   cart,
@@ -18,94 +19,138 @@ const WaiterCart = ({
   selectedCustomer,
   onSelectCustomer,
   showCustomer = false
-}) => (
-  <div className="card glass-card">
-    <h5 className="mb-3">Cart</h5>
-    <div className="mb-3">
-      <label className="form-label">Table</label>
-      <div className="d-flex gap-2">
-        <select
-          className="form-select"
-          value={selectedTable || ''}
-          onChange={(e) => onSelectTable?.(e.target.value)}
-        >
-          <option value="" disabled>Select table</option>
-          {tables.map((table) => (
-            <option
-              key={table._id}
-              value={table._id}
-              disabled={table.status === 'occupied' && table._id !== selectedTable}
-            >
-              Table {table.tableNumber} {table.status === 'occupied' ? '(Occupied)' : ''}
-            </option>
-          ))}
-        </select>
-        <button className="btn btn-outline-light" onClick={onFreeTable} disabled={!selectedTable}>
-          Free
-        </button>
+}) => {
+  const spiceOptions = [
+    { value: 'mild', label: 'Mild' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'spicy', label: 'Spicy' },
+    { value: 'extra_spicy', label: 'Extra Spicy' }
+  ];
+
+  return (
+    <div className="pos-cart-sidebar">
+      <div className="pos-cart-header">
+        <h5 className="pos-cart-title d-flex align-items-center"><ReceiptText size={20} className="me-2 text-primary" /> Order Details</h5>
+        {selectedTable && (
+          <button className="badge-red pill" style={{ cursor: 'pointer', border: 'none' }} onClick={onFreeTable} title="Free Table">
+            Clear Table
+          </button>
+        )}
       </div>
-      <div className="tiny-text text-muted mt-2">Occupied tables are disabled.</div>
-    </div>
-    {cart.length === 0 && <div className="text-muted">No items yet.</div>}
-    {cart.map((item) => (
-      <div key={item.menuItem} className="d-flex justify-content-between align-items-center mb-2">
+
+      <div className="pos-cart-scroll">
         <div>
-          <div>{item.name}</div>
-          <small className="text-muted">NPR {item.price}</small>
-        </div>
-        <input
-          type="number"
-          min="1"
-          className="form-control w-25"
-          value={item.quantity}
-          onChange={(e) => onUpdateQty(item.menuItem, Number(e.target.value))}
-        />
-      </div>
-    ))}
-    <div className="d-flex justify-content-between mt-3">
-      <strong>Total</strong>
-      <strong>NPR {cartTotal.toFixed(2)}</strong>
-    </div>
-    <div className="mt-3">
-      {showCustomer && (
-        <div className="mb-3">
-          <label className="form-label">Customer</label>
+          <span className="pos-form-label"><Users size={14} className="me-1 text-muted" /> Select Table</span>
           <select
-            className="form-select"
-            value={selectedCustomer || ''}
-            onChange={(e) => onSelectCustomer?.(e.target.value)}
+            className="pos-select"
+            value={selectedTable || ''}
+            onChange={(e) => onSelectTable?.(e.target.value)}
           >
-            <option value="">Cash Customer</option>
-            {customers.map((customer) => (
-              <option key={customer._id} value={customer.name}>
-                {customer.name} {customer.phone ? `(${customer.phone})` : ''}
+            <option value="" disabled>Choose a table...</option>
+            {tables.map((table) => (
+              <option
+                key={table._id}
+                value={table._id}
+                disabled={table.status === 'occupied' && table._id !== selectedTable}
+              >
+                Table {table.tableNumber} {table.status === 'occupied' ? '(Occupied)' : ''}
               </option>
             ))}
           </select>
         </div>
-      )}
-      <label className="form-label">Spice Level</label>
-      <select className="form-select" value={spiceLevel} onChange={(e) => onSpiceChange(e.target.value)}>
-        <option value="mild">Mild</option>
-        <option value="medium">Medium</option>
-        <option value="spicy">Spicy</option>
-        <option value="extra_spicy">Extra Spicy</option>
-      </select>
+
+        {showCustomer && (
+          <div>
+            <span className="pos-form-label"><Users size={14} className="me-1 text-muted" /> Customer</span>
+            <select
+              className="pos-select"
+              value={selectedCustomer || ''}
+              onChange={(e) => onSelectCustomer?.(e.target.value)}
+            >
+              <option value="">Cash Customer (Walk-in)</option>
+              {customers.map((customer) => (
+                <option key={customer._id} value={customer.name}>
+                  {customer.name} {customer.phone ? `(${customer.phone})` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="cart-list mt-2">
+          {cart.length === 0 && (
+            <div className="text-muted text-center py-4" style={{ fontSize: '14px' }}>
+              <ClipboardList size={32} className="text-muted mb-2 opacity-50" />
+              <br />
+              No items added to the order yet.
+            </div>
+          )}
+          {cart.map((item) => (
+            <div key={item.menuItem} className="cart-item-row">
+              <div className="cart-item-info">
+                <div className="cart-item-name">{item.name}</div>
+                <div className="cart-item-price">NPR {item.price}</div>
+              </div>
+              <div className="qty-control">
+                <button
+                  className="qty-btn"
+                  onClick={() => {
+                    if (item.quantity === 1) onUpdateQty(item.menuItem, 0); // triggers removal
+                    else onUpdateQty(item.menuItem, item.quantity - 1);
+                  }}
+                >
+                  {item.quantity === 1 ? <Trash2 size={14} color="#ef4444" /> : <Minus size={14} />}
+                </button>
+                <div className="qty-val">{item.quantity}</div>
+                <button
+                  className="qty-btn"
+                  onClick={() => onUpdateQty(item.menuItem, item.quantity + 1)}
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-2">
+          <span className="pos-form-label"><Flame size={14} className="me-1 text-muted" /> Spice Level</span>
+          <div className="spice-pill-group">
+            {spiceOptions.map((opt) => (
+              <button
+                key={opt.value}
+                className={`spice-pill ${spiceLevel === opt.value ? 'active' : ''}`}
+                onClick={() => onSpiceChange(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-2">
+          <span className="pos-form-label"><MessageSquare size={14} className="me-1 text-muted" /> Instructions</span>
+          <textarea
+            className="pos-textarea"
+            rows="2"
+            placeholder="Allergies, specific prep instructions..."
+            value={instructions}
+            onChange={(e) => onInstructionsChange(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="pos-cart-footer">
+        <div className="cart-total-row">
+          <span className="cart-total-label">Total Amount</span>
+          <span className="cart-total-amount">NPR {cartTotal.toFixed(2)}</span>
+        </div>
+        <button className="pos-btn-submit" onClick={onPlaceOrder}>
+          {editing ? 'Update Order' : 'Check Out'}
+        </button>
+      </div>
     </div>
-    <div className="mt-3">
-      <label className="form-label">Special Instructions</label>
-      <textarea
-        className="form-control"
-        rows="3"
-        placeholder="Add notes for kitchen (allergies, spice level, etc.)"
-        value={instructions}
-        onChange={(e) => onInstructionsChange(e.target.value)}
-      />
-    </div>
-    <button className="btn btn-success w-100 mt-3" onClick={onPlaceOrder}>
-      {editing ? 'Update Order' : 'Place Order'}
-    </button>
-  </div>
-);
+  );
+};
 
 export default WaiterCart;

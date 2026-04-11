@@ -6,6 +6,8 @@ import '../../common/css/admin/sidebar/adminSidebar.css';
 const iconMap = {
   dashboard: <Home size={18} strokeWidth={1.5} />,
   orders: <ListChecks size={18} strokeWidth={1.5} />,
+  myOrders: <ListChecks size={18} strokeWidth={1.5} />,
+  allOrders: <ListChecks size={18} strokeWidth={1.5} />,
   menu: <BookOpen size={18} strokeWidth={1.5} />,
   notifications: <Bell size={18} strokeWidth={1.5} />,
   profile: <UserRound size={18} strokeWidth={1.5} />
@@ -63,22 +65,38 @@ const WaiterSidebar = ({ activeSection = 'dashboard', onSelect, isOpen = true, o
       </div>
 
       <div className="sidebar-buttons">
-        {(sections?.length ? sections : ['dashboard', 'orders', 'menu', 'notifications', 'profile']).map((section) => (
-          <button
-            key={section}
-            className={`sidebar-button ${activeSection === section ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-            onClick={() => onSelect?.(section)}
-            title={section.toUpperCase()}
-          >
-            <span className="sidebar-icon">{iconMap[section]}</span>
-            <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>
-              {section.charAt(0).toUpperCase() + section.slice(1)}
-            </span>
-            {section === 'notifications' && unreadCount > 0 && (
-              <span className="badge-red">{unreadCount}</span>
-            )}
-          </button>
-        ))}
+        {(sections?.length ? sections : ['dashboard', 'orders', 'menu', 'notifications', 'profile']).map((section) => {
+          if (section === 'orders') {
+            return (
+              <button
+                key="orders"
+                className={`sidebar-button ${activeSection === 'orders' ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
+                onClick={() => onSelect?.('orders')}
+                title="ORDERS"
+              >
+                <span className="sidebar-icon">{iconMap.orders}</span>
+                <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Orders</span>
+              </button>
+            );
+          }
+
+          return (
+            <button
+              key={section}
+              className={`sidebar-button ${activeSection === section ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
+              onClick={() => onSelect?.(section)}
+              title={section.toUpperCase()}
+            >
+              <span className="sidebar-icon">{iconMap[section]}</span>
+              <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>
+                {section.charAt(0).toUpperCase() + section.slice(1)}
+              </span>
+              {section === 'notifications' && unreadCount > 0 && (
+                <span className="badge-red">{unreadCount}</span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div className="sidebar-profile-wrapper" onMouseLeave={() => setProfileOpen(false)}>
