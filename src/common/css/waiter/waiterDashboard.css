@@ -797,18 +797,26 @@
   /* 5. Cart Drawer Refinement (Floating Panel) */
   .pos-cart-section {
     position: fixed !important;
+    top: auto !important;
     bottom: -100% !important;
     left: 12px !important;
     right: 12px !important;
     width: calc(100% - 24px) !important;
-    height: calc(100vh - 180px) !important;
+    height: auto !important;
+    /* When active, height will be constrained by top/bottom offsets */
+    min-height: 200px;
     background: #fff;
     z-index: 2200;
-    transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     border-radius: 24px !important;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
     display: block !important;
     overflow: hidden;
+  }
+
+  .pos-cart-section.mobile-open {
+    top: 140px !important; /* Fixed top offset to clear header + search bar */
+    bottom: 110px !important; /* Fixed bottom offset to clear the nav bar */
   }
 
   /* Reset inner sidebar for mobile drawer */

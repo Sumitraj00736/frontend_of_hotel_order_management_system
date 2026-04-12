@@ -80,7 +80,7 @@ const WaiterApp = () => {
     };
 
     if (effectiveRole === 'waiter') {
-      return ['orders', 'menu', 'dashboard', 'notifications', 'profile'].filter((section) => {
+      return ['orders', 'notifications', 'dashboard', 'menu', 'profile'].filter((section) => {
         if (section === 'orders' || section === 'profile') return true;
         const perm = sectionPermissions[section];
         return perm ? can(perm) : true;
@@ -89,9 +89,9 @@ const WaiterApp = () => {
 
     const items = [];
     if (can('orders:view')) items.push('orders');
-    if (can('menu:view')) items.push('menu');
-    if (can('dashboard:view')) items.push('dashboard');
     if (can('notifications:view')) items.push('notifications');
+    if (can('dashboard:view')) items.push('dashboard');
+    if (can('menu:view')) items.push('menu');
     items.push('profile');
     return items;
   }, [allowedPermissions.join('|'), effectiveRole]);
