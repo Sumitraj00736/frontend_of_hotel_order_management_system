@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Home, ListChecks, BookOpen, Bell, UserRound, ChevronDown, ChevronRight, LogOut } from 'lucide-react';
-import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../api/session.js';
-import '../../common/css/admin/sidebar/adminSidebar.css';
+import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../../api/session.js';
+import '../../../common/css/admin/sidebar/adminSidebar.css';
 
 const iconMap = {
   dashboard: <Home size={18} strokeWidth={1.5} />,
@@ -64,8 +64,8 @@ const WaiterSidebar = ({ activeSection = 'dashboard', onSelect, isOpen = true, o
         )}
       </div>
 
-      <div className="sidebar-buttons">
-        {(sections?.length ? sections : ['dashboard', 'orders', 'menu', 'notifications', 'profile']).map((section) => {
+      <div className="sidebar-buttons mt-4">
+        {(sections?.length ? sections : ['orders', 'menu', 'dashboard', 'notifications', 'profile']).map((section) => {
           if (section === 'orders') {
             return (
               <button

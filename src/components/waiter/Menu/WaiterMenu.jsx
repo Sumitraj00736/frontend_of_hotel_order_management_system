@@ -1,17 +1,8 @@
 import React from 'react';
 import { Search, Plus } from 'lucide-react';
 
-const WaiterMenu = ({ search, onSearch, menuItems, onAdd }) => (
-  <div className="pos-menu-section">
-    <div className="pos-search-wrapper">
-      <Search size={18} color="#9ca3af" className="me-2" />
-      <input
-        placeholder="Search menu items..."
-        value={search}
-        onChange={(e) => onSearch(e.target.value)}
-      />
-    </div>
-    <div className="waiter-menu-grid">
+const WaiterMenu = ({ menuItems, onAdd }) => (
+  <div className="waiter-menu-grid">
       {menuItems.map((item) => (
         <div key={item._id} className="menu-pos-card" onClick={() => onAdd(item)}>
           <div className="menu-img-wrapper">
@@ -34,7 +25,6 @@ const WaiterMenu = ({ search, onSearch, menuItems, onAdd }) => (
         </div>
       ))}
     </div>
-  </div>
 );
 
 export default WaiterMenu;

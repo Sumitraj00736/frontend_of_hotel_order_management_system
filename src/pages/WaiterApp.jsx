@@ -1,17 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed } from 'lucide-react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
 import { getBranchPermissions, getBranchRole, getCurrentUser } from '../api/session.js';
 import { WAITER_ALLOWED_PERMISSIONS } from '../common/permissions.js';
-import WaiterSidebar from '../components/waiter/WaiterSidebar.jsx';
-import WaiterCart from '../components/waiter/WaiterCart.jsx';
-import WaiterMenu from '../components/waiter/WaiterMenu.jsx';
-import WaiterOrders from '../components/waiter/WaiterOrders.jsx';
-import WaiterProfile from '../components/waiter/WaiterProfile.jsx';
-import WaiterAnalytics from '../components/waiter/WaiterAnalytics.jsx';
-import WaiterPromotionTimeline from '../components/waiter/WaiterPromotionTimeline.jsx';
+import WaiterSidebar from '../components/waiter/Sidebar/WaiterSidebar.jsx';
+import WaiterCart from '../components/waiter/Cart/WaiterCart.jsx';
+import WaiterMenu from '../components/waiter/Menu/WaiterMenu.jsx';
+import WaiterHeader from '../components/waiter/Header/WaiterHeader.jsx';
+import WaiterOrders from '../components/waiter/Orders/WaiterOrders.jsx';
+import WaiterProfile from '../components/waiter/Profile/WaiterProfile.jsx';
+import WaiterAnalytics from '../components/waiter/Analytics/WaiterAnalytics.jsx';
+import WaiterPromotionTimeline from '../components/waiter/PromotionTimeline/WaiterPromotionTimeline.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/waiter/waiterDashboard.css';
@@ -38,6 +39,17 @@ const WaiterApp = () => {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [orderViewMode, setOrderViewMode] = useState('myOrders');
+  const [mobileCartOpen, setMobileCartOpen] = useState(false);
+
+  // Toggle body scroll when mobile cart drawer is open
+  useEffect(() => {
+    if (mobileCartOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [mobileCartOpen]);
 
   const branchRole = useMemo(() => (getBranchRole() || currentUser?.role || '').toLowerCase(), [currentUser?.role]);
   const effectiveRole = (branchRole || currentUser?.role || '').toLowerCase();
@@ -68,7 +80,7 @@ const WaiterApp = () => {
     };
 
     if (effectiveRole === 'waiter') {
-      return ['dashboard', 'orders', 'menu', 'notifications', 'profile'].filter((section) => {
+      return ['orders', 'menu', 'dashboard', 'notifications', 'profile'].filter((section) => {
         if (section === 'orders' || section === 'profile') return true;
         const perm = sectionPermissions[section];
         return perm ? can(perm) : true;
@@ -76,9 +88,9 @@ const WaiterApp = () => {
     }
 
     const items = [];
-    if (can('dashboard:view')) items.push('dashboard');
     if (can('orders:view')) items.push('orders');
     if (can('menu:view')) items.push('menu');
+    if (can('dashboard:view')) items.push('dashboard');
     if (can('notifications:view')) items.push('notifications');
     items.push('profile');
     return items;
@@ -189,8 +201,11 @@ const WaiterApp = () => {
   };
 
   const updateQty = (menuItem, quantity) => {
-    const safeQty = Math.max(1, Number(quantity) || 1);
-    setCart((prev) => prev.map((c) => (c.menuItem === menuItem ? { ...c, quantity: safeQty } : c)));
+    setCart((prev) => {
+      const qty = Number(quantity);
+      if (qty <= 0) return prev.filter((c) => c.menuItem !== menuItem);
+      return prev.map((c) => (c.menuItem === menuItem ? { ...c, quantity: qty } : c));
+    });
   };
 
   const cartTotal = cart.reduce((sum, item) => sum + item.quantity * item.price, 0);
@@ -211,6 +226,7 @@ const WaiterApp = () => {
       return alert('Quantity must be at least 1 for all items');
     }
     setShowCheckout(true);
+    setMobileCartOpen(false);
   };
 
   const placeOrder = async () => {
@@ -389,38 +405,70 @@ const WaiterApp = () => {
           />
         </div>
 
+        {/* Global Mobile Header - Persistent across all tabs */}
+        <div className="d-md-none">
+          <WaiterHeader user={currentUser} onClose={() => setSidebarOpen((prev) => !prev)} />
+        </div>
+
         {activeSection === 'dashboard' && can('dashboard:view') && (
-          <div className="content waiter-pos-layout">
-            {can('menu:view') ? (
-              <WaiterMenu search={search} onSearch={setSearch} menuItems={filteredMenu} onAdd={addToCart} />
-            ) : <div />}
-            {can('orders:view') ? (
-              <WaiterCart
-                cart={cart}
-                cartTotal={cartTotal}
-                onUpdateQty={updateQty}
-                onPlaceOrder={handleInitCheckout}
-                editing={Boolean(editingOrderId)}
-                spiceLevel={spiceLevel}
-                onSpiceChange={setSpiceLevel}
-                instructions={instructions}
-                onInstructionsChange={setInstructions}
-                tables={tables}
-                selectedTable={selectedTable}
-                onSelectTable={setSelectedTable}
-                onFreeTable={freeTable}
-                customers={customers}
-                selectedCustomer={selectedCustomer}
-                onSelectCustomer={setSelectedCustomer}
-                showCustomer={can('customers:view')}
-              />
-            ) : <div />}
+          <div className="content waiter-pos-layout position-relative">
+            <div className="pos-menu-section h-100">
+              <div className="pos-search-wrapper">
+                <Search size={18} color="#9ca3af" className="me-2" />
+                <input
+                  placeholder="Search menu items..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              
+              <div className="pos-menu-body">
+                {can('menu:view') ? (
+                  <WaiterMenu menuItems={filteredMenu} onAdd={addToCart} />
+                ) : <div />}
+              </div>
+            </div>
+            
+            {/* FAB for Mobile */}
+            <div className="mobile-fab-cart" onClick={() => setMobileCartOpen(true)}>
+              <ShoppingCart size={24} />
+              {cart.length > 0 && <span className="badge">{cart.length}</span>}
+            </div>
+
+            {/* Mobile overlay back-drop */}
+            {mobileCartOpen && <div className="cart-mobile-backdrop" onClick={() => setMobileCartOpen(false)}></div>}
+
+            <div className={`pos-cart-section h-100 overflow-hidden ${mobileCartOpen ? 'mobile-open' : ''}`}>
+              <div className="mobile-drawer-handle" onClick={() => setMobileCartOpen(false)} />
+              {can('orders:view') ? (
+                <WaiterCart
+                  cart={cart}
+                  cartTotal={cartTotal}
+                  onUpdateQty={updateQty}
+                  onPlaceOrder={handleInitCheckout}
+                  editing={Boolean(editingOrderId)}
+                  spiceLevel={spiceLevel}
+                  onSpiceChange={setSpiceLevel}
+                  instructions={instructions}
+                  onInstructionsChange={setInstructions}
+                  tables={tables}
+                  selectedTable={selectedTable}
+                  onSelectTable={setSelectedTable}
+                  onFreeTable={freeTable}
+                  customers={customers}
+                  selectedCustomer={selectedCustomer}
+                  onSelectCustomer={setSelectedCustomer}
+                  showCustomer={can('customers:view')}
+                  onClose={() => setMobileCartOpen(false)}
+                />
+              ) : <div />}
+            </div>
           </div>
         )}
 
         {activeSection === 'orders' && can('orders:view') && (
           <div className="content">
-            <div className="d-flex align-items-center mb-4 p-1 bg-white rounded-pill shadow-sm position-relative" style={{ width: '260px', border: '1px solid #e2e8f0' }}>
+            <div className="d-flex align-items-center mb-4 p-1 bg-white rounded-pill shadow-sm position-relative order-toggle-container" style={{ border: '1px solid #e2e8f0' }}>
               <div 
                 className="position-absolute bg-primary rounded-pill"
                 style={{ 

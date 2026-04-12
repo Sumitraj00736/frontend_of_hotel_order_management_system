@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tag, MapPin, Pickaxe, Printer, Clock } from 'lucide-react';
-import '../../common/css/admin/orders/kotCards.css';
+import '../../../common/css/admin/orders/kotCards.css';
 
 const WaiterOrders = ({ orders, onEdit, onBill }) => (
   <div className="card glass-card">

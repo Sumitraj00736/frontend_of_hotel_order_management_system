@@ -18,7 +18,8 @@ const WaiterCart = ({
   customers = [],
   selectedCustomer,
   onSelectCustomer,
-  showCustomer = false
+  showCustomer = false,
+  onClose
 }) => {
   const spiceOptions = [
     { value: 'mild', label: 'Mild' },
@@ -30,7 +31,21 @@ const WaiterCart = ({
   return (
     <div className="pos-cart-sidebar">
       <div className="pos-cart-header">
-        <h5 className="pos-cart-title d-flex align-items-center"><ReceiptText size={20} className="me-2 text-primary" /> Order Details</h5>
+        <h5 className="pos-cart-title d-flex align-items-center">
+          <button 
+            className="btn p-0 me-3 d-md-none border-0 shadow-none" 
+            onClick={() => {
+              const drawer = document.querySelector('.pos-cart-section');
+              if(drawer) drawer.classList.remove('mobile-open');
+              // Note: Ideally we'd trigger a prop callback to setMobileCartOpen(false) in WaiterApp
+              // but we are using our handle logic. I'll pass a prop instead for cleaner react.
+              onClose?.();
+            }}
+          >
+            <Plus size={24} style={{ transform: 'rotate(45deg)' }} />
+          </button>
+          <ReceiptText size={20} className="me-2 text-primary" /> Order Details
+        </h5>
         {selectedTable && (
           <button className="badge-red pill" style={{ cursor: 'pointer', border: 'none' }} onClick={onFreeTable} title="Free Table">
             Clear Table
@@ -39,43 +54,45 @@ const WaiterCart = ({
       </div>
 
       <div className="pos-cart-scroll">
-        <div>
-          <span className="pos-form-label"><Users size={14} className="me-1 text-muted" /> Select Table</span>
-          <select
-            className="pos-select"
-            value={selectedTable || ''}
-            onChange={(e) => onSelectTable?.(e.target.value)}
-          >
-            <option value="" disabled>Choose a table...</option>
-            {tables.map((table) => (
-              <option
-                key={table._id}
-                value={table._id}
-                disabled={table.status === 'occupied' && table._id !== selectedTable}
-              >
-                Table {table.tableNumber} {table.status === 'occupied' ? '(Occupied)' : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {showCustomer && (
-          <div>
-            <span className="pos-form-label"><Users size={14} className="me-1 text-muted" /> Customer</span>
+        <div className="row g-2 mb-2">
+          <div className="col-6">
+            <span className="pos-form-label"><Users size={12} className="me-1 text-muted" /> Table</span>
             <select
               className="pos-select"
-              value={selectedCustomer || ''}
-              onChange={(e) => onSelectCustomer?.(e.target.value)}
+              value={selectedTable || ''}
+              onChange={(e) => onSelectTable?.(e.target.value)}
             >
-              <option value="">Cash Customer (Walk-in)</option>
-              {customers.map((customer) => (
-                <option key={customer._id} value={customer.name}>
-                  {customer.name} {customer.phone ? `(${customer.phone})` : ''}
+              <option value="" disabled>Select...</option>
+              {tables.map((table) => (
+                <option
+                  key={table._id}
+                  value={table._id}
+                  disabled={table.status === 'occupied' && table._id !== selectedTable}
+                >
+                  T-{table.tableNumber}
                 </option>
               ))}
             </select>
           </div>
-        )}
+
+          {showCustomer && (
+            <div className="col-6">
+              <span className="pos-form-label"><Users size={12} className="me-1 text-muted" /> Customer</span>
+              <select
+                className="pos-select"
+                value={selectedCustomer || ''}
+                onChange={(e) => onSelectCustomer?.(e.target.value)}
+              >
+                <option value="">Walk-in</option>
+                {customers.map((customer) => (
+                  <option key={customer._id} value={customer.name}>
+                    {customer.name.split(' ')[0]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
 
         <div className="cart-list mt-2">
           {cart.length === 0 && (
