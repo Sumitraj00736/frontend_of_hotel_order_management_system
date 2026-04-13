@@ -10,6 +10,7 @@ import WaiterCart from '../components/waiter/Cart/WaiterCart.jsx';
 import WaiterMenu from '../components/waiter/Menu/WaiterMenu.jsx';
 import WaiterHeader from '../components/waiter/Header/WaiterHeader.jsx';
 import WaiterOrders from '../components/waiter/Orders/WaiterOrders.jsx';
+import WaiterCheckoutModal from '../components/waiter/Orders/WaiterCheckoutModal.jsx';
 import WaiterProfile from '../components/waiter/Profile/WaiterProfile.jsx';
 import WaiterAnalytics from '../components/waiter/Analytics/WaiterAnalytics.jsx';
 import WaiterPromotionTimeline from '../components/waiter/PromotionTimeline/WaiterPromotionTimeline.jsx';
@@ -40,6 +41,7 @@ const WaiterApp = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [orderViewMode, setOrderViewMode] = useState('myOrders');
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
+  const [checkoutOrderData, setCheckoutOrderData] = useState(null);
 
   // Toggle body scroll when mobile cart drawer is open
   useEffect(() => {
@@ -287,17 +289,25 @@ const WaiterApp = () => {
 
   const checkoutOrder = async (order) => {
     if (!order?._id) return;
-    const paymentInput = window.prompt('Enter payment method: cash, fonepay, card, bank', 'cash');
-    if (!paymentInput) return;
-    const paymentMethod = paymentInput.trim().toLowerCase();
+    setCheckoutOrderData(order);
+  };
+
+  const confirmCheckoutOrder = async (payload) => {
+    const paymentMethod = payload?.paymentMethod;
     if (!['cash', 'fonepay', 'card', 'bank'].includes(paymentMethod)) {
       alert('Invalid payment method. Use: cash, fonepay, card, bank');
       return;
     }
     try {
-      await api.post(`/api/bills/${order._id}/pay`, { paymentMethod, paymentStatus: 'paid' });
+      await api.post(`/api/bills/${payload.orderId}/pay`, {
+        paymentMethod,
+        paymentStatus: payload.paymentStatus || 'paid',
+        discountType: payload.discountType,
+        discountValue: payload.discountValue
+      });
       alert('Order checked out successfully.');
       loadData(orderViewMode === 'allOrders' ? 'all' : 'mine');
+      setCheckoutOrderData(null);
     } catch (error) {
       alert(error.response?.data?.message || 'Checkout failed');
     }
@@ -405,6 +415,15 @@ const WaiterApp = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {checkoutOrderData && (
+        <WaiterCheckoutModal
+          order={checkoutOrderData}
+          onClose={() => setCheckoutOrderData(null)}
+          onConfirm={confirmCheckoutOrder}
+          onPrint={generateBill}
+        />
       )}
 
       {orderSuccess && (

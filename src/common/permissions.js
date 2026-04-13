@@ -64,6 +64,7 @@ export const WAITER_ALLOWED_PERMISSIONS = [
   'orders:view',
   'orders:edit',
   'orders:checkout:view',
+  'orders:checkout:edit',
   'tables:view',
   'tables:edit',
   'menu:view',
