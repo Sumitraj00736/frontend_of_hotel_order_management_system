@@ -2,7 +2,7 @@ import React from 'react';
 import { Tag, MapPin, Pickaxe, Printer, Clock } from 'lucide-react';
 import '../../../common/css/admin/orders/kotCards.css';
 
-const WaiterOrders = ({ orders, onEdit, onBill }) => (
+const WaiterOrders = ({ orders, onEdit, onBill, onCheckout }) => (
   <div className="card glass-card">
     <h5 className="mb-3">Order History & KOTs</h5>
     <div className="orders-grid kot-grid">
@@ -48,6 +48,11 @@ const WaiterOrders = ({ orders, onEdit, onBill }) => (
           <div className="kot-actions">
             {order.status !== 'paid' && (
               <button className="ghost-btn fw-bold text-primary" onClick={() => onEdit(order)}>Edit</button>
+            )}
+            {order.status !== 'paid' && (
+              <button className="ghost-btn fw-bold text-success" onClick={() => onCheckout?.(order)}>
+                Checkout
+              </button>
             )}
             <button className="ghost-btn fw-bold" onClick={() => onBill(order._id)}>Bill / Print</button>
           </div>

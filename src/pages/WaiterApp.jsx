@@ -3,13 +3,15 @@ import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed } from 'lucide
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
-import { getBranchPermissions, getBranchRole, getCurrentUser } from '../api/session.js';
+import { clearSession, getBranchPermissions, getBranchRole, getCurrentUser } from '../api/session.js';
 import { WAITER_ALLOWED_PERMISSIONS } from '../common/permissions.js';
+import { ensureNotificationPermission, pushSystemNotification } from '../utils/systemNotifications.js';
 import WaiterSidebar from '../components/waiter/Sidebar/WaiterSidebar.jsx';
 import WaiterCart from '../components/waiter/Cart/WaiterCart.jsx';
 import WaiterMenu from '../components/waiter/Menu/WaiterMenu.jsx';
 import WaiterHeader from '../components/waiter/Header/WaiterHeader.jsx';
 import WaiterOrders from '../components/waiter/Orders/WaiterOrders.jsx';
+import WaiterCheckoutModal from '../components/waiter/Orders/WaiterCheckoutModal.jsx';
 import WaiterProfile from '../components/waiter/Profile/WaiterProfile.jsx';
 import WaiterAnalytics from '../components/waiter/Analytics/WaiterAnalytics.jsx';
 import WaiterPromotionTimeline from '../components/waiter/PromotionTimeline/WaiterPromotionTimeline.jsx';
@@ -40,6 +42,7 @@ const WaiterApp = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [orderViewMode, setOrderViewMode] = useState('myOrders');
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
+  const [checkoutOrderData, setCheckoutOrderData] = useState(null);
 
   // Toggle body scroll when mobile cart drawer is open
   useEffect(() => {
@@ -159,6 +162,7 @@ const WaiterApp = () => {
   }, [notificationFilters]);
 
   useEffect(() => {
+    ensureNotificationPermission();
     const socket = createSocket();
     socket.on('orders:update', (order) => {
       setOrders((prev) => prev.map((o) => (o._id === order._id ? order : o)));
@@ -168,6 +172,11 @@ const WaiterApp = () => {
         if (prev.some((o) => o._id === order._id)) return prev;
         return [order, ...prev];
       });
+      pushSystemNotification({
+        title: 'New Order Received',
+        body: `Table ${order?.table?.tableNumber || '-'} has a new order.`,
+        tag: 'waiter-order-new'
+      });
     });
     socket.on('tables:update', (table) => {
       setTables((prev) => prev.map((t) => (t._id === table._id ? table : t)));
@@ -175,6 +184,13 @@ const WaiterApp = () => {
     socket.on('notify', (payload) => {
       if (payload.waiterId && payload.waiterId !== (currentUser?._id || currentUser?.id)) return;
       setNotifications((prev) => [{ ...payload, read: false }, ...prev].slice(0, 50));
+      if (payload.type === 'order:paid') {
+        pushSystemNotification({
+          title: 'Order Checkout Completed',
+          body: payload.message || 'An order has been checked out.',
+          tag: 'waiter-order-paid'
+        });
+      }
     });
 
     return () => socket.disconnect();
@@ -285,6 +301,32 @@ const WaiterApp = () => {
     alert(`Bill for table ${bill.data.tableNumber}: NPR ${bill.data.totalAmount.toFixed(2)}`);
   };
 
+  const checkoutOrder = async (order) => {
+    if (!order?._id) return;
+    setCheckoutOrderData(order);
+  };
+
+  const confirmCheckoutOrder = async (payload) => {
+    const paymentMethod = payload?.paymentMethod;
+    if (!['cash', 'fonepay', 'card', 'bank'].includes(paymentMethod)) {
+      alert('Invalid payment method. Use: cash, fonepay, card, bank');
+      return;
+    }
+    try {
+      await api.post(`/api/bills/${payload.orderId}/pay`, {
+        paymentMethod,
+        paymentStatus: payload.paymentStatus || 'paid',
+        discountType: payload.discountType,
+        discountValue: payload.discountValue
+      });
+      alert('Order checked out successfully.');
+      loadData(orderViewMode === 'allOrders' ? 'all' : 'mine');
+      setCheckoutOrderData(null);
+    } catch (error) {
+      alert(error.response?.data?.message || 'Checkout failed');
+    }
+  };
+
   const freeTable = async () => {
     if (!selectedTable) return;
     await api.patch(`/api/tables/${selectedTable}/free`);
@@ -299,6 +341,10 @@ const WaiterApp = () => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const showFloatingCart = activeSection === 'dashboard' || activeSection === 'menu';
+  const handleLogout = () => {
+    clearSession();
+    window.location.href = '/login';
+  };
 
   return (
     <div className="admin-shell">
@@ -385,6 +431,15 @@ const WaiterApp = () => {
         </div>
       )}
 
+      {checkoutOrderData && (
+        <WaiterCheckoutModal
+          order={checkoutOrderData}
+          onClose={() => setCheckoutOrderData(null)}
+          onConfirm={confirmCheckoutOrder}
+          onPrint={generateBill}
+        />
+      )}
+
       {orderSuccess && (
         <div className="checkout-modal-overlay">
           <div className="success-animation-box">
@@ -408,7 +463,7 @@ const WaiterApp = () => {
 
         {/* Global Mobile Header - Persistent across all tabs */}
         <div className="d-md-none">
-          <WaiterHeader user={currentUser} onClose={() => setSidebarOpen((prev) => !prev)} />
+          <WaiterHeader user={currentUser} onLogout={handleLogout} />
         </div>
 
         {activeSection === 'dashboard' && can('dashboard:view') && (
@@ -458,7 +513,7 @@ const WaiterApp = () => {
         )}
 
         {activeSection === 'orders' && can('orders:view') && (
-          <div className="content">
+          <div className="content waiter-orders-content">
             <div className="d-flex align-items-center mb-4 p-1 bg-white rounded-pill shadow-sm position-relative order-toggle-container" style={{ border: '1px solid #e2e8f0' }}>
               <div 
                 className="position-absolute bg-primary rounded-pill"
@@ -473,21 +528,21 @@ const WaiterApp = () => {
                 }}
               />
               <button 
-                className={`btn border-0 fw-bold position-relative flex-grow-1 ${orderViewMode === 'myOrders' ? 'text-white' : 'text-secondary'}`}
-                style={{ zIndex: 1, transition: 'color 0.3s', padding: '8px 0' }}
+                className={`btn border-0 fw-bold position-relative flex-grow-1 waiter-order-toggle-btn ${orderViewMode === 'myOrders' ? 'text-white' : 'text-secondary'}`}
+                style={{ zIndex: 1, transition: 'color 0.3s', padding: '6px 0' }}
                 onClick={() => setOrderViewMode('myOrders')}
               >
                 My Orders
               </button>
               <button 
-                className={`btn border-0 fw-bold position-relative flex-grow-1 ${orderViewMode === 'allOrders' ? 'text-white' : 'text-secondary'}`}
-                style={{ zIndex: 1, transition: 'color 0.3s', padding: '8px 0' }}
+                className={`btn border-0 fw-bold position-relative flex-grow-1 waiter-order-toggle-btn ${orderViewMode === 'allOrders' ? 'text-white' : 'text-secondary'}`}
+                style={{ zIndex: 1, transition: 'color 0.3s', padding: '6px 0' }}
                 onClick={() => setOrderViewMode('allOrders')}
               >
                 All Orders
               </button>
             </div>
-            <WaiterOrders orders={filteredOrders} onEdit={loadOrderToEdit} onBill={generateBill} />
+            <WaiterOrders orders={filteredOrders} onEdit={loadOrderToEdit} onBill={generateBill} onCheckout={checkoutOrder} />
           </div>
         )}
 
@@ -514,7 +569,7 @@ const WaiterApp = () => {
 
         {activeSection === 'profile' && (
           <div className="content grid-3">
-            <WaiterProfile profile={profile} />
+            <WaiterProfile profile={profile} onLogout={handleLogout} />
             <WaiterAnalytics analytics={myAnalytics} />
             <WaiterPromotionTimeline promotions={promotions} />
           </div>

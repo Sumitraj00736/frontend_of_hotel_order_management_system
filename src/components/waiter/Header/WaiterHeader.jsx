@@ -1,47 +1,27 @@
-import React, { useState } from 'react';
-import { ChevronDown, UtensilsCrossed } from 'lucide-react';
-import { getBranchId, getBranches, setBranchId } from '../../../api/session.js';
+import React from 'react';
+import { LogOut } from 'lucide-react';
 import '../../../common/css/waiter/waiterHeader.css';
 
-const WaiterHeader = ({ user, onClose }) => {
-  const [branchOpen, setBranchOpen] = useState(false);
-  const branches = getBranches();
-  const activeBranchId = getBranchId() || branches[0]?.branchId;
-  const activeBranch = branches.find((b) => (b.branchId || b._id) === activeBranchId);
-  const restaurantName = activeBranch?.branchName || user?.restaurantName || 'Restaurant';
+const WaiterHeader = ({ user, onLogout }) => {
+  const waiterName = user?.name || user?.fullName || 'Waiter';
 
   return (
     <header className="waiter-mobile-header">
       <div className="header-top-row">
-        {/* Branch Branding (Left) */}
-        <div className="branch-branding-group" onClick={() => setBranchOpen(!branchOpen)}>
+        <div className="branch-branding-group">
           <div className="branch-logo-box">
-            <span className="branch-initial">{restaurantName.charAt(0).toUpperCase()}</span>
+            <span className="branch-initial">{waiterName.charAt(0).toUpperCase()}</span>
           </div>
           <div className="branch-info-mini">
-            <div className="branch-name-mini">
-              {restaurantName} <ChevronDown size={12} className={`chevron-icon ${branchOpen ? 'rotated' : ''}`} />
+            <div className="branch-name-mini">{waiterName}</div>
+            <div className="waiter-branch-meta-row">
+              <div className="premium-badge-mini">Waiter</div>
+              <div className="waiter-live-badge">
+                <span className="waiter-live-dot" />
+                Live
+              </div>
             </div>
-            <div className="premium-badge-mini">Premium</div>
           </div>
-
-          {branchOpen && (
-            <div className="branch-dropdown-overlay">
-              {branches.map((b) => (
-                <button
-                  key={b.branchId || b._id}
-                  className={`branch-option ${activeBranchId === (b.branchId || b._id) ? 'active' : ''}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setBranchId(b.branchId || b._id);
-                    window.location.reload();
-                  }}
-                >
-                  {b.branchName || b.name || 'Branch'}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* App Branding (Right) */}
@@ -50,6 +30,9 @@ const WaiterHeader = ({ user, onClose }) => {
           <div className="brand-logo-box-mini">
             <span className="brand-v-mini">V</span>
           </div>
+          <button type="button" className="waiter-header-logout-btn" onClick={onLogout} aria-label="Logout">
+            <LogOut size={14} />
+          </button>
         </div>
       </div>
     </header>

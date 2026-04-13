@@ -13,6 +13,19 @@
   padding: 0 !important;
 }
 
+/* Compact text scale for waiter screens */
+.admin-shell,
+.admin-shell :is(input, select, textarea, button) {
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .admin-shell,
+  .admin-shell :is(input, select, textarea, button) {
+    font-size: 12px;
+  }
+}
+
 .waiter-pos-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 420px;
@@ -484,8 +497,15 @@
 }
 
 .order-toggle-container {
-  width: 260px;
+  width: 220px;
   margin-left: 0;
+  margin-bottom: 16px;
+}
+
+.waiter-order-toggle-btn {
+  font-size: 12px;
+  line-height: 1.1;
+  border-radius: 999px !important;
 }
 
 .checkout-modal-box {
@@ -596,6 +616,10 @@
 }
 
 @media (max-width: 768px) {
+  :root {
+    --waiter-mobile-header-height: 62px;
+  }
+
   /* 0. Reset Global Gaps for Mobile App Feel */
   .admin-shell {
     padding: 0 !important;
@@ -612,8 +636,12 @@
 
   .admin-main, .content {
     width: 100% !important;
-    padding: 16px !important;
+    padding: 12px !important;
     margin: 0 !important;
+  }
+
+  .content {
+    padding-top: calc(var(--waiter-mobile-header-height) + 8px) !important;
   }
 
   /* Hide Desktop specific things but allow children to render */
@@ -738,8 +766,8 @@
   .pos-search-wrapper {
     width: 100% !important;
     border-radius: 12px !important;
-    margin-bottom: 20px !important;
-    padding: 14px 16px !important;
+    margin-bottom: 12px !important;
+    padding: 10px 12px !important;
   }
 
   .order-toggle-container {
@@ -754,15 +782,15 @@
     bottom: 96px; /* Above Bottom Nav */
     right: 20px;   /* Thumb Zone */
     left: auto !important;
-    width: 64px;
-    height: 64px;
+    width: 52px;
+    height: 52px;
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
-    border-radius: 20px; /* Squircle look */
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
     z-index: 1500;
     border: 2px solid rgba(255, 255, 255, 0.2);
   }
@@ -771,8 +799,8 @@
     top: -6px !important;
     right: -6px !important;
     background: #ef4444 !important;
-    font-size: 11px !important;
-    padding: 4px 6px !important;
+    font-size: 10px !important;
+    padding: 2px 5px !important;
     border-radius: 8px !important;
   }
 
@@ -782,16 +810,44 @@
   }
 
   .menu-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
-    gap: 12px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
   }
 
   .menu-card {
-    border-radius: 16px !important;
+    border-radius: 12px !important;
   }
 
   .menu-card-image {
-    height: 140px !important;
+    height: 96px !important;
+  }
+
+  .menu-pos-card {
+    border-radius: 12px !important;
+  }
+
+  .menu-info {
+    padding: 8px !important;
+  }
+
+  .menu-name {
+    font-size: 11px !important;
+    margin-bottom: 1px !important;
+  }
+
+  .menu-category {
+    font-size: 9px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .menu-price {
+    font-size: 13px !important;
+  }
+
+  .menu-add-icon {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 8px !important;
   }
 
   /* 5. Cart Drawer Refinement (Floating Panel) */
@@ -799,24 +855,24 @@
     position: fixed !important;
     top: auto !important;
     bottom: -100% !important;
-    left: 12px !important;
-    right: 12px !important;
-    width: calc(100% - 24px) !important;
+    left: 20px !important;
+    right: 20px !important;
+    width: calc(100% - 40px) !important;
     height: auto !important;
     /* When active, height will be constrained by top/bottom offsets */
-    min-height: 200px;
+    min-height: 170px;
     background: #fff;
     z-index: 2200;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    border-radius: 24px !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    border-radius: 18px !important;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
     display: block !important;
     overflow: hidden;
   }
 
   .pos-cart-section.mobile-open {
-    top: 140px !important; /* Fixed top offset to clear header + search bar */
-    bottom: 110px !important; /* Fixed bottom offset to clear the nav bar */
+    top: calc(var(--waiter-mobile-header-height) + 88px) !important;
+    bottom: 104px !important;
   }
 
   /* Reset inner sidebar for mobile drawer */
@@ -830,7 +886,7 @@
   }
 
   .pos-cart-section.mobile-open {
-    bottom: 100px !important; /* Float above the navigation pill */
+    bottom: 96px !important;
   }
 
   .mobile-drawer-handle {
@@ -873,11 +929,11 @@
   /* Fix for search bar and menu overlapping header */
   .pos-search-wrapper {
     position: sticky !important;
-    top: 66px !important; 
+    top: calc(var(--waiter-mobile-header-height) + 6px) !important;
     z-index: 1500 !important;
-    margin: 12px 14px 20px 14px !important; /* Inset from sides for floating look */
-    width: calc(100% - 28px) !important;
-    padding: 12px 20px !important;
+    margin: 8px 10px 12px 10px !important;
+    width: calc(100% - 20px) !important;
+    padding: 10px 14px !important;
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -892,7 +948,64 @@
   }
 
   .pos-menu-body {
-    padding: 16px !important;
-    padding-top: 70px !important; /* Push cards down so they start below the sticky search bar */
+    padding: 12px !important;
+    padding-top: 56px !important;
     overflow: visible !important; /* Let main page handle scroll */
   }
+
+  .order-toggle-container {
+    margin-bottom: 16px !important;
+    padding: 4px !important;
+    position: sticky;
+    top: calc(var(--waiter-mobile-header-height) + 8px);
+    z-index: 1300;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .waiter-order-toggle-btn {
+    font-size: 11px !important;
+    padding: 7px 0 !important;
+  }
+
+  .waiter-orders-content {
+    padding: calc(var(--waiter-mobile-header-height) + 14px) 10px 108px !important;
+  }
+
+  .waiter-orders-content .card.glass-card {
+    border-radius: 14px;
+    padding: 10px !important;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+  }
+
+  .waiter-orders-content .card.glass-card h5 {
+    font-size: 13px;
+    margin-bottom: 8px !important;
+  }
+
+  .waiter-orders-content .kot-grid {
+    gap: 12px;
+  }
+
+  .waiter-orders-content .kot-card {
+    border-radius: 12px;
+    padding: 10px 10px 8px;
+    gap: 8px;
+  }
+
+  .waiter-orders-content .kot-title {
+    font-size: 14px;
+  }
+
+  .waiter-orders-content .kot-meta,
+  .waiter-orders-content .kot-item {
+    font-size: 12px;
+  }
+
+  .waiter-orders-content .kot-actions .ghost-btn {
+    min-height: 34px;
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
