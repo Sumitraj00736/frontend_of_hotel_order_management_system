@@ -292,6 +292,134 @@
     transform: scale(0.96);
   }
 
+  .mobile-profile-menu-wrap {
+    position: relative;
+  }
+
+  .mobile-profile-trigger {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    border: 1px solid #dbe6f5;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .mobile-profile-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-profile-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: min(320px, calc(100vw - 24px));
+    max-height: min(74vh, 560px);
+    overflow: auto;
+    background: #fff;
+    border: 1px solid #e5eaf2;
+    border-radius: 14px;
+    box-shadow: 0 16px 36px rgba(2, 6, 23, 0.18);
+    z-index: 1250;
+    padding: 10px;
+  }
+
+  .mobile-profile-header {
+    border: 1px solid #e9eef7;
+    border-radius: 10px;
+    padding: 8px 10px;
+    background: linear-gradient(90deg, #f8fbff, #f8fafc);
+    margin-bottom: 8px;
+  }
+
+  .mobile-profile-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .mobile-profile-org {
+    font-size: 11px;
+    color: #334155;
+    font-weight: 600;
+    margin-top: 3px;
+  }
+
+  .mobile-profile-contact {
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 1px;
+  }
+
+  .mobile-profile-settings-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .mobile-profile-settings-group {
+    border: 1px solid #eef2f7;
+    border-radius: 10px;
+    padding: 6px;
+    background: #fff;
+  }
+
+  .mobile-profile-settings-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    padding: 0 4px;
+  }
+
+  .mobile-profile-settings-item {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 8px 10px;
+    text-align: left;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .mobile-profile-settings-item:active {
+    background: #eff6ff;
+  }
+
+  .mobile-profile-logout-btn {
+    width: 100%;
+    margin-top: 8px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fff5f5;
+    color: #b91c1c;
+    font-size: 13px;
+    font-weight: 700;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
   .mobile-topbar-title-wrap {
     width: 100%;
     padding: 8px 10px;

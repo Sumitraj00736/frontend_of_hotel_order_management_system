@@ -777,6 +777,7 @@ const AdminDashboard = () => {
         sectionTitle={sectionTitle}
         organizationName={orgName}
         restaurantName={restaurantName}
+        currentUser={currentUser}
         branchOpen={branchOpen}
         onToggleBranch={() => setBranchOpen((prev) => !prev)}
         branches={branches}
@@ -785,6 +786,7 @@ const AdminDashboard = () => {
           setBranchId(branch.branchId || branch._id);
           window.location.reload();
         }}
+        onOpenSetting={(settingId) => setActiveSection(`settings:${settingId}`)}
         onLogout={handleMobileLogout}
       />
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>

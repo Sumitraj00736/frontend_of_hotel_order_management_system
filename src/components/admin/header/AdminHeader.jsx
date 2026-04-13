@@ -1,5 +1,6 @@
 import React from 'react';
-import { ChevronDown, LogOut } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import AdminProfileMenu from './AdminProfileMenu.jsx';
 
 const AdminHeader = ({
   isMobile = false,
@@ -11,7 +12,9 @@ const AdminHeader = ({
   branches = [],
   activeBranchId,
   onSelectBranch,
-  onLogout
+  onLogout,
+  currentUser,
+  onOpenSetting
 }) => {
   if (!isMobile) return null;
   const displayName = organizationName || restaurantName || 'Restaurant';
@@ -56,9 +59,12 @@ const AdminHeader = ({
         <div className="mobile-admin-branding">
           <span className="mobile-admin-brand-text">merorestro</span>
           <span className="mobile-admin-brand-mark">V</span>
-          <button type="button" className="mobile-admin-logout-btn" onClick={onLogout} aria-label="Log out">
-            <LogOut size={14} />
-          </button>
+          <AdminProfileMenu
+            user={currentUser}
+            organizationName={displayName}
+            onOpenSetting={onOpenSetting}
+            onLogout={onLogout}
+          />
         </div>
       </div>
       <div className="mobile-topbar-title-wrap">
