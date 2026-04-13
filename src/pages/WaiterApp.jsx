@@ -298,6 +298,7 @@ const WaiterApp = () => {
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const showFloatingCart = activeSection === 'dashboard' || activeSection === 'menu';
 
   return (
     <div className="admin-shell">
@@ -429,17 +430,7 @@ const WaiterApp = () => {
               </div>
             </div>
             
-            {/* FAB for Mobile */}
-            <div className="mobile-fab-cart" onClick={() => setMobileCartOpen(true)}>
-              <ShoppingCart size={24} />
-              {cart.length > 0 && <span className="badge">{cart.length}</span>}
-            </div>
-
-            {/* Mobile overlay back-drop */}
-            {mobileCartOpen && <div className="cart-mobile-backdrop" onClick={() => setMobileCartOpen(false)}></div>}
-
-            <div className={`pos-cart-section h-100 overflow-hidden ${mobileCartOpen ? 'mobile-open' : ''}`}>
-              <div className="mobile-drawer-handle" onClick={() => setMobileCartOpen(false)} />
+            <div className="pos-cart-section h-100 overflow-hidden d-none d-md-block">
               {can('orders:view') ? (
                 <WaiterCart
                   cart={cart}
@@ -526,6 +517,39 @@ const WaiterApp = () => {
             <WaiterProfile profile={profile} />
             <WaiterAnalytics analytics={myAnalytics} />
             <WaiterPromotionTimeline promotions={promotions} />
+          </div>
+        )}
+
+        {showFloatingCart && can('orders:view') && (
+          <div className="d-md-none">
+            <div className="mobile-fab-cart" onClick={() => setMobileCartOpen(true)}>
+              <ShoppingCart size={24} />
+              {cart.length > 0 && <span className="badge">{cart.length}</span>}
+            </div>
+            {mobileCartOpen && <div className="cart-mobile-backdrop" onClick={() => setMobileCartOpen(false)} />}
+            <div className={`pos-cart-section h-100 overflow-hidden ${mobileCartOpen ? 'mobile-open' : ''}`}>
+              <div className="mobile-drawer-handle" onClick={() => setMobileCartOpen(false)} />
+              <WaiterCart
+                cart={cart}
+                cartTotal={cartTotal}
+                onUpdateQty={updateQty}
+                onPlaceOrder={handleInitCheckout}
+                editing={Boolean(editingOrderId)}
+                spiceLevel={spiceLevel}
+                onSpiceChange={setSpiceLevel}
+                instructions={instructions}
+                onInstructionsChange={setInstructions}
+                tables={tables}
+                selectedTable={selectedTable}
+                onSelectTable={setSelectedTable}
+                onFreeTable={freeTable}
+                customers={customers}
+                selectedCustomer={selectedCustomer}
+                onSelectCustomer={setSelectedCustomer}
+                showCustomer={can('customers:view')}
+                onClose={() => setMobileCartOpen(false)}
+              />
+            </div>
           </div>
         )}
       </div>
