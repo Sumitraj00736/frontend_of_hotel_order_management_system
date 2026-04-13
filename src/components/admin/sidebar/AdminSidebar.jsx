@@ -27,7 +27,6 @@ import {
   ChefHat,
   PackageSearch,
   X,
-  Moon,
   Maximize2,
   CalendarDays,
   MessageSquare,
@@ -43,7 +42,7 @@ import {
   setBranchId,
   hasPermission
 } from '../../../api/session.js';
-
+import ThemeToggle from '../../ThemeToggle.jsx';
 import '../../../common/css/admin/sidebar/adminSidebar.css';
 
 const iconMap = {
@@ -115,7 +114,6 @@ const AdminSidebar = ({
   const [tablesOpen, setTablesOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [dateMode, setDateMode] = useState('AD');
   const [branchOpen, setBranchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
@@ -132,24 +130,9 @@ const AdminSidebar = ({
       setIsMobile(window.innerWidth <= 992);
     };
 
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      setDarkMode(true);
-    }
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [darkMode]);
 
   const handleLogout = () => {
     clearSession();
@@ -167,10 +150,6 @@ const AdminSidebar = ({
   const handleProfileSetting = () => {
     setProfileOpen(false);
     handleSelect('settings:restaurant-details');
-  };
-
-  const handleThemeToggle = () => {
-    setDarkMode((value) => !value);
   };
 
   const handleFullScreenToggle = async () => {
@@ -697,18 +676,7 @@ const AdminSidebar = ({
                     <span>Profile Setting</span>
                   </button>
 
-                  <div className="profile-panel-item">
-                    <span className="sidebar-icon"><Moon size={16} /></span>
-                    <span>Dark Theme</span>
-                    <label className="toggle-switch">
-                      <input
-                        type="checkbox"
-                        checked={darkMode}
-                        onChange={handleThemeToggle}
-                      />
-                      <span className="toggle-slider" />
-                    </label>
-                  </div>
+                  <ThemeToggle />
 
                   <button className="profile-panel-item" onClick={handleFullScreenToggle}>
                     <span className="sidebar-icon"><Maximize2 size={16} /></span>

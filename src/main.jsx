@@ -7,13 +7,16 @@ import './styles/app.css';
 import './customcss/table.css';
 import './customcss/form.css';
 import App from './App.jsx';
+import { ThemeProvider } from './components/ThemeContext.jsx';
 
 registerSW({ immediate: true });
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ThemeProvider>
   </React.StrictMode>
 );

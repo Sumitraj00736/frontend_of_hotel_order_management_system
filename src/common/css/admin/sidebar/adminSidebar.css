@@ -383,6 +383,53 @@
   width: 260px;
 }
 
+body.dark-mode .admin-sidebar {
+  background: #111827;
+  border-color: #334155;
+}
+
+body.dark-mode .sidebar-button,
+body.dark-mode .sidebar-button.sub,
+body.dark-mode .profile-panel-item {
+  color: #e2e8f0;
+}
+
+body.dark-mode .sidebar-button:hover,
+body.dark-mode .profile-panel-item:hover {
+  background: #1f2937;
+  border-color: #334155;
+}
+
+body.dark-mode .sidebar-button.active {
+  background: #1f2937;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+body.dark-mode .sidebar-profile {
+  background: #1f2937;
+  border-color: #334155;
+}
+
+body.dark-mode .profile-popover-body {
+  background: #111827;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .profile-panel-item {
+  background: #131c2c;
+}
+
+body.dark-mode .profile-panel-logout {
+  background: #7f1d1d;
+  border-color: transparent;
+}
+
+body.dark-mode .text-muted {
+  color: #94a3b8;
+}
+
 .admin-sidebar .profile-panel-header {
   display: flex;
   align-items: center;
