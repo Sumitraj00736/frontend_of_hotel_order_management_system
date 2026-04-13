@@ -285,6 +285,24 @@ const WaiterApp = () => {
     alert(`Bill for table ${bill.data.tableNumber}: NPR ${bill.data.totalAmount.toFixed(2)}`);
   };
 
+  const checkoutOrder = async (order) => {
+    if (!order?._id) return;
+    const paymentInput = window.prompt('Enter payment method: cash, fonepay, card, bank', 'cash');
+    if (!paymentInput) return;
+    const paymentMethod = paymentInput.trim().toLowerCase();
+    if (!['cash', 'fonepay', 'card', 'bank'].includes(paymentMethod)) {
+      alert('Invalid payment method. Use: cash, fonepay, card, bank');
+      return;
+    }
+    try {
+      await api.post(`/api/bills/${order._id}/pay`, { paymentMethod, paymentStatus: 'paid' });
+      alert('Order checked out successfully.');
+      loadData(orderViewMode === 'allOrders' ? 'all' : 'mine');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Checkout failed');
+    }
+  };
+
   const freeTable = async () => {
     if (!selectedTable) return;
     await api.patch(`/api/tables/${selectedTable}/free`);
@@ -491,7 +509,7 @@ const WaiterApp = () => {
                 All Orders
               </button>
             </div>
-            <WaiterOrders orders={filteredOrders} onEdit={loadOrderToEdit} onBill={generateBill} />
+            <WaiterOrders orders={filteredOrders} onEdit={loadOrderToEdit} onBill={generateBill} onCheckout={checkoutOrder} />
           </div>
         )}
 
