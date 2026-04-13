@@ -810,16 +810,44 @@
   }
 
   .menu-grid {
-    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)) !important;
-    gap: 10px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
   }
 
   .menu-card {
-    border-radius: 16px !important;
+    border-radius: 12px !important;
   }
 
   .menu-card-image {
-    height: 118px !important;
+    height: 96px !important;
+  }
+
+  .menu-pos-card {
+    border-radius: 12px !important;
+  }
+
+  .menu-info {
+    padding: 8px !important;
+  }
+
+  .menu-name {
+    font-size: 11px !important;
+    margin-bottom: 1px !important;
+  }
+
+  .menu-category {
+    font-size: 9px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .menu-price {
+    font-size: 13px !important;
+  }
+
+  .menu-add-icon {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 8px !important;
   }
 
   /* 5. Cart Drawer Refinement (Floating Panel) */

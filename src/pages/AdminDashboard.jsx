@@ -5,6 +5,7 @@ import NotificationPage from '../components/admin/notifications/NotificationPage
 import { createSocket } from '../api/socket.js';
 import AdminSidebar from '../components/admin/sidebar/AdminSidebar.jsx';
 import { clearSession, getBranchId, getBranches, getCurrentUser, hasPermission, setBranchId } from '../api/session.js';
+import { ensureNotificationPermission, pushSystemNotification } from '../utils/systemNotifications.js';
 import AdminHeader from '../components/admin/header/AdminHeader.jsx';
 import AdminMobileNavigation from '../components/admin/mobile/AdminMobileNavigation.jsx';
 import AdminMobileSettingsTabs from '../components/admin/mobile/AdminMobileSettingsTabs.jsx';
@@ -387,10 +388,18 @@ const AdminDashboard = () => {
   }, [activeSection, loadHistoryData]);
 
   useEffect(() => {
+    ensureNotificationPermission();
     const socket = createSocket();
 
     socket.on('notify', (payload) => {
       setNotifications((prev) => [{ ...payload, read: false }, ...prev].slice(0, 50));
+      if (payload.type === 'order:paid') {
+        pushSystemNotification({
+          title: 'Order Checkout Completed',
+          body: payload.message || 'An order has been checked out.',
+          tag: 'order-paid'
+        });
+      }
       if (payload.type === 'order:paid') {
         loadOverviewOnly();
       }
@@ -398,6 +407,11 @@ const AdminDashboard = () => {
 
     socket.on('orders:new', (order) => {
       setOrders((prev) => [order, ...prev]);
+      pushSystemNotification({
+        title: 'New Order Received',
+        body: `Table ${order?.table?.tableNumber || '-'} has a new order.`,
+        tag: 'order-new'
+      });
       loadOverviewOnly();
     });
 

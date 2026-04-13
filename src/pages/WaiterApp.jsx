@@ -5,6 +5,7 @@ import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
 import { clearSession, getBranchPermissions, getBranchRole, getCurrentUser } from '../api/session.js';
 import { WAITER_ALLOWED_PERMISSIONS } from '../common/permissions.js';
+import { ensureNotificationPermission, pushSystemNotification } from '../utils/systemNotifications.js';
 import WaiterSidebar from '../components/waiter/Sidebar/WaiterSidebar.jsx';
 import WaiterCart from '../components/waiter/Cart/WaiterCart.jsx';
 import WaiterMenu from '../components/waiter/Menu/WaiterMenu.jsx';
@@ -161,6 +162,7 @@ const WaiterApp = () => {
   }, [notificationFilters]);
 
   useEffect(() => {
+    ensureNotificationPermission();
     const socket = createSocket();
     socket.on('orders:update', (order) => {
       setOrders((prev) => prev.map((o) => (o._id === order._id ? order : o)));
@@ -170,6 +172,11 @@ const WaiterApp = () => {
         if (prev.some((o) => o._id === order._id)) return prev;
         return [order, ...prev];
       });
+      pushSystemNotification({
+        title: 'New Order Received',
+        body: `Table ${order?.table?.tableNumber || '-'} has a new order.`,
+        tag: 'waiter-order-new'
+      });
     });
     socket.on('tables:update', (table) => {
       setTables((prev) => prev.map((t) => (t._id === table._id ? table : t)));
@@ -177,6 +184,13 @@ const WaiterApp = () => {
     socket.on('notify', (payload) => {
       if (payload.waiterId && payload.waiterId !== (currentUser?._id || currentUser?.id)) return;
       setNotifications((prev) => [{ ...payload, read: false }, ...prev].slice(0, 50));
+      if (payload.type === 'order:paid') {
+        pushSystemNotification({
+          title: 'Order Checkout Completed',
+          body: payload.message || 'An order has been checked out.',
+          tag: 'waiter-order-paid'
+        });
+      }
     });
 
     return () => socket.disconnect();
