@@ -679,6 +679,15 @@ const AdminDashboard = () => {
   };
 
   const printBill = async (orderId) => {
+    // Open a tab/window immediately to preserve user-gesture context on mobile browsers.
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=900,height=700');
+    if (!printWindow) {
+      alert('Pop-up blocked. Please allow pop-ups and try printing again.');
+      return;
+    }
+    printWindow.document.write('<p style="font-family:sans-serif;padding:16px">Preparing invoice...</p>');
+    printWindow.document.close();
+
     const res = await api.get(`/api/bills/${orderId}`);
     const bill = res.data;
     const html = `
@@ -700,13 +709,12 @@ const AdminDashboard = () => {
         </body>
       </html>
     `;
-    const win = window.open('', 'PRINT', 'height=600,width=800');
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   };
 
   const markAllRead = async () => {
