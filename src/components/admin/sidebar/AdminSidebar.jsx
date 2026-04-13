@@ -26,7 +26,13 @@ import {
   BarChart3,
   ChefHat,
   PackageSearch,
-  X
+  X,
+  Moon,
+  Maximize2,
+  CalendarDays,
+  MessageSquare,
+  MessageCircle,
+  Share2
 } from 'lucide-react';
 
 import {
@@ -109,6 +115,8 @@ const AdminSidebar = ({
   const [tablesOpen, setTablesOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [dateMode, setDateMode] = useState('AD');
   const [branchOpen, setBranchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
 
@@ -124,9 +132,24 @@ const AdminSidebar = ({
       setIsMobile(window.innerWidth <= 992);
     };
 
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setDarkMode(true);
+    }
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
 
   const handleLogout = () => {
     clearSession();
@@ -141,6 +164,75 @@ const AdminSidebar = ({
     }
   };
 
+  const handleProfileSetting = () => {
+    setProfileOpen(false);
+    handleSelect('settings:restaurant-details');
+  };
+
+  const handleThemeToggle = () => {
+    setDarkMode((value) => !value);
+  };
+
+  const handleFullScreenToggle = async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (error) {
+      console.warn('Fullscreen toggle failed', error);
+    }
+  };
+
+  const handleToggleDateMode = () => {
+    setDateMode((value) => (value === 'AD' ? 'BS' : 'AD'));
+  };
+
+  const handleInvite = async () => {
+    const inviteLink = `${window.location.origin}/invite`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(inviteLink);
+      alert('Invite link copied to clipboard');
+    } else {
+      window.prompt('Copy invite link', inviteLink);
+    }
+    setProfileOpen(false);
+  };
+
+  const handleFeedback = () => {
+    window.location.href = 'mailto:developersana7@gmail.com?subject=App%20Feedback';
+    setProfileOpen(false);
+  };
+
+  const handleShareProfile = async () => {
+    const shareUrl = window.location.href;
+    const shareData = {
+      title: 'My Profile',
+      text: 'Check out my profile',
+      url: shareUrl
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        console.warn('Share failed', error);
+      }
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(shareUrl);
+      alert('Profile link copied to clipboard');
+    } else {
+      window.prompt('Copy this link', shareUrl);
+    }
+    setProfileOpen(false);
+  };
+
+  const handleNotificationPreferences = () => {
+    alert('Notification preferences are currently unavailable.');
+    setProfileOpen(false);
+  };
+
   const handleToggleMenu = (menu) => {
     setMenuOpen((value) => (menu === 'menu' ? !value : false));
     setInventoryOpen((value) => (menu === 'inventory' ? !value : false));
@@ -153,7 +245,8 @@ const AdminSidebar = ({
     return {
       position: 'fixed',
       left: `${isOpen ? 260 : 78}px`,
-      bottom: '70px'
+      bottom: '18px',
+      width: '260px'
     };
   };
 
@@ -557,7 +650,7 @@ const AdminSidebar = ({
           )}
         </div>
 
-        <div className="sidebar-profile-wrapper" onMouseLeave={() => setProfileOpen(false)}>
+        <div className="sidebar-profile-wrapper">
           <button
             className={`sidebar-profile ${isOpen ? '' : 'compact'}`}
             onClick={() => setProfileOpen((v) => !v)}
@@ -581,19 +674,77 @@ const AdminSidebar = ({
           </button>
 
           {profileOpen && (
-            <div className="profile-popover" style={getProfilePopoverStyle()}>
+            <div
+              className="profile-popover"
+              style={getProfilePopoverStyle()}
+              onMouseEnter={() => setProfileOpen(true)}
+              onMouseLeave={() => setProfileOpen(false)}
+            >
               <div className="profile-popover-body">
-                <button className="sidebar-button sub" onClick={() => setProfileOpen(false)}>
-                  <span className="sidebar-icon"><UserRound size={14} /></span>
-                  Profile Setting
-                </button>
+                <div className="profile-panel-header">
+                  <div className="avatar-circle large">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <div className="profile-meta-panel">
+                    <div className="fw-semibold large">{user?.name || 'User'}</div>
+                    <div className="tiny-text text-muted">{user?.email || ''}</div>
+                  </div>
+                </div>
 
-                <button className="sidebar-button sub" onClick={() => setProfileOpen(false)}>
-                  <span className="sidebar-icon"><Settings size={14} /></span>
-                  Preferences
-                </button>
+                <div className="profile-panel-section">
+                  <button className="profile-panel-item" onClick={handleProfileSetting}>
+                    <span className="sidebar-icon"><UserRound size={16} /></span>
+                    <span>Profile Setting</span>
+                  </button>
 
-                <button className="sidebar-button sub danger" onClick={handleLogout}>
+                  <div className="profile-panel-item">
+                    <span className="sidebar-icon"><Moon size={16} /></span>
+                    <span>Dark Theme</span>
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={darkMode}
+                        onChange={handleThemeToggle}
+                      />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+
+                  <button className="profile-panel-item" onClick={handleFullScreenToggle}>
+                    <span className="sidebar-icon"><Maximize2 size={16} /></span>
+                    <span>Enter Full Screen</span>
+                  </button>
+
+                  <div className="profile-panel-item profile-panel-date-mode" onClick={handleToggleDateMode}>
+                    <span className="sidebar-icon"><CalendarDays size={16} /></span>
+                    <span>Date Mode</span>
+                    <div className="date-mode-switch">
+                      <span className={`date-mode-pill ${dateMode === 'AD' ? 'active' : ''}`}>AD</span>
+                      <span className={`date-mode-pill ${dateMode === 'BS' ? 'active' : ''}`}>BS</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="profile-panel-section profile-panel-links">
+                  <button className="profile-panel-item" onClick={handleInvite}>
+                    <span className="sidebar-icon"><MessageSquare size={16} /></span>
+                    <span>Invitation</span>
+                  </button>
+                  <button className="profile-panel-item" onClick={handleFeedback}>
+                    <span className="sidebar-icon"><MessageCircle size={16} /></span>
+                    <span>Give Feedback</span>
+                  </button>
+                  <button className="profile-panel-item" onClick={handleShareProfile}>
+                    <span className="sidebar-icon"><Share2 size={16} /></span>
+                    <span>Share Profile</span>
+                  </button>
+                  <button className="profile-panel-item" onClick={handleNotificationPreferences}>
+                    <span className="sidebar-icon"><Bell size={16} /></span>
+                    <span>User Notification Preferences</span>
+                  </button>
+                </div>
+
+                <button className="sidebar-button sub danger profile-panel-logout" onClick={handleLogout}>
                   <span className="sidebar-icon"><LogOut size={14} /></span>
                   Log out
                 </button>
