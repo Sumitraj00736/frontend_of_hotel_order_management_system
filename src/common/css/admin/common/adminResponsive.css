@@ -1,0 +1,310 @@
+/* Global responsive layer for all admin components */
+
+@media (max-width: 1200px) {
+  .content :is(.web-content, .settings-card.split, .checkout-body, .additem-layout) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .content :is(.web-right, .settings-preview) {
+    order: -1;
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .content :is(.settings-shell) {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+  .content {
+    font-size: 12px;
+  }
+
+  .content :is(input, select, textarea, button, .btn, .form-control) {
+    font-size: 12px;
+  }
+
+  .content :is(.btn, .btn-primary, .btn-secondary, .btn-danger, .btn-outline, .btn-light, .btn-add, .btn-filter, .btn-more, .btn-arrange) {
+    min-height: 42px;
+  }
+
+  .content :is(.card, .panel, .settings-card, .users-table, .customers-table, .tables-list, .dishes-table-wrap, .table-glass, .transaction-table, .inventory-panel, .web-link-card, .notification-page) {
+    border-radius: 14px;
+  }
+
+  .mobile-admin-bottom-nav {
+    max-width: calc(100vw - 24px);
+  }
+
+  .mobile-admin-bottom-nav:not(.mobile-five-nav) .mobile-nav-item {
+    min-width: 84px;
+  }
+
+  .mobile-admin-bottom-nav.mobile-five-nav .mobile-nav-item {
+    min-width: 0;
+  }
+
+  .content :is(
+      .users-panel,
+      .customers-panel,
+      .tables-panel,
+      .dishes-page,
+      .inventory-screen,
+      .website-screen,
+      .notification-page,
+      .settings-page
+    ) {
+    padding: 10px;
+  }
+
+  .content .settings-page {
+    gap: 12px;
+  }
+
+  .content :is(
+      .users-header,
+      .customers-header,
+      .tables-header,
+      .dishes-header,
+      .inventory-header,
+      .notify-top,
+      .additem-head,
+      .checkout-header
+    ) {
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .content :is(.users-actions, .customers-actions, .tables-actions, .dishes-actions, .notify-actions, .section-actions) {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .content :is(
+      .users-search,
+      .customers-search,
+      .dishes-search,
+      .submenus-search,
+      .addons-search,
+      .category-search,
+      .hist-search-wrap,
+      .search-input-wrapper,
+      .additem-filters,
+      .notify-filters
+    ) {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .content :is(
+      .users-search input,
+      .customers-search input,
+      .dishes-search input,
+      .submenus-search input,
+      .addons-search input,
+      .category-search input,
+      .additem-search,
+      .filter-input,
+      .search-input
+    ) {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .content :is(.dishes-stats, .stats-grid, .customers-kpis, .tables-stats, .usage-grid, .qr-grid, .recipe-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .content :is(.users-table, .customers-table, .tables-list, .dishes-table-wrap, .table-glass, .transaction-table, .settings-table, .items-card) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .content :is(.users-table-head, .users-row) {
+    min-width: 760px;
+  }
+
+  .content :is(.table-head, .table-row) {
+    min-width: 760px;
+  }
+
+  .content :is(.customers-table-head, .customers-row) {
+    min-width: 860px;
+  }
+
+  .content :is(.tables-head, .tables-row) {
+    min-width: 980px;
+  }
+
+  .content .dishes-table {
+    min-width: 760px;
+  }
+
+  .content :is(.settings-table, .items-table, .transaction-table-grid) {
+    min-width: 680px;
+  }
+
+  .content :is(.users-modal, .customers-modal, .tables-modal, .modal-card, .role-modal, .checkout-panel, .additem-card) {
+    width: min(96vw, 760px);
+    max-height: 90vh;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .content :is(.users-modal-grid, .customers-form-grid, .tables-modal-grid, .settings-grid, .settings-row, .customers-reward-row, .notification-settings, .filter-bar, .danger-actions) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .content .table-form-input {
+    min-width: 110px;
+    max-width: 160px;
+    width: 100%;
+  }
+
+  .content :is(.profile-card, .billing-card, .web-link-box, .web-row, .confirm-card, .invoice-head, .invoice-item) {
+    grid-template-columns: 1fr !important;
+    display: grid;
+    gap: 8px;
+  }
+
+  .content :is(.form-row, .upload-line, .variant-row, .payment-method-card, .summary-row, .inline-input, .customers-balance-row, .layout-options, .logo-row) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .content :is(.form-field, .form-field.grow, .variant-row input, .inline-input input, .discount-type, .page-size) {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .content :is(.form-actions, .users-modal-actions, .customers-footer, .tables-modal-actions, .settings-actions, .modal-actions, .success-actions, .cart-actions, .additem-actions, .checkout-actions, .transaction-actions, .pagination-bar) {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .content :is(.web-tabs, .dash-tabs, .notify-tabs, .inventory-tabs, .users-tabs, .additem-tabs) {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .content :is(.web-tab, .dash-tab, .notify-tab, .inventory-tab, .users-tab) {
+    white-space: nowrap;
+  }
+
+  .content .filter-list {
+    position: static;
+    min-width: 0;
+    width: 100%;
+    box-shadow: none;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    font-size: 11px;
+  }
+
+  .content :is(input, select, textarea, button, .btn, .form-control) {
+    font-size: 11px;
+  }
+
+  .mobile-admin-bottom-nav {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    padding: 8px;
+    gap: 4px;
+  }
+
+  .mobile-admin-bottom-nav:not(.mobile-five-nav) .mobile-nav-item {
+    min-width: 76px;
+    min-height: 50px;
+    font-size: 10px;
+    padding: 5px 6px;
+  }
+
+  .mobile-admin-bottom-nav:not(.mobile-five-nav) .mobile-nav-item span {
+    display: none;
+  }
+
+  .mobile-admin-bottom-nav:not(.mobile-five-nav) .mobile-nav-item.active {
+    min-width: 92px;
+  }
+
+  .mobile-admin-bottom-nav:not(.mobile-five-nav) .mobile-nav-item.active span {
+    display: block;
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .mobile-admin-bottom-nav .mobile-nav-item svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .content {
+    padding: 10px 8px 28px !important;
+  }
+
+  .content :is(.dishes-stats, .stats-grid, .customers-kpis, .tables-stats, .usage-grid, .qr-grid, .recipe-grid, .banner-cards, .panel-grid.two-col, .panel-grid.three-col) {
+    grid-template-columns: 1fr;
+  }
+
+  .content :is(.notify-item) {
+    grid-template-columns: 34px 1fr;
+  }
+
+  .content .notify-time {
+    grid-column: 1 / -1;
+    padding-left: 44px;
+  }
+
+  .content :is(.customize-actions, .checkout-actions, .additem-actions, .users-actions, .customers-actions, .tables-actions, .dishes-actions) > button,
+  .content :is(.customize-actions, .checkout-actions, .additem-actions, .users-actions, .customers-actions, .tables-actions, .dishes-actions) > a {
+    width: 100%;
+  }
+
+  .content :is(.checkout-panel, .additem-card, .users-modal, .customers-modal, .tables-modal, .modal-card, .role-modal, .customize-card, .success-card) {
+    width: 96vw;
+    max-width: 96vw;
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  .content .checkout-title,
+  .content .users-modal-title,
+  .content .customers-title,
+  .content .settings-title {
+    font-size: 16px;
+  }
+
+  .content :is(.phone-frame) {
+    width: min(100%, 300px) !important;
+    height: auto !important;
+    min-height: 520px;
+  }
+
+  .content .table-form-input {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .content :is(.hist-select, .notify-filter-toggle, .btn-filter, .btn-arrange, .btn-add, .icon-btn, .btn-secondary, .web-link-actions button, .web-link-actions a) {
+    min-height: 40px;
+  }
+
+  .content :is(.hist-search-wrap) {
+    min-width: 0;
+  }
+
+  .content :is(.table-head, .table-row) {
+    min-width: 680px;
+  }
+}

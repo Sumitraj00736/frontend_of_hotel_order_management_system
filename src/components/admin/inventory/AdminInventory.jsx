@@ -529,7 +529,7 @@ const AdminInventory = ({ menus, ingredients, transactions, reload, externalView
       {view === 'recipes' && (
         <div className="animate-in">
           <div className="d-flex justify-content-between align-items-center mb-3">
-             <div className="search-input-wrapper" style={{ width: '300px' }}>
+             <div className="search-input-wrapper" style={{ width: 'min(100%, 300px)' }}>
                 <i><Search size={16} /></i>
                 <input 
                   type="text" 

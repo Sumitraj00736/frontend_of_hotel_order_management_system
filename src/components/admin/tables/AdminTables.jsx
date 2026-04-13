@@ -49,10 +49,10 @@ const AdminTables = ({ tables, tableForm, setTableForm, onCreateTable, onFreeTab
           <h5 className="mb-0">Tables & Layout</h5>
           <div className="text-muted small">Drag tables to arrange; add new tables with row/column</div>
         </div>
-        <div className="d-flex gap-2">
-          <input className="form-control" style={{ width: 120 }} placeholder="Table #" value={tableForm.tableNumber} onChange={(e) => setTableForm({ ...tableForm, tableNumber: e.target.value })} />
-          <input className="form-control" style={{ width: 90 }} placeholder="Row" value={tableForm.row || ''} onChange={(e) => setTableForm({ ...tableForm, row: e.target.value })} />
-          <input className="form-control" style={{ width: 90 }} placeholder="Col" value={tableForm.column || ''} onChange={(e) => setTableForm({ ...tableForm, column: e.target.value })} />
+        <div className="d-flex gap-2 flex-wrap w-100 justify-content-end">
+          <input className="form-control table-form-input" placeholder="Table #" value={tableForm.tableNumber} onChange={(e) => setTableForm({ ...tableForm, tableNumber: e.target.value })} />
+          <input className="form-control table-form-input" placeholder="Row" value={tableForm.row || ''} onChange={(e) => setTableForm({ ...tableForm, row: e.target.value })} />
+          <input className="form-control table-form-input" placeholder="Col" value={tableForm.column || ''} onChange={(e) => setTableForm({ ...tableForm, column: e.target.value })} />
           <button className="btn btn-primary" onClick={onCreateTable}>Add</button>
         </div>
       </div>

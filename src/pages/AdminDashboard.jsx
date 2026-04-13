@@ -4,7 +4,10 @@ import NotificationToasts from '../components/NotificationToasts.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import { createSocket } from '../api/socket.js';
 import AdminSidebar from '../components/admin/sidebar/AdminSidebar.jsx';
-import { getCurrentUser, hasPermission } from '../api/session.js';
+import { clearSession, getBranchId, getBranches, getCurrentUser, hasPermission, setBranchId } from '../api/session.js';
+import AdminHeader from '../components/admin/header/AdminHeader.jsx';
+import AdminMobileNavigation from '../components/admin/mobile/AdminMobileNavigation.jsx';
+import AdminMobileSettingsTabs from '../components/admin/mobile/AdminMobileSettingsTabs.jsx';
 import AdminOverview from '../components/admin/dashboard/AdminOverview.jsx';
 import AdminOrders from '../components/admin/orders/adminOrders/AdminOrders.jsx';
 import AdminUsers from '../components/admin/users/AdminUsers.jsx';
@@ -26,6 +29,7 @@ import AdminSettings from '../components/admin/settings/AdminSettings.jsx';
 import SettingsSidebar from '../components/admin/settings/SettingsSidebar.jsx';
 import AdminCustomers from '../components/admin/customers/AdminCustomers.jsx';
 import '../common/css/admin/common/adminLayout.css';
+import '../common/css/admin/common/adminResponsive.css';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -56,6 +60,8 @@ const AdminDashboard = () => {
   const [customers, setCustomers] = useState([]);
   const [customerRewards, setCustomerRewards] = useState({ salesAmount: 0, rewardPoints: 0 });
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
+  const [branchOpen, setBranchOpen] = useState(false);
   const [financeFilters, setFinanceFilters] = useState({ dateFrom: '', dateTo: '' });
   const [dashboardOptions, setDashboardOptions] = useState({
     includeAnalytics: false,
@@ -64,6 +70,12 @@ const AdminDashboard = () => {
     includeNotifications: false
   });
   const currentUser = getCurrentUser();
+  const branches = getBranches() || [];
+  const activeBranchId = getBranchId() || branches[0]?.branchId || branches[0]?._id;
+  const activeBranch = branches.find((b) => (b.branchId || b._id) === activeBranchId);
+  const orgName = activeBranch?.orgName || branches[0]?.orgName || currentUser?.orgName || currentUser?.organizationName;
+  const restaurantName =
+    orgName || currentUser?.restaurantName || currentUser?.name || 'Restaurant';
   const isSuperAdmin = currentUser?.role?.toLowerCase() === 'superadmin';
   const [ordersPage, setOrdersPage] = useState(1);
   const [ordersLimit, setOrdersLimit] = useState(12);
@@ -669,6 +681,15 @@ const AdminDashboard = () => {
   };
 
   const printBill = async (orderId) => {
+    // Open a tab/window immediately to preserve user-gesture context on mobile browsers.
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=900,height=700');
+    if (!printWindow) {
+      alert('Pop-up blocked. Please allow pop-ups and try printing again.');
+      return;
+    }
+    printWindow.document.write('<p style="font-family:sans-serif;padding:16px">Preparing invoice...</p>');
+    printWindow.document.close();
+
     const res = await api.get(`/api/bills/${orderId}`);
     const bill = res.data;
     const html = `
@@ -690,13 +711,12 @@ const AdminDashboard = () => {
         </body>
       </html>
     `;
-    const win = window.open('', 'PRINT', 'height=600,width=800');
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   };
 
   const markAllRead = async () => {
@@ -705,6 +725,24 @@ const AdminDashboard = () => {
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const sectionTitle = useMemo(() => {
+    if (activeSection.startsWith('menu')) return 'Menu';
+    if (activeSection.startsWith('tables')) return 'Table & Space';
+    if (activeSection.startsWith('inventory')) return 'Inventory';
+    if (activeSection.startsWith('reports')) return 'Reports';
+    if (activeSection.startsWith('settings')) return 'Settings';
+    const map = {
+      dashboard: 'Dashboard',
+      orders: 'Orders',
+      users: 'Users',
+      customers: 'Customers',
+      website: 'Website',
+      notifications: 'Notifications',
+      history: 'History',
+      menus: 'Menus'
+    };
+    return map[activeSection] || 'Admin';
+  }, [activeSection]);
 
   const frequentItems = useMemo(() => {
     const itemCounts = {};
@@ -716,13 +754,42 @@ const AdminDashboard = () => {
     return Object.entries(itemCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
   }, [history]);
 
-  return (
-    <div className="admin-shell">
-      <NotificationToasts notifications={toasts} />
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 992);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
+  useEffect(() => {
+    setSidebarOpen(!isMobile);
+  }, [isMobile]);
+
+  const handleMobileLogout = () => {
+    clearSession();
+    window.location.href = '/login';
+  };
+
+  return (
+    <div className={`admin-shell ${isMobile ? 'mobile-app-shell' : ''}`}>
+      <NotificationToasts notifications={toasts} />
+      <AdminHeader
+        isMobile={isMobile}
+        sectionTitle={sectionTitle}
+        organizationName={orgName}
+        restaurantName={restaurantName}
+        branchOpen={branchOpen}
+        onToggleBranch={() => setBranchOpen((prev) => !prev)}
+        branches={branches}
+        activeBranchId={activeBranchId}
+        onSelectBranch={(branch) => {
+          setBranchId(branch.branchId || branch._id);
+          window.location.reload();
+        }}
+        onLogout={handleMobileLogout}
+      />
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
-          {activeSection.startsWith('settings') ? (
+          {activeSection.startsWith('settings') && !isMobile ? (
             <SettingsSidebar
               active={activeSection.split(':')[1] || 'restaurant-details'}
               onSelect={(view) => setActiveSection(`settings:${view}`)}
@@ -873,9 +940,18 @@ const AdminDashboard = () => {
           )}
           {activeSection === 'website' && hasPermission('website:view') && <AdminWebsite />}
           {activeSection.startsWith('settings') && hasPermission('settings:view') && (
-            <AdminSettings
-              activeView={activeSection.split(':')[1] || 'restaurant-details'}
-            />
+            <>
+              {isMobile && (
+                <AdminMobileSettingsTabs
+                  isMobile={isMobile}
+                  activeView={activeSection.split(':')[1] || 'restaurant-details'}
+                  onSelect={(view) => setActiveSection(`settings:${view}`)}
+                />
+              )}
+              <AdminSettings
+                activeView={activeSection.split(':')[1] || 'restaurant-details'}
+              />
+            </>
           )}
           {activeSection.startsWith('inventory') && hasPermission('inventory:view') && (
             <AdminInventory
@@ -964,6 +1040,12 @@ const AdminDashboard = () => {
           {activeSection === 'history' && hasPermission('reports:view') && <AdminHistory history={history} />}
         </div>
       </div>
+      <AdminMobileNavigation
+        isMobile={isMobile}
+        activeSection={activeSection}
+        onChangeSection={setActiveSection}
+        canAccess={hasPermission}
+      />
     </div>
   );
 };

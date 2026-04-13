@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import AddItemsModal from '../addItemsModal/AddItemsModal.jsx';
 import OrderHeader from './OrderHeader.jsx';
 import OrderItemsTable from './OrderItemsTable.jsx';
@@ -171,7 +172,7 @@ const OrderDetailModal = ({
 
   if (!localOrder) return null;
 
-  return (
+  return createPortal(
     <div className="checkout-overlay" onClick={onClose}>
       <div className="checkout-panel" onClick={(e) => e.stopPropagation()}>
         <OrderHeader
@@ -267,7 +268,8 @@ const OrderDetailModal = ({
           />
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

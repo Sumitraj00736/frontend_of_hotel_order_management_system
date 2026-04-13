@@ -117,7 +117,7 @@ const AdminSidebar = ({
   const activeBranchId = getBranchId() || branches[0]?.branchId || branches[0]?._id;
   const activeBranch = branches.find((b) => (b.branchId || b._id) === activeBranchId);
   const restaurantName =
-    activeBranch?.branchName || user?.restaurantName || user?.name || 'Restaurant';
+    activeBranch?.orgName || branches[0]?.orgName || user?.orgName || user?.organizationName || user?.restaurantName || user?.name || 'Restaurant';
 
   useEffect(() => {
     const handleResize = () => {
@@ -291,7 +291,7 @@ const AdminSidebar = ({
                   <button
                     key={link.id}
                     className={`sidebar-button sub ${activeSection === link.id ? 'active' : ''}`}
-                    onClick={() => onSelect?.(link.id)}
+                    onClick={() => handleSelect(link.id)}
                   >
                     <span className="sidebar-sub-icon">{link.icon}</span>
                     <span className="sidebar-label">{link.label}</span>

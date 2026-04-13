@@ -42,7 +42,8 @@ const SettingsSidebar = ({ active, onSelect, onBack }) => {
   const branches = getBranches() || [];
   const activeBranchId = getBranchId() || branches[0]?.branchId || branches[0]?._id;
   const activeBranch = branches.find((b) => (b.branchId || b._id) === activeBranchId);
-  const restaurantName = activeBranch?.branchName || user?.restaurantName || user?.name || 'Restaurant';
+  const restaurantName =
+    activeBranch?.orgName || branches[0]?.orgName || user?.orgName || user?.organizationName || user?.restaurantName || user?.name || 'Restaurant';
 
   return (
     <div className="sidebar admin-sidebar slide open">
