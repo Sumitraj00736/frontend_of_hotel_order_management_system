@@ -73,7 +73,9 @@ const AdminDashboard = () => {
   const branches = getBranches() || [];
   const activeBranchId = getBranchId() || branches[0]?.branchId || branches[0]?._id;
   const activeBranch = branches.find((b) => (b.branchId || b._id) === activeBranchId);
-  const restaurantName = activeBranch?.branchName || currentUser?.restaurantName || currentUser?.name || 'Restaurant';
+  const orgName = activeBranch?.orgName || branches[0]?.orgName || currentUser?.orgName || currentUser?.organizationName;
+  const restaurantName =
+    orgName || currentUser?.restaurantName || currentUser?.name || 'Restaurant';
   const isSuperAdmin = currentUser?.role?.toLowerCase() === 'superadmin';
   const [ordersPage, setOrdersPage] = useState(1);
   const [ordersLimit, setOrdersLimit] = useState(12);
@@ -773,6 +775,7 @@ const AdminDashboard = () => {
       <AdminHeader
         isMobile={isMobile}
         sectionTitle={sectionTitle}
+        organizationName={orgName}
         restaurantName={restaurantName}
         branchOpen={branchOpen}
         onToggleBranch={() => setBranchOpen((prev) => !prev)}

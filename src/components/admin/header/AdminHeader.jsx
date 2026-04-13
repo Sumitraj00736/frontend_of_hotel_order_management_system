@@ -4,6 +4,7 @@ import { ChevronDown, LogOut } from 'lucide-react';
 const AdminHeader = ({
   isMobile = false,
   sectionTitle = 'Admin',
+  organizationName,
   restaurantName = 'Restaurant',
   branchOpen = false,
   onToggleBranch,
@@ -13,18 +14,25 @@ const AdminHeader = ({
   onLogout
 }) => {
   if (!isMobile) return null;
+  const displayName = organizationName || restaurantName || 'Restaurant';
 
   return (
     <header className="mobile-admin-topbar">
       <div className="mobile-admin-header-row">
         <div className="mobile-branch-branding" onClick={onToggleBranch}>
-          <div className="mobile-branch-logo">{restaurantName.charAt(0).toUpperCase()}</div>
+          <div className="mobile-branch-logo">{displayName.charAt(0).toUpperCase()}</div>
           <div className="mobile-branch-info">
             <div className="mobile-branch-name">
-              {restaurantName}
+              {displayName}
               <ChevronDown size={12} className={`mobile-branch-chevron ${branchOpen ? 'open' : ''}`} />
             </div>
-            <div className="mobile-branch-badge">Premium</div>
+            <div className="mobile-branch-meta-row">
+              <div className="mobile-branch-badge">Premium</div>
+              <div className="mobile-branch-live">
+                <span className="mobile-live-dot" />
+                Live
+              </div>
+            </div>
           </div>
           {branchOpen && (
             <div className="mobile-branch-dropdown">
@@ -53,7 +61,9 @@ const AdminHeader = ({
           </button>
         </div>
       </div>
-      <div className="mobile-topbar-title">{sectionTitle}</div>
+      <div className="mobile-topbar-title-wrap">
+        <div className="mobile-topbar-title">{sectionTitle}</div>
+      </div>
     </header>
   );
 };

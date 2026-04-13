@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../../../api/client.js';
-import { getBranchId, updateBranchName } from '../../../api/session.js';
 import RestaurantDetails from './general/RestaurantDetails.jsx';
 import TaxRates from './general/TaxRates.jsx';
 import NotificationSettings from './general/NotificationSettings.jsx';
@@ -125,10 +124,6 @@ const AdminSettings = ({ activeView }) => {
           value={restaurantDetails}
           onSave={async (payload) => {
             const res = await api.put('/api/settings/restaurant-details', payload);
-            const branchId = getBranchId();
-            if (payload?.name && branchId) {
-              updateBranchName(branchId, payload.name);
-            }
             setRestaurantDetails(res.data || payload);
           }}
         />
