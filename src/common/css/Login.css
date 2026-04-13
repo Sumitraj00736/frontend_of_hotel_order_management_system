@@ -115,3 +115,30 @@
   color: red;
   margin-bottom: 10px;
 }
+
+@media (max-width: 768px) {
+  .login-card {
+    width: min(92vw, 380px);
+    padding: 24px;
+  }
+
+  .brand {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .toggle button,
+  .input,
+  .login-btn,
+  .error-text {
+    font-size: 13px;
+  }
+
+  .input,
+  .login-btn {
+    padding: 10px;
+  }
+}

@@ -458,7 +458,7 @@ const WaiterApp = () => {
         )}
 
         {activeSection === 'orders' && can('orders:view') && (
-          <div className="content">
+          <div className="content waiter-orders-content">
             <div className="d-flex align-items-center mb-4 p-1 bg-white rounded-pill shadow-sm position-relative order-toggle-container" style={{ border: '1px solid #e2e8f0' }}>
               <div 
                 className="position-absolute bg-primary rounded-pill"
@@ -473,15 +473,15 @@ const WaiterApp = () => {
                 }}
               />
               <button 
-                className={`btn border-0 fw-bold position-relative flex-grow-1 ${orderViewMode === 'myOrders' ? 'text-white' : 'text-secondary'}`}
-                style={{ zIndex: 1, transition: 'color 0.3s', padding: '8px 0' }}
+                className={`btn border-0 fw-bold position-relative flex-grow-1 waiter-order-toggle-btn ${orderViewMode === 'myOrders' ? 'text-white' : 'text-secondary'}`}
+                style={{ zIndex: 1, transition: 'color 0.3s', padding: '6px 0' }}
                 onClick={() => setOrderViewMode('myOrders')}
               >
                 My Orders
               </button>
               <button 
-                className={`btn border-0 fw-bold position-relative flex-grow-1 ${orderViewMode === 'allOrders' ? 'text-white' : 'text-secondary'}`}
-                style={{ zIndex: 1, transition: 'color 0.3s', padding: '8px 0' }}
+                className={`btn border-0 fw-bold position-relative flex-grow-1 waiter-order-toggle-btn ${orderViewMode === 'allOrders' ? 'text-white' : 'text-secondary'}`}
+                style={{ zIndex: 1, transition: 'color 0.3s', padding: '6px 0' }}
                 onClick={() => setOrderViewMode('allOrders')}
               >
                 All Orders
