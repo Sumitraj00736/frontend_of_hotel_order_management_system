@@ -1,7 +1,7 @@
 import React from 'react';
-import { Mail, Briefcase, Calendar, DollarSign, Clock } from 'lucide-react';
+import { Mail, Calendar, DollarSign, Clock, LogOut } from 'lucide-react';
 
-const WaiterProfile = ({ profile }) => (
+const WaiterProfile = ({ profile, onLogout }) => (
   <div className="analytics-card-container w-100 h-100">
     <h4 className="fw-bold mb-4" style={{ color: '#0f172a' }}>Personal Details</h4>
     <div style={{ background: '#fff', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', overflow: 'hidden' }}>
@@ -59,6 +59,28 @@ const WaiterProfile = ({ profile }) => (
             <div style={{ fontSize: '16px', color: '#0f172a', fontWeight: '700' }}>{profile?.shiftStart || '--'} to {profile?.shiftEnd || '--'}</div>
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={onLogout}
+          style={{
+            marginTop: '6px',
+            border: '1px solid #fecaca',
+            borderRadius: '12px',
+            background: '#fff5f5',
+            color: '#b91c1c',
+            padding: '12px 14px',
+            fontSize: '14px',
+            fontWeight: '700',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}
+        >
+          <LogOut size={16} />
+          Logout
+        </button>
 
       </div>
     </div>

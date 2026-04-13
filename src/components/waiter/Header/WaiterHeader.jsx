@@ -1,7 +1,8 @@
 import React from 'react';
+import { LogOut } from 'lucide-react';
 import '../../../common/css/waiter/waiterHeader.css';
 
-const WaiterHeader = ({ user }) => {
+const WaiterHeader = ({ user, onLogout }) => {
   const waiterName = user?.name || user?.fullName || 'Waiter';
 
   return (
@@ -29,6 +30,9 @@ const WaiterHeader = ({ user }) => {
           <div className="brand-logo-box-mini">
             <span className="brand-v-mini">V</span>
           </div>
+          <button type="button" className="waiter-header-logout-btn" onClick={onLogout} aria-label="Logout">
+            <LogOut size={14} />
+          </button>
         </div>
       </div>
     </header>

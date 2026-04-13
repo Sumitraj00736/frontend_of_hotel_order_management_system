@@ -3,7 +3,7 @@ import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed } from 'lucide
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
-import { getBranchPermissions, getBranchRole, getCurrentUser } from '../api/session.js';
+import { clearSession, getBranchPermissions, getBranchRole, getCurrentUser } from '../api/session.js';
 import { WAITER_ALLOWED_PERMISSIONS } from '../common/permissions.js';
 import WaiterSidebar from '../components/waiter/Sidebar/WaiterSidebar.jsx';
 import WaiterCart from '../components/waiter/Cart/WaiterCart.jsx';
@@ -299,6 +299,10 @@ const WaiterApp = () => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const showFloatingCart = activeSection === 'dashboard' || activeSection === 'menu';
+  const handleLogout = () => {
+    clearSession();
+    window.location.href = '/login';
+  };
 
   return (
     <div className="admin-shell">
@@ -408,7 +412,7 @@ const WaiterApp = () => {
 
         {/* Global Mobile Header - Persistent across all tabs */}
         <div className="d-md-none">
-          <WaiterHeader user={currentUser} onClose={() => setSidebarOpen((prev) => !prev)} />
+          <WaiterHeader user={currentUser} onLogout={handleLogout} />
         </div>
 
         {activeSection === 'dashboard' && can('dashboard:view') && (
@@ -514,7 +518,7 @@ const WaiterApp = () => {
 
         {activeSection === 'profile' && (
           <div className="content grid-3">
-            <WaiterProfile profile={profile} />
+            <WaiterProfile profile={profile} onLogout={handleLogout} />
             <WaiterAnalytics analytics={myAnalytics} />
             <WaiterPromotionTimeline promotions={promotions} />
           </div>
