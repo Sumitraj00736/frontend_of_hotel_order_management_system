@@ -50,15 +50,15 @@ const AdminTableList = ({ tables = [], spaces = [], tableForm, setTableForm, onC
         </div>
         {tables.map((t, idx) => (
           <div key={t._id} className="tables-row">
-            <span>{idx + 1}</span>
-            <span>{t.name || `Table ${t.tableNumber}`}</span>
-            <span>{t.type || 'table'}</span>
-            <span>{spaceMap.get(t.spaceId)?.name || '-'}</span>
-            <span>{t.capacity ?? '-'}</span>
-            <span>{t.charge ?? '-'}</span>
-            <span>{t.status}</span>
-            <span>{t.active === false ? 'No' : 'Yes'}</span>
-            <div className="tables-row-actions">
+            <span className="tables-cell" data-label="SN">{idx + 1}</span>
+            <span className="tables-cell" data-label="Table Name">{t.name || `Table ${t.tableNumber}`}</span>
+            <span className="tables-cell" data-label="Type">{t.type || 'table'}</span>
+            <span className="tables-cell" data-label="Space">{spaceMap.get(t.spaceId)?.name || '-'}</span>
+            <span className="tables-cell" data-label="Capacity">{t.capacity ?? '-'}</span>
+            <span className="tables-cell" data-label="Charge">{t.charge ?? '-'}</span>
+            <span className="tables-cell" data-label="Status">{t.status}</span>
+            <span className="tables-cell" data-label="Available">{t.active === false ? 'No' : 'Yes'}</span>
+            <div className="tables-row-actions" data-label="Actions">
               <button className="btn btn-sm btn-outline-light" onClick={() => onUpdateTable?.(t._id, { status: t.status === 'occupied' ? 'available' : 'occupied' })}>
                 Toggle
               </button>
