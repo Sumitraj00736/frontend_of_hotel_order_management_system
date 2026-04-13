@@ -141,6 +141,13 @@ const AdminSidebar = ({
     }
   };
 
+  const handleToggleMenu = (menu) => {
+    setMenuOpen((value) => (menu === 'menu' ? !value : false));
+    setInventoryOpen((value) => (menu === 'inventory' ? !value : false));
+    setReportsOpen((value) => (menu === 'reports' ? !value : false));
+    setTablesOpen((value) => (menu === 'tables' ? !value : false));
+  };
+
   const renderCollapsedPopover = (id, title, links) => {
     if (isOpen || hoveredMenu !== id || isMobile) return null;
 
@@ -255,7 +262,7 @@ const AdminSidebar = ({
           {hasPermission('tables:view') && (
             <button
               className={`sidebar-button ${activeSection.startsWith('tables') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-              onClick={() => (isOpen ? setTablesOpen((v) => !v) : setHoveredMenu('tables'))}
+                onClick={() => (isOpen ? handleToggleMenu('tables') : setHoveredMenu('tables'))}
               title="TABLE & SPACE"
             >
               <span className="sidebar-icon">{iconMap.tables}</span>
@@ -301,7 +308,7 @@ const AdminSidebar = ({
                 className={`sidebar-button ${
                   activeSection.startsWith('menu') ? 'active' : ''
                 } ${isOpen ? '' : 'compact'}`}
-                onClick={() => (isOpen ? setMenuOpen((v) => !v) : setHoveredMenu('menu'))}
+                onClick={() => (isOpen ? handleToggleMenu('menu') : setHoveredMenu('menu'))}
                 title="MENU"
               >
                 <span className="sidebar-icon">{iconMap.menus}</span>
@@ -382,7 +389,7 @@ const AdminSidebar = ({
                 className={`sidebar-button ${
                   activeSection.startsWith('inventory') ? 'active' : ''
                 } ${isOpen ? '' : 'compact'}`}
-                onClick={() => (isOpen ? setInventoryOpen((v) => !v) : setHoveredMenu('inventory'))}
+                onClick={() => (isOpen ? handleToggleMenu('inventory') : setHoveredMenu('inventory'))}
                 title="INVENTORY"
               >
                 <span className="sidebar-icon">{iconMap.inventory}</span>
@@ -447,7 +454,7 @@ const AdminSidebar = ({
                 className={`sidebar-button ${
                   activeSection.startsWith('reports') ? 'active' : ''
                 } ${isOpen ? '' : 'compact'}`}
-                onClick={() => (isOpen ? setReportsOpen((v) => !v) : setHoveredMenu('reports'))}
+                onClick={() => (isOpen ? handleToggleMenu('reports') : setHoveredMenu('reports'))}
                 title="REPORTS"
               >
                 <span className="sidebar-icon">{iconMap.reports}</span>
