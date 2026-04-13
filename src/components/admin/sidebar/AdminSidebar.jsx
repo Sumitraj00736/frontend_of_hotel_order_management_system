@@ -148,6 +148,15 @@ const AdminSidebar = ({
     setTablesOpen((value) => (menu === 'tables' ? !value : false));
   };
 
+  const getProfilePopoverStyle = () => {
+    if (isMobile) return undefined;
+    return {
+      position: 'fixed',
+      left: `${isOpen ? 260 : 78}px`,
+      bottom: '70px'
+    };
+  };
+
   const renderCollapsedPopover = (id, title, links) => {
     if (isOpen || hoveredMenu !== id || isMobile) return null;
 
@@ -572,7 +581,7 @@ const AdminSidebar = ({
           </button>
 
           {profileOpen && (
-            <div className="profile-popover">
+            <div className="profile-popover" style={getProfilePopoverStyle()}>
               <div className="profile-popover-body">
                 <button className="sidebar-button sub" onClick={() => setProfileOpen(false)}>
                   <span className="sidebar-icon"><UserRound size={14} /></span>
