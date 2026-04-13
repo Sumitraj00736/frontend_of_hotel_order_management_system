@@ -1,11 +1,13 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../api/client.js';
-import { BarChart3, Bell, BookOpen, Boxes, ChevronDown, Globe, Grid2x2, History, Home, ListChecks, LogOut, Settings, Table2, Users, X } from 'lucide-react';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import { createSocket } from '../api/socket.js';
 import AdminSidebar from '../components/admin/sidebar/AdminSidebar.jsx';
 import { clearSession, getBranchId, getBranches, getCurrentUser, hasPermission, setBranchId } from '../api/session.js';
+import AdminHeader from '../components/admin/header/AdminHeader.jsx';
+import AdminMobileNavigation from '../components/admin/mobile/AdminMobileNavigation.jsx';
+import AdminMobileSettingsTabs from '../components/admin/mobile/AdminMobileSettingsTabs.jsx';
 import AdminOverview from '../components/admin/dashboard/AdminOverview.jsx';
 import AdminOrders from '../components/admin/orders/adminOrders/AdminOrders.jsx';
 import AdminUsers from '../components/admin/users/AdminUsers.jsx';
@@ -30,21 +32,6 @@ import '../common/css/admin/common/adminLayout.css';
 import '../common/css/admin/common/adminResponsive.css';
 
 const AdminDashboard = () => {
-  const mobileSettingsViews = [
-    { id: 'restaurant-details', label: 'Restaurant' },
-    { id: 'tax-rates', label: 'Tax' },
-    { id: 'notifications', label: 'Notifications' },
-    { id: 'activity-log', label: 'Activity' },
-    { id: 'department', label: 'Department' },
-    { id: 'billing', label: 'Billing' },
-    { id: 'users-role', label: 'Roles' },
-    { id: 'trash', label: 'Trash' },
-    { id: 'invoice-setting', label: 'Invoice' },
-    { id: 'kot-setting', label: 'KOT' },
-    { id: 'printer', label: 'Printer' },
-    { id: 'support', label: 'Support' },
-    { id: 'release', label: 'Release' }
-  ];
   const [activeSection, setActiveSection] = useState('dashboard');
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
@@ -75,8 +62,6 @@ const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
   const [branchOpen, setBranchOpen] = useState(false);
-  const [mobileMenuSheetOpen, setMobileMenuSheetOpen] = useState(false);
-  const mobileNavTouchStartY = useRef(0);
   const [financeFilters, setFinanceFilters] = useState({ dateFrom: '', dateTo: '' });
   const [dashboardOptions, setDashboardOptions] = useState({
     includeAnalytics: false,
@@ -748,57 +733,6 @@ const AdminDashboard = () => {
     };
     return map[activeSection] || 'Admin';
   }, [activeSection]);
-  const mobileMenuItems = useMemo(() => {
-    const tabs = [
-      { key: 'dashboard', label: 'Home', icon: Home, match: (section) => section === 'dashboard', permission: 'dashboard:view' },
-      { key: 'orders', label: 'Orders', icon: ListChecks, match: (section) => section === 'orders', permission: 'orders:view' },
-      { key: 'users', label: 'Users', icon: Users, match: (section) => section === 'users', permission: 'staff:view' },
-      { key: 'customers', label: 'Customers', icon: Users, match: (section) => section === 'customers', permission: 'customers:view' },
-      { key: 'tables:table', label: 'Tables', icon: Table2, match: (section) => section.startsWith('tables'), permission: 'tables:view' },
-      { key: 'menu:dishes', label: 'Menu', icon: BookOpen, match: (section) => section.startsWith('menu'), permission: 'menu:view' },
-      { key: 'inventory:ingredients', label: 'Stock', icon: Boxes, match: (section) => section.startsWith('inventory'), permission: 'inventory:view' },
-      { key: 'reports:company', label: 'Reports', icon: BarChart3, match: (section) => section.startsWith('reports'), permission: 'reports:view' },
-      { key: 'history', label: 'History', icon: History, match: (section) => section === 'history', permission: 'reports:view' },
-      { key: 'website', label: 'Website', icon: Globe, match: (section) => section === 'website', permission: 'website:view' },
-      { key: 'notifications', label: 'Alerts', icon: Bell, match: (section) => section === 'notifications', permission: 'notifications:view' },
-      { key: 'settings:restaurant-details', label: 'Settings', icon: Settings, match: (section) => section.startsWith('settings'), permission: 'settings:view' }
-    ];
-    return tabs.filter((tab) => hasPermission(tab.permission));
-  }, []);
-  const mobileSectionSubTabs = useMemo(() => {
-    if (activeSection.startsWith('tables')) {
-      return [
-        { id: 'tables:table', label: 'Table' },
-        { id: 'tables:space', label: 'Space' },
-        { id: 'tables:qr', label: 'QR Codes' }
-      ];
-    }
-    if (activeSection.startsWith('menu')) {
-      return [
-        { id: 'menu:dishes', label: 'Dishes' },
-        { id: 'menu:categories', label: 'Categories' },
-        { id: 'menu:addons', label: 'Add-Ons' },
-        { id: 'menu:submenus', label: 'Sub Menu' },
-        { id: 'menu:combos', label: 'Combos' }
-      ];
-    }
-    if (activeSection.startsWith('inventory')) {
-      return [
-        { id: 'inventory:ingredients', label: 'Ingredients' },
-        { id: 'inventory:recipes', label: 'Recipes' },
-        { id: 'inventory:transactions', label: 'Transactions' }
-      ];
-    }
-    if (activeSection.startsWith('reports')) {
-      return [
-        { id: 'reports:company', label: 'Company' },
-        { id: 'reports:waiter', label: 'Waiter' },
-        { id: 'reports:kitchen', label: 'Kitchen' },
-        { id: 'reports:stock', label: 'Stock' }
-      ];
-    }
-    return [];
-  }, [activeSection]);
 
   const frequentItems = useMemo(() => {
     const itemCounts = {};
@@ -820,83 +754,28 @@ const AdminDashboard = () => {
     setSidebarOpen(!isMobile);
   }, [isMobile]);
 
-  useEffect(() => {
-    if (!isMobile) {
-      setMobileMenuSheetOpen(false);
-      return;
-    }
-    document.body.style.overflow = mobileMenuSheetOpen ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isMobile, mobileMenuSheetOpen]);
-
   const handleMobileLogout = () => {
     clearSession();
     window.location.href = '/login';
   };
-  const isMoreSectionActive = useMemo(() => {
-    return !(
-      activeSection === 'dashboard' ||
-      activeSection === 'orders' ||
-      activeSection.startsWith('tables') ||
-      activeSection.startsWith('menu')
-    );
-  }, [activeSection]);
-  const mobilePrimaryTabs = useMemo(() => {
-    const tabs = [
-      { key: 'dashboard', label: 'Home', icon: Home, match: (section) => section === 'dashboard', permission: 'dashboard:view' },
-      { key: 'orders', label: 'Orders', icon: ListChecks, match: (section) => section === 'orders', permission: 'orders:view' },
-      { key: 'tables:table', label: 'Tables', icon: Table2, match: (section) => section.startsWith('tables'), permission: 'tables:view' },
-      { key: 'menu:dishes', label: 'Menu', icon: BookOpen, match: (section) => section.startsWith('menu'), permission: 'menu:view' }
-    ];
-    return tabs.filter((tab) => hasPermission(tab.permission));
-  }, []);
 
   return (
     <div className={`admin-shell ${isMobile ? 'mobile-app-shell' : ''}`}>
       <NotificationToasts notifications={toasts} />
-      {isMobile && (
-        <header className="mobile-admin-topbar">
-          <div className="mobile-admin-header-row">
-            <div className="mobile-branch-branding" onClick={() => setBranchOpen((prev) => !prev)}>
-              <div className="mobile-branch-logo">{restaurantName.charAt(0).toUpperCase()}</div>
-              <div className="mobile-branch-info">
-                <div className="mobile-branch-name">
-                  {restaurantName}
-                  <ChevronDown size={12} className={`mobile-branch-chevron ${branchOpen ? 'open' : ''}`} />
-                </div>
-                <div className="mobile-branch-badge">Premium</div>
-              </div>
-              {branchOpen && (
-                <div className="mobile-branch-dropdown">
-                  {branches.map((b) => (
-                    <button
-                      key={b.branchId || b._id}
-                      className={`mobile-branch-option ${activeBranchId === (b.branchId || b._id) ? 'active' : ''}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setBranchId(b.branchId || b._id);
-                        window.location.reload();
-                      }}
-                    >
-                      {b.branchName || b.name || b.code || 'Branch'}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="mobile-admin-branding">
-              <span className="mobile-admin-brand-text">merorestro</span>
-              <span className="mobile-admin-brand-mark">V</span>
-              <button type="button" className="mobile-admin-logout-btn" onClick={handleMobileLogout} aria-label="Log out">
-                <LogOut size={14} />
-              </button>
-            </div>
-          </div>
-          <div className="mobile-topbar-title">{sectionTitle}</div>
-        </header>
-      )}
+      <AdminHeader
+        isMobile={isMobile}
+        sectionTitle={sectionTitle}
+        restaurantName={restaurantName}
+        branchOpen={branchOpen}
+        onToggleBranch={() => setBranchOpen((prev) => !prev)}
+        branches={branches}
+        activeBranchId={activeBranchId}
+        onSelectBranch={(branch) => {
+          setBranchId(branch.branchId || branch._id);
+          window.location.reload();
+        }}
+        onLogout={handleMobileLogout}
+      />
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
           {activeSection.startsWith('settings') && !isMobile ? (
@@ -1052,20 +931,11 @@ const AdminDashboard = () => {
           {activeSection.startsWith('settings') && hasPermission('settings:view') && (
             <>
               {isMobile && (
-                <div className="mobile-settings-tabs">
-                  {mobileSettingsViews.map((view) => (
-                    <button
-                      key={view.id}
-                      type="button"
-                      className={`mobile-settings-tab ${
-                        (activeSection.split(':')[1] || 'restaurant-details') === view.id ? 'active' : ''
-                      }`}
-                      onClick={() => setActiveSection(`settings:${view.id}`)}
-                    >
-                      {view.label}
-                    </button>
-                  ))}
-                </div>
+                <AdminMobileSettingsTabs
+                  isMobile={isMobile}
+                  activeView={activeSection.split(':')[1] || 'restaurant-details'}
+                  onSelect={(view) => setActiveSection(`settings:${view}`)}
+                />
               )}
               <AdminSettings
                 activeView={activeSection.split(':')[1] || 'restaurant-details'}
@@ -1159,96 +1029,12 @@ const AdminDashboard = () => {
           {activeSection === 'history' && hasPermission('reports:view') && <AdminHistory history={history} />}
         </div>
       </div>
-      {isMobile && (
-        <>
-          <nav
-            className="mobile-admin-bottom-nav mobile-five-nav"
-            aria-label="Admin quick navigation"
-            onTouchStart={(event) => {
-              mobileNavTouchStartY.current = event.changedTouches[0]?.clientY || 0;
-            }}
-            onTouchEnd={(event) => {
-              const endY = event.changedTouches[0]?.clientY || 0;
-              if (mobileNavTouchStartY.current - endY > 36) {
-                setMobileMenuSheetOpen(true);
-              }
-            }}
-          >
-            {mobilePrimaryTabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.key}
-                  type="button"
-                  className={`mobile-nav-item ${tab.match(activeSection) ? 'active' : ''}`}
-                  onClick={() => {
-                    setActiveSection(tab.key);
-                    setMobileMenuSheetOpen(false);
-                  }}
-                >
-                  <Icon size={17} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              className={`mobile-nav-item ${mobileMenuSheetOpen || isMoreSectionActive ? 'active' : ''}`}
-              onClick={() => setMobileMenuSheetOpen((prev) => !prev)}
-            >
-              <Grid2x2 size={17} />
-              <span>More</span>
-            </button>
-          </nav>
-
-          {mobileMenuSheetOpen && <div className="mobile-menu-sheet-backdrop" onClick={() => setMobileMenuSheetOpen(false)} />}
-          <div className={`mobile-menu-sheet ${mobileMenuSheetOpen ? 'open' : ''}`} aria-hidden={!mobileMenuSheetOpen}>
-            <div className="mobile-menu-sheet-handle" />
-            <div className="mobile-menu-sheet-head">
-              <strong>All Menu</strong>
-              <button type="button" className="mobile-menu-sheet-close" onClick={() => setMobileMenuSheetOpen(false)}>
-                <X size={16} />
-              </button>
-            </div>
-            {mobileSectionSubTabs.length > 0 && (
-              <div className="mobile-menu-subtabs">
-                {mobileSectionSubTabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    className={`mobile-menu-subtab ${activeSection === tab.id ? 'active' : ''}`}
-                    onClick={() => {
-                      setActiveSection(tab.id);
-                      setMobileMenuSheetOpen(false);
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            )}
-            <div className="mobile-menu-sheet-grid">
-              {mobileMenuItems.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    className={`mobile-menu-sheet-item ${tab.match(activeSection) ? 'active' : ''}`}
-                    onClick={() => {
-                      setActiveSection(tab.key);
-                      setMobileMenuSheetOpen(false);
-                    }}
-                  >
-                    <Icon size={16} />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </>
-      )}
+      <AdminMobileNavigation
+        isMobile={isMobile}
+        activeSection={activeSection}
+        onChangeSection={setActiveSection}
+        canAccess={hasPermission}
+      />
     </div>
   );
 };
