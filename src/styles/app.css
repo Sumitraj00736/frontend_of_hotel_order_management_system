@@ -115,8 +115,118 @@ a:visited {
 }
 .reports-grid .tall { min-height: 200px; }
 .reports-grid .span-2 { grid-column: span 2; }
+.report-chart-box {
+  width: 100%;
+  height: 220px;
+}
+.report-chart-box.report-chart-box-tall {
+  height: 240px;
+}
+.reports-grid-stock {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+.reports-grid-stock > .stock-card-consumers {
+  grid-column: span 7;
+}
+.reports-grid-stock > .stock-card-low {
+  grid-column: span 5;
+}
+.reports-grid-stock > .stock-card-usage,
+.reports-grid-stock > .stock-card-restocks {
+  grid-column: span 12;
+}
+.stock-table-wrap table {
+  min-width: 560px;
+}
+
+.reports-grid-company > .span-2 {
+  grid-column: span 6;
+}
+
+.reports-grid-waiter > .span-2 {
+  grid-column: span 6;
+}
+
+.reports-grid-kitchen .reports-kitchen-row {
+  margin: 0;
+}
+
+.reports-grid-kitchen .reports-kitchen-row > [class*='col-'] {
+  display: flex;
+}
+
+.reports-grid-kitchen .reports-kitchen-row > [class*='col-'] > .stat-card {
+  width: 100%;
+}
 @media (max-width: 960px) {
+  .reports-grid {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .reports-grid-stock {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .reports-grid-stock > .stock-card-consumers,
+  .reports-grid-stock > .stock-card-low,
+  .reports-grid-stock > .stock-card-usage,
+  .reports-grid-stock > .stock-card-restocks {
+    grid-column: span 2;
+  }
+  .reports-grid-company > .span-2,
+  .reports-grid-waiter > .span-2 {
+    grid-column: span 2;
+  }
   .reports-grid .span-2 { grid-column: span 1; }
+  .reports-card {
+    gap: 12px;
+  }
+  .reports-grid .stat-card {
+    padding: 12px;
+  }
+  .report-chart-box {
+    height: 190px;
+  }
+  .report-chart-box.report-chart-box-tall {
+    height: 210px;
+  }
+}
+
+@media (max-width: 640px) {
+  .reports-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .reports-grid-stock {
+    grid-template-columns: 1fr;
+  }
+  .reports-grid-stock > .stock-card-consumers,
+  .reports-grid-stock > .stock-card-low,
+  .reports-grid-stock > .stock-card-usage,
+  .reports-grid-stock > .stock-card-restocks {
+    grid-column: span 1;
+  }
+  .reports-grid-company > .span-2,
+  .reports-grid-waiter > .span-2 {
+    grid-column: span 1;
+  }
+  .reports-grid .stat-card {
+    padding: 10px;
+    border-radius: 10px;
+  }
+  .report-chart-box {
+    height: 165px;
+  }
+  .report-chart-box.report-chart-box-tall {
+    height: 180px;
+  }
+  .reports-card h5 {
+    font-size: 14px;
+  }
+  .reports-card .form-control,
+  .reports-card .form-select,
+  .reports-card .btn {
+    font-size: 11px;
+  }
 }
 
 .card.glass-card {

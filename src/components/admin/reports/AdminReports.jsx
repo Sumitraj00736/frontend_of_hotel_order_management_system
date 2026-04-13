@@ -51,7 +51,7 @@ const ChartCard = ({ title, icon, children }) => (
       {icon}
       <h6 className="mb-0">{title}</h6>
     </div>
-    <div style={{ width: '100%', height: 220 }}>{children}</div>
+    <div className="report-chart-box">{children}</div>
   </div>
 );
 
@@ -152,7 +152,7 @@ const AdminReports = ({
       <h5 className="mb-3">Reports & Analytics</h5>
 
       {view === 'company' && (
-        <div className="reports-grid">
+        <div className="reports-grid reports-grid-company">
           <div className="stat-card span-2">
             <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
               <div className="fw-semibold">Finance Filters</div>
@@ -374,7 +374,7 @@ const AdminReports = ({
       )}
 
       {view === 'waiter' && (
-        <div className="reports-grid">
+        <div className="reports-grid reports-grid-waiter">
           <PerformanceList title="Last 1 Month" data={analytics?.waiterPerformance?.last1Month || []} />
           <PerformanceList title="Last 3 Months" data={analytics?.waiterPerformance?.last3Months || []} />
           <PerformanceList title="Last 6 Months" data={analytics?.waiterPerformance?.last6Months || []} />
@@ -438,7 +438,7 @@ const AdminReports = ({
                 </select>
               </div>
             </div>
-            <div style={{ width: '100%', height: 260 }}>
+            <div className="report-chart-box report-chart-box-tall">
               <ResponsiveContainer>
                 <LineChart data={waiterLine}>
                   <XAxis dataKey={trendRange === 'week' ? 'day' : 'month'} />
@@ -459,8 +459,8 @@ const AdminReports = ({
       )}
 
       {view === 'kitchen' && (
-        <div className="d-flex flex-column gap-4">
-          <div className="row g-3">
+        <div className="d-flex flex-column gap-4 reports-grid-kitchen">
+          <div className="row g-3 reports-kitchen-row">
             <div className="col-12 col-md-4">
               <PerformanceList title="Last 1 Month" data={analytics?.kitchenPerformance?.last1Month || []} />
             </div>
@@ -472,7 +472,7 @@ const AdminReports = ({
             </div>
           </div>
 
-          <div className="row g-3">
+          <div className="row g-3 reports-kitchen-row">
             <div className="col-12 col-lg-4">
               <ChartCard title="Kitchen Sales Share">
                 <ResponsiveContainer>
@@ -533,7 +533,7 @@ const AdminReports = ({
                 </select>
               </div>
             </div>
-            <div style={{ width: '100%', height: 240 }}>
+            <div className="report-chart-box report-chart-box-tall">
               <ResponsiveContainer>
                 <LineChart data={kitchenLine}>
                   <XAxis dataKey={trendRange === 'week' ? 'day' : 'month'} />
@@ -550,19 +550,21 @@ const AdminReports = ({
       )}
 
       {view === 'stock' && (
-        <div className="reports-grid">
-          <ChartCard title="Top Consumers" icon={<BarChart3 size={16} />}>
-            <ResponsiveContainer>
-              <BarChart data={(stockData.topConsumers || []).map((i) => ({ name: i.name || 'Ingredient', qty: i.totalConsumed }))}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="qty" fill={CHART_COLORS[0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
+        <div className="reports-grid reports-grid-stock">
+          <div className="stock-card-consumers">
+            <ChartCard title="Top Consumers" icon={<BarChart3 size={16} />}>
+              <ResponsiveContainer>
+                <BarChart data={(stockData.topConsumers || []).map((i) => ({ name: i.name || 'Ingredient', qty: i.totalConsumed }))}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="qty" fill={CHART_COLORS[0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
 
-          <div className="stat-card">
+          <div className="stat-card stock-card-low">
             <div className="d-flex justify-content-between align-items-center mb-2">
               <h6 className="mb-0">Low Stock</h6>
               <span className="pill-amber pill">Count: {stockData.lowStock?.length || 0}</span>
@@ -579,9 +581,9 @@ const AdminReports = ({
             </div>
           </div>
 
-          <div className="stat-card span-2">
+          <div className="stat-card span-2 stock-card-usage">
             <h6 className="mb-2">Usage vs Restock</h6>
-            <div className="scrollable-tight">
+            <div className="scrollable-tight stock-table-wrap">
               <table className="table table-sm align-middle">
                 <thead>
                   <tr>
@@ -605,7 +607,7 @@ const AdminReports = ({
             </div>
           </div>
 
-          <div className="stat-card span-2">
+          <div className="stat-card span-2 stock-card-restocks">
             <div className="d-flex justify-content-between align-items-center mb-2">
               <h6 className="mb-0">Restock History</h6>
               <span className="pill-neutral">Last 100</span>
