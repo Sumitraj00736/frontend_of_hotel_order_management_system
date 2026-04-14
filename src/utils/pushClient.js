@@ -73,3 +73,8 @@ export const unsubscribePush = async () => {
   await api.post('/api/push/unsubscribe', { deviceId });
   return { enabled: false };
 };
+
+export const sendTestPush = async () => {
+  const res = await api.post('/api/push/test', { title: 'Test Notification', body: 'Push is working ✅' });
+  return res.data;
+};

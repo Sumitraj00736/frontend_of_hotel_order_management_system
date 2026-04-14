@@ -171,6 +171,22 @@
   opacity: 0.5;
 }
 
+.settings-card .chip {
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #111827;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-card .chip:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .switch-lite {
   position: relative;
   width: 42px;

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { getPushStatus, isPushSupported, subscribePush, unsubscribePush } from '../../../../utils/pushClient.js';
+import { getPushStatus, isPushSupported, subscribePush, unsubscribePush, sendTestPush } from '../../../../utils/pushClient.js';
 
 const NotificationSettings = ({ value, onSave }) => {
   const [sound, setSound] = useState(value?.newOrderSound || 'default');
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushSupported, setPushSupported] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
+  const [testStatus, setTestStatus] = useState('');
 
   useEffect(() => {
     if (!value) return;
@@ -80,8 +81,25 @@ const NotificationSettings = ({ value, onSave }) => {
               />
               <span />
             </label>
+            <button
+              type="button"
+              className="chip"
+              disabled={!pushEnabled || pushLoading}
+              onClick={async () => {
+                setTestStatus('');
+                try {
+                  await sendTestPush();
+                  setTestStatus('Test sent');
+                } catch (err) {
+                  setTestStatus('Test failed');
+                }
+              }}
+            >
+              Test Push
+            </button>
           </div>
         </div>
+        {testStatus && <div className="settings-hint">{testStatus}</div>}
       </div>
     </div>
   );
