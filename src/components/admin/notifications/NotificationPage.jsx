@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { getPushStatus, isPushSupported, subscribePush, unsubscribePush } from '../../../utils/pushClient.js';
 import '../../../common/css/admin/notifications/notification.css';
 
 const tabs = [
@@ -24,6 +25,9 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
   const [tab, setTab] = useState(filters?.category || 'activity');
   const [filterOpen, setFilterOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('dateRange');
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
+  const [pushSupported, setPushSupported] = useState(false);
   const prevCountRef = useRef(notifications.length);
 
   const grouped = useMemo(() => {
@@ -60,6 +64,15 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
     prevCountRef.current = notifications.length;
   }, [notifications.length]);
 
+  useEffect(() => {
+    const supported = isPushSupported();
+    setPushSupported(supported);
+    if (!supported) return;
+    getPushStatus()
+      .then((res) => setPushEnabled(Boolean(res?.enabled)))
+      .catch(() => setPushEnabled(false));
+  }, []);
+
   const formatDayLabel = (date) => {
     const today = new Date();
     const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -80,6 +93,30 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
       <div className="notify-top">
         <h3 className="page-title mb-0">Notification</h3>
         <div className="notify-actions">
+          {pushSupported && (
+            <button
+              className={`notify-filter-toggle ${pushEnabled ? 'active' : ''}`}
+              onClick={async () => {
+                if (pushLoading) return;
+                setPushLoading(true);
+                try {
+                  if (pushEnabled) {
+                    await unsubscribePush();
+                    setPushEnabled(false);
+                  } else {
+                    await subscribePush();
+                    setPushEnabled(true);
+                  }
+                } catch (err) {
+                  // ignore for now
+                } finally {
+                  setPushLoading(false);
+                }
+              }}
+            >
+              {pushEnabled ? 'Push: On' : 'Push: Off'}
+            </button>
+          )}
           {tab === 'activity' && (
             <button
               className={`notify-filter-toggle ${filterOpen ? 'active' : ''}`}

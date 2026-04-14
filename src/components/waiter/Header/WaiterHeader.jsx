@@ -1,38 +1,72 @@
-import React from 'react';
-import { LogOut } from 'lucide-react';
-import '../../../common/css/waiter/waiterHeader.css';
+import React, { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import AdminProfileMenu from '../../admin/header/AdminProfileMenu.jsx';
+import { getBranches, getBranchId, setBranchId } from '../../../api/session.js';
+import '../../../common/css/admin/common/adminLayout.css';
 
 const WaiterHeader = ({ user, onLogout }) => {
-  const waiterName = user?.name || user?.fullName || 'Waiter';
+  const branches = getBranches();
+  const activeBranchId = getBranchId();
+  const [branchOpen, setBranchOpen] = useState(false);
+  const activeBranch =
+    branches.find((branch) => (branch.branchId || branch._id) === activeBranchId) || branches[0];
+  const displayName =
+    activeBranch?.branchName || activeBranch?.name || activeBranch?.code || user?.orgName || 'Restaurant';
+  const displayUser = user?.name || user?.fullName || 'Waiter';
 
   return (
-    <header className="waiter-mobile-header">
-      <div className="header-top-row">
-        <div className="branch-branding-group">
-          <div className="branch-logo-box">
-            <span className="branch-initial">{waiterName.charAt(0).toUpperCase()}</span>
-          </div>
-          <div className="branch-info-mini">
-            <div className="branch-name-mini">{waiterName}</div>
-            <div className="waiter-branch-meta-row">
-              <div className="premium-badge-mini">Waiter</div>
-              <div className="waiter-live-badge">
-                <span className="waiter-live-dot" />
+    <header className="mobile-admin-topbar">
+      <div className="mobile-admin-header-row">
+        <div
+          className="mobile-branch-branding"
+          onClick={() => setBranchOpen((prev) => !prev)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              setBranchOpen((prev) => !prev);
+            }
+          }}
+        >
+          <div className="mobile-branch-logo">{displayName.charAt(0).toUpperCase()}</div>
+          <div className="mobile-branch-info">
+            <div className="mobile-branch-name">
+              {displayName}
+              <ChevronDown size={12} className={`mobile-branch-chevron ${branchOpen ? 'open' : ''}`} />
+            </div>
+            <div className="mobile-branch-meta-row">
+              <div className="mobile-branch-badge">Waiter</div>
+              <div className="mobile-branch-live">
+                <span className="mobile-live-dot" />
                 Live
               </div>
             </div>
           </div>
+          {branchOpen && (
+            <div className="mobile-branch-dropdown">
+              {branches.map((branch) => {
+                const branchId = branch.branchId || branch._id;
+                return (
+                  <button
+                    key={branchId}
+                    className={`mobile-branch-option ${activeBranchId === branchId ? 'active' : ''}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setBranchId(branchId);
+                      setBranchOpen(false);
+                    }}
+                  >
+                    {branch.branchName || branch.name || branch.code || 'Branch'}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
-
-        {/* App Branding (Right) */}
-        <div className="app-branding-group">
-          <span className="brand-name-mini">merorestro</span>
-          <div className="brand-logo-box-mini">
-            <span className="brand-v-mini">V</span>
-          </div>
-          <button type="button" className="waiter-header-logout-btn" onClick={onLogout} aria-label="Logout">
-            <LogOut size={14} />
-          </button>
+        <div className="mobile-admin-branding">
+          <span className="mobile-admin-brand-text">merorestro</span>
+          <span className="mobile-admin-brand-mark">V</span>
+          <AdminProfileMenu user={{ ...user, name: displayUser }} organizationName={displayName} showSettingsMenu={false} onLogout={onLogout} />
         </div>
       </div>
     </header>
