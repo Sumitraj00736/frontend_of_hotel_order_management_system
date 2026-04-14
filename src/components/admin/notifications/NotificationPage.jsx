@@ -28,6 +28,7 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
   const [pushSupported, setPushSupported] = useState(false);
+  const [pushError, setPushError] = useState('');
   const prevCountRef = useRef(notifications.length);
 
   const grouped = useMemo(() => {
@@ -65,12 +66,37 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
   }, [notifications.length]);
 
   useEffect(() => {
-    const supported = isPushSupported();
-    setPushSupported(supported);
-    if (!supported) return;
-    getPushStatus()
-      .then((res) => setPushEnabled(Boolean(res?.enabled)))
-      .catch(() => setPushEnabled(false));
+    let mounted = true;
+    const load = async () => {
+      const supported = await isPushSupported();
+      if (!mounted) return;
+      setPushSupported(Boolean(supported));
+      if (!supported) return;
+      try {
+        const status = await getPushStatus();
+        if (!mounted) return;
+        if (status?.exists) {
+          setPushEnabled(Boolean(status?.enabled));
+          return;
+        }
+        if (Notification.permission !== 'denied') {
+          await subscribePush();
+          if (mounted) {
+            setPushEnabled(true);
+            setPushError('');
+          }
+        }
+      } catch (err) {
+        if (mounted) {
+          setPushEnabled(false);
+          setPushError(err?.message || 'Push setup failed');
+        }
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const formatDayLabel = (date) => {
@@ -94,28 +120,36 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
         <h3 className="page-title mb-0">Notification</h3>
         <div className="notify-actions">
           {pushSupported && (
-            <button
-              className={`notify-filter-toggle ${pushEnabled ? 'active' : ''}`}
-              onClick={async () => {
-                if (pushLoading) return;
-                setPushLoading(true);
-                try {
-                  if (pushEnabled) {
-                    await unsubscribePush();
-                    setPushEnabled(false);
-                  } else {
-                    await subscribePush();
-                    setPushEnabled(true);
-                  }
-                } catch (err) {
-                  // ignore for now
-                } finally {
-                  setPushLoading(false);
-                }
-              }}
-            >
-              {pushEnabled ? 'Push: On' : 'Push: Off'}
-            </button>
+            <div className={`notify-push-toggle ${pushEnabled ? 'on' : 'off'} ${pushLoading ? 'busy' : ''}`}>
+              <span>Push</span>
+              <label className="notify-switch">
+                <input
+                  type="checkbox"
+                  checked={pushEnabled}
+                  disabled={pushLoading}
+                  onChange={async () => {
+                    if (pushLoading) return;
+                    setPushLoading(true);
+                    try {
+                      if (pushEnabled) {
+                        await unsubscribePush();
+                        setPushEnabled(false);
+                        setPushError('');
+                      } else {
+                        await subscribePush();
+                        setPushEnabled(true);
+                        setPushError('');
+                      }
+                    } catch (err) {
+                      setPushError(err?.message || 'Push setup failed');
+                    } finally {
+                      setPushLoading(false);
+                    }
+                  }}
+                />
+                <span />
+              </label>
+            </div>
           )}
           {tab === 'activity' && (
             <button
@@ -137,6 +171,7 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
           </button>
         ))}
       </div>
+      {pushError && <div className="notify-error">{pushError}</div>}
 
       {tab === 'activity' && filterOpen && (
         <div className="notify-filters">

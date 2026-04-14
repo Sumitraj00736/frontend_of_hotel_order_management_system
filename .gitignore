@@ -7,4 +7,15 @@ build/
 *.cache
 *.tmp
 .idea/
-.vscode/    
+.vscode/ 
+coverage/   
+*.bak
+*.swp
+*.swo
+*.zip
+*.tar.gz
+*.env
+*.env.local
+*.env.development
+*.env.test
+*.env.production

@@ -21,6 +21,77 @@
   align-items: center;
 }
 
+.notify-push-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #111827;
+  background: #fff;
+}
+
+.notify-push-toggle.off {
+  color: #6b7280;
+}
+
+.notify-push-toggle.busy {
+  opacity: 0.6;
+}
+
+.notify-switch {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  display: inline-block;
+}
+
+.notify-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.notify-switch span {
+  position: absolute;
+  inset: 0;
+  background: #fdecec;
+  border-radius: 999px;
+}
+
+.notify-switch span::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: #ef4444;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: all 0.2s ease;
+}
+
+.notify-switch input:checked + span {
+  background: #e8f7ef;
+}
+
+.notify-switch input:checked + span::after {
+  background: #16a34a;
+}
+
+.notify-switch input:checked + span::after {
+  transform: translateX(20px);
+}
+
+.notify-error {
+  margin: 6px 0 12px;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .notify-tabs {
   display: inline-flex;
   gap: 8px;

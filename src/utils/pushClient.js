@@ -1,4 +1,6 @@
+import { getToken, deleteToken } from 'firebase/messaging';
 import api from '../api/client.js';
+import { getMessagingInstance, isMessagingSupported } from './firebase.js';
 
 const DEVICE_KEY = 'push_device_id';
 
@@ -11,18 +13,10 @@ const getDeviceId = () => {
   return id;
 };
 
-const urlBase64ToUint8Array = (base64String) => {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
+export const isPushSupported = async () => {
+  const supported = await isMessagingSupported();
+  return supported && 'serviceWorker' in navigator;
 };
-
-export const isPushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window;
 
 export const getPushStatus = async () => {
   const deviceId = getDeviceId();
@@ -31,7 +25,8 @@ export const getPushStatus = async () => {
 };
 
 export const subscribePush = async () => {
-  if (!isPushSupported()) {
+  const supported = await isPushSupported();
+  if (!supported) {
     throw new Error('Push not supported');
   }
   const permission = await Notification.requestPermission();
@@ -40,20 +35,27 @@ export const subscribePush = async () => {
   }
 
   const deviceId = getDeviceId();
-  const keyRes = await api.get('/api/push/public-key');
-  const publicKey = keyRes.data?.publicKey;
-  if (!publicKey) {
-    throw new Error('Missing VAPID public key');
+  const existing = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+  const registration = existing || (await navigator.serviceWorker.register('/firebase-messaging-sw.js'));
+  await navigator.serviceWorker.ready;
+  const messaging = await getMessagingInstance();
+  if (!messaging) {
+    throw new Error('Push not supported');
   }
 
-  const registration = await navigator.serviceWorker.register('/sw.js');
-  const subscription = await registration.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(publicKey)
-  });
+  const configRes = await api.get('/api/push/config');
+  const vapidKey = configRes.data?.vapidKey || import.meta.env.VITE_FIREBASE_VAPID_KEY;
+  if (!vapidKey) {
+    throw new Error('Missing FCM VAPID key');
+  }
+
+  const fcmToken = await getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
+  if (!fcmToken) {
+    throw new Error('Unable to get FCM token');
+  }
 
   await api.post('/api/push/subscribe', {
-    subscription: subscription.toJSON(),
+    fcmToken,
     deviceId,
     platform: 'web'
   });
@@ -63,11 +65,12 @@ export const subscribePush = async () => {
 
 export const unsubscribePush = async () => {
   const deviceId = getDeviceId();
-  if ('serviceWorker' in navigator) {
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
-    if (subscription) {
-      await subscription.unsubscribe();
+  const messaging = await getMessagingInstance();
+  if (messaging) {
+    try {
+      await deleteToken(messaging);
+    } catch (error) {
+      // ignore
     }
   }
   await api.post('/api/push/unsubscribe', { deviceId });

@@ -7,6 +7,7 @@ const NotificationSettings = ({ value, onSave }) => {
   const [pushSupported, setPushSupported] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
   const [testStatus, setTestStatus] = useState('');
+  const [pushError, setPushError] = useState('');
 
   useEffect(() => {
     if (!value) return;
@@ -14,12 +15,37 @@ const NotificationSettings = ({ value, onSave }) => {
   }, [value]);
 
   useEffect(() => {
-    const supported = isPushSupported();
-    setPushSupported(supported);
-    if (!supported) return;
-    getPushStatus()
-      .then((res) => setPushEnabled(Boolean(res?.enabled)))
-      .catch(() => setPushEnabled(false));
+    let mounted = true;
+    const load = async () => {
+      const supported = await isPushSupported();
+      if (!mounted) return;
+      setPushSupported(Boolean(supported));
+      if (!supported) return;
+      try {
+        const status = await getPushStatus();
+        if (!mounted) return;
+        if (status?.exists) {
+          setPushEnabled(Boolean(status?.enabled));
+          return;
+        }
+        if (Notification.permission !== 'denied') {
+          await subscribePush();
+          if (mounted) {
+            setPushEnabled(true);
+            setPushError('');
+          }
+        }
+      } catch (err) {
+        if (mounted) {
+          setPushEnabled(false);
+          setPushError(err?.message || 'Push setup failed');
+        }
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
@@ -66,18 +92,20 @@ const NotificationSettings = ({ value, onSave }) => {
                 onChange={async () => {
                   if (pushLoading || !pushSupported) return;
                   setPushLoading(true);
-                  try {
-                    if (pushEnabled) {
-                      await unsubscribePush();
-                      setPushEnabled(false);
-                    } else {
-                      await subscribePush();
-                      setPushEnabled(true);
+                    try {
+                      if (pushEnabled) {
+                        await unsubscribePush();
+                        setPushEnabled(false);
+                        setPushError('');
+                      } else {
+                        await subscribePush();
+                        setPushEnabled(true);
+                        setPushError('');
+                      }
+                    } finally {
+                      setPushLoading(false);
                     }
-                  } finally {
-                    setPushLoading(false);
-                  }
-                }}
+                  }}
               />
               <span />
             </label>
@@ -100,6 +128,7 @@ const NotificationSettings = ({ value, onSave }) => {
           </div>
         </div>
         {testStatus && <div className="settings-hint">{testStatus}</div>}
+        {pushError && <div className="settings-hint" style={{ color: '#dc2626' }}>{pushError}</div>}
       </div>
     </div>
   );
