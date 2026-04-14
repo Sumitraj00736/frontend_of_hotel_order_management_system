@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { LogOut, UserRound } from 'lucide-react';
 import AdminSettingsMenuList from './AdminSettingsMenuList.jsx';
 
-const AdminProfileMenu = ({ user, organizationName, onOpenSetting, onLogout }) => {
+const AdminProfileMenu = ({ user, organizationName, onOpenSetting, onLogout, showSettingsMenu = true }) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const displayName = user?.name || 'Admin User';
@@ -46,12 +46,14 @@ const AdminProfileMenu = ({ user, organizationName, onOpenSetting, onLogout }) =
             <div className="mobile-profile-contact">{displayEmail}</div>
           </div>
 
-          <AdminSettingsMenuList
-            onSelect={(settingId) => {
-              onOpenSetting?.(settingId);
-              setOpen(false);
-            }}
-          />
+          {showSettingsMenu && (
+            <AdminSettingsMenuList
+              onSelect={(settingId) => {
+                onOpenSetting?.(settingId);
+                setOpen(false);
+              }}
+            />
+          )}
 
           <button
             type="button"

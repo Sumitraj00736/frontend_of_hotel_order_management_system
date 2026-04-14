@@ -14,7 +14,8 @@ const AdminHeader = ({
   onSelectBranch,
   onLogout,
   currentUser,
-  onOpenSetting
+  onOpenSetting,
+  showSettingsMenu = true
 }) => {
   if (!isMobile) return null;
   const displayName = organizationName || restaurantName || 'Restaurant';
@@ -63,6 +64,7 @@ const AdminHeader = ({
             user={currentUser}
             organizationName={displayName}
             onOpenSetting={onOpenSetting}
+            showSettingsMenu={showSettingsMenu}
             onLogout={onLogout}
           />
         </div>

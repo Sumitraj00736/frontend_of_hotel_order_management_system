@@ -78,6 +78,16 @@ const AdminDashboard = () => {
   const restaurantName =
     orgName || currentUser?.restaurantName || currentUser?.name || 'Restaurant';
   const isSuperAdmin = currentUser?.role?.toLowerCase() === 'superadmin';
+  const canAccessAdminSection = useCallback(
+    (permission) => {
+      if (!permission) return true;
+      if (permission === 'settings:view' || permission === 'settings:edit') {
+        return isSuperAdmin && hasPermission(permission);
+      }
+      return hasPermission(permission);
+    },
+    [isSuperAdmin]
+  );
   const [ordersPage, setOrdersPage] = useState(1);
   const [ordersLimit, setOrdersLimit] = useState(12);
   const [ordersTotal, setOrdersTotal] = useState(0);
@@ -778,6 +788,12 @@ const AdminDashboard = () => {
     setSidebarOpen(!isMobile);
   }, [isMobile]);
 
+  useEffect(() => {
+    if (activeSection.startsWith('settings') && !isSuperAdmin) {
+      setActiveSection('dashboard');
+    }
+  }, [activeSection, isSuperAdmin]);
+
   const handleMobileLogout = () => {
     clearSession();
     window.location.href = '/login';
@@ -792,6 +808,7 @@ const AdminDashboard = () => {
         organizationName={orgName}
         restaurantName={restaurantName}
         currentUser={currentUser}
+        showSettingsMenu={isSuperAdmin}
         branchOpen={branchOpen}
         onToggleBranch={() => setBranchOpen((prev) => !prev)}
         branches={branches}
@@ -800,12 +817,12 @@ const AdminDashboard = () => {
           setBranchId(branch.branchId || branch._id);
           window.location.reload();
         }}
-        onOpenSetting={(settingId) => setActiveSection(`settings:${settingId}`)}
+        onOpenSetting={isSuperAdmin ? (settingId) => setActiveSection(`settings:${settingId}`) : undefined}
         onLogout={handleMobileLogout}
       />
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
-          {activeSection.startsWith('settings') && !isMobile ? (
+          {activeSection.startsWith('settings') && !isMobile && isSuperAdmin ? (
             <SettingsSidebar
               active={activeSection.split(':')[1] || 'restaurant-details'}
               onSelect={(view) => setActiveSection(`settings:${view}`)}
@@ -955,7 +972,7 @@ const AdminDashboard = () => {
             />
           )}
           {activeSection === 'website' && hasPermission('website:view') && <AdminWebsite />}
-          {activeSection.startsWith('settings') && hasPermission('settings:view') && (
+          {activeSection.startsWith('settings') && isSuperAdmin && hasPermission('settings:view') && (
             <>
               {isMobile && (
                 <AdminMobileSettingsTabs
@@ -1060,7 +1077,7 @@ const AdminDashboard = () => {
         isMobile={isMobile}
         activeSection={activeSection}
         onChangeSection={setActiveSection}
-        canAccess={hasPermission}
+        canAccess={canAccessAdminSection}
       />
     </div>
   );

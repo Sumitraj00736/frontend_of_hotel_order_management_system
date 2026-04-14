@@ -615,7 +615,7 @@ const AdminSidebar = ({
           )}
 
           {/* SETTINGS */}
-          {hasPermission('settings:view') && (
+          {hasPermission('settings:view') && user?.role?.toLowerCase() === 'superadmin' && (
             <button
               className={`sidebar-button ${activeSection.startsWith('settings') ? 'active' : ''} ${
                 isOpen ? '' : 'compact'
