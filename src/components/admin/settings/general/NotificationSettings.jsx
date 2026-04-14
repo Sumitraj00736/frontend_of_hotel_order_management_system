@@ -1,12 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import { getPushStatus, isPushSupported, subscribePush, unsubscribePush } from '../../../../utils/pushClient.js';
 
 const NotificationSettings = ({ value, onSave }) => {
   const [sound, setSound] = useState(value?.newOrderSound || 'default');
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
 
   useEffect(() => {
     if (!value) return;
     setSound(value.newOrderSound || 'default');
   }, [value]);
+
+  useEffect(() => {
+    const supported = isPushSupported();
+    setPushSupported(supported);
+    if (!supported) return;
+    getPushStatus()
+      .then((res) => setPushEnabled(Boolean(res?.enabled)))
+      .catch(() => setPushEnabled(false));
+  }, []);
 
   return (
     <div className="settings-page">
@@ -33,6 +46,40 @@ const NotificationSettings = ({ value, onSave }) => {
               <option value="bell">Bell</option>
               <option value="ding">Ding</option>
             </select>
+          </div>
+        </div>
+        <div className="notification-push-row">
+          <div>
+            <div className="settings-card-title">Push Notifications</div>
+            <p className="settings-hint">
+              Enable push notifications for this device only. Other devices remain unchanged.
+            </p>
+          </div>
+          <div className={`push-toggle ${pushEnabled ? 'on' : 'off'} ${!pushSupported ? 'disabled' : ''}`}>
+            <span>{pushEnabled ? 'On' : 'Off'}</span>
+            <label className="switch-lite">
+              <input
+                type="checkbox"
+                checked={pushEnabled}
+                disabled={!pushSupported || pushLoading}
+                onChange={async () => {
+                  if (pushLoading || !pushSupported) return;
+                  setPushLoading(true);
+                  try {
+                    if (pushEnabled) {
+                      await unsubscribePush();
+                      setPushEnabled(false);
+                    } else {
+                      await subscribePush();
+                      setPushEnabled(true);
+                    }
+                  } finally {
+                    setPushLoading(false);
+                  }
+                }}
+              />
+              <span />
+            </label>
           </div>
         </div>
       </div>
