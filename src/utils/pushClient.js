@@ -4,6 +4,9 @@ import { getMessagingInstance, isMessagingSupported } from './firebase.js';
 
 const DEVICE_KEY = 'push_device_id';
 
+/* ---------------------------
+   DEVICE ID
+---------------------------- */
 const getDeviceId = () => {
   let id = localStorage.getItem(DEVICE_KEY);
   if (!id) {
@@ -13,47 +16,82 @@ const getDeviceId = () => {
   return id;
 };
 
+/* ---------------------------
+   SUPPORT CHECK
+---------------------------- */
 export const isPushSupported = async () => {
   const supported = await isMessagingSupported();
-  return supported && 'serviceWorker' in navigator;
+  return supported && 'serviceWorker' in navigator && 'PushManager' in window;
 };
 
+/* ---------------------------
+   STATUS
+---------------------------- */
 export const getPushStatus = async () => {
   const deviceId = getDeviceId();
-  const res = await api.get('/api/push/status', { params: { deviceId } });
+  const res = await api.get('/api/push/status', {
+    params: { deviceId }
+  });
   return res.data;
 };
 
+/* ---------------------------
+   SUBSCRIBE PUSH (FIXED)
+---------------------------- */
 export const subscribePush = async () => {
   const supported = await isPushSupported();
   if (!supported) {
     throw new Error('Push not supported');
   }
+
+  // 1. Permission
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') {
     throw new Error('Notification permission denied');
   }
 
   const deviceId = getDeviceId();
-  const existing = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
-  const registration = existing || (await navigator.serviceWorker.register('/firebase-messaging-sw.js'));
-  await navigator.serviceWorker.ready;
+
+  // 2. Register Service Worker (IMPORTANT FIX)
+  await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+  const registration = await navigator.serviceWorker.ready;
+
+  // 3. Firebase messaging instance
   const messaging = await getMessagingInstance();
   if (!messaging) {
-    throw new Error('Push not supported');
+    throw new Error('Messaging not available');
   }
 
+  // 4. Get VAPID key
   const configRes = await api.get('/api/push/config');
-  const vapidKey = configRes.data?.vapidKey || import.meta.env.VITE_FIREBASE_VAPID_KEY;
+  const vapidKey =
+    configRes.data?.vapidKey ||
+    import.meta.env.VITE_FIREBASE_VAPID_KEY;
+
   if (!vapidKey) {
     throw new Error('Missing FCM VAPID key');
   }
 
-  const fcmToken = await getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
-  if (!fcmToken) {
-    throw new Error('Unable to get FCM token');
+  console.log('Using VAPID key:', vapidKey);
+
+  // 5. Get FCM token (FIXED FLOW)
+  let fcmToken;
+  try {
+    fcmToken = await getToken(messaging, {
+      vapidKey,
+      serviceWorkerRegistration: registration
+    });
+  } catch (err) {
+    throw new Error(
+      `FCM getToken failed: ${err?.message || err?.code || err}`
+    );
   }
 
+  if (!fcmToken) {
+    throw new Error('Failed to generate FCM token');
+  }
+
+  // 6. Send to backend
   await api.post('/api/push/subscribe', {
     fcmToken,
     deviceId,
@@ -63,21 +101,33 @@ export const subscribePush = async () => {
   return { enabled: true };
 };
 
+/* ---------------------------
+   UNSUBSCRIBE
+---------------------------- */
 export const unsubscribePush = async () => {
   const deviceId = getDeviceId();
+
   const messaging = await getMessagingInstance();
   if (messaging) {
     try {
       await deleteToken(messaging);
-    } catch (error) {
-      // ignore
+    } catch (err) {
+      console.warn('deleteToken failed:', err);
     }
   }
+
   await api.post('/api/push/unsubscribe', { deviceId });
+
   return { enabled: false };
 };
 
+/* ---------------------------
+   TEST PUSH
+---------------------------- */
 export const sendTestPush = async () => {
-  const res = await api.post('/api/push/test', { title: 'Test Notification', body: 'Push is working ✅' });
+  const res = await api.post('/api/push/test', {
+    title: 'Test Notification',
+    body: 'Push is working ✅'
+  });
   return res.data;
 };

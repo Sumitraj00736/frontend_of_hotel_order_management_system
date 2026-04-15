@@ -9,7 +9,12 @@ import './customcss/form.css';
 import App from './App.jsx';
 import { ThemeProvider } from './components/ThemeContext.jsx';
 
-registerSW({ immediate: true });
+// registerSW({ immediate: true });
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then((reg) => console.log('SW registered:', reg))
+    .catch((err) => console.error('SW error:', err));
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
