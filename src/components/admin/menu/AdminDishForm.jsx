@@ -1,7 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { uploadToCloudinary } from '../../../api/upload.js';
 
-const defaultForm = {
+const createVariantRow = (variant = {}) => ({
+  type: variant.type || 'Other',
+  name: variant.name || '',
+  actualPrice: variant.actualPrice ?? variant.price ?? '',
+  discount: variant.discount ?? ''
+});
+
+const getDefaultForm = () => ({
   type: '',
   name: '',
   hsCode: '',
@@ -12,38 +19,71 @@ const defaultForm = {
   category: '',
   price: '',
   discount: '',
-  variants: [],
+  variants: [createVariantRow()],
   addOns: [],
   description: ''
+});
+
+const getInitialForm = (dish) => {
+  if (!dish) return getDefaultForm();
+  const variants = dish.variants?.length ? dish.variants.map((variant) => createVariantRow(variant)) : [createVariantRow()];
+  return {
+    type: dish.type || '',
+    name: dish.name || '',
+    hsCode: dish.hsCode || '',
+    imageUrl: dish.imageUrl || '',
+    preparationHours: dish.preparationTimeMinutes ? Math.floor(dish.preparationTimeMinutes / 60) : '',
+    preparationMinutes: dish.preparationTimeMinutes ? dish.preparationTimeMinutes % 60 : '',
+    subMenu: dish.subMenu || '',
+    category: dish.category || '',
+    price: dish.price ?? '',
+    discount: '',
+    variants,
+    addOns: dish.addOns || [],
+    description: dish.description || ''
+  };
 };
 
 const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onSave }) => {
-  const [form, setForm] = useState(() => {
-    if (!dish) return defaultForm;
-    return {
-      type: dish.type || '',
-      name: dish.name || '',
-      hsCode: dish.hsCode || '',
-      imageUrl: dish.imageUrl || '',
-      preparationHours: dish.preparationTimeMinutes ? Math.floor(dish.preparationTimeMinutes / 60) : '',
-      preparationMinutes: dish.preparationTimeMinutes ? dish.preparationTimeMinutes % 60 : '',
-      subMenu: dish.subMenu || '',
-      category: dish.category || '',
-      price: dish.price ?? '',
-      discount: '',
-      variants: dish.variants || [],
-      addOns: dish.addOns || [],
-      description: dish.description || ''
-    };
-  });
+  const [form, setForm] = useState(() => getInitialForm(dish));
   const [uploading, setUploading] = useState(false);
+  const [addOnPanelOpen, setAddOnPanelOpen] = useState(false);
+  const [addOnSearch, setAddOnSearch] = useState('');
 
   const computedPrice = useMemo(() => {
-    const price = Number(form.price) || 0;
-    const discount = Number(form.discount) || 0;
-    const listed = Math.max(price - discount, 0);
-    return { listed, cogs: 0, profit: listed };
-  }, [form.price, form.discount]);
+    const fallbackPrice = Number(form.price) || 0;
+    const fallbackDiscount = Number(form.discount) || 0;
+    const activeVariants = (form.variants || [])
+      .map((variant) => {
+        const actual = Number(variant.actualPrice) || 0;
+        const discount = Number(variant.discount) || 0;
+        const listed = Math.max(actual - discount, 0);
+        return { ...variant, listed };
+      })
+      .filter((variant) => variant.name || variant.actualPrice || variant.discount);
+
+    if (!activeVariants.length) {
+      const listed = Math.max(fallbackPrice - fallbackDiscount, 0);
+      return { listed, cogs: 0, profit: listed, minPrice: listed, maxPrice: listed };
+    }
+
+    const prices = activeVariants.map((variant) => variant.listed);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    return {
+      listed: minPrice,
+      cogs: 0,
+      profit: minPrice,
+      minPrice,
+      maxPrice
+    };
+  }, [form.price, form.discount, form.variants]);
+
+  const filteredAddOns = useMemo(() => {
+    const query = addOnSearch.trim().toLowerCase();
+    if (!query) return addOns;
+    return addOns.filter((addOn) => (addOn.name || '').toLowerCase().includes(query));
+  }, [addOns, addOnSearch]);
 
   const handleImage = async (file) => {
     try {
@@ -60,17 +100,58 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
   const toggleAddOn = (id) => {
     setForm((prev) => {
       const exists = prev.addOns.includes(id);
-      return { ...prev, addOns: exists ? prev.addOns.filter((a) => a !== id) : [...prev.addOns, id] };
+      return { ...prev, addOns: exists ? prev.addOns.filter((value) => value !== id) : [...prev.addOns, id] };
     });
   };
 
-  const handleSubmit = () => {
-    if (!form.name.trim()) return alert('Dish name required');
-    if (!form.category) return alert('Category required');
-    if (!form.subMenu) return alert('Sub menu required');
-    const prepMinutes =
-      (Number(form.preparationHours) || 0) * 60 + (Number(form.preparationMinutes) || 0);
-    const payload = {
+  const updateVariant = (index, patch) => {
+    setForm((prev) => {
+      const next = [...prev.variants];
+      next[index] = { ...next[index], ...patch };
+      return { ...prev, variants: next };
+    });
+  };
+
+  const addVariant = () => {
+    setForm((prev) => ({ ...prev, variants: [...prev.variants, createVariantRow({ type: prev.type || 'Other' })] }));
+  };
+
+  const removeVariant = (index) => {
+    setForm((prev) => {
+      const next = prev.variants.filter((_, idx) => idx !== index);
+      return { ...prev, variants: next.length ? next : [createVariantRow({ type: prev.type || 'Other' })] };
+    });
+  };
+
+  const buildPayload = () => {
+    if (!form.name.trim()) throw new Error('Dish name required');
+    if (!form.category) throw new Error('Category required');
+    if (!form.subMenu) throw new Error('Sub menu required');
+
+    const prepMinutes = (Number(form.preparationHours) || 0) * 60 + (Number(form.preparationMinutes) || 0);
+    const variants = (form.variants || [])
+      .filter((variant) => variant.name && variant.actualPrice !== '')
+      .map((variant) => {
+        const actualPrice = Number(variant.actualPrice) || 0;
+        const discount = Number(variant.discount) || 0;
+        return {
+          type: variant.type || 'Other',
+          name: variant.name.trim(),
+          actualPrice,
+          discount,
+          price: Math.max(actualPrice - discount, 0)
+        };
+      });
+
+    const hasVariants = variants.length > 0;
+    const fallbackActual = Number(form.price) || 0;
+    const fallbackDiscount = Number(form.discount) || 0;
+    const fallbackListed = Math.max(fallbackActual - fallbackDiscount, 0);
+    const variantPrices = variants.map((variant) => variant.price);
+    const price = hasVariants ? Math.min(...variantPrices) : fallbackListed;
+    const maxPrice = hasVariants ? Math.max(...variantPrices) : undefined;
+
+    return {
       name: form.name.trim(),
       type: form.type || 'Other',
       hsCode: form.hsCode || undefined,
@@ -78,12 +159,24 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
       preparationTimeMinutes: prepMinutes || 0,
       category: form.category,
       subMenu: form.subMenu,
-      price: Number(form.price) || 0,
-      variants: (form.variants || []).filter((v) => v.name && Number(v.price) >= 0),
+      price,
+      maxPrice: maxPrice && maxPrice > price ? maxPrice : undefined,
+      variants,
       addOns: form.addOns,
       description: form.description || undefined
     };
-    onSave(payload);
+  };
+
+  const handleSubmit = async (shouldReset = false) => {
+    try {
+      const payload = buildPayload();
+      await onSave(payload);
+      if (shouldReset) {
+        setForm(getDefaultForm());
+      }
+    } catch (error) {
+      alert(error.message || 'Unable to save dish');
+    }
   };
 
   return (
@@ -144,8 +237,8 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
               <label>Sub-Menu *</label>
               <select value={form.subMenu} onChange={(e) => setForm({ ...form, subMenu: e.target.value })}>
                 <option value="">Select Sub-Menu</option>
-                {submenus.map((s) => (
-                  <option key={s._id} value={s._id}>{s.name}</option>
+                {submenus.map((subMenu) => (
+                  <option key={subMenu._id} value={subMenu._id}>{subMenu.name}</option>
                 ))}
               </select>
             </div>
@@ -153,93 +246,106 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
               <label>Category *</label>
               <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 <option value="">Select Category</option>
-                {categories.map((c) => (
-                  <option key={c._id} value={c._id}>{c.name}</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category._id}>{category.name}</option>
                 ))}
               </select>
             </div>
           </div>
 
-            <div className="form-card">
-              <div className="form-card-title">Default Price</div>
-              <div className="form-row">
-                <div className="form-field grow">
-                  <label>Actual Price *</label>
-                  <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Rs 0" />
-                </div>
-                <div className="form-field grow">
-                  <label>Discount</label>
-                  <input type="number" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} placeholder="Rs 0" />
-                </div>
-                <button
-                  className="btn-outline"
-                  onClick={() => setForm({ ...form, variants: [...form.variants, { name: '', price: '' }] })}
-                >
-                  + Add Variant
-                </button>
-              </div>
-              <div className="price-meta">
-                <span>Listed Price: Rs {computedPrice.listed.toFixed(2)}</span>
-                <span>COGS: Rs {computedPrice.cogs.toFixed(2)}</span>
-                <span className="profit">Gross Profit: Rs {computedPrice.profit.toFixed(2)}</span>
-                <span className="stock-link">Setup stock consumption</span>
-              </div>
-              {form.variants.length > 0 && (
-                <div className="variant-list">
-                  {form.variants.map((variant, idx) => (
-                    <div key={idx} className="variant-row">
-                      <input
-                        type="text"
-                        placeholder="Variant name"
-                        value={variant.name}
-                        onChange={(e) => {
-                          const next = [...form.variants];
-                          next[idx] = { ...next[idx], name: e.target.value };
-                          setForm({ ...form, variants: next });
-                        }}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        value={variant.price}
-                        onChange={(e) => {
-                          const next = [...form.variants];
-                          next[idx] = { ...next[idx], price: e.target.value };
-                          setForm({ ...form, variants: next });
-                        }}
-                      />
-                      <button
-                        className="btn-light"
-                        onClick={() => {
-                          const next = form.variants.filter((_, i) => i !== idx);
-                          setForm({ ...form, variants: next });
-                        }}
-                      >
-                        Remove
-                      </button>
+          <div className="form-card">
+            <div className="form-card-title">Default Price</div>
+            <div className="variant-stack">
+              {form.variants.map((variant, index) => {
+                const actualPrice = Number(variant.actualPrice) || 0;
+                const discount = Number(variant.discount) || 0;
+                const listed = Math.max(actualPrice - discount, 0);
+                return (
+                  <div key={`${index}-${variant.name}`} className="variant-card">
+                    <div className="variant-card-grid">
+                      <div className="variant-drag">⋮⋮</div>
+                      <button className="variant-delete" onClick={() => removeVariant(index)} type="button">🗑</button>
+                      <div className="form-field">
+                        <label>Type</label>
+                        <select value={variant.type} onChange={(e) => updateVariant(index, { type: e.target.value })}>
+                          <option value="Other">Other</option>
+                          <option value="Veg">Veg</option>
+                          <option value="Non-Veg">Non-Veg</option>
+                          <option value="Vegan">Vegan</option>
+                        </select>
+                      </div>
+                      <div className="form-field grow">
+                        <label>Variant Name *</label>
+                        <input
+                          type="text"
+                          placeholder="Enter Variant Name"
+                          value={variant.name}
+                          onChange={(e) => updateVariant(index, { name: e.target.value })}
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label>Actual Price *</label>
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="Rs 0"
+                          value={variant.actualPrice}
+                          onChange={(e) => updateVariant(index, { actualPrice: e.target.value })}
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label>Discount</label>
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="Rs 0"
+                          value={variant.discount}
+                          onChange={(e) => updateVariant(index, { discount: e.target.value })}
+                        />
+                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <div className="price-meta">
+                      <span>Listed Price: Rs {listed.toFixed(2)}</span>
+                      <span>COGS: Rs 0.00</span>
+                      <span className="profit">Gross Profit: Rs {listed.toFixed(2)}</span>
+                      <span className="stock-link">Setup stock consumption</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+            <div className="dish-price-summary">
+              <span>
+                Range: Rs {computedPrice.minPrice.toFixed(2)}
+                {computedPrice.maxPrice > computedPrice.minPrice ? ` - Rs ${computedPrice.maxPrice.toFixed(2)}` : ''}
+              </span>
+            </div>
+            <button className="btn-outline" onClick={addVariant} type="button">
+              + Add Variant
+            </button>
+          </div>
 
           <div className="form-card">
             <div className="form-card-title">Add-Ons / Extras</div>
-            <div className="addon-banner">
+            <button className="addon-banner clickable" type="button" onClick={() => setAddOnPanelOpen(true)}>
               <div className="badge">New</div>
               <div>
                 <div className="banner-title">Add-Ons!! Click Here</div>
                 <div className="banner-sub">Provide your customers with the option to add-ons and make their next meal super delicious!</div>
               </div>
-            </div>
+            </button>
             <div className="addon-grid">
-              {addOns.map((a) => (
-                <label key={a._id} className={`addon-chip ${form.addOns.includes(a._id) ? 'active' : ''}`}>
-                  <input type="checkbox" checked={form.addOns.includes(a._id)} onChange={() => toggleAddOn(a._id)} />
-                  {a.name}
-                </label>
-              ))}
-              {addOns.length === 0 && <div className="empty-note">No add-ons yet.</div>}
+              {form.addOns.length > 0
+                ? form.addOns.map((selectedId) => {
+                    const selectedAddOn = addOns.find((addOn) => addOn._id === selectedId);
+                    if (!selectedAddOn) return null;
+                    return (
+                      <span key={selectedId} className="addon-chip active">
+                        {selectedAddOn.name}
+                      </span>
+                    );
+                  })
+                : <div className="empty-note">No add-ons selected yet.</div>}
             </div>
           </div>
 
@@ -250,11 +356,49 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
 
           <div className="form-actions">
             <button className="btn-light" onClick={onCancel}>Reset</button>
-            <button className="btn-primary" onClick={handleSubmit}>Save Dish</button>
-            <button className="btn-primary ghost" onClick={handleSubmit}>Save and Create Another</button>
+            <button className="btn-primary" onClick={() => handleSubmit(false)}>Save Dish</button>
+            <button className="btn-primary ghost" onClick={() => handleSubmit(true)}>Save and Create Another</button>
           </div>
         </div>
       </div>
+
+      {addOnPanelOpen && (
+        <div className="addon-side-overlay" onClick={() => setAddOnPanelOpen(false)}>
+          <aside className="addon-side-panel" onClick={(event) => event.stopPropagation()}>
+            <div className="addon-side-header">
+              <h3>Selected Add-Ons</h3>
+              <button className="side-close" onClick={() => setAddOnPanelOpen(false)}>✕</button>
+            </div>
+            <div className="addon-side-search">
+              <input
+                type="text"
+                placeholder="Search"
+                value={addOnSearch}
+                onChange={(event) => setAddOnSearch(event.target.value)}
+              />
+            </div>
+            <div className="addon-side-list">
+              {filteredAddOns.map((addOn) => {
+                const checked = form.addOns.includes(addOn._id);
+                return (
+                  <label key={addOn._id} className={`addon-side-item ${checked ? 'selected' : ''}`}>
+                    <input type="checkbox" checked={checked} onChange={() => toggleAddOn(addOn._id)} />
+                    <div className="addon-side-image">
+                      {addOn.imageUrl ? <img src={addOn.imageUrl} alt={addOn.name} /> : addOn.name?.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div className="addon-side-body">
+                      <div className="addon-side-name">{addOn.name}</div>
+                      <div className="addon-side-used">Used in: {addOn.usedIn || 0} dishes</div>
+                    </div>
+                    <div className="addon-side-price">Rs {Number(addOn.price || 0)}</div>
+                  </label>
+                );
+              })}
+              {filteredAddOns.length === 0 && <div className="empty-note">No add-ons found.</div>}
+            </div>
+          </aside>
+        </div>
+      )}
     </div>
   );
 };

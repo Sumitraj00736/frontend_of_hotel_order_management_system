@@ -9,13 +9,22 @@ const AddItemsModal = ({
   onClose,
   menus = [],
   staff = [],
+  showAssignStaff = true,
   assignedStaffId,
   onAssignStaff,
+  selectedTableId,
+  tableOptions = [],
+  onTableChange,
   orderTableNumber,
   items = [],
   onAddItem,
   onUpdateItemQuantity,
-  onUpdateItemNote
+  onUpdateItemNote,
+  onClearCart,
+  onConfirm,
+  confirmLabel = 'Confirm Order',
+  confirmDisabled = false,
+  clearLabel = 'Clear Cart'
 }) => {
   const [addSearch, setAddSearch] = useState('');
   const [addCategory, setAddCategory] = useState('all');
@@ -75,6 +84,9 @@ const AddItemsModal = ({
         <div className="additem-layout">
           <MenuSection
             orderTableNumber={orderTableNumber}
+            selectedTableId={selectedTableId}
+            tableOptions={tableOptions}
+            onTableChange={onTableChange}
             addSubMenu={addSubMenu}
             menuSubMenus={menuSubMenus}
             addSearch={addSearch}
@@ -94,6 +106,7 @@ const AddItemsModal = ({
             items={items}
             cartQty={cartQty}
             cartTotal={cartTotal}
+            showAssignStaff={showAssignStaff}
             assignedStaffId={assignedStaffId}
             staffOptions={staffOptions}
             showStaffList={showStaffList}
@@ -101,7 +114,11 @@ const AddItemsModal = ({
             onAssignStaff={onAssignStaff}
             onUpdateItemQuantity={onUpdateItemQuantity}
             onUpdateItemNote={onUpdateItemNote}
-            onConfirm={onClose}
+            onClearCart={onClearCart}
+            clearLabel={clearLabel}
+            onConfirm={onConfirm || onClose}
+            confirmLabel={confirmLabel}
+            confirmDisabled={confirmDisabled}
           />
         </div>
 
