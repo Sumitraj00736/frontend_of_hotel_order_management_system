@@ -150,6 +150,13 @@ export const unsubscribePush = async () => {
    TEST PUSH
 ---------------------------- */
 export const sendTestPush = async () => {
+  // Smart Test: Check if we are actually subscribed first
+  const status = await getPushStatus();
+  if (!status.enabled) {
+    console.log('[PushClient] Auto-subscribing before test...');
+    await subscribePush();
+  }
+  
   const res = await api.post('/api/push/test', {
     title: 'Test Notification',
     body: 'Push is working ✅'

@@ -408,6 +408,35 @@
   border-top: 1px solid #e5e7eb;
 }
 
+/* Premium Order Type Toggle */
+.pos-order-type-toggle {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 4px;
+}
+
+.pos-order-type-toggle .btn {
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pos-order-type-toggle .btn.bg-primary {
+  background: #10b981 !important; /* Emerald Green for active */
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  transform: scale(1.02);
+}
+
+.pos-order-type-toggle .btn:not(.bg-primary) {
+  color: #64748b;
+}
+
+.pos-order-type-toggle .btn:not(.bg-primary):hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
 .cart-total-row {
   display: flex;
   justify-content: space-between;

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed } from 'lucide-react';
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed, ShoppingBag } from 'lucide-react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
@@ -8,6 +8,7 @@ import { WAITER_ALLOWED_PERMISSIONS } from '../common/permissions.js';
 import { ensureNotificationPermission, pushSystemNotification } from '../utils/systemNotifications.js';
 import { getPushStatus, isPushSupported, subscribePush, getCurrentBrowserToken, sendTestPush } from '../utils/pushClient.js';
 import { getMessagingInstance, onMessage } from '../utils/firebase.js';
+
 import WaiterSidebar from '../components/waiter/Sidebar/WaiterSidebar.jsx';
 import WaiterCart from '../components/waiter/Cart/WaiterCart.jsx';
 import WaiterMenu from '../components/waiter/Menu/WaiterMenu.jsx';
@@ -53,8 +54,14 @@ const WaiterApp = () => {
   const [customizeItem, setCustomizeItem] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [orderType, setOrderType] = useState('dine_in');
+  const [pushSupported, setPushSupported] = useState(false);
+  const initAttemptedRef = useRef(false);
 
   const pushToast = useCallback((payload) => {
+    // Play notification sound
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    audio.play().catch(e => console.log('Audio play blocked:', e));
+
     const id = payload.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const toast = { id, toast: true, ...payload };
     setToasts((prev) => [toast, ...prev].slice(0, 5));
@@ -226,7 +233,11 @@ const WaiterApp = () => {
     });
 
     const initPush = async () => {
+      if (initAttemptedRef.current) return;
+      initAttemptedRef.current = true;
+      console.log('[FCM] initPush attempted');
       const supported = await isPushSupported();
+      setPushSupported(Boolean(supported));
       if (!supported) return;
       try {
         const [status, browserToken] = await Promise.all([
@@ -234,16 +245,28 @@ const WaiterApp = () => {
           getCurrentBrowserToken()
         ]);
 
-        const shouldSubscribe = !status?.exists || (browserToken && status.fcmToken !== browserToken);
+        if (Notification.permission === 'denied') {
+          console.warn('Notifications blocked by browser');
+          return;
+        }
+
+        const shouldSubscribe = !status?.exists || !status?.enabled || (browserToken && status.fcmToken !== browserToken);
 
         if (shouldSubscribe) {
           if (Notification.permission === 'default' || Notification.permission === 'granted') {
             const handleSubscribe = async () => {
               try {
-                await subscribePush();
+                const res = await subscribePush();
+                console.log('Subscribe successful:', res);
                 pushToast({ title: 'Success', message: 'Notifications enabled!', type: 'success' });
               } catch (err) {
-                pushToast({ title: 'Error', message: err.message, type: 'error' });
+                console.error('Subscribe failed:', err);
+                pushToast({ 
+                  title: 'Notification Error', 
+                  message: `Registration failed: ${err.message}. Check browser settings or branch access.`, 
+                  type: 'error',
+                  duration: 8000
+                });
               }
             };
 
@@ -611,7 +634,27 @@ const WaiterApp = () => {
             sections={availableSections}
           />
         </div>
-        <NotificationToasts notifications={toasts} />
+        
+        {/* Fixed Notifications & Diagnostics Overlay */}
+        <div style={{ position: 'fixed', top: '15px', right: '15px', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
+          {pushSupported && (
+            <button 
+              className="btn btn-sm btn-info rounded-pill px-3 fw-bold shadow border-0 text-white"
+              style={{ fontSize: '12px' }}
+              onClick={async () => {
+                try {
+                  await sendTestPush();
+                } catch (err) {
+                  pushToast({ title: 'Test Failed', message: err.message, type: 'error' });
+                }
+              }}
+            >
+              Test Notification
+            </button>
+          )}
+          <NotificationToasts notifications={toasts} />
+        </div>
+
 
         {/* Global Mobile Header - Persistent across all tabs */}
         <div className="d-md-none">
@@ -621,6 +664,21 @@ const WaiterApp = () => {
         {activeSection === 'dashboard' && can('dashboard:view') && (
           <div className="content waiter-pos-layout position-relative">
             <div className="pos-menu-section h-100 p-3 overflow-hidden d-flex flex-column">
+              <div className="pos-order-type-toggle p-2 bg-white rounded-pill shadow-sm mb-3 d-flex gap-2 mx-auto" style={{ border: '1px solid #e2e8f0', width: 'fit-content', minWidth: '240px' }}>
+                <button 
+                  className={`flex-grow-1 btn btn-sm d-flex align-items-center justify-content-center gap-2 py-2 border-0 shadow-none rounded-pill fw-bold ${orderType === 'dine_in' ? 'bg-primary text-white' : 'text-muted'}`}
+                  onClick={() => setOrderType('dine_in')}
+                >
+                  <UtensilsCrossed size={14} /> Dine-in
+                </button>
+                <button 
+                  className={`flex-grow-1 btn btn-sm d-flex align-items-center justify-content-center gap-2 py-2 border-0 shadow-none rounded-pill fw-bold ${orderType === 'takeaway' ? 'bg-primary text-white' : 'text-muted'}`}
+                  onClick={() => setOrderType('takeaway')}
+                >
+                  <ShoppingBag size={14} /> Takeaway
+                </button>
+              </div>
+
               {can('menu:view') ? (
                 <div className="flex-grow-1 overflow-auto rounded-3 bg-white p-3 shadow-sm" style={{ border: '1px solid #eef1f6' }}>
                   <MenuSection

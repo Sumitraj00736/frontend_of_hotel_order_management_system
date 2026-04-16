@@ -30,6 +30,7 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
   const [pushSupported, setPushSupported] = useState(false);
   const [pushError, setPushError] = useState('');
   const prevCountRef = useRef(notifications.length);
+  const initAttemptedRef = useRef(false);
 
   const grouped = useMemo(() => {
     const byDay = {};
@@ -68,6 +69,9 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
   useEffect(() => {
     let mounted = true;
     const load = async () => {
+      if (initAttemptedRef.current) return;
+      initAttemptedRef.current = true;
+      console.log('[FCM] NotificationPage init attempted');
       const supported = await isPushSupported();
       if (!mounted) return;
       setPushSupported(Boolean(supported));
