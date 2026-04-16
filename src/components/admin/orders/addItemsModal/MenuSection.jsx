@@ -2,6 +2,9 @@ import React from 'react';
 
 const MenuSection = ({
   orderTableNumber,
+  selectedTableId,
+  tableOptions = [],
+  onTableChange,
   addSubMenu,
   menuSubMenus,
   addSearch,
@@ -18,7 +21,18 @@ const MenuSection = ({
       <div className="additem-head">
         <div className="additem-title">Select Dishes</div>
         <div className="additem-filters">
-          <div className="chip small">Table {orderTableNumber || '-'}</div>
+          {onTableChange ? (
+            <select value={selectedTableId || ''} onChange={(e) => onTableChange(e.target.value)}>
+              <option value="" disabled>Select table</option>
+              {tableOptions.map((table) => (
+                <option key={table._id} value={table._id} disabled={table.status === 'occupied' && table._id !== selectedTableId}>
+                  Table {table.tableNumber || table.name || '-'}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="chip small">Table {orderTableNumber || '-'}</div>
+          )}
           <select value="default" onChange={() => {}}>
             <option value="default">Default Menuset</option>
           </select>

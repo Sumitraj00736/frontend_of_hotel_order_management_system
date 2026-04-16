@@ -27,7 +27,7 @@ const navSections = [
     ]
   },
   {
-    title: 'RestroX',
+    title: 'MeroRestro Setting',
     items: [
       { id: 'support', label: 'Support & Feedback' },
       { id: 'release', label: 'Release Notes' }
