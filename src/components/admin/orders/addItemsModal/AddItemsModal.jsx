@@ -17,6 +17,7 @@ const AddItemsModal = ({
   tableOptions = [],
   onTableChange,
   orderTableNumber,
+  orderTargetName, // Added this prop
   items = [],
   onAddItem,
   onUpdateItemQuantity,
@@ -92,6 +93,7 @@ const AddItemsModal = ({
         <div className="additem-layout">
           <MenuSection
             orderTableNumber={orderTableNumber}
+            orderTargetName={orderTargetName}
             selectedTableId={selectedTableId}
             tableOptions={tableOptions}
             onTableChange={onTableChange}

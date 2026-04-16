@@ -1,5 +1,4 @@
-import React from 'react';
-import { Minus, Plus, Trash2, Users, ReceiptText, Flame, MessageSquare, ClipboardList } from 'lucide-react';
+import { Minus, Plus, Trash2, Users, ReceiptText, Flame, MessageSquare, ClipboardList, UtensilsCrossed, ShoppingBag } from 'lucide-react';
 
 const WaiterCart = ({
   cart,
@@ -19,6 +18,8 @@ const WaiterCart = ({
   selectedCustomer,
   onSelectCustomer,
   showCustomer = false,
+  orderType = 'dine_in',
+  onOrderTypeChange,
   onClose
 }) => {
   const spiceOptions = [
@@ -53,30 +54,47 @@ const WaiterCart = ({
         )}
       </div>
 
+      <div className="pos-order-type-toggle p-2 bg-light rounded-3 mb-3 d-flex gap-2">
+        <button 
+          className={`flex-grow-1 btn d-flex align-items-center justify-content-center gap-2 py-2 border-0 shadow-none rounded-pill fw-bold ${orderType === 'dine_in' ? 'bg-primary text-white' : 'text-muted'}`}
+          onClick={() => onOrderTypeChange?.('dine_in')}
+        >
+          <UtensilsCrossed size={16} /> Dine-in
+        </button>
+        <button 
+          className={`flex-grow-1 btn d-flex align-items-center justify-content-center gap-2 py-2 border-0 shadow-none rounded-pill fw-bold ${orderType === 'takeaway' ? 'bg-primary text-white' : 'text-muted'}`}
+          onClick={() => onOrderTypeChange?.('takeaway')}
+        >
+          <ShoppingBag size={16} /> Takeaway
+        </button>
+      </div>
+
       <div className="pos-cart-scroll">
         <div className="row g-2 mb-2">
-          <div className="col-6">
-            <span className="pos-form-label"><Users size={12} className="me-1 text-muted" /> Table</span>
-            <select
-              className="pos-select"
-              value={selectedTable || ''}
-              onChange={(e) => onSelectTable?.(e.target.value)}
-            >
-              <option value="" disabled>Select...</option>
-              {tables.map((table) => (
-                <option
-                  key={table._id}
-                  value={table._id}
-                  disabled={table.status === 'occupied' && table._id !== selectedTable}
-                >
-                  T-{table.tableNumber}
-                </option>
-              ))}
-            </select>
-          </div>
+          {orderType === 'dine_in' && (
+            <div className="col-6">
+              <span className="pos-form-label"><Users size={12} className="me-1 text-muted" /> Table</span>
+              <select
+                className="pos-select"
+                value={selectedTable || ''}
+                onChange={(e) => onSelectTable?.(e.target.value)}
+              >
+                <option value="" disabled>Select...</option>
+                {tables.map((table) => (
+                  <option
+                    key={table._id}
+                    value={table._id}
+                    disabled={table.status === 'occupied' && table._id !== selectedTable}
+                  >
+                    T-{table.tableNumber}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {showCustomer && (
-            <div className="col-6">
+            <div className={orderType === 'dine_in' ? 'col-6' : 'col-12'}>
               <span className="pos-form-label"><Users size={12} className="me-1 text-muted" /> Customer</span>
               <select
                 className="pos-select"

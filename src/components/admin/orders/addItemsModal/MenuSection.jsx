@@ -1,7 +1,9 @@
 import React from 'react';
+import { LayoutGrid, Search } from 'lucide-react';
 
 const MenuSection = ({
   orderTableNumber,
+  orderTargetName,
   selectedTableId,
   tableOptions = [],
   onTableChange,
@@ -19,35 +21,41 @@ const MenuSection = ({
   return (
     <div className="additem-left">
       <div className="additem-head">
-        <div className="additem-title">Select Dishes</div>
-        <div className="additem-filters">
-          {onTableChange ? (
-            <select value={selectedTableId || ''} onChange={(e) => onTableChange(e.target.value)}>
-              <option value="" disabled>Select table</option>
-              {tableOptions.map((table) => (
-                <option key={table._id} value={table._id} disabled={table.status === 'occupied' && table._id !== selectedTableId}>
-                  Table {table.tableNumber || table.name || '-'}
-                </option>
+        <div className="d-flex align-items-center gap-3">
+          <div className="additem-title h4 fw-bold mb-0">Select Dishes</div>
+          <div className="target-badge d-flex align-items-center gap-2 px-3 py-1 bg-light rounded-pill border">
+            <LayoutGrid size={16} className="text-muted" />
+            <span className="fw-semibold small text-dark">{orderTargetName || orderTableNumber || '-'}</span>
+          </div>
+        </div>
+        <div className="additem-filters d-flex gap-2 flex-grow-1 justify-content-end align-items-center">
+          <div className="filter-group">
+            <select className="form-select form-select-sm border shadow-sm" style={{ minWidth: '150px' }} value="default" onChange={() => {}}>
+              <option value="default">Default Menuset</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <select 
+              className="form-select form-select-sm border shadow-sm" 
+              style={{ minWidth: '150px' }} 
+              value={addSubMenu} 
+              onChange={(e) => onCategoryChange({ subMenu: e.target.value })}
+            >
+              <option value="all">Select Sub Menu</option>
+              {menuSubMenus.map((s) => (
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
-          ) : (
-            <div className="chip small">Table {orderTableNumber || '-'}</div>
-          )}
-          <select value="default" onChange={() => {}}>
-            <option value="default">Default Menuset</option>
-          </select>
-          <select value={addSubMenu} onChange={(e) => onCategoryChange({ subMenu: e.target.value })}>
-            <option value="all">Select Sub Menu</option>
-            {menuSubMenus.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-          <input
-            className="additem-search"
-            placeholder="Search here"
-            value={addSearch}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
+          </div>
+          <div className="search-group position-relative" style={{ minWidth: '200px' }}>
+            <Search className="position-absolute text-muted" size={14} style={{ left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+            <input
+              className="form-control form-control-sm ps-4 border shadow-sm"
+              placeholder="Search here"
+              value={addSearch}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 

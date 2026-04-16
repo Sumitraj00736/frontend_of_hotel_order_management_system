@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed } from 'lucide-react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
@@ -6,6 +6,8 @@ import { createSocket } from '../api/socket.js';
 import { clearSession, getBranchPermissions, getBranchRole, getCurrentUser } from '../api/session.js';
 import { WAITER_ALLOWED_PERMISSIONS } from '../common/permissions.js';
 import { ensureNotificationPermission, pushSystemNotification } from '../utils/systemNotifications.js';
+import { getPushStatus, isPushSupported, subscribePush, getCurrentBrowserToken, sendTestPush } from '../utils/pushClient.js';
+import { getMessagingInstance, onMessage } from '../utils/firebase.js';
 import WaiterSidebar from '../components/waiter/Sidebar/WaiterSidebar.jsx';
 import WaiterCart from '../components/waiter/Cart/WaiterCart.jsx';
 import WaiterMenu from '../components/waiter/Menu/WaiterMenu.jsx';
@@ -49,6 +51,17 @@ const WaiterApp = () => {
   const [addCategory, setAddCategory] = useState('all');
   const [addSubMenu, setAddSubMenu] = useState('all');
   const [customizeItem, setCustomizeItem] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [orderType, setOrderType] = useState('dine_in');
+
+  const pushToast = useCallback((payload) => {
+    const id = payload.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const toast = { id, toast: true, ...payload };
+    setToasts((prev) => [toast, ...prev].slice(0, 5));
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, payload.duration || 3500);
+  }, []);
 
   // Toggle body scroll when mobile cart drawer is open
   useEffect(() => {
@@ -89,8 +102,8 @@ const WaiterApp = () => {
     };
 
     if (effectiveRole === 'waiter') {
-      return ['orders', 'notifications', 'dashboard', 'menu', 'profile'].filter((section) => {
-        if (section === 'orders' || section === 'profile') return true;
+      return ['orders', 'takeaway', 'notifications', 'dashboard', 'menu', 'profile'].filter((section) => {
+        if (section === 'orders' || section === 'profile' || section === 'takeaway') return true;
         const perm = sectionPermissions[section];
         return perm ? can(perm) : true;
       });
@@ -178,9 +191,17 @@ const WaiterApp = () => {
         if (prev.some((o) => o._id === order._id)) return prev;
         return [order, ...prev];
       });
+      
+      const tableLabel = order?.table?.tableNumber ? `Table ${order.table.tableNumber}` : 'Takeaway';
+      pushToast({
+        title: 'New Order Received',
+        message: `${tableLabel} has a new order.`,
+        type: 'success'
+      });
+      
       pushSystemNotification({
         title: 'New Order Received',
-        body: `Table ${order?.table?.tableNumber || '-'} has a new order.`,
+        body: `${tableLabel} has a new order.`,
         tag: 'waiter-order-new'
       });
     });
@@ -190,6 +211,11 @@ const WaiterApp = () => {
     socket.on('notify', (payload) => {
       if (payload.waiterId && payload.waiterId !== (currentUser?._id || currentUser?.id)) return;
       setNotifications((prev) => [{ ...payload, read: false }, ...prev].slice(0, 50));
+      pushToast({
+        title: payload.title || 'Notification',
+        message: payload.message || 'Notification received',
+        type: 'info'
+      });
       if (payload.type === 'order:paid') {
         pushSystemNotification({
           title: 'Order Checkout Completed',
@@ -199,8 +225,68 @@ const WaiterApp = () => {
       }
     });
 
-    return () => socket.disconnect();
-  }, [currentUser?._id, currentUser?.id]);
+    const initPush = async () => {
+      const supported = await isPushSupported();
+      if (!supported) return;
+      try {
+        const [status, browserToken] = await Promise.all([
+          getPushStatus(),
+          getCurrentBrowserToken()
+        ]);
+
+        const shouldSubscribe = !status?.exists || (browserToken && status.fcmToken !== browserToken);
+
+        if (shouldSubscribe) {
+          if (Notification.permission === 'default' || Notification.permission === 'granted') {
+            const handleSubscribe = async () => {
+              try {
+                await subscribePush();
+                pushToast({ title: 'Success', message: 'Notifications enabled!', type: 'success' });
+              } catch (err) {
+                pushToast({ title: 'Error', message: err.message, type: 'error' });
+              }
+            };
+
+            if (Notification.permission === 'granted') {
+              handleSubscribe();
+            } else {
+              pushToast({
+                title: '🔔 Notifications',
+                message: 'Click here to enable real-time order alerts.',
+                duration: 15000,
+                onClick: handleSubscribe
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('FCM setup for waiter failed:', err);
+      }
+    };
+    initPush();
+
+    // Foreground FCM listener
+    let unsubscribeFCM = () => {};
+    const setupFCMForeground = async () => {
+      const messaging = await getMessagingInstance();
+      if (messaging) {
+        unsubscribeFCM = onMessage(messaging, (payload) => {
+          console.log('[FCM] Foreground message received:', payload);
+          pushToast({
+            title: payload.notification?.title || 'New Update',
+            message: payload.notification?.body || 'Check the details.',
+            type: 'info'
+          });
+        });
+      }
+    };
+    setupFCMForeground();
+
+    return () => {
+      socket.disconnect();
+      unsubscribeFCM();
+    };
+  }, [currentUser]);
 
   const menuCategories = useMemo(() => {
     const names = new Set();
@@ -297,7 +383,10 @@ const WaiterApp = () => {
   }, [orders, orderViewMode, currentUserId]);
 
   const handleInitCheckout = () => {
-    if (!selectedTable) return alert('Select a table first');
+    if (orderType === 'dine_in' && !selectedTable) return alert('Select a table first');
+    if (orderType === 'takeaway' && !selectedCustomer && !customers.length) {
+      // If takeaway but no customer selected and no customers list, we might still allow it as "Walk-in"
+    }
     if (cart.length === 0) return alert('Add at least one item');
     if (cart.some((c) => !c.quantity || c.quantity < 1)) {
       return alert('Quantity must be at least 1 for all items');
@@ -308,11 +397,12 @@ const WaiterApp = () => {
 
   const placeOrder = async () => {
     const payload = {
-      table: selectedTable,
+      table: orderType === 'dine_in' ? selectedTable : undefined,
       items: cart.map((c) => ({ menuItem: c.menuItem, quantity: c.quantity })),
       spiceLevel,
       specialInstructions: instructions,
-      customerName: selectedCustomer || undefined
+      customerName: selectedCustomer || (orderType === 'takeaway' ? 'Walk-in Customer' : undefined),
+      orderType: orderType === 'takeaway' ? 'takeaway' : 'dine_in'
     };
 
     try {
@@ -521,6 +611,7 @@ const WaiterApp = () => {
             sections={availableSections}
           />
         </div>
+        <NotificationToasts notifications={toasts} />
 
         {/* Global Mobile Header - Persistent across all tabs */}
         <div className="d-md-none">
@@ -573,11 +664,45 @@ const WaiterApp = () => {
                   customers={customers}
                   selectedCustomer={selectedCustomer}
                   onSelectCustomer={setSelectedCustomer}
-                  showCustomer={can('customers:view')}
+                  showCustomer={can('customers:view') || orderType === 'takeaway'}
+                  orderType={orderType}
+                  onOrderTypeChange={setOrderType}
                   onClose={() => setMobileCartOpen(false)}
                 />
               ) : <div />}
             </div>
+          </div>
+        )}
+
+        {activeSection === 'takeaway' && (
+          <div className="content waiter-orders-content">
+            <div className="card-header-sleek d-flex justify-content-between align-items-center mb-4">
+              <h4 className="m-0">Takeaway & Online Orders</h4>
+            </div>
+            <WaiterOrders
+              orders={orders.filter(o => o.orderType !== 'dine_in')}
+              onEdit={(order) => {
+                setEditingOrderId(order._id);
+                setCart(order.items.map(i => ({
+                  menuItem: i.menuItem,
+                  quantity: i.quantity,
+                  variantId: i.variantId,
+                  variantName: i.variantName,
+                  variantPrice: i.variantPrice,
+                  itemNote: i.itemNote
+                })));
+                setSelectedTable(order.table?._id || null);
+                setSelectedCustomer(order.customerId || '');
+                setSpiceLevel(order.spiceLevel || 'medium');
+                setInstructions(order.specialInstructions || '');
+                setActiveSection('dashboard');
+              }}
+              onBill={(id) => window.open(`/api/orders/${id}/bill`, '_blank')}
+              onCheckout={(order) => {
+                setCheckoutOrderData(order);
+                setShowCheckout(true);
+              }}
+            />
           </div>
         )}
 
@@ -670,7 +795,9 @@ const WaiterApp = () => {
                 customers={customers}
                 selectedCustomer={selectedCustomer}
                 onSelectCustomer={setSelectedCustomer}
-                showCustomer={can('customers:view')}
+                showCustomer={can('customers:view') || orderType === 'takeaway'}
+                orderType={orderType}
+                onOrderTypeChange={setOrderType}
                 onClose={() => setMobileCartOpen(false)}
               />
             </div>

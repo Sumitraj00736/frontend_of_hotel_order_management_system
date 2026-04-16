@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { CheckCircle } from 'lucide-react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
@@ -30,6 +31,8 @@ import AdminSettings from '../components/admin/settings/AdminSettings.jsx';
 import SettingsSidebar from '../components/admin/settings/SettingsSidebar.jsx';
 import AdminCustomers from '../components/admin/customers/AdminCustomers.jsx';
 import AdminOrderConfirmModal from '../components/admin/orders/addItemsModal/AdminOrderConfirmModal.jsx';
+import AdminAddOrderModal from '../components/admin/orders/addItemsModal/AdminAddOrderModal.jsx';
+import AddItemsModal from '../components/admin/orders/addItemsModal/AddItemsModal.jsx';
 import { playSound } from '../utils/sound.js';
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/admin/common/adminResponsive.css';
@@ -104,7 +107,11 @@ const AdminDashboard = () => {
   const dashboardLoadedRef = React.useRef(false);
 
   // Admin Order Creation Flow
-  const [showAdminOrderModal, setShowAdminOrderModal] = useState(false);
+  const [showAdminAddOrderModal, setShowAdminAddOrderModal] = useState(false); // Step 1 modal
+  const [addOrderStep, setAddOrderStep] = useState(1);
+  const [selectedOrderTarget, setSelectedOrderTarget] = useState(null); // { type, id, name }
+
+  const [showAdminOrderModal, setShowAdminOrderModal] = useState(false); // Step 2 modal
   const [showAdminConfirmModal, setShowAdminConfirmModal] = useState(false);
   const [showAdminSuccessPopup, setShowAdminSuccessPopup] = useState(false);
   const [adminOrderItems, setAdminOrderItems] = useState([]);
@@ -613,27 +620,42 @@ const AdminDashboard = () => {
 
   const handleAdminSubmitOrder = async () => {
     try {
+      const type = selectedOrderTarget?.type || 'table';
+      const orderTypeMap = {
+        'table': 'dine_in',
+        'customer': 'takeaway',
+        'staff': 'staff'
+      };
+
       const payload = {
-        table: adminOrderTableId,
+        table: type === 'table' ? selectedOrderTarget.id : undefined,
+        customerId: type === 'customer' ? selectedOrderTarget.id : undefined,
+        staffId: type === 'staff' ? selectedOrderTarget.id : undefined,
+        customerName: selectedOrderTarget?.name || 'Walk-in Customer',
+        orderType: orderTypeMap[type] || 'dine_in',
         items: adminOrderItems.map(i => ({
           menuItem: i.menuItem?._id || i.menuItem,
           quantity: i.quantity,
           variantId: i.variantId || i.variant?._id,
+          variantName: i.variantName || i.variant?.name,
+          variantPrice: i.variantPrice || i.variant?.price,
           itemNote: i.itemNote
         })),
-        assignedStaff: adminOrderWaiterId
+        assignedStaff: adminOrderWaiterId || undefined
       };
       const res = await api.post('/api/orders', payload);
       setLastCreatedOrder(res.data);
       setShowAdminConfirmModal(false);
       setShowAdminSuccessPopup(true);
       playSound('success');
-      pushToast({ title: 'Order Confirmed', message: `Table ${res.data.table?.tableNumber} is now booked.`, type: 'success' });
+      const targetLabel = res.data.table ? `Table ${res.data.table.tableNumber}` : `${res.data.orderType} Order`;
+      pushToast({ title: 'Order Confirmed', message: `${targetLabel} is now booked.`, type: 'success' });
       loadAll();
       // Reset form
       setAdminOrderItems([]);
       setAdminOrderWaiterId('');
       setAdminOrderTableId('');
+      setSelectedOrderTarget(null);
     } catch (error) {
       pushToast({ title: 'Order Failed', message: error.response?.data?.message || 'Failed to create order', type: 'error' });
       playSound('error');
@@ -953,31 +975,69 @@ const AdminDashboard = () => {
                 setOrdersPage(1);
               }}
               categories={categories}
-              onNewOrder={() => setShowAdminOrderModal(true)}
+              onNewOrder={() => {
+                setAdminOrderItems([]);
+                setAdminOrderTableId('');
+                setSelectedOrderTarget(null);
+                setAddOrderStep(1);
+                loadCustomers();
+                setShowAdminAddOrderModal(true);
+              }}
             />
           )}
 
-          {/* New Admin Order Flow Modals */}
+          {/* Step 1: Target Selection Modal */}
+          {showAdminAddOrderModal && (
+            <AdminAddOrderModal
+              open={showAdminAddOrderModal}
+              onClose={() => setShowAdminAddOrderModal(false)}
+              tables={tables}
+              customers={customers}
+              staff={users.filter(u => u.role === 'waiter' || u.role === 'admin')}
+              onSelect={(target) => {
+                setSelectedOrderTarget(target);
+                if (target.type === 'table') {
+                  setAdminOrderTableId(target.id);
+                }
+                setShowAdminAddOrderModal(false);
+                setShowAdminOrderModal(true);
+                setAddOrderStep(2);
+              }}
+            />
+          )}
+
+          {/* Step 2: Dish Selection Modal */}
           {showAdminOrderModal && (
             <AddItemsModal
               open={showAdminOrderModal}
+              orderTargetName={selectedOrderTarget?.name} // Pass the target name for the header
               onClose={() => setShowAdminOrderModal(false)}
               menus={menus}
               categories={categories}
               staff={users.filter((u) => u.role === 'waiter' || u.role === 'admin')}
               items={adminOrderItems}
               onAddItem={(item) => {
+                const menuItem = menus.find(m => m._id === (item.menuItem?._id || item.menuItem));
+                const enrichedItem = {
+                  ...item,
+                  menuItem: {
+                    _id: menuItem?._id,
+                    name: menuItem?.name || 'Item'
+                  },
+                  priceAtOrderTime: item.variantPrice || menuItem?.price || 0
+                };
+
                 const existing = [...adminOrderItems];
                 const idx = existing.findIndex(
                   (i) =>
-                    (i.menuItem?._id || i.menuItem) === (item.menuItem?._id || item.menuItem) &&
-                    (i.variantId || null) === (item.variantId || null)
+                    (i.menuItem?._id || i.menuItem) === (enrichedItem.menuItem?._id || enrichedItem.menuItem) &&
+                    (i.variantId || null) === (enrichedItem.variantId || null)
                 );
                 if (idx >= 0) {
-                  existing[idx].quantity += item.quantity;
+                  existing[idx].quantity += enrichedItem.quantity;
                   setAdminOrderItems(existing);
                 } else {
-                  setAdminOrderItems([...existing, item]);
+                  setAdminOrderItems([...existing, enrichedItem]);
                 }
               }}
               onUpdateItemQuantity={(menuId, variantId, qty) => {
@@ -1005,7 +1065,8 @@ const AdminDashboard = () => {
                 setAdminOrderItems(updated);
               }}
               onClearCart={() => setAdminOrderItems([])}
-              onConfirm={() => {
+              onConfirm={(options) => {
+                // handles both "Confirm & Print" and "Confirm Order"
                 setShowAdminOrderModal(false);
                 setShowAdminConfirmModal(true);
               }}
@@ -1014,7 +1075,7 @@ const AdminDashboard = () => {
               onAssignStaff={setAdminOrderWaiterId}
               assignedStaffId={adminOrderWaiterId}
               tableOptions={tables
-                .filter((t) => t.status !== 'occupied')
+                .filter((t) => t.status !== 'occupied' || t._id === adminOrderTableId)
                 .map((t) => ({ value: t._id, label: `Table ${t.tableNumber}` }))}
               selectedTableId={adminOrderTableId}
               onTableChange={setAdminOrderTableId}
@@ -1029,7 +1090,7 @@ const AdminDashboard = () => {
               items={adminOrderItems}
               staff={users}
               assignedStaffId={adminOrderWaiterId}
-              tableNumber={tables.find((t) => t._id === adminOrderTableId)?.tableNumber}
+              tableNumber={tables.find((t) => t._id === adminOrderTableId)?.tableNumber || selectedOrderTarget?.name}
             />
           )}
 
