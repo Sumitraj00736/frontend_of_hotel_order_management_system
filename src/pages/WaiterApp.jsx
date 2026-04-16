@@ -205,16 +205,19 @@ const WaiterApp = () => {
   const menuCategories = useMemo(() => {
     const names = new Set();
     menus.forEach((m) => {
-      const label = m.category?.name || m.categoryName || m.category || 'Uncategorized';
-      if (label) names.add(label);
+      const catId = m.category?._id || (typeof m.category === 'string' ? m.category : null);
+      const label = m.category?.name || m.categoryName || (catId && catId.length !== 24 ? catId : null) || 'Uncategorized';
+      if (label && label !== 'Uncategorized') names.add(label);
     });
-    return Array.from(names);
+    const result = Array.from(names);
+    if (result.length) result.push('Uncategorized');
+    return result;
   }, [menus]);
 
   const menuSubMenus = useMemo(() => {
     const names = new Set();
     menus.forEach((m) => {
-      const label = m.subMenu?.name || m.subMenuName || m.subMenu || '';
+      const label = m.subMenu?.name || m.subMenuName || (typeof m.subMenu === 'string' && m.subMenu.length !== 24 ? m.subMenu : null) || '';
       if (label) names.add(label);
     });
     return Array.from(names);
@@ -223,8 +226,9 @@ const WaiterApp = () => {
   const filteredMenu = useMemo(() => {
     return menus.filter((m) => {
       const name = (m.name || '').toLowerCase();
-      const cat = (m.category?.name || m.categoryName || m.category || 'Uncategorized');
-      const sub = (m.subMenu?.name || m.subMenuName || m.subMenu || '');
+      const catId = m.category?._id || (typeof m.category === 'string' ? m.category : null);
+      const cat = m.category?.name || m.categoryName || (catId && catId.length !== 24 ? catId : null) || 'Uncategorized';
+      const sub = m.subMenu?.name || m.subMenuName || (typeof m.subMenu === 'string' && m.subMenu.length !== 24 ? m.subMenu : null) || '';
       if (m.isAvailable === false) return false;
       if (addCategory === 'recommended' && !m.isRecommended) return false;
       if (addCategory !== 'all' && cat !== addCategory) return false;

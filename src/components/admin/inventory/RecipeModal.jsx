@@ -67,7 +67,7 @@ const RecipeModal = ({ open, onClose, menus, ingredients, onSave, initialData = 
             <CustomDropdown
               value={recipeMenu}
               onChange={(e) => setRecipeMenu(e.target.value)}
-              options={menus.map((m) => ({ value: m._id, label: `${m.name} (${m.category})` }))}
+              options={menus.map((m) => ({ value: m._id, label: `${m.name} (${m.category?.name || m.category || 'Uncategorized'})` }))}
               placeholder="Select menu item..."
               disabled={!!initialData}
             />

@@ -553,7 +553,7 @@ const AdminInventory = ({ menus, ingredients, transactions, reload, externalView
                   <div className="recipe-card-header">
                     <div>
                       <div className="recipe-menu-name">{recipe.menuItem?.name}</div>
-                      <div className="recipe-category">{recipe.menuItem?.category}</div>
+                      <div className="recipe-category">{recipe.menuItem?.category?.name || recipe.menuItem?.category || 'Uncategorized'}</div>
                     </div>
                     <div className="fw-bold text-primary">NPR {recipe.menuItem?.price}</div>
                   </div>

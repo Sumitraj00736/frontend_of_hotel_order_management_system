@@ -366,14 +366,21 @@ const AdminDashboard = () => {
   const loadOrdersPage = async (page = ordersPage, limit = ordersLimit, category = ordersFilter) => {
     const res = await api.get('/api/orders', { params: { paginate: 1, page, limit, category } });
     const payload = res.data;
-    if (Array.isArray(payload?.data)) {
+    if (payload.success && Array.isArray(payload.data)) {
       setOrders(payload.data);
-      setOrdersTotal(payload.total || 0);
-      setOrdersPage(payload.page || page);
-      setOrdersLimit(payload.limit || limit);
+      setOrdersTotal(payload.pagination?.total || 0);
+      setOrdersPage(payload.pagination?.page || page);
+      setOrdersLimit(payload.pagination?.limit || limit);
       return;
     }
-    setOrders(Array.isArray(payload) ? payload : []);
+    // Fallback if success is true but data is direct array (shouldn't happen with new API)
+    if (Array.isArray(payload.data)) {
+      setOrders(payload.data);
+    } else if (Array.isArray(payload)) {
+      setOrders(payload);
+    } else {
+      setOrders([]);
+    }
   };
 
   useEffect(() => {
@@ -905,6 +912,7 @@ const AdminDashboard = () => {
                 setOrdersLimit(next);
                 setOrdersPage(1);
               }}
+              categories={categories}
             />
           )}
           {activeSection === 'users' && hasPermission('staff:view') && (

@@ -8,6 +8,7 @@ const AddItemsModal = ({
   open,
   onClose,
   menus = [],
+  categories = [],
   staff = [],
   showAssignStaff = true,
   assignedStaffId,
@@ -39,27 +40,34 @@ const AddItemsModal = ({
 
   const menuCategories = useMemo(() => {
     const names = new Set();
+    const catMap = new Map(categories.map(c => [c._id, c.name]));
     menus.forEach((m) => {
-      const label = m.category?.name || m.categoryName || m.category || 'Uncategorized';
-      if (label) names.add(label);
+      const catId = m.category?._id || (typeof m.category === 'string' ? m.category : null);
+      const label = m.category?.name || catMap.get(catId) || m.categoryName || (catId && catId.length !== 24 ? catId : null) || 'Uncategorized';
+      if (label && label !== 'Uncategorized') names.add(label);
     });
-    return Array.from(names);
-  }, [menus]);
+    const result = Array.from(names);
+    if (result.length) result.push('Uncategorized');
+    return result;
+  }, [menus, categories]);
 
   const menuSubMenus = useMemo(() => {
     const names = new Set();
+    // SubMenus are usually strings or simple objects in this schema, resolve similarly
     menus.forEach((m) => {
-      const label = m.subMenu?.name || m.subMenuName || m.subMenu || '';
+      const label = m.subMenu?.name || m.subMenuName || (typeof m.subMenu === 'string' && m.subMenu.length !== 24 ? m.subMenu : null) || '';
       if (label) names.add(label);
     });
     return Array.from(names);
   }, [menus]);
 
   const filteredMenus = useMemo(() => {
+    const catMap = new Map(categories.map(c => [c._id, c.name]));
     return menus.filter((m) => {
       const name = (m.name || '').toLowerCase();
-      const cat = (m.category?.name || m.categoryName || m.category || 'Uncategorized');
-      const sub = (m.subMenu?.name || m.subMenuName || m.subMenu || '');
+      const catId = m.category?._id || (typeof m.category === 'string' ? m.category : null);
+      const cat = m.category?.name || catMap.get(catId) || m.categoryName || (catId && catId.length !== 24 ? catId : null) || 'Uncategorized';
+      const sub = m.subMenu?.name || m.subMenuName || (typeof m.subMenu === 'string' && m.subMenu.length !== 24 ? m.subMenu : null) || '';
       if (m.isAvailable === false) return false;
       if (addCategory === 'recommended' && !m.isRecommended) return false;
       if (addCategory !== 'all' && cat !== addCategory) return false;

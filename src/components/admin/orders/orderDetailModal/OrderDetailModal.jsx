@@ -12,6 +12,7 @@ import '../../../../common/css/admin/orders/orderDetail.css';
 const OrderDetailModal = ({
   order,
   menus = [],
+  categories = [],
   staff = [],
   paymentMethods,
   onChangePaymentMethod,
@@ -265,6 +266,7 @@ const OrderDetailModal = ({
             onAddItem={handleAddItem}
             onUpdateItemQuantity={updateItemQuantity}
             onUpdateItemNote={updateItemNote}
+            categories={categories}
           />
         )}
       </div>

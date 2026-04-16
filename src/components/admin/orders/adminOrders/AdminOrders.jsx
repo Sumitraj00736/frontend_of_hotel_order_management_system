@@ -20,7 +20,8 @@ const AdminOrders = ({
   filter = 'active',
   onFilterChange,
   onPageChange,
-  onLimitChange
+  onLimitChange,
+  categories = []
 }) => {
   const [selected, setSelected] = useState(null);
 
@@ -77,6 +78,7 @@ const AdminOrders = ({
         <OrderDetailModal
           order={selected}
           menus={menus}
+          categories={categories}
           staff={staff}
           paymentMethods={paymentMethods}
           onChangePaymentMethod={onChangePaymentMethod}
