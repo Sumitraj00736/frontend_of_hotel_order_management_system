@@ -16,8 +16,11 @@ import WaiterProfile from '../components/waiter/Profile/WaiterProfile.jsx';
 import WaiterAnalytics from '../components/waiter/Analytics/WaiterAnalytics.jsx';
 import WaiterPromotionTimeline from '../components/waiter/PromotionTimeline/WaiterPromotionTimeline.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
+import MenuSection from '../components/admin/orders/addItemsModal/MenuSection.jsx';
+import CustomizeDishModal from '../components/admin/orders/addItemsModal/CustomizeDishModal.jsx';
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/waiter/waiterDashboard.css';
+import '../common/css/admin/orders/orderDetail.css';
 
 const WaiterApp = () => {
   const currentUser = getCurrentUser();
@@ -43,6 +46,9 @@ const WaiterApp = () => {
   const [orderViewMode, setOrderViewMode] = useState('myOrders');
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
   const [checkoutOrderData, setCheckoutOrderData] = useState(null);
+  const [addCategory, setAddCategory] = useState('all');
+  const [addSubMenu, setAddSubMenu] = useState('all');
+  const [customizeItem, setCustomizeItem] = useState(null);
 
   // Toggle body scroll when mobile cart drawer is open
   useEffect(() => {
@@ -196,31 +202,82 @@ const WaiterApp = () => {
     return () => socket.disconnect();
   }, [currentUser?._id, currentUser?.id]);
 
-  const filteredMenu = useMemo(() => {
-    const available = menus.filter((item) => item.isAvailable !== false);
-    if (!search) return available;
-    return available.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
-  }, [menus, search]);
+  const menuCategories = useMemo(() => {
+    const names = new Set();
+    menus.forEach((m) => {
+      const label = m.category?.name || m.categoryName || m.category || 'Uncategorized';
+      if (label) names.add(label);
+    });
+    return Array.from(names);
+  }, [menus]);
 
-  const addToCart = (item) => {
-    if (item.isAvailable === false) {
+  const menuSubMenus = useMemo(() => {
+    const names = new Set();
+    menus.forEach((m) => {
+      const label = m.subMenu?.name || m.subMenuName || m.subMenu || '';
+      if (label) names.add(label);
+    });
+    return Array.from(names);
+  }, [menus]);
+
+  const filteredMenu = useMemo(() => {
+    return menus.filter((m) => {
+      const name = (m.name || '').toLowerCase();
+      const cat = (m.category?.name || m.categoryName || m.category || 'Uncategorized');
+      const sub = (m.subMenu?.name || m.subMenuName || m.subMenu || '');
+      if (m.isAvailable === false) return false;
+      if (addCategory === 'recommended' && !m.isRecommended) return false;
+      if (addCategory !== 'all' && cat !== addCategory) return false;
+      if (addSubMenu !== 'all' && sub !== addSubMenu) return false;
+      if (search && !name.includes(search.toLowerCase())) return false;
+      return true;
+    });
+  }, [menus, addCategory, addSubMenu, search]);
+
+  const addToCart = (itemPayload) => {
+    const item = itemPayload.onAdd ? itemPayload : menus.find(m => m._id === (itemPayload.menuItem || itemPayload._id));
+    if (!item || item.isAvailable === false) {
       alert('This item is unavailable');
       return;
     }
+    
+    // Handle variants from MenuSection
+    const variantId = itemPayload.variantId || null;
+    const variantName = itemPayload.variantName || null;
+    const variantPrice = itemPayload.variantPrice || null;
+
     setCart((prev) => {
-      const existing = prev.find((c) => c.menuItem === item._id);
+      const existing = prev.find((c) => 
+        c.menuItem === item._id && 
+        (c.variantId || null) === (variantId || null)
+      );
       if (existing) {
-        return prev.map((c) => (c.menuItem === item._id ? { ...c, quantity: c.quantity + 1 } : c));
+        return prev.map((c) => (
+          (c.menuItem === item._id && (c.variantId || null) === (variantId || null))
+            ? { ...c, quantity: c.quantity + (itemPayload.quantity || 1) } 
+            : c
+        ));
       }
-      return [...prev, { menuItem: item._id, name: item.name, price: item.price, quantity: 1 }];
+      return [
+        ...prev, 
+        { 
+          menuItem: item._id, 
+          name: item.name, 
+          price: variantPrice ?? item.price, 
+          quantity: itemPayload.quantity || 1,
+          variantId,
+          variantName,
+          variantPrice
+        }
+      ];
     });
   };
 
-  const updateQty = (menuItem, quantity) => {
+  const updateQty = (menuItem, quantity, variantId = null) => {
     setCart((prev) => {
       const qty = Number(quantity);
-      if (qty <= 0) return prev.filter((c) => c.menuItem !== menuItem);
-      return prev.map((c) => (c.menuItem === menuItem ? { ...c, quantity: qty } : c));
+      if (qty <= 0) return prev.filter((c) => !(c.menuItem === menuItem && (c.variantId || null) === (variantId || null)));
+      return prev.map((c) => (c.menuItem === menuItem && (c.variantId || null) === (variantId || null)) ? { ...c, quantity: qty } : c);
     });
   };
 
@@ -468,21 +525,29 @@ const WaiterApp = () => {
 
         {activeSection === 'dashboard' && can('dashboard:view') && (
           <div className="content waiter-pos-layout position-relative">
-            <div className="pos-menu-section h-100">
-              <div className="pos-search-wrapper">
-                <Search size={18} color="#9ca3af" className="me-2" />
-                <input
-                  placeholder="Search menu items..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              
-              <div className="pos-menu-body">
-                {can('menu:view') ? (
-                  <WaiterMenu menuItems={filteredMenu} onAdd={addToCart} />
-                ) : <div />}
-              </div>
+            <div className="pos-menu-section h-100 p-3 overflow-hidden d-flex flex-column">
+              {can('menu:view') ? (
+                <div className="flex-grow-1 overflow-auto rounded-3 bg-white p-3 shadow-sm" style={{ border: '1px solid #eef1f6' }}>
+                  <MenuSection
+                    addSubMenu={addSubMenu}
+                    menuSubMenus={menuSubMenus}
+                    addSearch={search}
+                    onSearchChange={setSearch}
+                    addCategory={addCategory}
+                    menuCategories={menuCategories}
+                    onCategoryChange={({ category, subMenu }) => {
+                      if (category) setAddCategory(category);
+                      if (subMenu !== undefined) setAddSubMenu(subMenu);
+                    }}
+                    filteredMenus={filteredMenu}
+                    onAdd={addToCart}
+                    onCustomize={setCustomizeItem}
+                    tableOptions={tables}
+                    selectedTableId={selectedTable}
+                    onTableChange={setSelectedTable}
+                  />
+                </div>
+              ) : <div />}
             </div>
             
             <div className="pos-cart-section h-100 overflow-hidden d-none d-md-block">
@@ -607,6 +672,12 @@ const WaiterApp = () => {
             </div>
           </div>
         )}
+      <CustomizeDishModal
+        open={Boolean(customizeItem)}
+        item={customizeItem}
+        onClose={() => setCustomizeItem(null)}
+        onAdd={addToCart}
+      />
       </div>
     </div>
   );

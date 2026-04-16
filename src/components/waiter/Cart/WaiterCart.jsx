@@ -103,17 +103,20 @@ const WaiterCart = ({
             </div>
           )}
           {cart.map((item) => (
-            <div key={item.menuItem} className="cart-item-row">
+            <div key={`${item.menuItem}-${item.variantId || 'base'}`} className="cart-item-row">
               <div className="cart-item-info">
-                <div className="cart-item-name">{item.name}</div>
+                <div className="cart-item-name">
+                  {item.name}
+                  {item.variantName && <span className="text-muted small ms-1">({item.variantName})</span>}
+                </div>
                 <div className="cart-item-price">NPR {item.price}</div>
               </div>
               <div className="qty-control">
                 <button
                   className="qty-btn"
                   onClick={() => {
-                    if (item.quantity === 1) onUpdateQty(item.menuItem, 0); // triggers removal
-                    else onUpdateQty(item.menuItem, item.quantity - 1);
+                    if (item.quantity === 1) onUpdateQty(item.menuItem, 0, item.variantId);
+                    else onUpdateQty(item.menuItem, item.quantity - 1, item.variantId);
                   }}
                 >
                   {item.quantity === 1 ? <Trash2 size={14} color="#ef4444" /> : <Minus size={14} />}
@@ -121,7 +124,7 @@ const WaiterCart = ({
                 <div className="qty-val">{item.quantity}</div>
                 <button
                   className="qty-btn"
-                  onClick={() => onUpdateQty(item.menuItem, item.quantity + 1)}
+                  onClick={() => onUpdateQty(item.menuItem, item.quantity + 1, item.variantId)}
                 >
                   <Plus size={14} />
                 </button>

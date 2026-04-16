@@ -90,6 +90,7 @@ const AdminDashboard = () => {
   const [ordersPage, setOrdersPage] = useState(1);
   const [ordersLimit, setOrdersLimit] = useState(12);
   const [ordersTotal, setOrdersTotal] = useState(0);
+  const [ordersFilter, setOrdersFilter] = useState('active');
   const [orderDashboardData, setOrderDashboardData] = useState(null);
   const [overviewDashboardData, setOverviewDashboardData] = useState(null);
   const [financeDashboardData, setFinanceDashboardData] = useState(null);
@@ -361,8 +362,8 @@ const AdminDashboard = () => {
     }
   }, [activeSection, loadDashboardExtras]);
 
-  const loadOrdersPage = async (page = ordersPage, limit = ordersLimit) => {
-    const res = await api.get('/api/orders', { params: { paginate: 1, page, limit } });
+  const loadOrdersPage = async (page = ordersPage, limit = ordersLimit, category = ordersFilter) => {
+    const res = await api.get('/api/orders', { params: { paginate: 1, page, limit, category } });
     const payload = res.data;
     if (Array.isArray(payload?.data)) {
       setOrders(payload.data);
@@ -376,9 +377,9 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (activeSection === 'orders') {
-      loadOrdersPage(ordersPage, ordersLimit);
+      loadOrdersPage(ordersPage, ordersLimit, ordersFilter);
     }
-  }, [activeSection, ordersPage, ordersLimit]);
+  }, [activeSection, ordersPage, ordersLimit, ordersFilter]);
 
   useEffect(() => {
     if (activeSection.startsWith('tables')) {
@@ -879,12 +880,17 @@ const AdminDashboard = () => {
               onPrint={printBill}
               onUpdateOrder={async (payload) => {
                 const res = await api.put(`/api/orders/${payload.orderId}`, payload);
-                await loadAll();
+                await loadOrdersPage(ordersPage, ordersLimit, ordersFilter);
                 return res.data;
               }}
               page={ordersPage}
               limit={ordersLimit}
               total={ordersTotal}
+              filter={ordersFilter}
+              onFilterChange={(next) => {
+                setOrdersFilter(next);
+                setOrdersPage(1);
+              }}
               onPageChange={(next) => setOrdersPage(next)}
               onLimitChange={(next) => {
                 setOrdersLimit(next);
