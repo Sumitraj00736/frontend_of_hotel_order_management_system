@@ -109,8 +109,8 @@ const WaiterApp = () => {
     };
 
     if (effectiveRole === 'waiter') {
-      return ['orders', 'takeaway', 'notifications', 'dashboard', 'menu', 'profile'].filter((section) => {
-        if (section === 'orders' || section === 'profile' || section === 'takeaway') return true;
+      return ['dashboard', 'orders', 'menu', 'notifications', 'profile'].filter((section) => {
+        if (section === 'profile') return true;
         const perm = sectionPermissions[section];
         return perm ? can(perm) : true;
       });
@@ -128,14 +128,21 @@ const WaiterApp = () => {
   const [notificationFilters, setNotificationFilters] = useState({});
 
   const loadData = async (ordersScope = 'mine') => {
-    const results = await Promise.allSettled([
+    const fetchPromises = [
       api.get('/api/tables'),
       api.get('/api/menus'),
       api.get('/api/orders', { params: ordersScope === 'all' ? { scope: 'all' } : {} }),
-      api.get('/api/profile/me'),
-      api.get('/api/profile/waiter/analytics'),
-      api.get('/api/promotions/me')
-    ]);
+      api.get('/api/profile/me')
+    ];
+
+    // Optional fetches based on implicit or explicit permissions
+    const analyticsIdx = fetchPromises.length;
+    fetchPromises.push(api.get('/api/profile/waiter/analytics').catch(() => ({ data: null })));
+    
+    const promoIdx = fetchPromises.length;
+    fetchPromises.push(api.get('/api/promotions/me').catch(() => ({ data: [] })));
+
+    const results = await Promise.allSettled(fetchPromises);
 
     if (results[0].status === 'fulfilled') setTables(results[0].value.data);
     if (results[1].status === 'fulfilled') setMenus(results[1].value.data);
@@ -144,8 +151,14 @@ const WaiterApp = () => {
       setOrders(Array.isArray(payload?.data) ? payload.data : payload);
     }
     if (results[3].status === 'fulfilled') setProfile(results[3].value.data);
-    if (results[4].status === 'fulfilled') setMyAnalytics(results[4].value.data);
-    if (results[5].status === 'fulfilled') setPromotions(results[5].value.data);
+    
+    // Handle optional results safely
+    if (results[analyticsIdx]?.status === 'fulfilled' && results[analyticsIdx].value.data) {
+      setMyAnalytics(results[analyticsIdx].value.data);
+    }
+    if (results[promoIdx]?.status === 'fulfilled' && results[promoIdx].value.data) {
+      setPromotions(results[promoIdx].value.data);
+    }
   };
 
   const loadCustomers = async () => {

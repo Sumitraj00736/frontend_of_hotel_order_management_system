@@ -13,16 +13,16 @@
   padding: 0 !important;
 }
 
-/* Compact text scale for waiter screens */
+/* High-density text scale for professional waiter dashboard */
 .admin-shell,
 .admin-shell :is(input, select, textarea, button) {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 @media (max-width: 768px) {
   .admin-shell,
   .admin-shell :is(input, select, textarea, button) {
-    font-size: 12px;
+    font-size: 11px;
   }
 }
 
@@ -741,19 +741,25 @@
     overflow: visible !important;
   }
 
-  /* Target the centered Dashboard (3rd icon) */
-  .sidebar-button:nth-child(3) {
+  /* Target the Dashboard (now 1st in array) and move to center via order:3 */
+  .sidebar-button:nth-child(1) {
+    order: 3;
     margin-top: -30px;
     height: 64px !important;
     width: 64px !important;
-    background: linear-gradient(135deg, #FFC72C 0%, #FFB100 100%) !important;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; /* Changed to Emerald for better contrast */
     border-radius: 20px !important;
-    box-shadow: 0 8px 20px rgba(255, 199, 44, 0.4) !important;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4) !important;
     border: 3px solid #ffffff !important;
     color: #ffffff !important;
   }
 
-  .sidebar-button:nth-child(3).active {
+  .sidebar-button:nth-child(2) { order: 1; }
+  .sidebar-button:nth-child(3) { order: 2; }
+  .sidebar-button:nth-child(4) { order: 4; }
+  .sidebar-button:nth-child(5) { order: 5; }
+
+  .sidebar-button:nth-child(1).active {
     color: #ffffff !important;
     transform: translateY(-4px) scale(1.05);
   }

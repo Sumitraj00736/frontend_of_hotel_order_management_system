@@ -16,7 +16,12 @@ const WaiterMenu = ({ menuItems, onAdd }) => (
             <div className="menu-name">{item.name}</div>
             <div className="menu-category">{item.category || 'General'}</div>
             <div className="menu-price-row">
-              <span className="menu-price">NPR {item.price}</span>
+              <span className="menu-price">
+                {item.variants?.length > 0 
+                  ? `NPR ${Math.min(...item.variants.map(v => v.price))} - ${Math.max(...item.variants.map(v => v.price))}`
+                  : `NPR ${typeof item.price === 'object' ? (item.price.base || 0) : item.price}`
+                }
+              </span>
               <div className="menu-add-icon">
                 <Plus size={16} />
               </div>
