@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { CheckCircle } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import { CheckCircle, Volume2 } from 'lucide-react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
@@ -151,14 +151,47 @@ const AdminDashboard = () => {
   const [menuForm, setMenuForm] = useState({ name: '', category: '', price: '', imageUrl: '' });
   const menuCreateRef = React.useRef(false);
 
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const lastAlertIdRef = useRef(null);
+  const audioRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'));
+
+  const unblockAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.play().then(() => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setSoundEnabled(true);
+      }).catch(e => console.log('[Audio] Unblock failed:', e));
+    }
+  }, []);
+
+  const playBell = useCallback((eventId = null) => {
+    if (eventId && lastAlertIdRef.current === eventId) return;
+    if (eventId) {
+      lastAlertIdRef.current = eventId;
+      setTimeout(() => { if (lastAlertIdRef.current === eventId) lastAlertIdRef.current = null; }, 5000);
+    }
+    
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => {
+        console.log('[Audio] Play blocked:', e);
+        setSoundEnabled(false);
+      });
+    }
+  }, []);
+
   const pushToast = useCallback((payload) => {
+    if (payload.sound !== false) {
+      playBell(payload.id);
+    }
     const id = payload.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const toast = { id, toast: true, ...payload };
     setToasts((prev) => [toast, ...prev].slice(0, 5));
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, payload.duration || 3500);
-  }, []);
+  }, [playBell]);
 
   const loadAll = async (options = dashboardOptions) => {
     const res = await api.get('/api/dashboard', {
@@ -443,6 +476,15 @@ const AdminDashboard = () => {
 
     socket.on('orders:new', (order) => {
       setOrders((prev) => [order, ...prev]);
+      
+      const tableLabel = order?.table?.tableNumber ? `Table ${order.table.tableNumber}` : 'Takeaway';
+      pushToast({
+        id: order._id,
+        title: 'New Order Received',
+        message: `${tableLabel} has a new order.`,
+        type: 'success'
+      });
+
       pushSystemNotification({
         title: 'New Order Received',
         body: `Table ${order?.table?.tableNumber || '-'} has a new order.`,
@@ -871,6 +913,12 @@ const AdminDashboard = () => {
 
   return (
     <div className={`admin-shell ${isMobile ? 'mobile-app-shell' : ''}`}>
+      {!soundEnabled && (
+        <div className="sound-enable-banner" onClick={unblockAudio}>
+          <Volume2 size={18} />
+          <span>Tap to enable order alerts sound</span>
+        </div>
+      )}
       <NotificationToasts notifications={toasts} />
       <AdminHeader
         isMobile={isMobile}

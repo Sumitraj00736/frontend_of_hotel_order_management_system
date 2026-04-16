@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
-import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed, ShoppingBag } from 'lucide-react';
+ import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed, ShoppingBag, Volume2 } from 'lucide-react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
@@ -55,12 +55,43 @@ const WaiterApp = () => {
   const [toasts, setToasts] = useState([]);
   const [orderType, setOrderType] = useState('dine_in');
   const [pushSupported, setPushSupported] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(false);
   const initAttemptedRef = useRef(false);
+  const lastAlertIdRef = useRef(null);
+  const audioRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'));
+
+  const unblockAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.play().then(() => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setSoundEnabled(true);
+      }).catch(e => console.log('[Audio] Unblock failed:', e));
+    }
+  }, []);
+
+  const playBell = useCallback((eventId = null) => {
+    // Deduplicate: Don't ring twice for the same event ID within a short window (5s)
+    if (eventId && lastAlertIdRef.current === eventId) return;
+    if (eventId) {
+      lastAlertIdRef.current = eventId;
+      setTimeout(() => { if (lastAlertIdRef.current === eventId) lastAlertIdRef.current = null; }, 5000);
+    }
+    
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => {
+        console.log('[Audio] Play blocked:', e);
+        setSoundEnabled(false);
+      });
+    }
+  }, []);
 
   const pushToast = useCallback((payload) => {
-    // Play notification sound
-    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-    audio.play().catch(e => console.log('Audio play blocked:', e));
+    // Ring the bell unless explicitly silenced
+    if (payload.sound !== false) {
+      playBell(payload.id);
+    }
 
     const id = payload.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const toast = { id, toast: true, ...payload };
@@ -214,6 +245,7 @@ const WaiterApp = () => {
       
       const tableLabel = order?.table?.tableNumber ? `Table ${order.table.tableNumber}` : 'Takeaway';
       pushToast({
+        id: order._id, // Use order ID for deduplication and sound triggering
         title: 'New Order Received',
         message: `${tableLabel} has a new order.`,
         type: 'success'
@@ -309,6 +341,7 @@ const WaiterApp = () => {
         unsubscribeFCM = onMessage(messaging, (payload) => {
           console.log('[FCM] Foreground message received:', payload);
           pushToast({
+            id: payload.data?.orderId || payload.messageId, // Deduplicate against socket events
             title: payload.notification?.title || 'New Update',
             message: payload.notification?.body || 'Check the details.',
             type: 'info'
@@ -637,6 +670,12 @@ const WaiterApp = () => {
       )}
 
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
+        {!soundEnabled && (
+          <div className="sound-enable-banner" onClick={unblockAudio}>
+            <Volume2 size={18} />
+            <span>Tap to enable order alerts sound</span>
+          </div>
+        )}
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
           <WaiterSidebar
             activeSection={activeSection}
