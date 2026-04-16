@@ -27,6 +27,7 @@ import AdminPromotionTimeline from '../components/admin/promotions/AdminPromotio
 import AdminInventory from '../components/admin/inventory/AdminInventory.jsx';
 import AdminWebsite from '../components/admin/website/AdminWebsite.jsx';
 import AdminSettings from '../components/admin/settings/AdminSettings.jsx';
+import SettingsSidebar from '../components/admin/settings/SettingsSidebar.jsx';
 import AdminCustomers from '../components/admin/customers/AdminCustomers.jsx';
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/admin/common/adminResponsive.css';
@@ -822,13 +823,21 @@ const AdminDashboard = () => {
       />
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
-          <AdminSidebar
-            activeSection={activeSection}
-            onSelect={setActiveSection}
-            isOpen={sidebarOpen}
-            onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
-            unreadCount={unreadCount}
-          />
+          {activeSection.startsWith('settings') && !isMobile && isSuperAdmin ? (
+            <SettingsSidebar
+              active={activeSection.split(':')[1] || 'restaurant-details'}
+              onSelect={(view) => setActiveSection(`settings:${view}`)}
+              onBack={() => setActiveSection('dashboard')}
+            />
+          ) : (
+            <AdminSidebar
+              activeSection={activeSection}
+              onSelect={setActiveSection}
+              isOpen={sidebarOpen}
+              onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+              unreadCount={unreadCount}
+            />
+          )}
         </div>
 
         <div className="content">

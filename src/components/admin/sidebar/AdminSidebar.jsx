@@ -87,37 +87,6 @@ const reportsSubIcons = {
   stock: <Boxes size={14} />
 };
 
-const settingsNavSections = [
-  {
-    title: 'General Setting',
-    items: [
-      { id: 'settings:restaurant-details', label: 'Restaurant Details' },
-      { id: 'settings:tax-rates', label: 'Tax & Rates' },
-      { id: 'settings:notifications', label: 'Notifications' },
-      { id: 'settings:activity-log', label: 'Activity Log' },
-      { id: 'settings:department', label: 'Department' },
-      { id: 'settings:billing', label: 'Billing & Subscription' },
-      { id: 'settings:users-role', label: 'Users Role' },
-      { id: 'settings:trash', label: 'Trash' }
-    ]
-  },
-  {
-    title: 'Order Setting',
-    items: [
-      { id: 'settings:invoice-setting', label: 'Invoice Setting' },
-      { id: 'settings:kot-setting', label: 'KOT Setting' },
-      { id: 'settings:printer', label: 'Printer' }
-    ]
-  },
-  {
-    title: 'RestroX',
-    items: [
-      { id: 'settings:support', label: 'Support & Feedback' },
-      { id: 'settings:release', label: 'Release Notes' }
-    ]
-  }
-];
-
 const coreSections = ['dashboard', 'orders', 'users', 'customers', 'website', 'notifications'];
 
 const sectionPermissions = {
@@ -143,7 +112,6 @@ const AdminSidebar = ({
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
   const [tablesOpen, setTablesOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [dateMode, setDateMode] = useState('AD');
@@ -249,14 +217,7 @@ const AdminSidebar = ({
     setInventoryOpen((value) => (menu === 'inventory' ? !value : false));
     setReportsOpen((value) => (menu === 'reports' ? !value : false));
     setTablesOpen((value) => (menu === 'tables' ? !value : false));
-    setSettingsOpen((value) => (menu === 'settings' ? !value : false));
   };
-
-  useEffect(() => {
-    if (activeSection.startsWith('settings')) {
-      setSettingsOpen(true);
-    }
-  }, [activeSection]);
 
   const getProfilePopoverStyle = () => {
     if (isMobile) return undefined;
@@ -655,74 +616,16 @@ const AdminSidebar = ({
 
           {/* SETTINGS */}
           {hasPermission('settings:view') && user?.role?.toLowerCase() === 'superadmin' && (
-            <div
-              className="sidebar-group"
-              onMouseEnter={() => !isOpen && !isMobile && setHoveredMenu('settings')}
-              onMouseLeave={() => !isOpen && !isMobile && setHoveredMenu(null)}
+            <button
+              className={`sidebar-button ${activeSection.startsWith('settings') ? 'active' : ''} ${
+                isOpen ? '' : 'compact'
+              }`}
+              onClick={() => handleSelect('settings:restaurant-details')}
+              title="SETTINGS"
             >
-              <button
-                className={`sidebar-button ${activeSection.startsWith('settings') ? 'active' : ''} ${
-                  isOpen ? '' : 'compact'
-                }`}
-                onClick={() => {
-                  if (isOpen) {
-                    handleToggleMenu('settings');
-                    if (!settingsOpen && !activeSection.startsWith('settings')) {
-                      onSelect?.('settings:restaurant-details');
-                    }
-                  } else {
-                    setHoveredMenu('settings');
-                  }
-                }}
-                title="SETTINGS"
-              >
-                <span className="sidebar-icon">{iconMap.settings}</span>
-                <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Settings</span>
-                {isOpen && (
-                  <span className="ms-auto">
-                    {settingsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                  </span>
-                )}
-              </button>
-
-              {isOpen && (
-                <div className={`sidebar-sub ${settingsOpen ? 'open' : ''}`}>
-                  {settingsNavSections.map((section) => (
-                    <div key={section.title} className="mb-2">
-                      <div className="tiny-text text-muted fw-semibold px-1 mb-1" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#9aa4b2' }}>
-                        {section.title}
-                      </div>
-                      {section.items.map((item) => (
-                        <button
-                          key={item.id}
-                          className={`sidebar-button sub ${activeSection === item.id ? 'active' : ''}`}
-                          onClick={() => handleSelect(item.id)}
-                        >
-                          <span
-                            className="sidebar-icon"
-                            style={{
-                              display: 'inline-flex',
-                              width: 8,
-                              height: 8,
-                              minWidth: 8,
-                              borderRadius: '50%',
-                              background: activeSection === item.id ? '#d9583f' : '#d1d5db'
-                            }}
-                          />
-                          <span className="sidebar-label">{item.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {renderCollapsedPopover(
-                'settings',
-                'Settings',
-                settingsNavSections.flatMap((section) => section.items)
-              )}
-            </div>
+              <span className="sidebar-icon">{iconMap.settings}</span>
+              <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Settings</span>
+            </button>
           )}
         </div>
 
