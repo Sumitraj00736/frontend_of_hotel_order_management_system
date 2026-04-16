@@ -29,6 +29,8 @@ import AdminWebsite from '../components/admin/website/AdminWebsite.jsx';
 import AdminSettings from '../components/admin/settings/AdminSettings.jsx';
 import SettingsSidebar from '../components/admin/settings/SettingsSidebar.jsx';
 import AdminCustomers from '../components/admin/customers/AdminCustomers.jsx';
+import AdminOrderConfirmModal from '../components/admin/orders/addItemsModal/AdminOrderConfirmModal.jsx';
+import { playSound } from '../utils/sound.js';
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/admin/common/adminResponsive.css';
 
@@ -100,6 +102,15 @@ const AdminDashboard = () => {
   const [transactionFilters, setTransactionFilters] = useState({ dateFrom: '', dateTo: '' });
   const [toasts, setToasts] = useState([]);
   const dashboardLoadedRef = React.useRef(false);
+
+  // Admin Order Creation Flow
+  const [showAdminOrderModal, setShowAdminOrderModal] = useState(false);
+  const [showAdminConfirmModal, setShowAdminConfirmModal] = useState(false);
+  const [showAdminSuccessPopup, setShowAdminSuccessPopup] = useState(false);
+  const [adminOrderItems, setAdminOrderItems] = useState([]);
+  const [adminOrderWaiterId, setAdminOrderWaiterId] = useState('');
+  const [adminOrderTableId, setAdminOrderTableId] = useState('');
+  const [lastCreatedOrder, setLastCreatedOrder] = useState(null);
 
   const [userForm, setUserForm] = useState({
     name: '',
@@ -600,6 +611,35 @@ const AdminDashboard = () => {
     loadAll();
   };
 
+  const handleAdminSubmitOrder = async () => {
+    try {
+      const payload = {
+        table: adminOrderTableId,
+        items: adminOrderItems.map(i => ({
+          menuItem: i.menuItem?._id || i.menuItem,
+          quantity: i.quantity,
+          variantId: i.variantId || i.variant?._id,
+          itemNote: i.itemNote
+        })),
+        assignedStaff: adminOrderWaiterId
+      };
+      const res = await api.post('/api/orders', payload);
+      setLastCreatedOrder(res.data);
+      setShowAdminConfirmModal(false);
+      setShowAdminSuccessPopup(true);
+      playSound('success');
+      pushToast({ title: 'Order Confirmed', message: `Table ${res.data.table?.tableNumber} is now booked.`, type: 'success' });
+      loadAll();
+      // Reset form
+      setAdminOrderItems([]);
+      setAdminOrderWaiterId('');
+      setAdminOrderTableId('');
+    } catch (error) {
+      pushToast({ title: 'Order Failed', message: error.response?.data?.message || 'Failed to create order', type: 'error' });
+      playSound('error');
+    }
+  };
+
   const updateTable = async (tableId, payload) => {
     await api.put(`/api/tables/${tableId}`, payload);
     loadAll();
@@ -913,7 +953,112 @@ const AdminDashboard = () => {
                 setOrdersPage(1);
               }}
               categories={categories}
+              onNewOrder={() => setShowAdminOrderModal(true)}
             />
+          )}
+
+          {/* New Admin Order Flow Modals */}
+          {showAdminOrderModal && (
+            <AddItemsModal
+              open={showAdminOrderModal}
+              onClose={() => setShowAdminOrderModal(false)}
+              menus={menus}
+              categories={categories}
+              staff={users.filter((u) => u.role === 'waiter' || u.role === 'admin')}
+              items={adminOrderItems}
+              onAddItem={(item) => {
+                const existing = [...adminOrderItems];
+                const idx = existing.findIndex(
+                  (i) =>
+                    (i.menuItem?._id || i.menuItem) === (item.menuItem?._id || item.menuItem) &&
+                    (i.variantId || null) === (item.variantId || null)
+                );
+                if (idx >= 0) {
+                  existing[idx].quantity += item.quantity;
+                  setAdminOrderItems(existing);
+                } else {
+                  setAdminOrderItems([...existing, item]);
+                }
+              }}
+              onUpdateItemQuantity={(menuId, variantId, qty) => {
+                const updated = adminOrderItems
+                  .map((i) => {
+                    const id = i.menuItem?._id || i.menuItem;
+                    const vId = i.variantId || i.variant?._id || null;
+                    if (id === menuId && vId === (variantId || null)) {
+                      return { ...i, quantity: qty };
+                    }
+                    return i;
+                  })
+                  .filter((i) => i.quantity > 0);
+                setAdminOrderItems(updated);
+              }}
+              onUpdateItemNote={(menuId, variantId, note) => {
+                const updated = adminOrderItems.map((i) => {
+                  const id = i.menuItem?._id || i.menuItem;
+                  const vId = i.variantId || i.variant?._id || null;
+                  if (id === menuId && vId === (variantId || null)) {
+                    return { ...i, itemNote: note };
+                  }
+                  return i;
+                });
+                setAdminOrderItems(updated);
+              }}
+              onClearCart={() => setAdminOrderItems([])}
+              onConfirm={() => {
+                setShowAdminOrderModal(false);
+                setShowAdminConfirmModal(true);
+              }}
+              confirmLabel="Proceed to Waiter Assignment"
+              confirmDisabled={adminOrderItems.length === 0}
+              onAssignStaff={setAdminOrderWaiterId}
+              assignedStaffId={adminOrderWaiterId}
+              tableOptions={tables
+                .filter((t) => t.status !== 'occupied')
+                .map((t) => ({ value: t._id, label: `Table ${t.tableNumber}` }))}
+              selectedTableId={adminOrderTableId}
+              onTableChange={setAdminOrderTableId}
+            />
+          )}
+
+          {showAdminConfirmModal && (
+            <AdminOrderConfirmModal
+              open={showAdminConfirmModal}
+              onClose={() => setShowAdminConfirmModal(false)}
+              onConfirm={handleAdminSubmitOrder}
+              items={adminOrderItems}
+              staff={users}
+              assignedStaffId={adminOrderWaiterId}
+              tableNumber={tables.find((t) => t._id === adminOrderTableId)?.tableNumber}
+            />
+          )}
+
+          {showAdminSuccessPopup && lastCreatedOrder && (
+            <div className="checkout-overlay" style={{ zIndex: 1200 }}>
+              <div
+                className="checkout-panel text-center p-5"
+                style={{ maxWidth: '400px', height: 'auto' }}
+              >
+                <div className="mb-4 text-success">
+                  <div
+                    className="icon-circle bg-success-soft text-success mx-auto mb-3"
+                    style={{ width: '80px', height: '80px' }}
+                  >
+                    <CheckCircle size={48} />
+                  </div>
+                  <h3 className="fw-bold">Order Confirmed!</h3>
+                  <p className="text-muted">
+                    Table {lastCreatedOrder.table?.tableNumber} is successfully booked.
+                  </p>
+                </div>
+                <button
+                  className="btn btn-primary w-100 py-2 fw-bold"
+                  onClick={() => setShowAdminSuccessPopup(false)}
+                >
+                  Great!
+                </button>
+              </div>
+            </div>
           )}
           {activeSection === 'users' && hasPermission('staff:view') && (
             <>
