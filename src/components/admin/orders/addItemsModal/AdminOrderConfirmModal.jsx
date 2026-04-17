@@ -17,7 +17,7 @@ const AdminOrderConfirmModal = ({
   const selectedStaff = staff.find(s => s._id === assignedStaffId);
 
   return createPortal(
-    <div className="checkout-overlay" style={{ zIndex: 1100 }}>
+    <div className="checkout-overlay">
       <div className="checkout-panel" style={{ maxWidth: '500px', height: 'auto', maxHeight: '90vh' }}>
         <div className="checkout-header p-4 border-bottom d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center gap-2">

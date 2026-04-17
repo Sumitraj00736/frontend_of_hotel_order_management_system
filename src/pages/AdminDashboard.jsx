@@ -70,10 +70,10 @@ const AdminDashboard = () => {
   const [branchOpen, setBranchOpen] = useState(false);
   const [financeFilters, setFinanceFilters] = useState({ dateFrom: '', dateTo: '' });
   const [dashboardOptions, setDashboardOptions] = useState({
-    includeAnalytics: false,
-    includeStock: false,
-    includeHistory: false,
-    includeNotifications: false
+    includeAnalytics: true,
+    includeStock: true,
+    includeHistory: true,
+    includeNotifications: true
   });
   const currentUser = getCurrentUser();
   const branches = getBranches() || [];
@@ -1034,141 +1034,6 @@ const AdminDashboard = () => {
             />
           )}
 
-          {/* Step 1: Target Selection Modal */}
-          {showAdminAddOrderModal && (
-            <AdminAddOrderModal
-              open={showAdminAddOrderModal}
-              onClose={() => setShowAdminAddOrderModal(false)}
-              tables={tables}
-              customers={customers}
-              staff={users.filter(u => u.role === 'waiter' || u.role === 'admin')}
-              onSelect={(target) => {
-                setSelectedOrderTarget(target);
-                if (target.type === 'table') {
-                  setAdminOrderTableId(target.id);
-                }
-                setShowAdminAddOrderModal(false);
-                setShowAdminOrderModal(true);
-                setAddOrderStep(2);
-              }}
-            />
-          )}
-
-          {/* Step 2: Dish Selection Modal */}
-          {showAdminOrderModal && (
-            <AddItemsModal
-              open={showAdminOrderModal}
-              orderTargetName={selectedOrderTarget?.name} // Pass the target name for the header
-              onClose={() => setShowAdminOrderModal(false)}
-              menus={menus}
-              categories={categories}
-              staff={users.filter((u) => u.role === 'waiter' || u.role === 'admin')}
-              items={adminOrderItems}
-              onAddItem={(item) => {
-                const menuItem = menus.find(m => m._id === (item.menuItem?._id || item.menuItem));
-                const enrichedItem = {
-                  ...item,
-                  menuItem: {
-                    _id: menuItem?._id,
-                    name: menuItem?.name || 'Item'
-                  },
-                  priceAtOrderTime: item.variantPrice || menuItem?.price || 0
-                };
-
-                const existing = [...adminOrderItems];
-                const idx = existing.findIndex(
-                  (i) =>
-                    (i.menuItem?._id || i.menuItem) === (enrichedItem.menuItem?._id || enrichedItem.menuItem) &&
-                    (i.variantId || null) === (enrichedItem.variantId || null)
-                );
-                if (idx >= 0) {
-                  existing[idx].quantity += enrichedItem.quantity;
-                  setAdminOrderItems(existing);
-                } else {
-                  setAdminOrderItems([...existing, enrichedItem]);
-                }
-              }}
-              onUpdateItemQuantity={(menuId, variantId, qty) => {
-                const updated = adminOrderItems
-                  .map((i) => {
-                    const id = i.menuItem?._id || i.menuItem;
-                    const vId = i.variantId || i.variant?._id || null;
-                    if (id === menuId && vId === (variantId || null)) {
-                      return { ...i, quantity: qty };
-                    }
-                    return i;
-                  })
-                  .filter((i) => i.quantity > 0);
-                setAdminOrderItems(updated);
-              }}
-              onUpdateItemNote={(menuId, variantId, note) => {
-                const updated = adminOrderItems.map((i) => {
-                  const id = i.menuItem?._id || i.menuItem;
-                  const vId = i.variantId || i.variant?._id || null;
-                  if (id === menuId && vId === (variantId || null)) {
-                    return { ...i, itemNote: note };
-                  }
-                  return i;
-                });
-                setAdminOrderItems(updated);
-              }}
-              onClearCart={() => setAdminOrderItems([])}
-              onConfirm={(options) => {
-                // handles both "Confirm & Print" and "Confirm Order"
-                setShowAdminOrderModal(false);
-                setShowAdminConfirmModal(true);
-              }}
-              confirmLabel="Proceed to Waiter Assignment"
-              confirmDisabled={adminOrderItems.length === 0}
-              onAssignStaff={setAdminOrderWaiterId}
-              assignedStaffId={adminOrderWaiterId}
-              tableOptions={tables
-                .filter((t) => t.status !== 'occupied' || t._id === adminOrderTableId)
-                .map((t) => ({ value: t._id, label: `Table ${t.tableNumber}` }))}
-              selectedTableId={adminOrderTableId}
-              onTableChange={setAdminOrderTableId}
-            />
-          )}
-
-          {showAdminConfirmModal && (
-            <AdminOrderConfirmModal
-              open={showAdminConfirmModal}
-              onClose={() => setShowAdminConfirmModal(false)}
-              onConfirm={handleAdminSubmitOrder}
-              items={adminOrderItems}
-              staff={users}
-              assignedStaffId={adminOrderWaiterId}
-              tableNumber={tables.find((t) => t._id === adminOrderTableId)?.tableNumber || selectedOrderTarget?.name}
-            />
-          )}
-
-          {showAdminSuccessPopup && lastCreatedOrder && (
-            <div className="checkout-overlay" style={{ zIndex: 1200 }}>
-              <div
-                className="checkout-panel text-center p-5"
-                style={{ maxWidth: '400px', height: 'auto' }}
-              >
-                <div className="mb-4 text-success">
-                  <div
-                    className="icon-circle bg-success-soft text-success mx-auto mb-3"
-                    style={{ width: '80px', height: '80px' }}
-                  >
-                    <CheckCircle size={48} />
-                  </div>
-                  <h3 className="fw-bold">Order Confirmed!</h3>
-                  <p className="text-muted">
-                    Table {lastCreatedOrder.table?.tableNumber} is successfully booked.
-                  </p>
-                </div>
-                <button
-                  className="btn btn-primary w-100 py-2 fw-bold"
-                  onClick={() => setShowAdminSuccessPopup(false)}
-                >
-                  Great!
-                </button>
-              </div>
-            </div>
-          )}
           {activeSection === 'users' && hasPermission('staff:view') && (
             <>
               <AdminUsers
@@ -1341,6 +1206,142 @@ const AdminDashboard = () => {
           {activeSection === 'history' && hasPermission('reports:view') && <AdminHistory history={history} />}
         </div>
       </div>
+          {/* Step 1: Target Selection Modal */}
+          {showAdminAddOrderModal && (
+            <AdminAddOrderModal
+              open={showAdminAddOrderModal}
+              onClose={() => setShowAdminAddOrderModal(false)}
+              tables={tables}
+              customers={customers}
+              staff={users.filter(u => u.role === 'waiter' || u.role === 'admin')}
+              onSelect={(target) => {
+                setSelectedOrderTarget(target);
+                if (target.type === 'table') {
+                  setAdminOrderTableId(target.id);
+                }
+                setShowAdminAddOrderModal(false);
+                setShowAdminOrderModal(true);
+                setAddOrderStep(2);
+              }}
+            />
+          )}
+
+          {/* Step 2: Dish Selection Modal */}
+          {showAdminOrderModal && (
+            <AddItemsModal
+              open={showAdminOrderModal}
+              orderTargetName={selectedOrderTarget?.name} // Pass the target name for the header
+              onClose={() => setShowAdminOrderModal(false)}
+              menus={menus}
+              categories={categories}
+              staff={users.filter((u) => u.role === 'waiter' || u.role === 'admin')}
+              items={adminOrderItems}
+              onAddItem={(item) => {
+                const menuItem = menus.find(m => m._id === (item.menuItem?._id || item.menuItem));
+                const enrichedItem = {
+                  ...item,
+                  menuItem: {
+                    _id: menuItem?._id,
+                    name: menuItem?.name || 'Item'
+                  },
+                  priceAtOrderTime: item.variantPrice || menuItem?.price || 0
+                };
+
+                const existing = [...adminOrderItems];
+                const idx = existing.findIndex(
+                  (i) =>
+                    (i.menuItem?._id || i.menuItem) === (enrichedItem.menuItem?._id || enrichedItem.menuItem) &&
+                    (i.variantId || null) === (enrichedItem.variantId || null)
+                );
+                if (idx >= 0) {
+                  existing[idx].quantity += enrichedItem.quantity;
+                  setAdminOrderItems(existing);
+                } else {
+                  setAdminOrderItems([...existing, enrichedItem]);
+                }
+              }}
+              onUpdateItemQuantity={(menuId, variantId, qty) => {
+                const updated = adminOrderItems
+                  .map((i) => {
+                    const id = i.menuItem?._id || i.menuItem;
+                    const vId = i.variantId || i.variant?._id || null;
+                    if (id === menuId && vId === (variantId || null)) {
+                      return { ...i, quantity: qty };
+                    }
+                    return i;
+                  })
+                  .filter((i) => i.quantity > 0);
+                setAdminOrderItems(updated);
+              }}
+              onUpdateItemNote={(menuId, variantId, note) => {
+                const updated = adminOrderItems.map((i) => {
+                  const id = i.menuItem?._id || i.menuItem;
+                  const vId = i.variantId || i.variant?._id || null;
+                  if (id === menuId && vId === (variantId || null)) {
+                    return { ...i, itemNote: note };
+                  }
+                  return i;
+                });
+                setAdminOrderItems(updated);
+              }}
+              onClearCart={() => setAdminOrderItems([])}
+              onConfirm={(options) => {
+                // handles both "Confirm & Print" and "Confirm Order"
+                setShowAdminOrderModal(false);
+                setShowAdminConfirmModal(true);
+              }}
+              confirmLabel="Proceed to Waiter Assignment"
+              confirmDisabled={adminOrderItems.length === 0}
+              onAssignStaff={setAdminOrderWaiterId}
+              assignedStaffId={adminOrderWaiterId}
+              tableOptions={tables
+                .filter((t) => t.status !== 'occupied' || t._id === adminOrderTableId)
+                .map((t) => ({ value: t._id, label: `Table ${t.tableNumber}` }))}
+              selectedTableId={adminOrderTableId}
+              onTableChange={setAdminOrderTableId}
+            />
+          )}
+
+          {showAdminConfirmModal && (
+            <AdminOrderConfirmModal
+              open={showAdminConfirmModal}
+              onClose={() => setShowAdminConfirmModal(false)}
+              onConfirm={handleAdminSubmitOrder}
+              items={adminOrderItems}
+              staff={users}
+              assignedStaffId={adminOrderWaiterId}
+              tableNumber={tables.find((t) => t._id === adminOrderTableId)?.tableNumber || selectedOrderTarget?.name}
+            />
+          )}
+
+          {showAdminSuccessPopup && lastCreatedOrder && (
+            <div className="checkout-overlay">
+              <div
+                className="checkout-panel text-center p-5"
+                style={{ maxWidth: '400px', height: 'auto' }}
+              >
+                <div className="mb-4 text-success">
+                  <div
+                    className="icon-circle bg-success-soft text-success mx-auto mb-3"
+                    style={{ width: '80px', height: '80px' }}
+                  >
+                    <CheckCircle size={48} />
+                  </div>
+                  <h3 className="fw-bold">Order Confirmed!</h3>
+                  <p className="text-muted">
+                    Table {lastCreatedOrder.table?.tableNumber} is successfully booked.
+                  </p>
+                </div>
+                <button
+                  className="btn btn-primary w-100 py-2 fw-bold"
+                  onClick={() => setShowAdminSuccessPopup(false)}
+                >
+                  Great!
+                </button>
+              </div>
+            </div>
+          )}
+
       <AdminMobileNavigation
         isMobile={isMobile}
         activeSection={activeSection}

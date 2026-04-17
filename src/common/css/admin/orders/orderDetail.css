@@ -1089,9 +1089,28 @@
   height: 0;
 }
 
+@keyframes slide-up-bottom {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 @media (max-width: 900px) {
+  .additem-overlay {
+    align-items: flex-end;
+  }
+
+  .additem-card {
+    width: 100vw;
+    height: 90vh;
+    border-radius: 20px 20px 0 0;
+    margin: 0;
+    padding: 16px 12px calc(16px + env(safe-area-inset-bottom));
+    animation: slide-up-bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
   .additem-layout {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   .additem-head {
     flex-direction: column;
@@ -1100,6 +1119,10 @@
   .additem-filters {
     width: 100%;
     flex-wrap: wrap;
+  }
+  .additem-right {
+    border-top: 1px solid #eef1f6;
+    padding-top: 16px;
   }
 }
 

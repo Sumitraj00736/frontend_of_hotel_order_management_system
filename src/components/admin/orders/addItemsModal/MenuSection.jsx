@@ -102,7 +102,7 @@ const MenuSection = ({
                     onCustomize(m);
                     return;
                   }
-                  onAdd({ menuItem: m._id, quantity: 1, isComplimentary: false });
+                  onAdd({ menuItem: m, quantity: 1, priceAtOrderTime: m.price || 0, isComplimentary: false });
                 }}
               >
                 <span>Add</span>

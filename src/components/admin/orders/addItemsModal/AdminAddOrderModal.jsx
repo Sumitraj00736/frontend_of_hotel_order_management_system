@@ -43,7 +43,7 @@ const AdminAddOrderModal = ({
   };
 
   return (
-    <div className="additem-overlay" style={{ zIndex: 1100 }}>
+    <div className="additem-overlay">
       <div className="additem-card" style={{ maxWidth: '1000px', height: '80vh' }}>
         <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-white sticky-top rounded-top-4">
           <h4 className="fw-bold m-0">Add Order</h4>
