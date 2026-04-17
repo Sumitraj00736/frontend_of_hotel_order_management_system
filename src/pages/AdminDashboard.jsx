@@ -131,6 +131,7 @@ const AdminDashboard = () => {
     shiftStart: '',
     shiftEnd: ''
   });
+  const [autoOpenTableModal, setAutoOpenTableModal] = useState(false);
   const [customerForm, setCustomerForm] = useState({
     name: '',
     email: '',
@@ -958,6 +959,7 @@ const AdminDashboard = () => {
         </div>
 
         <div className="content">
+          <div className="section-wrapper" key={activeSection}>
           {activeSection === 'dashboard' && hasPermission('dashboard:view') && (
             <AdminOverview
               report={report}
@@ -1031,6 +1033,10 @@ const AdminDashboard = () => {
                 loadCustomers();
                 setShowAdminAddOrderModal(true);
               }}
+              onAddTable={() => {
+                setActiveSection('tables:table');
+                setTimeout(() => setAutoOpenTableModal(true), 50);
+              }}
             />
           )}
 
@@ -1080,6 +1086,8 @@ const AdminDashboard = () => {
               onFreeTable={freeTable}
               onUpdateTable={updateTable}
               onDeleteTable={deleteTable}
+              autoOpenAddModal={autoOpenTableModal}
+              onAddModalClosed={() => setAutoOpenTableModal(false)}
             />
           )}
           {activeSection === 'tables:space' && hasPermission('tables:view') && (
@@ -1204,6 +1212,7 @@ const AdminDashboard = () => {
             );
           })()}
           {activeSection === 'history' && hasPermission('reports:view') && <AdminHistory history={history} />}
+          </div>{/* end section-wrapper */}
         </div>
       </div>
           {/* Step 1: Target Selection Modal */}

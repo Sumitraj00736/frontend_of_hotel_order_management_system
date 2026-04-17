@@ -1,8 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import '../../../common/css/admin/tables/tables.css';
 
-const AdminTableList = ({ tables = [], spaces = [], tableForm, setTableForm, onCreateTable, onFreeTable, onUpdateTable, onDeleteTable }) => {
+const AdminTableList = ({ tables = [], spaces = [], tableForm, setTableForm, onCreateTable, onFreeTable, onUpdateTable, onDeleteTable, autoOpenAddModal, onAddModalClosed }) => {
   const [addOpen, setAddOpen] = useState(false);
+
+  useEffect(() => {
+    if (autoOpenAddModal) setAddOpen(true);
+  }, [autoOpenAddModal]);
+
+  const handleModalClose = () => {
+    setAddOpen(false);
+    if (onAddModalClosed) onAddModalClosed();
+  };
+
   const spaceMap = useMemo(() => new Map(spaces.map((s) => [s._id, s])), [spaces]);
   const stats = useMemo(() => {
     const total = tables.length;
@@ -14,7 +24,7 @@ const AdminTableList = ({ tables = [], spaces = [], tableForm, setTableForm, onC
 
   const handleCreate = async () => {
     await onCreateTable?.();
-    setAddOpen(false);
+    handleModalClose();
   };
 
   return (
@@ -149,7 +159,7 @@ const AdminTableList = ({ tables = [], spaces = [], tableForm, setTableForm, onC
               </div>
             </div>
             <div className="tables-modal-actions">
-              <button className="btn btn-outline-light" onClick={() => setAddOpen(false)}>Cancel</button>
+              <button className="btn btn-outline-light" onClick={handleModalClose}>Cancel</button>
               <button className="btn btn-primary" onClick={handleCreate}>Save Table</button>
             </div>
           </div>

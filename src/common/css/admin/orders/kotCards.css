@@ -261,3 +261,31 @@
   align-items: center;
   gap: 8px;
 }
+
+/* ===== Add Table Button — Ripple Effect ===== */
+@keyframes orders-ripple-expand {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.55; }
+  70%  { transform: translate(-50%, -50%) scale(4); opacity: 0.18; }
+  100% { transform: translate(-50%, -50%) scale(6); opacity: 0; }
+}
+
+@keyframes orders-btn-press {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+
+.orders-add-table-btn:active {
+  animation: orders-btn-press 0.18s ease forwards;
+}
+
+.orders-table-ripple {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+  animation: orders-ripple-expand 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}

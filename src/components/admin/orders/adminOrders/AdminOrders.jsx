@@ -22,6 +22,7 @@ const AdminOrders = ({
   onPageChange,
   onLimitChange,
   onNewOrder,
+  onAddTable,
   categories = []
 }) => {
   const [selected, setSelected] = useState(null);
@@ -39,7 +40,7 @@ const AdminOrders = ({
 
   return (
     <div className="card glass-card full-screen-card">
-      <OrdersHeader title="Orders" countLabel={countLabel} onNewOrder={onNewOrder} />
+      <OrdersHeader title="Orders" countLabel={countLabel} onNewOrder={onNewOrder} onAddTable={onAddTable} />
       <OrdersFilterTabs filter={filter} onChange={onFilterChange} />
       <OrdersGrid orders={orders} onOpen={openDetails} />
       <div className="orders-pagination">
