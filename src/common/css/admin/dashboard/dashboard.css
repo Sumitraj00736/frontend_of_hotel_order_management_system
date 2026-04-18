@@ -198,9 +198,81 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 200px;
-  color: #c4c4c4;
-  font-weight: 600;
+}
+
+/* Dark Mode Styles */
+body.dark-mode .dash-tabs {
+  background: #1f2937;
+  border-color: #334155;
+}
+
+body.dark-mode .dash-tab {
+  color: #f8fafc;
+  background: #1f2937;
+}
+
+body.dark-mode .dash-tab:hover {
+  background: #374151;
+  border-color: #475569;
+}
+
+body.dark-mode .dash-tab.active {
+  background: #ef4444;
+  color: #fff;
+}
+
+body.dark-mode .dash-toggles {
+  background: #1f2937;
+  border-color: #334155;
+}
+
+body.dark-mode .dash-toggle {
+  color: #e2e8f0;
+}
+
+body.dark-mode .dash-kpi {
+  background: #111827;
+  border-color: #334155;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
+
+body.dark-mode .dash-kpi-title {
+  color: #f8fafc;
+}
+
+body.dark-mode .dash-kpi-value {
+  color: #f8fafc;
+}
+
+body.dark-mode .dash-kpi-note {
+  color: #94a3b8;
+}
+
+body.dark-mode .kpi-icon {
+  background: #1f2937;
+  color: #f8fafc;
+}
+
+body.dark-mode .tone-blue { background: linear-gradient(135deg, #1e3a8a 0%, #1f2937 100%); }
+body.dark-mode .tone-amber { background: linear-gradient(135deg, #78350f 0%, #1f2937 100%); }
+body.dark-mode .tone-green { background: linear-gradient(135deg, #065f46 0%, #1f2937 100%); }
+body.dark-mode .tone-red { background: linear-gradient(135deg, #7f1d1d 0%, #1f2937 100%); }
+body.dark-mode .tone-teal { background: linear-gradient(135deg, #164e63 0%, #1f2937 100%); }
+body.dark-mode .tone-purple { background: linear-gradient(135deg, #4c1d95 0%, #1f2937 100%); }
+body.dark-mode .tone-pink { background: linear-gradient(135deg, #831843 0%, #1f2937 100%); }
+
+body.dark-mode .panel {
+  background: #111827;
+  border-color: #334155;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .panel-heading {
+  color: #f8fafc;
+}
+
+body.dark-mode .panel-link {
+  color: #f8fafc;
 }
 
 .live-order-status {
@@ -262,6 +334,10 @@
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
+}
+body.dark-mode .banner-btn {
+  background: #374151;
+  color: #f8fafc;
 }
 
 .banner-cards {
@@ -466,6 +542,11 @@
 
 .chip.ghost {
   background: #f9fafb;
+}
+body.dark-mode .chip.ghost {
+  background: #1f2937;
+  border-color: #334155;
+  color: #f8fafc;
 }
 
 .chip.danger {

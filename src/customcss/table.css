@@ -58,6 +58,31 @@
   padding-bottom: 6px;
 }
 
+/* Dark Mode Styles */
+body.dark-mode .table-chip {
+  border-color: var(--border);
+  background: #1f2937;
+  color: #f8fafc;
+}
+
+body.dark-mode .table-chip.active {
+  background: #065f46;
+  border-color: #10b981;
+  color: #ecfdf3;
+}
+
+body.dark-mode .table-chip.occupied {
+  background: #7f1d1d;
+  border-color: #ef5350;
+  color: #fecdd3;
+}
+
+body.dark-mode .table-grid-cell {
+  background: #111827;
+  border-color: #334155;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
 @media (max-width: 640px) {
   .table-grid-row {
     gap: 8px;

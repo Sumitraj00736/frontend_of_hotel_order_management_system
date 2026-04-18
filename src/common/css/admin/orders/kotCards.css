@@ -146,6 +146,65 @@
   cursor: pointer;
 }
 
+/* Dark Mode Styles */
+body.dark-mode .kot-card {
+  background: #111827;
+  border-color: #334155;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+body.dark-mode .kot-card:hover {
+  border-color: #475569;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .kot-title {
+  color: #f8fafc;
+}
+
+body.dark-mode .kot-meta {
+  color: #94a3b8;
+}
+
+body.dark-mode .kot-divider {
+  border-color: #334155;
+}
+
+body.dark-mode .kot-items-head {
+  color: #64748b;
+}
+
+body.dark-mode .kot-item {
+  color: #e2e8f0;
+}
+
+body.dark-mode .kot-items-list::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+body.dark-mode .kot-total {
+  color: #f8fafc;
+}
+
+body.dark-mode .kot-footer {
+  color: #94a3b8;
+}
+
+body.dark-mode .kot-thanks {
+  color: #475569;
+}
+
+body.dark-mode .kot-edited {
+  background: #7f2d1d;
+  color: #fcd34d;
+}
+
+body.dark-mode .kot-actions .ghost-btn {
+  background: #1f2937;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
 @media (max-width: 1200px) {
   .kot-grid {
     grid-template-columns: repeat(2, minmax(240px, 1fr));

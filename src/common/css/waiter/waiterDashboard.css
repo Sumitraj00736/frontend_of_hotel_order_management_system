@@ -200,6 +200,40 @@
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
+/* Dark Mode Styles */
+body.dark-mode .admin-shell {
+  background-color: #0f172a !important;
+}
+
+body.dark-mode .menu-pos-card {
+  background: #374151;
+  border-color: #4b5563;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .menu-name,
+body.dark-mode .menu-price {
+  color: #f9fafb;
+}
+
+body.dark-mode .menu-category {
+  color: #9ca3af;
+}
+
+body.dark-mode .menu-img-wrapper {
+  background: linear-gradient(135deg, #1f2937, #374151);
+}
+
+body.dark-mode .menu-add-icon {
+  background: #4b5563;
+  color: #d1d5db;
+}
+
+body.dark-mode .menu-pos-card:hover .menu-add-icon {
+  background: #10b981;
+  color: #ffffff;
+}
+
 .pos-search-wrapper {
   background: #ffffff;
   border: 1px solid #e2e8f0;

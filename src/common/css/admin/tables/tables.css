@@ -161,6 +161,33 @@
   gap: 8px;
 }
 
+
+body.dark-mode .tables-list {
+  border-color: #374151;
+  background: #1f2937;
+}
+body.dark-mode .tables-head {
+  background: #374151;
+  color: #d1d5db;
+}
+body.dark-mode .stat-card {
+  background: #1f2937;
+  border: 1px solid #374151;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+body.dark-mode .tables-modal{
+  background: #1f2937;
+  border: 1px solid #374151;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+body.dark-mode .form-control{
+  background: #334155;
+}
+body.dark-mode .btn:hover{
+  background: #4b5563;
+  border-color: #4b5563;
+}
+
 @media (max-width: 960px) {
   .tables-head,
   .tables-row {

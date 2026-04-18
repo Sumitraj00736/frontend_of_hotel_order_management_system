@@ -11,6 +11,14 @@
   --pub-muted:  #667085;
 }
 
+body.dark-mode {
+  --pub-bg:     #1a1a1a;
+  --pub-accent: #ff6b35;
+  --pub-card:   #2d2d2d;
+  --pub-text:   #e5e7eb;
+  --pub-muted:  #9ca3af;
+}
+
 /* ── Shell ── */
 .pub-shell {
   min-height: 100vh;

@@ -23,6 +23,57 @@ body.dark-mode {
   background: radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.12), transparent 35%),
     radial-gradient(circle at 80% 0%, rgba(245, 158, 11, 0.12), transparent 30%),
     linear-gradient(180deg, #020617 0%, #0f172a 100%);
+  color: var(--text);
+}
+
+body.dark-mode .soft-card,
+body.dark-mode .stat-tile,
+body.dark-mode .menu-card,
+body.dark-mode .guest-hero,
+body.dark-mode .k-card,
+body.dark-mode .k-item,
+body.dark-mode .item-pill,
+body.dark-mode .chip-warn,
+body.dark-mode .k-note,
+body.dark-mode .dash-kpi,
+body.dark-mode .panel,
+body.dark-mode .profile-popover-body,
+body.dark-mode .cdrop-menu,
+body.dark-mode .cdrop-item,
+body.dark-mode .login-card {
+  background: #111827;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+body.dark-mode .soft-card,
+body.dark-mode .stat-tile,
+body.dark-mode .menu-card,
+body.dark-mode .guest-hero,
+body.dark-mode .k-card,
+body.dark-mode .dash-kpi,
+body.dark-mode .panel,
+body.dark-mode .login-card {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+body.dark-mode .k-item,
+body.dark-mode .item-pill,
+body.dark-mode .chip-warn,
+body.dark-mode .k-note,
+body.dark-mode .cdrop-item {
+  background: #1f2937;
+  border-color: #334155;
+}
+
+body.dark-mode .chip-warn,
+body.dark-mode .item-pill,
+body.dark-mode .k-note {
+  color: #f8fafc;
+}
+
+body.dark-mode .btn-ready {
+  color: #fff;
 }
 
 body {
@@ -41,11 +92,103 @@ body.dark-mode .header-bar {
   color: var(--text);
 }
 
+body.dark-mode .bg-white,
+body.dark-mode .bg-light,
+body.dark-mode .card,
+body.dark-mode .card-body,
+body.dark-mode .modal-content,
+body.dark-mode .dropdown-menu,
+body.dark-mode .list-group-item,
+body.dark-mode .table-responsive,
+body.dark-mode .table,
+body.dark-mode .table-sm,
+body.dark-mode .transaction-table,
+body.dark-mode .transaction-table-grid,
+body.dark-mode .soft-card,
+body.dark-mode .panel,
+body.dark-mode .menu-card,
+body.dark-mode .guest-hero,
+body.dark-mode .k-card,
+body.dark-mode .shadow-sm,
+body.dark-mode .shadow-lg,
+body.dark-mode .waiter-pos-layout,
+body.dark-mode .edit-modal-box,
+body.dark-mode .mobile-menu-sheet,
+body.dark-mode .mobile-menu-sheet-item,
+body.dark-mode .mobile-menu-sheet-head,
+body.dark-mode .mobile-menu-sheet-close,
+body.dark-mode .mobile-menu-subtab,
+body.dark-mode .mobile-settings-tab {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35) !important;
+}
+
+body.dark-mode .table,
+body.dark-mode .table-responsive,
+body.dark-mode .transaction-table,
+body.dark-mode .transaction-table-grid,
+body.dark-mode .table-striped tbody tr,
+body.dark-mode .table-hover tbody tr,
+body.dark-mode .table-row {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+body.dark-mode .table th,
+body.dark-mode .table td,
+body.dark-mode .transaction-table-grid th,
+body.dark-mode .transaction-table-grid td {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .table thead th,
+body.dark-mode .transaction-table-grid thead th {
+  background: #111827 !important;
+}
+
+body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+  background: #0f172a !important;
+}
+
+body.dark-mode .table-hover tbody tr:hover,
+body.dark-mode .transaction-table-grid tbody tr:hover {
+  background: #111827 !important;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select,
+body.dark-mode .data-table,
+body.dark-mode .table-chip,
+body.dark-mode .cdrop-btn,
+body.dark-mode .cdrop-menu,
+body.dark-mode .cdrop-item {
+  background: #202020 !important;
+  color: #fff !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .form-control::placeholder,
+body.dark-mode .form-select option {
+  color: #94a3b8 !important;
+}
+
 body.dark-mode .icon-button {
   background: #1f2937;
   border-color: #334155;
   color: var(--text);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode,
+body.dark-mode * {
+  color: #f8fafc !important;
 }
 
 body.dark-mode .content {

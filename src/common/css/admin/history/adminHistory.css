@@ -348,6 +348,52 @@
   text-align: center;
 }
 
+
+body.dark-mode .hist-card {
+  background: #1f2937;
+  border: 1px solid #374151;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+body.dark-mode .hist-view-toggle {
+  background: #374151;
+}
+body.dark-mode .hist-view-btn.active {
+  background: #1f2937;
+  color: #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+body.dark-mode .hist-search {
+  background: #1f2937;
+  border: 1px solid #374151;
+  color: #e5e7eb;
+}
+body.dark-mode .hist-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(245, 165, 36, 0.12);
+}
+body.dark-mode .pill{
+  background: #374151;
+  color: #e5e7eb;
+}
+body.dark-mode .hist-empty {
+  background: #1f2937;
+  border: 1px solid #374151;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+body.dark-mode .hist-no-results {
+  background: #1f2937;
+  border: 1px solid #374151;
+  color: #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+body.dark-mode .hist-receipt {
+  background: #374151;
+  border: 1px dashed #4b5563;
+}
+
+
+
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .hist-toolbar {

@@ -36,3 +36,43 @@
 .cdrop-item:hover { background: #f1f5f9; }
 .cdrop-item.active { background: #e0f2fe; color: #0f172a; font-weight: 600; }
 .cdrop.disabled { opacity: 0.6; pointer-events: none; }
+
+/* Dark Mode Styles */
+body.dark-mode .cdrop {
+  border-color: var(--border);
+}
+
+body.dark-mode .cdrop-btn {
+  background: #1f2937;
+  border-color: var(--border);
+  color: #f8fafc;
+}
+
+body.dark-mode .cdrop-btn:focus {
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3);
+}
+
+body.dark-mode .cdrop-btn .chevron {
+  color: #94a3b8;
+}
+
+body.dark-mode .cdrop-menu {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .cdrop-item {
+  color: #f8fafc;
+  background: #1f2937;
+}
+
+body.dark-mode .cdrop-item:hover {
+  background: #374151;
+  color: #f8fafc;
+}
+
+body.dark-mode .cdrop-item.active {
+  background: #1e40af;
+  color: #f8fafc;
+}
