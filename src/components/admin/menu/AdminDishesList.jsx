@@ -96,9 +96,9 @@ const AdminDishesList = ({
                 <td className="price-cell">
                   Rs {d.price}{d.maxPrice ? ` - Rs ${d.maxPrice}` : ''}
                 </td>
-                <td>{catMap.get(d.category) || '-'}</td>
+                <td>{d.category?.name || catMap.get(d.category) || '-'}</td>
                 <td>{d.type || '-'}</td>
-                <td>{subMap.get(d.subMenu) || '-'}</td>
+                <td>{d.subMenu?.name || subMap.get(d.subMenu) || '-'}</td>
                 <td>{d.preparationTimeMinutes ? `${d.preparationTimeMinutes} min` : '-'}</td>
                 <td>{d.kotType || '-'}</td>
                 <td>

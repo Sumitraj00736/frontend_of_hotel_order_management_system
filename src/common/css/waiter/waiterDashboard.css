@@ -13,16 +13,16 @@
   padding: 0 !important;
 }
 
-/* Compact text scale for waiter screens */
+/* High-density text scale for professional waiter dashboard */
 .admin-shell,
 .admin-shell :is(input, select, textarea, button) {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 @media (max-width: 768px) {
   .admin-shell,
   .admin-shell :is(input, select, textarea, button) {
-    font-size: 12px;
+    font-size: 11px;
   }
 }
 
@@ -442,6 +442,35 @@ body.dark-mode .menu-pos-card:hover .menu-add-icon {
   border-top: 1px solid #e5e7eb;
 }
 
+/* Premium Order Type Toggle */
+.pos-order-type-toggle {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 4px;
+}
+
+.pos-order-type-toggle .btn {
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pos-order-type-toggle .btn.bg-primary {
+  background: #10b981 !important; /* Emerald Green for active */
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  transform: scale(1.02);
+}
+
+.pos-order-type-toggle .btn:not(.bg-primary) {
+  color: #64748b;
+}
+
+.pos-order-type-toggle .btn:not(.bg-primary):hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
 .cart-total-row {
   display: flex;
   justify-content: space-between;
@@ -746,19 +775,25 @@ body.dark-mode .menu-pos-card:hover .menu-add-icon {
     overflow: visible !important;
   }
 
-  /* Target the centered Dashboard (3rd icon) */
-  .sidebar-button:nth-child(3) {
+  /* Target the Dashboard (now 1st in array) and move to center via order:3 */
+  .sidebar-button:nth-child(1) {
+    order: 3;
     margin-top: -30px;
     height: 64px !important;
     width: 64px !important;
-    background: linear-gradient(135deg, #FFC72C 0%, #FFB100 100%) !important;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; /* Changed to Emerald for better contrast */
     border-radius: 20px !important;
-    box-shadow: 0 8px 20px rgba(255, 199, 44, 0.4) !important;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4) !important;
     border: 3px solid #ffffff !important;
     color: #ffffff !important;
   }
 
-  .sidebar-button:nth-child(3).active {
+  .sidebar-button:nth-child(2) { order: 1; }
+  .sidebar-button:nth-child(3) { order: 2; }
+  .sidebar-button:nth-child(4) { order: 4; }
+  .sidebar-button:nth-child(5) { order: 5; }
+
+  .sidebar-button:nth-child(1).active {
     color: #ffffff !important;
     transform: translateY(-4px) scale(1.05);
   }
@@ -1041,5 +1076,54 @@ body.dark-mode .menu-pos-card:hover .menu-add-icon {
     min-height: 34px;
     font-size: 12px;
     padding: 6px 8px;
+  }
+}
+
+/* Sound Enable Banner */
+.sound-enable-banner {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(16, 185, 129, 0.95);
+  backdrop-filter: blur(8px);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10000;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: banner-pulse 2s infinite ease-in-out;
+  transition: all 0.3s ease;
+}
+
+.sound-enable-banner:hover {
+  transform: translateX(-50%) scale(1.05);
+  background: rgba(16, 185, 129, 1);
+}
+
+.sound-enable-banner span {
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+@keyframes banner-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@media (max-width: 768px) {
+  .sound-enable-banner {
+    top: 74px; /* Below mobile header */
+    width: 90%;
+    max-width: 320px;
+    justify-content: center;
   }
 }

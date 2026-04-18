@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { getPushStatus, isPushSupported, subscribePush, unsubscribePush } from '../../../utils/pushClient.js';
+import { getPushStatus, isPushSupported, subscribePush, unsubscribePush, sendTestPush, getCurrentBrowserToken } from '../../../utils/pushClient.js';
 import '../../../common/css/admin/notifications/notification.css';
 
 const tabs = [
@@ -30,6 +30,7 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
   const [pushSupported, setPushSupported] = useState(false);
   const [pushError, setPushError] = useState('');
   const prevCountRef = useRef(notifications.length);
+  const initAttemptedRef = useRef(false);
 
   const grouped = useMemo(() => {
     const byDay = {};
@@ -68,28 +69,42 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
   useEffect(() => {
     let mounted = true;
     const load = async () => {
+      if (initAttemptedRef.current) return;
+      initAttemptedRef.current = true;
+      console.log('[FCM] NotificationPage init attempted');
       const supported = await isPushSupported();
       if (!mounted) return;
       setPushSupported(Boolean(supported));
       if (!supported) return;
       try {
-        const status = await getPushStatus();
+        const [status, browserToken] = await Promise.all([
+          getPushStatus(),
+          getCurrentBrowserToken()
+        ]);
+        
         if (!mounted) return;
-        if (status?.exists) {
+
+        // If it exists and token matches, just set status
+        if (status?.exists && (!browserToken || status.fcmToken === browserToken)) {
           setPushEnabled(Boolean(status?.enabled));
           return;
         }
-        if (Notification.permission !== 'denied') {
+
+        // If missing or token stale, and we have permission, auto-resync
+        if (Notification.permission === 'granted') {
           await subscribePush();
           if (mounted) {
             setPushEnabled(true);
             setPushError('');
           }
+        } else if (status?.exists) {
+          // It exists on server but we don't have permission/token here
+          setPushEnabled(false);
         }
       } catch (err) {
         if (mounted) {
-          setPushEnabled(false);
-          setPushError(err?.message || 'Push setup failed');
+          console.warn('Push status check failed:', err);
+          // Don't show error toast on every load, just log it
         }
       }
     };
@@ -150,6 +165,20 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
                 <span />
               </label>
             </div>
+          )}
+          {pushSupported && pushEnabled && (
+            <button 
+              className="chip test-push-btn"
+              onClick={async () => {
+                try {
+                  await sendTestPush();
+                } catch (err) {
+                  alert(`Test push failed: ${err.message}`);
+                }
+              }}
+            >
+              Test Push
+            </button>
           )}
           {tab === 'activity' && (
             <button

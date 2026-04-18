@@ -12,6 +12,10 @@ const AdminAddOns = ({ addOns, menus, onCreate, onUpdate, onDelete, onRefresh })
   const [uploading, setUploading] = useState(false);
   const [search, setSearch] = useState('');
   const [openMenuId, setOpenMenuId] = useState(null);
+  const blurOnWheel = (e) => {
+    // Prevent accidental number changes while scrolling.
+    e.currentTarget.blur();
+  };
 
   const filtered = useMemo(
     () => addOns.filter((a) => a.name.toLowerCase().includes(search.toLowerCase())),
@@ -156,7 +160,13 @@ const AdminAddOns = ({ addOns, menus, onCreate, onUpdate, onDelete, onRefresh })
             </div>
             <div className="mb-2">
               <label className="form-label">Price</label>
-              <input className="form-control" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+              <input
+                className="form-control"
+                type="number"
+                value={form.price}
+                onWheel={blurOnWheel}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+              />
             </div>
             <div className="mb-2">
               <label className="form-label">Image URL</label>

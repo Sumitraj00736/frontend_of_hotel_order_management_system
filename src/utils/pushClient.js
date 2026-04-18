@@ -1,4 +1,4 @@
-import { getToken, deleteToken } from 'firebase/messaging';
+import { getToken as firebaseGetToken, deleteToken } from 'firebase/messaging';
 import api from '../api/client.js';
 import { getMessagingInstance, isMessagingSupported } from './firebase.js';
 
@@ -77,7 +77,7 @@ export const subscribePush = async () => {
   // 5. Get FCM token (FIXED FLOW)
   let fcmToken;
   try {
-    fcmToken = await getToken(messaging, {
+    fcmToken = await firebaseGetToken(messaging, {
       vapidKey,
       serviceWorkerRegistration: registration
     });
@@ -98,7 +98,32 @@ export const subscribePush = async () => {
     platform: 'web'
   });
 
-  return { enabled: true };
+  return { enabled: true, token: fcmToken };
+};
+
+/* ---------------------------
+   GET CURRENT TOKEN (NEW)
+---------------------------- */
+export const getCurrentBrowserToken = async () => {
+  try {
+    const messaging = await getMessagingInstance();
+    if (!messaging) return null;
+    
+    // Register SW first to ensure registration is available
+    await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    const registration = await navigator.serviceWorker.ready;
+
+    const configRes = await api.get('/api/push/config');
+    const vapidKey = configRes.data?.vapidKey || import.meta.env.VITE_FIREBASE_VAPID_KEY;
+    
+    return await firebaseGetToken(messaging, {
+      vapidKey,
+      serviceWorkerRegistration: registration
+    });
+  } catch (err) {
+    console.warn('Failed to get current FCM token:', err);
+    return null;
+  }
 };
 
 /* ---------------------------
@@ -125,6 +150,13 @@ export const unsubscribePush = async () => {
    TEST PUSH
 ---------------------------- */
 export const sendTestPush = async () => {
+  // Smart Test: Check if we are actually subscribed first
+  const status = await getPushStatus();
+  if (!status.enabled) {
+    console.log('[PushClient] Auto-subscribing before test...');
+    await subscribePush();
+  }
+  
   const res = await api.post('/api/push/test', {
     title: 'Test Notification',
     body: 'Push is working ✅'

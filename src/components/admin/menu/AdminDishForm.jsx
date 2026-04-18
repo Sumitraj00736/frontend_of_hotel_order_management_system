@@ -34,8 +34,8 @@ const getInitialForm = (dish) => {
     imageUrl: dish.imageUrl || '',
     preparationHours: dish.preparationTimeMinutes ? Math.floor(dish.preparationTimeMinutes / 60) : '',
     preparationMinutes: dish.preparationTimeMinutes ? dish.preparationTimeMinutes % 60 : '',
-    subMenu: dish.subMenu || '',
-    category: dish.category || '',
+    subMenu: dish.subMenu?._id || dish.subMenu || '',
+    category: dish.category?._id || dish.category || '',
     price: dish.price ?? '',
     discount: '',
     variants,
@@ -49,6 +49,10 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
   const [uploading, setUploading] = useState(false);
   const [addOnPanelOpen, setAddOnPanelOpen] = useState(false);
   const [addOnSearch, setAddOnSearch] = useState('');
+  const blurOnWheel = (e) => {
+    // Prevent accidental value changes when scrolling while a number input is focused.
+    e.currentTarget.blur();
+  };
 
   const computedPrice = useMemo(() => {
     const fallbackPrice = Number(form.price) || 0;
@@ -225,9 +229,21 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
             <div className="form-field">
               <label>Preparation Time</label>
               <div className="prep-time">
-                <input type="number" value={form.preparationHours} onChange={(e) => setForm({ ...form, preparationHours: e.target.value })} placeholder="0 hrs" />
+                <input
+                  type="number"
+                  value={form.preparationHours}
+                  onWheel={blurOnWheel}
+                  onChange={(e) => setForm({ ...form, preparationHours: e.target.value })}
+                  placeholder="0 hrs"
+                />
                 <span>:</span>
-                <input type="number" value={form.preparationMinutes} onChange={(e) => setForm({ ...form, preparationMinutes: e.target.value })} placeholder="0 min" />
+                <input
+                  type="number"
+                  value={form.preparationMinutes}
+                  onWheel={blurOnWheel}
+                  onChange={(e) => setForm({ ...form, preparationMinutes: e.target.value })}
+                  placeholder="0 min"
+                />
               </div>
             </div>
           </div>
@@ -290,6 +306,7 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
                           min="0"
                           placeholder="Rs 0"
                           value={variant.actualPrice}
+                          onWheel={blurOnWheel}
                           onChange={(e) => updateVariant(index, { actualPrice: e.target.value })}
                         />
                       </div>
@@ -300,6 +317,7 @@ const AdminDishForm = ({ mode, dish, categories, submenus, addOns, onCancel, onS
                           min="0"
                           placeholder="Rs 0"
                           value={variant.discount}
+                          onWheel={blurOnWheel}
                           onChange={(e) => updateVariant(index, { discount: e.target.value })}
                         />
                       </div>

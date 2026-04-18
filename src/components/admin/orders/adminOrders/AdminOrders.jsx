@@ -17,11 +17,15 @@ const AdminOrders = ({
   page = 1,
   limit = 12,
   total = 0,
+  filter = 'active',
+  onFilterChange,
   onPageChange,
-  onLimitChange
+  onLimitChange,
+  onNewOrder,
+  onAddTable,
+  categories = []
 }) => {
   const [selected, setSelected] = useState(null);
-  const [filter, setFilter] = useState('active');
 
   const openDetails = (order) => {
     if (!paymentMethods[order._id]) {
@@ -31,20 +35,14 @@ const AdminOrders = ({
   };
   const closeDetails = () => setSelected(null);
 
-  const filteredOrders = orders.filter((o) => {
-    if (filter === 'paid') return o.status === 'paid';
-    if (filter === 'cancelled') return o.status === 'cancelled';
-    return !['paid', 'cancelled'].includes(o.status);
-  });
-
-  const countLabel = `${filteredOrders.length} ${filter === 'paid' ? 'Paid' : filter === 'cancelled' ? 'Cancelled' : 'Active'}`;
+  const countLabel = `${total} ${filter === 'paid' ? 'Paid' : filter === 'cancelled' ? 'Cancelled' : 'Active'}`;
   const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
 
   return (
     <div className="card glass-card full-screen-card">
-      <OrdersHeader title="Orders" countLabel={countLabel} />
-      <OrdersFilterTabs filter={filter} onChange={setFilter} />
-      <OrdersGrid orders={filteredOrders} onOpen={openDetails} />
+      <OrdersHeader title="Orders" countLabel={countLabel} onNewOrder={onNewOrder} onAddTable={onAddTable} />
+      <OrdersFilterTabs filter={filter} onChange={onFilterChange} />
+      <OrdersGrid orders={orders} onOpen={openDetails} />
       <div className="orders-pagination">
         <div className="orders-page-info">
           Page {page} of {totalPages}
@@ -82,6 +80,7 @@ const AdminOrders = ({
         <OrderDetailModal
           order={selected}
           menus={menus}
+          categories={categories}
           staff={staff}
           paymentMethods={paymentMethods}
           onChangePaymentMethod={onChangePaymentMethod}

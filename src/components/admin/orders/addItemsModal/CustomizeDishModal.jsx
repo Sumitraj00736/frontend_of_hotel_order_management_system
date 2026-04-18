@@ -71,12 +71,13 @@ const CustomizeDishModal = ({ open, item, onClose, onAdd }) => {
             className="confirm-btn"
             onClick={() => {
               onAdd?.({
-                menuItem: item._id,
+                menuItem: item,
                 quantity: qty,
                 variantId: selectedVariant?._id,
                 variantName: selectedVariant?.name,
                 variantPrice: selectedVariant?.price,
-                itemNote: note || undefined
+                itemNote: note || undefined,
+                priceAtOrderTime: price
               });
               onClose();
             }}

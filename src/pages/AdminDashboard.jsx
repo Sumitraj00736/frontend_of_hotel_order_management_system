@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import { CheckCircle, Volume2 } from 'lucide-react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
@@ -29,6 +30,10 @@ import AdminWebsite from '../components/admin/website/AdminWebsite.jsx';
 import AdminSettings from '../components/admin/settings/AdminSettings.jsx';
 import SettingsSidebar from '../components/admin/settings/SettingsSidebar.jsx';
 import AdminCustomers from '../components/admin/customers/AdminCustomers.jsx';
+import AdminOrderConfirmModal from '../components/admin/orders/addItemsModal/AdminOrderConfirmModal.jsx';
+import AdminAddOrderModal from '../components/admin/orders/addItemsModal/AdminAddOrderModal.jsx';
+import AddItemsModal from '../components/admin/orders/addItemsModal/AddItemsModal.jsx';
+import { playSound } from '../utils/sound.js';
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/admin/common/adminResponsive.css';
 
@@ -65,10 +70,10 @@ const AdminDashboard = () => {
   const [branchOpen, setBranchOpen] = useState(false);
   const [financeFilters, setFinanceFilters] = useState({ dateFrom: '', dateTo: '' });
   const [dashboardOptions, setDashboardOptions] = useState({
-    includeAnalytics: false,
-    includeStock: false,
-    includeHistory: false,
-    includeNotifications: false
+    includeAnalytics: true,
+    includeStock: true,
+    includeHistory: true,
+    includeNotifications: true
   });
   const currentUser = getCurrentUser();
   const branches = getBranches() || [];
@@ -91,6 +96,7 @@ const AdminDashboard = () => {
   const [ordersPage, setOrdersPage] = useState(1);
   const [ordersLimit, setOrdersLimit] = useState(12);
   const [ordersTotal, setOrdersTotal] = useState(0);
+  const [ordersFilter, setOrdersFilter] = useState('active');
   const [orderDashboardData, setOrderDashboardData] = useState(null);
   const [overviewDashboardData, setOverviewDashboardData] = useState(null);
   const [financeDashboardData, setFinanceDashboardData] = useState(null);
@@ -99,6 +105,19 @@ const AdminDashboard = () => {
   const [transactionFilters, setTransactionFilters] = useState({ dateFrom: '', dateTo: '' });
   const [toasts, setToasts] = useState([]);
   const dashboardLoadedRef = React.useRef(false);
+
+  // Admin Order Creation Flow
+  const [showAdminAddOrderModal, setShowAdminAddOrderModal] = useState(false); // Step 1 modal
+  const [addOrderStep, setAddOrderStep] = useState(1);
+  const [selectedOrderTarget, setSelectedOrderTarget] = useState(null); // { type, id, name }
+
+  const [showAdminOrderModal, setShowAdminOrderModal] = useState(false); // Step 2 modal
+  const [showAdminConfirmModal, setShowAdminConfirmModal] = useState(false);
+  const [showAdminSuccessPopup, setShowAdminSuccessPopup] = useState(false);
+  const [adminOrderItems, setAdminOrderItems] = useState([]);
+  const [adminOrderWaiterId, setAdminOrderWaiterId] = useState('');
+  const [adminOrderTableId, setAdminOrderTableId] = useState('');
+  const [lastCreatedOrder, setLastCreatedOrder] = useState(null);
 
   const [userForm, setUserForm] = useState({
     name: '',
@@ -112,6 +131,7 @@ const AdminDashboard = () => {
     shiftStart: '',
     shiftEnd: ''
   });
+  const [autoOpenTableModal, setAutoOpenTableModal] = useState(false);
   const [customerForm, setCustomerForm] = useState({
     name: '',
     email: '',
@@ -132,14 +152,47 @@ const AdminDashboard = () => {
   const [menuForm, setMenuForm] = useState({ name: '', category: '', price: '', imageUrl: '' });
   const menuCreateRef = React.useRef(false);
 
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const lastAlertIdRef = useRef(null);
+  const audioRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'));
+
+  const unblockAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.play().then(() => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setSoundEnabled(true);
+      }).catch(e => console.log('[Audio] Unblock failed:', e));
+    }
+  }, []);
+
+  const playBell = useCallback((eventId = null) => {
+    if (eventId && lastAlertIdRef.current === eventId) return;
+    if (eventId) {
+      lastAlertIdRef.current = eventId;
+      setTimeout(() => { if (lastAlertIdRef.current === eventId) lastAlertIdRef.current = null; }, 5000);
+    }
+    
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => {
+        console.log('[Audio] Play blocked:', e);
+        setSoundEnabled(false);
+      });
+    }
+  }, []);
+
   const pushToast = useCallback((payload) => {
+    if (payload.sound !== false) {
+      playBell(payload.id);
+    }
     const id = payload.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const toast = { id, toast: true, ...payload };
     setToasts((prev) => [toast, ...prev].slice(0, 5));
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, payload.duration || 3500);
-  }, []);
+  }, [playBell]);
 
   const loadAll = async (options = dashboardOptions) => {
     const res = await api.get('/api/dashboard', {
@@ -362,24 +415,31 @@ const AdminDashboard = () => {
     }
   }, [activeSection, loadDashboardExtras]);
 
-  const loadOrdersPage = async (page = ordersPage, limit = ordersLimit) => {
-    const res = await api.get('/api/orders', { params: { paginate: 1, page, limit } });
+  const loadOrdersPage = async (page = ordersPage, limit = ordersLimit, category = ordersFilter) => {
+    const res = await api.get('/api/orders', { params: { paginate: 1, page, limit, category } });
     const payload = res.data;
-    if (Array.isArray(payload?.data)) {
+    if (payload.success && Array.isArray(payload.data)) {
       setOrders(payload.data);
-      setOrdersTotal(payload.total || 0);
-      setOrdersPage(payload.page || page);
-      setOrdersLimit(payload.limit || limit);
+      setOrdersTotal(payload.pagination?.total || 0);
+      setOrdersPage(payload.pagination?.page || page);
+      setOrdersLimit(payload.pagination?.limit || limit);
       return;
     }
-    setOrders(Array.isArray(payload) ? payload : []);
+    // Fallback if success is true but data is direct array (shouldn't happen with new API)
+    if (Array.isArray(payload.data)) {
+      setOrders(payload.data);
+    } else if (Array.isArray(payload)) {
+      setOrders(payload);
+    } else {
+      setOrders([]);
+    }
   };
 
   useEffect(() => {
     if (activeSection === 'orders') {
-      loadOrdersPage(ordersPage, ordersLimit);
+      loadOrdersPage(ordersPage, ordersLimit, ordersFilter);
     }
-  }, [activeSection, ordersPage, ordersLimit]);
+  }, [activeSection, ordersPage, ordersLimit, ordersFilter]);
 
   useEffect(() => {
     if (activeSection.startsWith('tables')) {
@@ -417,6 +477,15 @@ const AdminDashboard = () => {
 
     socket.on('orders:new', (order) => {
       setOrders((prev) => [order, ...prev]);
+      
+      const tableLabel = order?.table?.tableNumber ? `Table ${order.table.tableNumber}` : 'Takeaway';
+      pushToast({
+        id: order._id,
+        title: 'New Order Received',
+        message: `${tableLabel} has a new order.`,
+        type: 'success'
+      });
+
       pushSystemNotification({
         title: 'New Order Received',
         body: `Table ${order?.table?.tableNumber || '-'} has a new order.`,
@@ -590,6 +659,50 @@ const AdminDashboard = () => {
   const freeTable = async (tableId) => {
     await api.patch(`/api/tables/${tableId}/free`);
     loadAll();
+  };
+
+  const handleAdminSubmitOrder = async () => {
+    try {
+      const type = selectedOrderTarget?.type || 'table';
+      const orderTypeMap = {
+        'table': 'dine_in',
+        'customer': 'takeaway',
+        'staff': 'staff'
+      };
+
+      const payload = {
+        table: type === 'table' ? selectedOrderTarget.id : undefined,
+        customerId: type === 'customer' ? selectedOrderTarget.id : undefined,
+        staffId: type === 'staff' ? selectedOrderTarget.id : undefined,
+        customerName: selectedOrderTarget?.name || 'Walk-in Customer',
+        orderType: orderTypeMap[type] || 'dine_in',
+        items: adminOrderItems.map(i => ({
+          menuItem: i.menuItem?._id || i.menuItem,
+          quantity: i.quantity,
+          variantId: i.variantId || i.variant?._id,
+          variantName: i.variantName || i.variant?.name,
+          variantPrice: i.variantPrice || i.variant?.price,
+          itemNote: i.itemNote
+        })),
+        assignedStaff: adminOrderWaiterId || undefined
+      };
+      const res = await api.post('/api/orders', payload);
+      setLastCreatedOrder(res.data);
+      setShowAdminConfirmModal(false);
+      setShowAdminSuccessPopup(true);
+      playSound('success');
+      const targetLabel = res.data.table ? `Table ${res.data.table.tableNumber}` : `${res.data.orderType} Order`;
+      pushToast({ title: 'Order Confirmed', message: `${targetLabel} is now booked.`, type: 'success' });
+      loadAll();
+      // Reset form
+      setAdminOrderItems([]);
+      setAdminOrderWaiterId('');
+      setAdminOrderTableId('');
+      setSelectedOrderTarget(null);
+    } catch (error) {
+      pushToast({ title: 'Order Failed', message: error.response?.data?.message || 'Failed to create order', type: 'error' });
+      playSound('error');
+    }
   };
 
   const updateTable = async (tableId, payload) => {
@@ -801,6 +914,12 @@ const AdminDashboard = () => {
 
   return (
     <div className={`admin-shell ${isMobile ? 'mobile-app-shell' : ''}`}>
+      {!soundEnabled && (
+        <div className="sound-enable-banner" onClick={unblockAudio}>
+          <Volume2 size={18} />
+          <span>Tap to enable order alerts sound</span>
+        </div>
+      )}
       <NotificationToasts notifications={toasts} />
       <AdminHeader
         isMobile={isMobile}
@@ -840,6 +959,7 @@ const AdminDashboard = () => {
         </div>
 
         <div className="content">
+          <div className="section-wrapper" key={activeSection}>
           {activeSection === 'dashboard' && hasPermission('dashboard:view') && (
             <AdminOverview
               report={report}
@@ -888,19 +1008,38 @@ const AdminDashboard = () => {
               onPrint={printBill}
               onUpdateOrder={async (payload) => {
                 const res = await api.put(`/api/orders/${payload.orderId}`, payload);
-                await loadAll();
+                await loadOrdersPage(ordersPage, ordersLimit, ordersFilter);
                 return res.data;
               }}
               page={ordersPage}
               limit={ordersLimit}
               total={ordersTotal}
+              filter={ordersFilter}
+              onFilterChange={(next) => {
+                setOrdersFilter(next);
+                setOrdersPage(1);
+              }}
               onPageChange={(next) => setOrdersPage(next)}
               onLimitChange={(next) => {
                 setOrdersLimit(next);
                 setOrdersPage(1);
               }}
+              categories={categories}
+              onNewOrder={() => {
+                setAdminOrderItems([]);
+                setAdminOrderTableId('');
+                setSelectedOrderTarget(null);
+                setAddOrderStep(1);
+                loadCustomers();
+                setShowAdminAddOrderModal(true);
+              }}
+              onAddTable={() => {
+                setActiveSection('tables:table');
+                setTimeout(() => setAutoOpenTableModal(true), 50);
+              }}
             />
           )}
+
           {activeSection === 'users' && hasPermission('staff:view') && (
             <>
               <AdminUsers
@@ -947,6 +1086,8 @@ const AdminDashboard = () => {
               onFreeTable={freeTable}
               onUpdateTable={updateTable}
               onDeleteTable={deleteTable}
+              autoOpenAddModal={autoOpenTableModal}
+              onAddModalClosed={() => setAutoOpenTableModal(false)}
             />
           )}
           {activeSection === 'tables:space' && hasPermission('tables:view') && (
@@ -1071,8 +1212,145 @@ const AdminDashboard = () => {
             );
           })()}
           {activeSection === 'history' && hasPermission('reports:view') && <AdminHistory history={history} />}
+          </div>{/* end section-wrapper */}
         </div>
       </div>
+          {/* Step 1: Target Selection Modal */}
+          {showAdminAddOrderModal && (
+            <AdminAddOrderModal
+              open={showAdminAddOrderModal}
+              onClose={() => setShowAdminAddOrderModal(false)}
+              tables={tables}
+              customers={customers}
+              staff={users.filter(u => u.role === 'waiter' || u.role === 'admin')}
+              onSelect={(target) => {
+                setSelectedOrderTarget(target);
+                if (target.type === 'table') {
+                  setAdminOrderTableId(target.id);
+                }
+                setShowAdminAddOrderModal(false);
+                setShowAdminOrderModal(true);
+                setAddOrderStep(2);
+              }}
+            />
+          )}
+
+          {/* Step 2: Dish Selection Modal */}
+          {showAdminOrderModal && (
+            <AddItemsModal
+              open={showAdminOrderModal}
+              orderTargetName={selectedOrderTarget?.name} // Pass the target name for the header
+              onClose={() => setShowAdminOrderModal(false)}
+              menus={menus}
+              categories={categories}
+              staff={users.filter((u) => u.role === 'waiter' || u.role === 'admin')}
+              items={adminOrderItems}
+              onAddItem={(item) => {
+                const menuItem = menus.find(m => m._id === (item.menuItem?._id || item.menuItem));
+                const enrichedItem = {
+                  ...item,
+                  menuItem: {
+                    _id: menuItem?._id,
+                    name: menuItem?.name || 'Item'
+                  },
+                  priceAtOrderTime: item.variantPrice || menuItem?.price || 0
+                };
+
+                const existing = [...adminOrderItems];
+                const idx = existing.findIndex(
+                  (i) =>
+                    (i.menuItem?._id || i.menuItem) === (enrichedItem.menuItem?._id || enrichedItem.menuItem) &&
+                    (i.variantId || null) === (enrichedItem.variantId || null)
+                );
+                if (idx >= 0) {
+                  existing[idx].quantity += enrichedItem.quantity;
+                  setAdminOrderItems(existing);
+                } else {
+                  setAdminOrderItems([...existing, enrichedItem]);
+                }
+              }}
+              onUpdateItemQuantity={(menuId, variantId, qty) => {
+                const updated = adminOrderItems
+                  .map((i) => {
+                    const id = i.menuItem?._id || i.menuItem;
+                    const vId = i.variantId || i.variant?._id || null;
+                    if (id === menuId && vId === (variantId || null)) {
+                      return { ...i, quantity: qty };
+                    }
+                    return i;
+                  })
+                  .filter((i) => i.quantity > 0);
+                setAdminOrderItems(updated);
+              }}
+              onUpdateItemNote={(menuId, variantId, note) => {
+                const updated = adminOrderItems.map((i) => {
+                  const id = i.menuItem?._id || i.menuItem;
+                  const vId = i.variantId || i.variant?._id || null;
+                  if (id === menuId && vId === (variantId || null)) {
+                    return { ...i, itemNote: note };
+                  }
+                  return i;
+                });
+                setAdminOrderItems(updated);
+              }}
+              onClearCart={() => setAdminOrderItems([])}
+              onConfirm={(options) => {
+                // handles both "Confirm & Print" and "Confirm Order"
+                setShowAdminOrderModal(false);
+                setShowAdminConfirmModal(true);
+              }}
+              confirmLabel="Proceed to Waiter Assignment"
+              confirmDisabled={adminOrderItems.length === 0}
+              onAssignStaff={setAdminOrderWaiterId}
+              assignedStaffId={adminOrderWaiterId}
+              tableOptions={tables
+                .filter((t) => t.status !== 'occupied' || t._id === adminOrderTableId)
+                .map((t) => ({ value: t._id, label: `Table ${t.tableNumber}` }))}
+              selectedTableId={adminOrderTableId}
+              onTableChange={setAdminOrderTableId}
+            />
+          )}
+
+          {showAdminConfirmModal && (
+            <AdminOrderConfirmModal
+              open={showAdminConfirmModal}
+              onClose={() => setShowAdminConfirmModal(false)}
+              onConfirm={handleAdminSubmitOrder}
+              items={adminOrderItems}
+              staff={users}
+              assignedStaffId={adminOrderWaiterId}
+              tableNumber={tables.find((t) => t._id === adminOrderTableId)?.tableNumber || selectedOrderTarget?.name}
+            />
+          )}
+
+          {showAdminSuccessPopup && lastCreatedOrder && (
+            <div className="checkout-overlay">
+              <div
+                className="checkout-panel text-center p-5"
+                style={{ maxWidth: '400px', height: 'auto' }}
+              >
+                <div className="mb-4 text-success">
+                  <div
+                    className="icon-circle bg-success-soft text-success mx-auto mb-3"
+                    style={{ width: '80px', height: '80px' }}
+                  >
+                    <CheckCircle size={48} />
+                  </div>
+                  <h3 className="fw-bold">Order Confirmed!</h3>
+                  <p className="text-muted">
+                    Table {lastCreatedOrder.table?.tableNumber} is successfully booked.
+                  </p>
+                </div>
+                <button
+                  className="btn btn-primary w-100 py-2 fw-bold"
+                  onClick={() => setShowAdminSuccessPopup(false)}
+                >
+                  Great!
+                </button>
+              </div>
+            </div>
+          )}
+
       <AdminMobileNavigation
         isMobile={isMobile}
         activeSection={activeSection}

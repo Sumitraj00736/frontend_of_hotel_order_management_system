@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, ListChecks, BookOpen, Bell, UserRound, ChevronDown, ChevronRight, LogOut } from 'lucide-react';
+import { Home, ListChecks, BookOpen, Bell, UserRound, ChevronDown, ChevronRight, LogOut, ShoppingBag } from 'lucide-react';
 import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../../api/session.js';
 import '../../../common/css/admin/sidebar/adminSidebar.css';
 
@@ -10,7 +10,8 @@ const iconMap = {
   allOrders: <ListChecks size={18} strokeWidth={1.5} />,
   menu: <BookOpen size={18} strokeWidth={1.5} />,
   notifications: <Bell size={18} strokeWidth={1.5} />,
-  profile: <UserRound size={18} strokeWidth={1.5} />
+  profile: <UserRound size={18} strokeWidth={1.5} />,
+  takeaway: <ShoppingBag size={18} strokeWidth={1.5} />
 };
 
 const WaiterSidebar = ({ activeSection = 'dashboard', onSelect, isOpen = true, onToggleSidebar, unreadCount = 0, sections }) => {

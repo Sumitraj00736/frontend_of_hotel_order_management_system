@@ -1,11 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed } from 'lucide-react';
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+ import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed, ShoppingBag, Volume2 } from 'lucide-react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
 import { clearSession, getBranchPermissions, getBranchRole, getCurrentUser } from '../api/session.js';
 import { WAITER_ALLOWED_PERMISSIONS } from '../common/permissions.js';
 import { ensureNotificationPermission, pushSystemNotification } from '../utils/systemNotifications.js';
+import { getPushStatus, isPushSupported, subscribePush, getCurrentBrowserToken, sendTestPush } from '../utils/pushClient.js';
+import { getMessagingInstance, onMessage } from '../utils/firebase.js';
+
 import WaiterSidebar from '../components/waiter/Sidebar/WaiterSidebar.jsx';
 import WaiterCart from '../components/waiter/Cart/WaiterCart.jsx';
 import WaiterMenu from '../components/waiter/Menu/WaiterMenu.jsx';
@@ -16,8 +19,11 @@ import WaiterProfile from '../components/waiter/Profile/WaiterProfile.jsx';
 import WaiterAnalytics from '../components/waiter/Analytics/WaiterAnalytics.jsx';
 import WaiterPromotionTimeline from '../components/waiter/PromotionTimeline/WaiterPromotionTimeline.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
+import MenuSection from '../components/admin/orders/addItemsModal/MenuSection.jsx';
+import CustomizeDishModal from '../components/admin/orders/addItemsModal/CustomizeDishModal.jsx';
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/waiter/waiterDashboard.css';
+import '../common/css/admin/orders/orderDetail.css';
 
 const WaiterApp = () => {
   const currentUser = getCurrentUser();
@@ -43,6 +49,57 @@ const WaiterApp = () => {
   const [orderViewMode, setOrderViewMode] = useState('myOrders');
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
   const [checkoutOrderData, setCheckoutOrderData] = useState(null);
+  const [addCategory, setAddCategory] = useState('all');
+  const [addSubMenu, setAddSubMenu] = useState('all');
+  const [customizeItem, setCustomizeItem] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [orderType, setOrderType] = useState('dine_in');
+  const [pushSupported, setPushSupported] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const initAttemptedRef = useRef(false);
+  const lastAlertIdRef = useRef(null);
+  const audioRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'));
+
+  const unblockAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.play().then(() => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setSoundEnabled(true);
+      }).catch(e => console.log('[Audio] Unblock failed:', e));
+    }
+  }, []);
+
+  const playBell = useCallback((eventId = null) => {
+    // Deduplicate: Don't ring twice for the same event ID within a short window (5s)
+    if (eventId && lastAlertIdRef.current === eventId) return;
+    if (eventId) {
+      lastAlertIdRef.current = eventId;
+      setTimeout(() => { if (lastAlertIdRef.current === eventId) lastAlertIdRef.current = null; }, 5000);
+    }
+    
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => {
+        console.log('[Audio] Play blocked:', e);
+        setSoundEnabled(false);
+      });
+    }
+  }, []);
+
+  const pushToast = useCallback((payload) => {
+    // Ring the bell unless explicitly silenced
+    if (payload.sound !== false) {
+      playBell(payload.id);
+    }
+
+    const id = payload.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const toast = { id, toast: true, ...payload };
+    setToasts((prev) => [toast, ...prev].slice(0, 5));
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, payload.duration || 3500);
+  }, []);
 
   // Toggle body scroll when mobile cart drawer is open
   useEffect(() => {
@@ -83,8 +140,8 @@ const WaiterApp = () => {
     };
 
     if (effectiveRole === 'waiter') {
-      return ['orders', 'notifications', 'dashboard', 'menu', 'profile'].filter((section) => {
-        if (section === 'orders' || section === 'profile') return true;
+      return ['dashboard', 'orders', 'menu', 'notifications', 'profile'].filter((section) => {
+        if (section === 'profile') return true;
         const perm = sectionPermissions[section];
         return perm ? can(perm) : true;
       });
@@ -102,14 +159,21 @@ const WaiterApp = () => {
   const [notificationFilters, setNotificationFilters] = useState({});
 
   const loadData = async (ordersScope = 'mine') => {
-    const results = await Promise.allSettled([
+    const fetchPromises = [
       api.get('/api/tables'),
       api.get('/api/menus'),
       api.get('/api/orders', { params: ordersScope === 'all' ? { scope: 'all' } : {} }),
-      api.get('/api/profile/me'),
-      api.get('/api/profile/waiter/analytics'),
-      api.get('/api/promotions/me')
-    ]);
+      api.get('/api/profile/me')
+    ];
+
+    // Optional fetches based on implicit or explicit permissions
+    const analyticsIdx = fetchPromises.length;
+    fetchPromises.push(api.get('/api/profile/waiter/analytics').catch(() => ({ data: null })));
+    
+    const promoIdx = fetchPromises.length;
+    fetchPromises.push(api.get('/api/promotions/me').catch(() => ({ data: [] })));
+
+    const results = await Promise.allSettled(fetchPromises);
 
     if (results[0].status === 'fulfilled') setTables(results[0].value.data);
     if (results[1].status === 'fulfilled') setMenus(results[1].value.data);
@@ -118,8 +182,14 @@ const WaiterApp = () => {
       setOrders(Array.isArray(payload?.data) ? payload.data : payload);
     }
     if (results[3].status === 'fulfilled') setProfile(results[3].value.data);
-    if (results[4].status === 'fulfilled') setMyAnalytics(results[4].value.data);
-    if (results[5].status === 'fulfilled') setPromotions(results[5].value.data);
+    
+    // Handle optional results safely
+    if (results[analyticsIdx]?.status === 'fulfilled' && results[analyticsIdx].value.data) {
+      setMyAnalytics(results[analyticsIdx].value.data);
+    }
+    if (results[promoIdx]?.status === 'fulfilled' && results[promoIdx].value.data) {
+      setPromotions(results[promoIdx].value.data);
+    }
   };
 
   const loadCustomers = async () => {
@@ -172,9 +242,18 @@ const WaiterApp = () => {
         if (prev.some((o) => o._id === order._id)) return prev;
         return [order, ...prev];
       });
+      
+      const tableLabel = order?.table?.tableNumber ? `Table ${order.table.tableNumber}` : 'Takeaway';
+      pushToast({
+        id: order._id, // Use order ID for deduplication and sound triggering
+        title: 'New Order Received',
+        message: `${tableLabel} has a new order.`,
+        type: 'success'
+      });
+      
       pushSystemNotification({
         title: 'New Order Received',
-        body: `Table ${order?.table?.tableNumber || '-'} has a new order.`,
+        body: `${tableLabel} has a new order.`,
         tag: 'waiter-order-new'
       });
     });
@@ -184,6 +263,11 @@ const WaiterApp = () => {
     socket.on('notify', (payload) => {
       if (payload.waiterId && payload.waiterId !== (currentUser?._id || currentUser?.id)) return;
       setNotifications((prev) => [{ ...payload, read: false }, ...prev].slice(0, 50));
+      pushToast({
+        title: payload.title || 'Notification',
+        message: payload.message || 'Notification received',
+        type: 'info'
+      });
       if (payload.type === 'order:paid') {
         pushSystemNotification({
           title: 'Order Checkout Completed',
@@ -193,34 +277,166 @@ const WaiterApp = () => {
       }
     });
 
-    return () => socket.disconnect();
-  }, [currentUser?._id, currentUser?.id]);
+    const initPush = async () => {
+      if (initAttemptedRef.current) return;
+      initAttemptedRef.current = true;
+      console.log('[FCM] initPush attempted');
+      const supported = await isPushSupported();
+      setPushSupported(Boolean(supported));
+      if (!supported) return;
+      try {
+        const [status, browserToken] = await Promise.all([
+          getPushStatus(),
+          getCurrentBrowserToken()
+        ]);
+
+        if (Notification.permission === 'denied') {
+          console.warn('Notifications blocked by browser');
+          return;
+        }
+
+        const shouldSubscribe = !status?.exists || !status?.enabled || (browserToken && status.fcmToken !== browserToken);
+
+        if (shouldSubscribe) {
+          if (Notification.permission === 'default' || Notification.permission === 'granted') {
+            const handleSubscribe = async () => {
+              try {
+                const res = await subscribePush();
+                console.log('Subscribe successful:', res);
+                pushToast({ title: 'Success', message: 'Notifications enabled!', type: 'success' });
+              } catch (err) {
+                console.error('Subscribe failed:', err);
+                pushToast({ 
+                  title: 'Notification Error', 
+                  message: `Registration failed: ${err.message}. Check browser settings or branch access.`, 
+                  type: 'error',
+                  duration: 8000
+                });
+              }
+            };
+
+            if (Notification.permission === 'granted') {
+              handleSubscribe();
+            } else {
+              pushToast({
+                title: '🔔 Notifications',
+                message: 'Click here to enable real-time order alerts.',
+                duration: 15000,
+                onClick: handleSubscribe
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('FCM setup for waiter failed:', err);
+      }
+    };
+    initPush();
+
+    // Foreground FCM listener
+    let unsubscribeFCM = () => {};
+    const setupFCMForeground = async () => {
+      const messaging = await getMessagingInstance();
+      if (messaging) {
+        unsubscribeFCM = onMessage(messaging, (payload) => {
+          console.log('[FCM] Foreground message received:', payload);
+          pushToast({
+            id: payload.data?.orderId || payload.messageId, // Deduplicate against socket events
+            title: payload.notification?.title || 'New Update',
+            message: payload.notification?.body || 'Check the details.',
+            type: 'info'
+          });
+        });
+      }
+    };
+    setupFCMForeground();
+
+    return () => {
+      socket.disconnect();
+      unsubscribeFCM();
+    };
+  }, [currentUser]);
+
+  const menuCategories = useMemo(() => {
+    const names = new Set();
+    menus.forEach((m) => {
+      const catId = m.category?._id || (typeof m.category === 'string' ? m.category : null);
+      const label = m.category?.name || m.categoryName || (catId && catId.length !== 24 ? catId : null) || 'Uncategorized';
+      if (label && label !== 'Uncategorized') names.add(label);
+    });
+    const result = Array.from(names);
+    if (result.length) result.push('Uncategorized');
+    return result;
+  }, [menus]);
+
+  const menuSubMenus = useMemo(() => {
+    const names = new Set();
+    menus.forEach((m) => {
+      const label = m.subMenu?.name || m.subMenuName || (typeof m.subMenu === 'string' && m.subMenu.length !== 24 ? m.subMenu : null) || '';
+      if (label) names.add(label);
+    });
+    return Array.from(names);
+  }, [menus]);
 
   const filteredMenu = useMemo(() => {
-    const available = menus.filter((item) => item.isAvailable !== false);
-    if (!search) return available;
-    return available.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
-  }, [menus, search]);
+    return menus.filter((m) => {
+      const name = (m.name || '').toLowerCase();
+      const catId = m.category?._id || (typeof m.category === 'string' ? m.category : null);
+      const cat = m.category?.name || m.categoryName || (catId && catId.length !== 24 ? catId : null) || 'Uncategorized';
+      const sub = m.subMenu?.name || m.subMenuName || (typeof m.subMenu === 'string' && m.subMenu.length !== 24 ? m.subMenu : null) || '';
+      if (m.isAvailable === false) return false;
+      if (addCategory === 'recommended' && !m.isRecommended) return false;
+      if (addCategory !== 'all' && cat !== addCategory) return false;
+      if (addSubMenu !== 'all' && sub !== addSubMenu) return false;
+      if (search && !name.includes(search.toLowerCase())) return false;
+      return true;
+    });
+  }, [menus, addCategory, addSubMenu, search]);
 
-  const addToCart = (item) => {
-    if (item.isAvailable === false) {
+  const addToCart = (itemPayload) => {
+    const item = itemPayload.onAdd ? itemPayload : menus.find(m => m._id === (itemPayload.menuItem || itemPayload._id));
+    if (!item || item.isAvailable === false) {
       alert('This item is unavailable');
       return;
     }
+    
+    // Handle variants from MenuSection
+    const variantId = itemPayload.variantId || null;
+    const variantName = itemPayload.variantName || null;
+    const variantPrice = itemPayload.variantPrice || null;
+
     setCart((prev) => {
-      const existing = prev.find((c) => c.menuItem === item._id);
+      const existing = prev.find((c) => 
+        c.menuItem === item._id && 
+        (c.variantId || null) === (variantId || null)
+      );
       if (existing) {
-        return prev.map((c) => (c.menuItem === item._id ? { ...c, quantity: c.quantity + 1 } : c));
+        return prev.map((c) => (
+          (c.menuItem === item._id && (c.variantId || null) === (variantId || null))
+            ? { ...c, quantity: c.quantity + (itemPayload.quantity || 1) } 
+            : c
+        ));
       }
-      return [...prev, { menuItem: item._id, name: item.name, price: item.price, quantity: 1 }];
+      return [
+        ...prev, 
+        { 
+          menuItem: item._id, 
+          name: item.name, 
+          price: variantPrice ?? item.price, 
+          quantity: itemPayload.quantity || 1,
+          variantId,
+          variantName,
+          variantPrice
+        }
+      ];
     });
   };
 
-  const updateQty = (menuItem, quantity) => {
+  const updateQty = (menuItem, quantity, variantId = null) => {
     setCart((prev) => {
       const qty = Number(quantity);
-      if (qty <= 0) return prev.filter((c) => c.menuItem !== menuItem);
-      return prev.map((c) => (c.menuItem === menuItem ? { ...c, quantity: qty } : c));
+      if (qty <= 0) return prev.filter((c) => !(c.menuItem === menuItem && (c.variantId || null) === (variantId || null)));
+      return prev.map((c) => (c.menuItem === menuItem && (c.variantId || null) === (variantId || null)) ? { ...c, quantity: qty } : c);
     });
   };
 
@@ -236,7 +452,10 @@ const WaiterApp = () => {
   }, [orders, orderViewMode, currentUserId]);
 
   const handleInitCheckout = () => {
-    if (!selectedTable) return alert('Select a table first');
+    if (orderType === 'dine_in' && !selectedTable) return alert('Select a table first');
+    if (orderType === 'takeaway' && !selectedCustomer && !customers.length) {
+      // If takeaway but no customer selected and no customers list, we might still allow it as "Walk-in"
+    }
     if (cart.length === 0) return alert('Add at least one item');
     if (cart.some((c) => !c.quantity || c.quantity < 1)) {
       return alert('Quantity must be at least 1 for all items');
@@ -247,11 +466,12 @@ const WaiterApp = () => {
 
   const placeOrder = async () => {
     const payload = {
-      table: selectedTable,
+      table: orderType === 'dine_in' ? selectedTable : undefined,
       items: cart.map((c) => ({ menuItem: c.menuItem, quantity: c.quantity })),
       spiceLevel,
       specialInstructions: instructions,
-      customerName: selectedCustomer || undefined
+      customerName: selectedCustomer || (orderType === 'takeaway' ? 'Walk-in Customer' : undefined),
+      orderType: orderType === 'takeaway' ? 'takeaway' : 'dine_in'
     };
 
     try {
@@ -450,6 +670,12 @@ const WaiterApp = () => {
       )}
 
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
+        {!soundEnabled && (
+          <div className="sound-enable-banner" onClick={unblockAudio}>
+            <Volume2 size={18} />
+            <span>Tap to enable order alerts sound</span>
+          </div>
+        )}
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
           <WaiterSidebar
             activeSection={activeSection}
@@ -460,6 +686,27 @@ const WaiterApp = () => {
             sections={availableSections}
           />
         </div>
+        
+        {/* Fixed Notifications & Diagnostics Overlay */}
+        <div style={{ position: 'fixed', top: '15px', right: '15px', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
+          {pushSupported && (
+            <button 
+              className="btn btn-sm btn-info rounded-pill px-3 fw-bold shadow border-0 text-white"
+              style={{ fontSize: '12px' }}
+              onClick={async () => {
+                try {
+                  await sendTestPush();
+                } catch (err) {
+                  pushToast({ title: 'Test Failed', message: err.message, type: 'error' });
+                }
+              }}
+            >
+              Test Notification
+            </button>
+          )}
+          <NotificationToasts notifications={toasts} />
+        </div>
+
 
         {/* Global Mobile Header - Persistent across all tabs */}
         <div className="d-md-none">
@@ -468,21 +715,44 @@ const WaiterApp = () => {
 
         {activeSection === 'dashboard' && can('dashboard:view') && (
           <div className="content waiter-pos-layout position-relative">
-            <div className="pos-menu-section h-100">
-              <div className="pos-search-wrapper">
-                <Search size={18} color="#9ca3af" className="me-2" />
-                <input
-                  placeholder="Search menu items..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+            <div className="pos-menu-section h-100 p-3 overflow-hidden d-flex flex-column">
+              <div className="pos-order-type-toggle p-2 bg-white rounded-pill shadow-sm mb-3 d-flex gap-2 mx-auto" style={{ border: '1px solid #e2e8f0', width: 'fit-content', minWidth: '240px' }}>
+                <button 
+                  className={`flex-grow-1 btn btn-sm d-flex align-items-center justify-content-center gap-2 py-2 border-0 shadow-none rounded-pill fw-bold ${orderType === 'dine_in' ? 'bg-primary text-white' : 'text-muted'}`}
+                  onClick={() => setOrderType('dine_in')}
+                >
+                  <UtensilsCrossed size={14} /> Dine-in
+                </button>
+                <button 
+                  className={`flex-grow-1 btn btn-sm d-flex align-items-center justify-content-center gap-2 py-2 border-0 shadow-none rounded-pill fw-bold ${orderType === 'takeaway' ? 'bg-primary text-white' : 'text-muted'}`}
+                  onClick={() => setOrderType('takeaway')}
+                >
+                  <ShoppingBag size={14} /> Takeaway
+                </button>
               </div>
-              
-              <div className="pos-menu-body">
-                {can('menu:view') ? (
-                  <WaiterMenu menuItems={filteredMenu} onAdd={addToCart} />
-                ) : <div />}
-              </div>
+
+              {can('menu:view') ? (
+                <div className="flex-grow-1 overflow-auto rounded-3 bg-white p-3 shadow-sm" style={{ border: '1px solid #eef1f6' }}>
+                  <MenuSection
+                    addSubMenu={addSubMenu}
+                    menuSubMenus={menuSubMenus}
+                    addSearch={search}
+                    onSearchChange={setSearch}
+                    addCategory={addCategory}
+                    menuCategories={menuCategories}
+                    onCategoryChange={({ category, subMenu }) => {
+                      if (category) setAddCategory(category);
+                      if (subMenu !== undefined) setAddSubMenu(subMenu);
+                    }}
+                    filteredMenus={filteredMenu}
+                    onAdd={addToCart}
+                    onCustomize={setCustomizeItem}
+                    tableOptions={tables}
+                    selectedTableId={selectedTable}
+                    onTableChange={setSelectedTable}
+                  />
+                </div>
+              ) : <div />}
             </div>
             
             <div className="pos-cart-section h-100 overflow-hidden d-none d-md-block">
@@ -504,11 +774,45 @@ const WaiterApp = () => {
                   customers={customers}
                   selectedCustomer={selectedCustomer}
                   onSelectCustomer={setSelectedCustomer}
-                  showCustomer={can('customers:view')}
+                  showCustomer={can('customers:view') || orderType === 'takeaway'}
+                  orderType={orderType}
+                  onOrderTypeChange={setOrderType}
                   onClose={() => setMobileCartOpen(false)}
                 />
               ) : <div />}
             </div>
+          </div>
+        )}
+
+        {activeSection === 'takeaway' && (
+          <div className="content waiter-orders-content">
+            <div className="card-header-sleek d-flex justify-content-between align-items-center mb-4">
+              <h4 className="m-0">Takeaway & Online Orders</h4>
+            </div>
+            <WaiterOrders
+              orders={orders.filter(o => o.orderType !== 'dine_in')}
+              onEdit={(order) => {
+                setEditingOrderId(order._id);
+                setCart(order.items.map(i => ({
+                  menuItem: i.menuItem,
+                  quantity: i.quantity,
+                  variantId: i.variantId,
+                  variantName: i.variantName,
+                  variantPrice: i.variantPrice,
+                  itemNote: i.itemNote
+                })));
+                setSelectedTable(order.table?._id || null);
+                setSelectedCustomer(order.customerId || '');
+                setSpiceLevel(order.spiceLevel || 'medium');
+                setInstructions(order.specialInstructions || '');
+                setActiveSection('dashboard');
+              }}
+              onBill={(id) => window.open(`/api/orders/${id}/bill`, '_blank')}
+              onCheckout={(order) => {
+                setCheckoutOrderData(order);
+                setShowCheckout(true);
+              }}
+            />
           </div>
         )}
 
@@ -601,12 +905,20 @@ const WaiterApp = () => {
                 customers={customers}
                 selectedCustomer={selectedCustomer}
                 onSelectCustomer={setSelectedCustomer}
-                showCustomer={can('customers:view')}
+                showCustomer={can('customers:view') || orderType === 'takeaway'}
+                orderType={orderType}
+                onOrderTypeChange={setOrderType}
                 onClose={() => setMobileCartOpen(false)}
               />
             </div>
           </div>
         )}
+      <CustomizeDishModal
+        open={Boolean(customizeItem)}
+        item={customizeItem}
+        onClose={() => setCustomizeItem(null)}
+        onAdd={addToCart}
+      />
       </div>
     </div>
   );
