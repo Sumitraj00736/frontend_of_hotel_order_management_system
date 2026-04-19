@@ -31,7 +31,8 @@ import {
   CalendarDays,
   MessageSquare,
   MessageCircle,
-  Share2
+  Share2,
+  Wallet
 } from 'lucide-react';
 
 import {
@@ -57,7 +58,8 @@ const iconMap = {
   history: <History size={18} strokeWidth={1.7} />,
   settings: <Settings size={18} strokeWidth={1.7} />,
   notifications: <Bell size={18} strokeWidth={1.7} />,
-  customers: <UserRound size={18} strokeWidth={1.7} />
+  customers: <UserRound size={18} strokeWidth={1.7} />,
+  finance: <Wallet size={18} strokeWidth={1.7} />
 };
 
 const menuSubIcons = {
@@ -111,6 +113,7 @@ const AdminSidebar = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
+  const [financeOpen, setFinanceOpen] = useState(false);
   const [tablesOpen, setTablesOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -215,6 +218,7 @@ const AdminSidebar = ({
   const handleToggleMenu = (menu) => {
     setMenuOpen((value) => (menu === 'menu' ? !value : false));
     setInventoryOpen((value) => (menu === 'inventory' ? !value : false));
+    setFinanceOpen((value) => (menu === 'finance' ? !value : false));
     setReportsOpen((value) => (menu === 'reports' ? !value : false));
     setTablesOpen((value) => (menu === 'tables' ? !value : false));
   };
@@ -520,6 +524,67 @@ const AdminSidebar = ({
                 { id: 'inventory:ingredients', label: 'Ingredients', permission: 'inventory:view' },
                 { id: 'inventory:recipes', label: 'Recipes', permission: 'inventory:view' },
                 { id: 'inventory:transactions', label: 'Stock Transactions', permission: 'inventory:view' }
+              ])}
+            </div>
+          )}
+
+          {/* FINANCE */}
+          {hasPermission('billing:view') && (
+            <div
+              className="sidebar-group"
+              onMouseEnter={() => !isOpen && !isMobile && setHoveredMenu('finance')}
+              onMouseLeave={() => !isOpen && !isMobile && setHoveredMenu(null)}
+            >
+              <button
+                className={`sidebar-button ${activeSection.startsWith('finance') ? 'active' : ''} ${
+                  isOpen ? '' : 'compact'
+                }`}
+                onClick={() => (isOpen ? handleToggleMenu('finance') : setHoveredMenu('finance'))}
+                title="FINANCE"
+              >
+                <span className="sidebar-icon">{iconMap.finance}</span>
+                <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Finance</span>
+                {isOpen && (
+                  <span className="ms-auto">
+                    {financeOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  </span>
+                )}
+              </button>
+
+              {isOpen && (
+                <div className={`sidebar-sub ${financeOpen ? 'open' : ''}`}>
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'finance:daybook' ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:daybook')}
+                  >
+                    Day Book
+                  </button>
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'finance:daybook-history' ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:daybook-history')}
+                  >
+                    Daybook History
+                  </button>
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'finance:transactions' ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:transactions')}
+                  >
+                    Transactions
+                  </button>
+                  <button
+                    className={`sidebar-button sub ${activeSection.startsWith('finance:sales-purchase') ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:sales-purchase:sales-invoices')}
+                  >
+                    Sales & Purchase
+                  </button>
+                </div>
+              )}
+
+              {renderCollapsedPopover('finance', 'Finance', [
+                { id: 'finance:daybook', label: 'Day Book', permission: 'billing:view' },
+                { id: 'finance:daybook-history', label: 'Daybook History', permission: 'billing:view' },
+                { id: 'finance:transactions', label: 'Transactions', permission: 'billing:view' },
+                { id: 'finance:sales-purchase:sales-invoices', label: 'Sales & Purchase', permission: 'billing:view' }
               ])}
             </div>
           )}

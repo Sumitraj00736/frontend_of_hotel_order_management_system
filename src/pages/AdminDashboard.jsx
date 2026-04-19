@@ -26,6 +26,7 @@ import AdminReports from '../components/admin/reports/AdminReports.jsx';
 import AdminHistory from '../components/admin/history/AdminHistory.jsx';
 import AdminPromotionTimeline from '../components/admin/promotions/AdminPromotionTimeline.jsx';
 import AdminInventory from '../components/admin/inventory/AdminInventory.jsx';
+import AdminFinance from '../components/admin/finance/AdminFinance.jsx';
 import AdminWebsite from '../components/admin/website/AdminWebsite.jsx';
 import AdminSettings from '../components/admin/settings/AdminSettings.jsx';
 import SettingsSidebar from '../components/admin/settings/SettingsSidebar.jsx';
@@ -866,6 +867,7 @@ const AdminDashboard = () => {
     if (activeSection.startsWith('menu')) return 'Menu';
     if (activeSection.startsWith('tables')) return 'Table & Space';
     if (activeSection.startsWith('inventory')) return 'Inventory';
+    if (activeSection.startsWith('finance')) return 'Finance';
     if (activeSection.startsWith('reports')) return 'Reports';
     if (activeSection.startsWith('settings')) return 'Settings';
     const map = {
@@ -1135,6 +1137,9 @@ const AdminDashboard = () => {
               reload={loadInventory}
               externalView={activeSection.split(':')[1] || 'ingredients'}
             />
+          )}
+          {activeSection.startsWith('finance') && hasPermission('billing:view') && (
+            <AdminFinance section={activeSection} onNavigate={setActiveSection} />
           )}
           {activeSection.startsWith('reports') && hasPermission('reports:view') && (
             <AdminReports
