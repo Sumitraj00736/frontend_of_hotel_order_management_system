@@ -13,8 +13,8 @@ import AdminMobileSettingsTabs from '../components/admin/mobile/AdminMobileSetti
 import AdminOverview from '../components/admin/dashboard/AdminOverview.jsx';
 import AdminOrders from '../components/admin/orders/adminOrders/AdminOrders.jsx';
 import AdminUsers from '../components/admin/users/AdminUsers.jsx';
-import AdminTableList from '../components/admin/tables/AdminTableList.jsx';
-import AdminSpaces from '../components/admin/tables/AdminSpaces.jsx';
+import Table from '../components/admin/tableAndSpace/Tables/Table.jsx';
+import Space from '../components/admin/tableAndSpace/Spaces/Space.jsx';
 import AdminQrCodes from '../components/admin/tables/AdminQrCodes.jsx';
 import AdminMenus from '../components/admin/menu/AdminMenus.jsx';
 import AdminCategories from '../components/admin/menu/AdminCategories.jsx';
@@ -1079,28 +1079,10 @@ const AdminDashboard = () => {
             />
           )}
           {activeSection === 'tables:table' && hasPermission('tables:view') && (
-            <AdminTableList
-              tables={tables}
-              spaces={spaces}
-              tableForm={tableForm}
-              setTableForm={setTableForm}
-              onCreateTable={createTable}
-              onFreeTable={freeTable}
-              onUpdateTable={updateTable}
-              onDeleteTable={deleteTable}
-              autoOpenAddModal={autoOpenTableModal}
-              onAddModalClosed={() => setAutoOpenTableModal(false)}
-            />
+            <Table tables={tables} spaces={spaces} reload={loadAll} />
           )}
           {activeSection === 'tables:space' && hasPermission('tables:view') && (
-            <AdminSpaces
-              spaces={spaces}
-              spaceForm={spaceForm}
-              setSpaceForm={setSpaceForm}
-              onCreateSpace={createSpace}
-              onUpdateSpace={updateSpace}
-              onDeleteSpace={deleteSpace}
-            />
+            <Space spaces={spaces} reload={loadSpaces} />
           )}
           {activeSection === 'tables:qr' && hasPermission('tables:view') && (
             <AdminQrCodes qrData={qrData} search={qrSearch} setSearch={setQrSearch} />
