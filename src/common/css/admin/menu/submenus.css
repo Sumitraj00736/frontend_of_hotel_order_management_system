@@ -317,3 +317,20 @@
   border-radius: 16px;
   padding: 24px;
 }
+
+
+
+body.dark-mode .submenus-page {
+  background: #1e1e1e;
+}
+body.dark-mode .modal-panel {
+  background: #2c2c2c;
+}
+body.dark-mode .submenu-avatar {
+  background: #4a2e1c;
+  color: #f8d7da;
+}
+body.dark-mode .submenus-search {
+  background: #2c2c2c;
+  border: 1px solid #444;
+}

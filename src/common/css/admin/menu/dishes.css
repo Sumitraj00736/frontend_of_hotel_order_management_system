@@ -662,6 +662,139 @@
   color: #d84343;
 }
 
+body.dark-mode .dishes-table-wrap {
+  border-color: #2d3748;
+  background: #2d3748;
+}
+body.dark-mode .dishes-table thead {
+  background: #1a202c;
+}
+body.dark-mode .dishes-table th,
+body.dark-mode .dishes-table td {
+  border-color: #2d3748;
+}
+body.dark-mode .dish-avatar {
+  background: #4a5568;
+  color: #cbd5e0;
+}
+body.dark-mode .switch-lite span {
+  background: #4a5568;
+}
+body.dark-mode .switch-lite span::after {
+  background: #68d391;
+}
+body.dark-mode .action-dropdown {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+body.dark-mode .action-dropdown button {
+  color: #cbd5e0;
+  background: #2d3748;
+}
+body.dark-mode .stat-card {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+body.dark-mode .stat-title {
+  color: #cbd5e0;
+}
+body.dark-mode .stat-icon {
+  background: #4a5568;
+}
+body.dark-mode .stat-pill {
+  background: #4a5568;
+  color: #68d391;
+}
+body.dark-mode .btn-filter{
+  border-color: #4a5568;
+  background: #2d3748;
+  color: #cbd5e0;
+}
+body.dark-mode .dishes-search {
+  border-color: #4a5568;
+  background: #2d3748;
+}
+body.dark-mode .dishes-search input {
+  background: #2d3748;
+  color: #cbd5e0;
+}
+body.dark-mode .dish-form {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+body.dark-mode .form-field input,
+body.dark-mode .form-field select {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #cbd5e0;
+}
+body.dark-mode .upload-btn {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #cbd5e0;
+}
+body.dark-mode .price-meta {
+  color: #cbd5e0;
+}
+body.dark-mode .price-meta .profit {
+  color: #68d391;
+}
+body.dark-mode .stock-link {
+  color: #63b3ed;
+}
+body.dark-mode .variant-card {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+body.dark-mode .variant-drag {
+  color: #718096;
+}
+body.dark-mode .variant-delete {
+  color: #e53e3e;
+}
+body.dark-mode .dish-price-summary {
+  color: #cbd5e0;
+}
+body.dark-mode .form-card {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+body.dark-mode .form-card-title {
+  color: #cbd5e0;
+}
+body.dark-mode .addon-banner {
+  background: #2f855a;
+  border-color: #2c7a7b;
+}
+body.dark-mode .addon-banner .badge {
+  background: #2c7a7b;
+  color: #e6fffa;
+}
+body.dark-mode .back-btn {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #cbd5e0;
+}
+body.dark-mode .btn-outline {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #cbd5e0;
+}
+body.dark-mode .btn-primary.ghost {
+  background: #c53030;
+  color: #fff5f5;
+}
+body.dark-mode .btn-primary {
+  background: #c53030;
+  color: #fff5f5;
+}
+body.dark-mode .btn-light {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #cbd5e0;
+}
+
+
 @media (max-width: 1100px) {
   .dish-form-grid {
     grid-template-columns: 1fr;

@@ -306,3 +306,32 @@
   border-radius: 16px;
   padding: 24px;
 }
+
+
+
+body.dark-mode .addon-avatar {
+  background: #4a2e1c;
+  color: #f8d7da;
+}
+body.dark-mode .stat-icon {
+  background: #2e7d32;
+}
+body.dark-mode .stat-icon.red {
+  background: #8b0000;
+}
+body.dark-mode .stat-icon.gray {
+  background: #2f4f4f;
+}
+body.dark-mode .addons-search {
+  background: #2f4f4f;
+  border: 1px solid #555;
+}
+body.dark-mode .btn.btn-outline-light {
+  background: #2f4f4f;
+  border: 1px solid #555;
+  color: #fff;
+}
+body.dark-mode .btn.btn-outline-light:hover {
+  background: #555;
+}
+
