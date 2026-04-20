@@ -12,11 +12,21 @@ const TransactionHistoryTable = ({
   onExport
 }) => {
   const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
+  const statusClass = (status = '') => {
+    const normalized = status.toLowerCase();
+    if (normalized.includes('paid')) return 'paid';
+    if (normalized.includes('pending')) return 'pending';
+    if (normalized.includes('cancel')) return 'cancelled';
+    return 'default';
+  };
 
   return (
-    <div className="panel">
+    <div className="panel panel-history">
       <div className="panel-heading">
-        <div className="panel-title">Transaction History</div>
+        <div>
+          <div className="panel-title">Transaction History</div>
+          <div className="panel-sub">Recent payment activity across the branch.</div>
+        </div>
         <div className="transaction-actions">
           <input
             type="date"
@@ -42,6 +52,7 @@ const TransactionHistoryTable = ({
           <table className="table table-sm transaction-table-grid">
             <thead>
               <tr>
+                <th>Status</th>
                 <th>Entry Date</th>
                 <th>TXN Date</th>
                 <th>TXN No</th>
@@ -50,23 +61,27 @@ const TransactionHistoryTable = ({
                 <th>Parties</th>
                 <th>PMT Mode</th>
                 <th>Amount</th>
-                <th>Status</th>
                 <th>Entry By</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row, idx) => (
                 <tr key={`${row.txnNo}-${idx}`}>
-                  <td>{row.entryDate ? new Date(row.entryDate).toLocaleDateString() : '-'}</td>
-                  <td>{row.txnDate ? new Date(row.txnDate).toLocaleDateString() : '-'}</td>
-                  <td>{row.txnNo}</td>
-                  <td>{row.particular}</td>
-                  <td>{row.txnType}</td>
-                  <td>{row.parties}</td>
-                  <td>{row.paymentMode}</td>
-                  <td>Rs {row.amount}</td>
-                  <td>{row.status}</td>
-                  <td>{row.entryBy}</td>
+                  <td data-label="Status">
+                    <span className={`status-pill ${statusClass(row.status)}`}>
+                      <span className="status-dot" />
+                      {row.status}
+                    </span>
+                  </td>
+                  <td data-label="Entry Date">{row.entryDate ? new Date(row.entryDate).toLocaleDateString() : '-'}</td>
+                  <td data-label="TXN Date">{row.txnDate ? new Date(row.txnDate).toLocaleDateString() : '-'}</td>
+                  <td data-label="TXN No">{row.txnNo}</td>
+                  <td data-label="Particular">{row.particular}</td>
+                  <td data-label="TXN Type">{row.txnType}</td>
+                  <td data-label="Parties">{row.parties}</td>
+                  <td data-label="PMT Mode">{row.paymentMode}</td>
+                  <td data-label="Amount">Rs {Number(row.amount || 0).toLocaleString()}</td>
+                  <td data-label="Entry By">{row.entryBy}</td>
                 </tr>
               ))}
             </tbody>

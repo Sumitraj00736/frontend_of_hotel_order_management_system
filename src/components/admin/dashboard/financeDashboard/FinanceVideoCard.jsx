@@ -5,7 +5,7 @@ const FinanceVideoCard = () => (
     <div className="video-thumb" />
     <div className="panel-title">How to Track Customer Credit</div>
     <div className="panel-sub">Hey, we have videos on finance section, check it out</div>
-    <button className="video-btn">Subscribe to RestroX</button>
+    <button className="video-btn">Subscribe to merorestro</button>
   </div>
 );
 

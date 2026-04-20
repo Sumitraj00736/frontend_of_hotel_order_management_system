@@ -23,7 +23,7 @@ const SETTINGS_GROUPS = [
     ]
   },
   {
-    title: 'RestroX',
+    title: 'merorestro',
     items: [
       { id: 'support', label: 'Support & Feedback' },
       { id: 'release', label: 'Release Notes' }

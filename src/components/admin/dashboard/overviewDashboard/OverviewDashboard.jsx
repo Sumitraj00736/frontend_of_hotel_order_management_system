@@ -17,7 +17,7 @@ const OverviewDashboard = ({
   onTransactionExport
 }) => {
   return (
-    <div className="dash-tab-stack">
+    <div className="dash-tab-stack overview-dashboard">
       <OverviewKpiGrid report={report} />
       <div className="panel-grid two-col">
         <OverviewSalesByStaff items={data?.salesByStaff || []} />

@@ -20,7 +20,7 @@ const BillingSubscription = ({ data }) => {
       <div className="settings-card">
         <div className="billing-card">
           <div>
-            <div className="pill">RestroX Free</div>
+            <div className="pill">merorestro Free</div>
             <div className="billing-plan">{plan.name || 'Free Plan'}</div>
             <div className="billing-meta">Active Since {plan.activeSince ? new Date(plan.activeSince).toLocaleDateString() : '-'}</div>
           </div>
