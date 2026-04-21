@@ -1,5 +1,5 @@
 .admin-shell {
-  background-color: #f0fdf4 !important; /* Premium Mint Green Background */
+  background-color: white !important; /* Premium Mint Green Background */
   min-height: 100vh;
   padding: 0 !important; /* Force full screen for POS */
 }
