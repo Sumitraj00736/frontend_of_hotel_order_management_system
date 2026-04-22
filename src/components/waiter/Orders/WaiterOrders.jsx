@@ -10,7 +10,12 @@ const WaiterOrders = ({ orders, onEdit, onBill, onCheckout }) => (
         <div key={order._id} className="kot-card">
           <div className="kot-title">KOT {order._id?.slice(-4)}</div>
           <div className="kot-meta">
-            <div><Tag size={12} className="me-1" />{order.source === 'guest' ? 'Online' : 'Dine In'}</div>
+            <div className="text-capitalize"><Tag size={12} className="me-1" />
+              {order.source === 'guest' 
+                ? 'Online' 
+                : order.orderType?.replace('_', ' ') || 'Dine In'
+              }
+            </div>
             <div><MapPin size={12} className="me-1" />Table {order.table?.tableNumber || '-'}</div>
           </div>
           <div className="kot-meta">

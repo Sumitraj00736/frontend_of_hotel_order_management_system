@@ -4,13 +4,18 @@ import { Search, X, Users, User, LayoutGrid } from 'lucide-react';
 const AdminAddOrderModal = ({ 
   open, 
   onClose, 
+  initialTab = 'table', // Add default initialTab passed from AdminDashboard
   tables = [], 
   customers = [], 
   staff = [],
   onSelect 
 }) => {
-  const [activeTab, setActiveTab] = useState('table');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [search, setSearch] = useState('');
+
+  React.useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   if (!open) return null;
 

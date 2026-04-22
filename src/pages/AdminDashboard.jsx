@@ -115,6 +115,7 @@ const AdminDashboard = () => {
   const [showAdminOrderModal, setShowAdminOrderModal] = useState(false); // Step 2 modal
   const [showAdminConfirmModal, setShowAdminConfirmModal] = useState(false);
   const [showAdminSuccessPopup, setShowAdminSuccessPopup] = useState(false);
+  const [adminOrderType, setAdminOrderType] = useState('dine_in');
   const [adminOrderItems, setAdminOrderItems] = useState([]);
   const [adminOrderWaiterId, setAdminOrderWaiterId] = useState('');
   const [adminOrderTableId, setAdminOrderTableId] = useState('');
@@ -676,7 +677,7 @@ const AdminDashboard = () => {
         customerId: type === 'customer' ? selectedOrderTarget.id : undefined,
         staffId: type === 'staff' ? selectedOrderTarget.id : undefined,
         customerName: selectedOrderTarget?.name || 'Walk-in Customer',
-        orderType: orderTypeMap[type] || 'dine_in',
+        orderType: adminOrderType || orderTypeMap[type] || 'dine_in',
         items: adminOrderItems.map(i => ({
           menuItem: i.menuItem?._id || i.menuItem,
           quantity: i.quantity,
@@ -1027,7 +1028,8 @@ const AdminDashboard = () => {
                 setOrdersPage(1);
               }}
               categories={categories}
-              onNewOrder={() => {
+              onNewOrder={(type) => {
+                setAdminOrderType(type || 'dine_in');
                 setAdminOrderItems([]);
                 setAdminOrderTableId('');
                 setSelectedOrderTarget(null);
@@ -1206,6 +1208,7 @@ const AdminDashboard = () => {
           {showAdminAddOrderModal && (
             <AdminAddOrderModal
               open={showAdminAddOrderModal}
+              initialTab={adminOrderType === 'dine_in' ? 'table' : 'customer'}
               onClose={() => setShowAdminAddOrderModal(false)}
               tables={tables}
               customers={customers}
