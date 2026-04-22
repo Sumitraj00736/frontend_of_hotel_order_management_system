@@ -54,7 +54,8 @@ const AdminMobileNavigation = ({ isMobile, activeSection, onChangeSection, canAc
       return [
         { id: 'inventory:ingredients', label: 'Ingredients' },
         { id: 'inventory:recipes', label: 'Recipes' },
-        { id: 'inventory:transactions', label: 'Transactions' }
+        { id: 'inventory:transactions', label: 'Transactions' },
+        { id: 'inventory:suppliers', label: 'Suppliers' }
       ];
     }
     if (activeSection.startsWith('reports')) {

@@ -73,7 +73,8 @@ const menuSubIcons = {
 const inventorySubIcons = {
   ingredients: <Wheat size={14} />,
   recipes: <Soup size={14} />,
-  transactions: <PackageSearch size={14} />
+  transactions: <PackageSearch size={14} />,
+  suppliers: <Users size={14} />
 };
 
 const tableSubIcons = {
@@ -508,7 +509,7 @@ const AdminSidebar = ({
                     Recipes
                   </button>
 
-                  <button
+                   <button
                     className={`sidebar-button sub ${
                       activeSection === 'inventory:transactions' ? 'active' : ''
                     }`}
@@ -517,13 +518,24 @@ const AdminSidebar = ({
                     <span className="sidebar-icon">{inventorySubIcons.transactions}</span>
                     Stock Transactions
                   </button>
+
+                  <button
+                    className={`sidebar-button sub ${
+                      activeSection === 'inventory:suppliers' ? 'active' : ''
+                    }`}
+                    onClick={() => handleSelect('inventory:suppliers')}
+                  >
+                    <span className="sidebar-icon">{inventorySubIcons.suppliers}</span>
+                    Suppliers
+                  </button>
                 </div>
               )}
 
               {renderCollapsedPopover('inventory', 'Inventory', [
                 { id: 'inventory:ingredients', label: 'Ingredients', permission: 'inventory:view' },
                 { id: 'inventory:recipes', label: 'Recipes', permission: 'inventory:view' },
-                { id: 'inventory:transactions', label: 'Stock Transactions', permission: 'inventory:view' }
+                { id: 'inventory:transactions', label: 'Stock Transactions', permission: 'inventory:view' },
+                { id: 'inventory:suppliers', label: 'Suppliers', permission: 'inventory:view' }
               ])}
             </div>
           )}
