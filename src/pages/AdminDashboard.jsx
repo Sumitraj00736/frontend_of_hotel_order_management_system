@@ -34,6 +34,8 @@ import AdminCustomers from '../components/admin/customers/AdminCustomers.jsx';
 import AdminOrderConfirmModal from '../components/admin/orders/addItemsModal/AdminOrderConfirmModal.jsx';
 import AdminAddOrderModal from '../components/admin/orders/addItemsModal/AdminAddOrderModal.jsx';
 import AddItemsModal from '../components/admin/orders/addItemsModal/AddItemsModal.jsx';
+import AdminDeliveryPlatformModal from '../components/admin/orders/addItemsModal/AdminDeliveryPlatformModal.jsx';
+import AdminDeliveryOrderModal from '../components/admin/orders/addItemsModal/AdminDeliveryOrderModal.jsx';
 import { playSound } from '../utils/sound.js';
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/admin/common/adminResponsive.css';
@@ -111,6 +113,10 @@ const AdminDashboard = () => {
   const [showAdminAddOrderModal, setShowAdminAddOrderModal] = useState(false); // Step 1 modal
   const [addOrderStep, setAddOrderStep] = useState(1);
   const [selectedOrderTarget, setSelectedOrderTarget] = useState(null); // { type, id, name }
+
+  const [showAdminDeliveryPlatformModal, setShowAdminDeliveryPlatformModal] = useState(false);
+  const [showAdminDeliveryOrderModal, setShowAdminDeliveryOrderModal] = useState(false);
+  const [deliveryPlatform, setDeliveryPlatform] = useState('');
 
   const [showAdminOrderModal, setShowAdminOrderModal] = useState(false); // Step 2 modal
   const [showAdminConfirmModal, setShowAdminConfirmModal] = useState(false);
@@ -663,6 +669,41 @@ const AdminDashboard = () => {
     loadAll();
   };
 
+  const handleAdminSubmitDeliveryOrder = async (deliveryDetails) => {
+    try {
+      const payload = {
+        orderType: 'delivery',
+        customerName: deliveryDetails.customerName || 'Walk-in Customer',
+        customerPhone: deliveryDetails.customerPhone || undefined,
+        deliveryAddress: deliveryDetails.deliveryAddress || undefined,
+        deliveryPlatform: deliveryDetails.deliveryPlatform || undefined,
+        specialInstructions: deliveryDetails.notes || undefined,
+        assignedStaff: deliveryDetails.assignedStaffId || undefined,
+        assignedRider: deliveryDetails.assignedRiderId || undefined,
+        items: adminOrderItems.map(i => ({
+          menuItem: i.menuItem?._id || i.menuItem,
+          quantity: i.quantity,
+          variantId: i.variantId || i.variant?._id,
+          variantName: i.variantName || i.variant?.name,
+          variantPrice: i.variantPrice || i.variant?.price,
+          itemNote: i.itemNote
+        }))
+      };
+      if (payload.items.length === 0) return;
+      const res = await api.post('/api/orders', payload);
+      setLastCreatedOrder(res.data);
+      setShowAdminDeliveryOrderModal(false);
+      setShowAdminSuccessPopup(true);
+      playSound('success');
+      pushToast({ title: 'Delivery Confirmed', message: `Delivery Order is now booked.`, type: 'success' });
+      loadAll();
+      setAdminOrderItems([]);
+    } catch (error) {
+      pushToast({ title: 'Order Failed', message: error.response?.data?.message || 'Failed to create delivery order', type: 'error' });
+      playSound('error');
+    }
+  };
+
   const handleAdminSubmitOrder = async () => {
     try {
       const type = selectedOrderTarget?.type || 'table';
@@ -1035,7 +1076,12 @@ const AdminDashboard = () => {
                 setSelectedOrderTarget(null);
                 setAddOrderStep(1);
                 loadCustomers();
-                setShowAdminAddOrderModal(true);
+                
+                if (type === 'delivery') {
+                  setShowAdminDeliveryPlatformModal(true);
+                } else {
+                  setShowAdminAddOrderModal(true);
+                }
               }}
               onAddTable={() => {
                 setActiveSection('tables:table');
@@ -1224,6 +1270,50 @@ const AdminDashboard = () => {
               }}
             />
           )}
+
+          <AdminDeliveryPlatformModal
+             show={showAdminDeliveryPlatformModal}
+             onClose={() => setShowAdminDeliveryPlatformModal(false)}
+             onContinue={(platform) => {
+                setDeliveryPlatform(platform);
+                setShowAdminDeliveryPlatformModal(false);
+                setShowAdminDeliveryOrderModal(true);
+             }}
+          />
+
+          <AdminDeliveryOrderModal
+             open={showAdminDeliveryOrderModal}
+             onClose={() => setShowAdminDeliveryOrderModal(false)}
+             deliveryPlatform={deliveryPlatform}
+             menus={menus}
+             categories={categories}
+             staff={users}
+             items={adminOrderItems}
+             onAddItem={(item) => {
+                const updated = [...adminOrderItems];
+                const exist = updated.find(
+                  (i) => i.menuItem?._id === item.menuItem && i.variantId === item.variantId
+                );
+                if (exist) {
+                  exist.quantity += item.quantity || 1;
+                } else {
+                  updated.push(item);
+                }
+                setAdminOrderItems(updated);
+             }}
+             onUpdateItemQuantity={(idx, q) => {
+                if (q <= 0) {
+                  setAdminOrderItems(adminOrderItems.filter((_, i) => i !== idx));
+                } else {
+                  const updated = [...adminOrderItems];
+                  updated[idx].quantity = q;
+                  setAdminOrderItems(updated);
+                }
+             }}
+             onClearCart={() => setAdminOrderItems([])}
+             onConfirmDeliveryOrder={handleAdminSubmitDeliveryOrder}
+             confirmDisabled={adminOrderItems.length === 0}
+          />
 
           {/* Step 2: Dish Selection Modal */}
           {showAdminOrderModal && (
