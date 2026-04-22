@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
- import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed, ShoppingBag, Volume2 } from 'lucide-react';
+ import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed, ShoppingBag, Volume2, Bike } from 'lucide-react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
@@ -14,7 +14,9 @@ import WaiterCart from '../components/waiter/Cart/WaiterCart.jsx';
 import WaiterMenu from '../components/waiter/Menu/WaiterMenu.jsx';
 import WaiterHeader from '../components/waiter/Header/WaiterHeader.jsx';
 import WaiterOrders from '../components/waiter/Orders/WaiterOrders.jsx';
+import WaiterOrdersContainer from '../components/waiter/Orders/WaiterOrdersContainer.jsx';
 import WaiterCheckoutModal from '../components/waiter/Orders/WaiterCheckoutModal.jsx';
+import WaiterPOSDashboard from '../components/waiter/Dashboard/WaiterPOSDashboard.jsx';
 import WaiterProfile from '../components/waiter/Profile/WaiterProfile.jsx';
 import WaiterAnalytics from '../components/waiter/Analytics/WaiterAnalytics.jsx';
 import WaiterPromotionTimeline from '../components/waiter/PromotionTimeline/WaiterPromotionTimeline.jsx';
@@ -394,7 +396,8 @@ const WaiterApp = () => {
   }, [menus, addCategory, addSubMenu, search]);
 
   const addToCart = (itemPayload) => {
-    const item = itemPayload.onAdd ? itemPayload : menus.find(m => m._id === (itemPayload.menuItem || itemPayload._id));
+    const itemId = itemPayload.menuItem?._id || itemPayload.menuItem || itemPayload._id;
+    const item = itemPayload.onAdd ? itemPayload : menus.find(m => m._id === itemId);
     if (!item || item.isAvailable === false) {
       alert('This item is unavailable');
       return;
@@ -470,8 +473,8 @@ const WaiterApp = () => {
       items: cart.map((c) => ({ menuItem: c.menuItem, quantity: c.quantity })),
       spiceLevel,
       specialInstructions: instructions,
-      customerName: selectedCustomer || (orderType === 'takeaway' ? 'Walk-in Customer' : undefined),
-      orderType: orderType === 'takeaway' ? 'takeaway' : 'dine_in'
+      customerName: selectedCustomer || (orderType !== 'dine_in' ? `${orderType.charAt(0).toUpperCase() + orderType.slice(1).replace('_', ' ')} Order` : undefined),
+      orderType: orderType
     };
 
     try {
@@ -714,139 +717,51 @@ const WaiterApp = () => {
         </div>
 
         {activeSection === 'dashboard' && can('dashboard:view') && (
-          <div className="content waiter-pos-layout position-relative">
-            <div className="pos-menu-section h-100 p-3 overflow-hidden d-flex flex-column">
-              <div className="pos-order-type-toggle p-2 bg-white rounded-pill shadow-sm mb-3 d-flex gap-2 mx-auto" style={{ border: '1px solid #e2e8f0', width: 'fit-content', minWidth: '240px' }}>
-                <button 
-                  className={`flex-grow-1 btn btn-sm d-flex align-items-center justify-content-center gap-2 py-2 border-0 shadow-none rounded-pill fw-bold ${orderType === 'dine_in' ? 'bg-primary text-white' : 'text-muted'}`}
-                  onClick={() => setOrderType('dine_in')}
-                >
-                  <UtensilsCrossed size={14} /> Dine-in
-                </button>
-                <button 
-                  className={`flex-grow-1 btn btn-sm d-flex align-items-center justify-content-center gap-2 py-2 border-0 shadow-none rounded-pill fw-bold ${orderType === 'takeaway' ? 'bg-primary text-white' : 'text-muted'}`}
-                  onClick={() => setOrderType('takeaway')}
-                >
-                  <ShoppingBag size={14} /> Takeaway
-                </button>
-              </div>
-
-              {can('menu:view') ? (
-                <div className="flex-grow-1 overflow-auto rounded-3 bg-white p-3 shadow-sm" style={{ border: '1px solid #eef1f6' }}>
-                  <MenuSection
-                    addSubMenu={addSubMenu}
-                    menuSubMenus={menuSubMenus}
-                    addSearch={search}
-                    onSearchChange={setSearch}
-                    addCategory={addCategory}
-                    menuCategories={menuCategories}
-                    onCategoryChange={({ category, subMenu }) => {
-                      if (category) setAddCategory(category);
-                      if (subMenu !== undefined) setAddSubMenu(subMenu);
-                    }}
-                    filteredMenus={filteredMenu}
-                    onAdd={addToCart}
-                    onCustomize={setCustomizeItem}
-                    tableOptions={tables}
-                    selectedTableId={selectedTable}
-                    onTableChange={setSelectedTable}
-                  />
-                </div>
-              ) : <div />}
-            </div>
-            
-            <div className="pos-cart-section h-100 overflow-hidden d-none d-md-block">
-              {can('orders:view') ? (
-                <WaiterCart
-                  cart={cart}
-                  cartTotal={cartTotal}
-                  onUpdateQty={updateQty}
-                  onPlaceOrder={handleInitCheckout}
-                  editing={Boolean(editingOrderId)}
-                  spiceLevel={spiceLevel}
-                  onSpiceChange={setSpiceLevel}
-                  instructions={instructions}
-                  onInstructionsChange={setInstructions}
-                  tables={tables}
-                  selectedTable={selectedTable}
-                  onSelectTable={setSelectedTable}
-                  onFreeTable={freeTable}
-                  customers={customers}
-                  selectedCustomer={selectedCustomer}
-                  onSelectCustomer={setSelectedCustomer}
-                  showCustomer={can('customers:view') || orderType === 'takeaway'}
-                  orderType={orderType}
-                  onOrderTypeChange={setOrderType}
-                  onClose={() => setMobileCartOpen(false)}
-                />
-              ) : <div />}
-            </div>
-          </div>
+          <WaiterPOSDashboard
+            canViewMenu={can('menu:view')}
+            canViewOrders={can('orders:view')}
+            canViewCustomers={can('customers:view')}
+            orderType={orderType}
+            setOrderType={setOrderType}
+            addSubMenu={addSubMenu}
+            menuSubMenus={menuSubMenus}
+            search={search}
+            setSearch={setSearch}
+            addCategory={addCategory}
+            menuCategories={menuCategories}
+            setAddCategory={setAddCategory}
+            setAddSubMenu={setAddSubMenu}
+            filteredMenu={filteredMenu}
+            addToCart={addToCart}
+            setCustomizeItem={setCustomizeItem}
+            tables={tables}
+            selectedTable={selectedTable}
+            setSelectedTable={setSelectedTable}
+            cart={cart}
+            cartTotal={cartTotal}
+            updateQty={updateQty}
+            handleInitCheckout={handleInitCheckout}
+            editingOrderId={editingOrderId}
+            spiceLevel={spiceLevel}
+            setSpiceLevel={setSpiceLevel}
+            instructions={instructions}
+            setInstructions={setInstructions}
+            freeTable={freeTable}
+            customers={customers}
+            selectedCustomer={selectedCustomer}
+            setSelectedCustomer={setSelectedCustomer}
+            setMobileCartOpen={setMobileCartOpen}
+          />
         )}
 
-        {activeSection === 'takeaway' && (
-          <div className="content waiter-orders-content">
-            <div className="card-header-sleek d-flex justify-content-between align-items-center mb-4">
-              <h4 className="m-0">Takeaway & Online Orders</h4>
-            </div>
-            <WaiterOrders
-              orders={orders.filter(o => o.orderType !== 'dine_in')}
-              onEdit={(order) => {
-                setEditingOrderId(order._id);
-                setCart(order.items.map(i => ({
-                  menuItem: i.menuItem,
-                  quantity: i.quantity,
-                  variantId: i.variantId,
-                  variantName: i.variantName,
-                  variantPrice: i.variantPrice,
-                  itemNote: i.itemNote
-                })));
-                setSelectedTable(order.table?._id || null);
-                setSelectedCustomer(order.customerId || '');
-                setSpiceLevel(order.spiceLevel || 'medium');
-                setInstructions(order.specialInstructions || '');
-                setActiveSection('dashboard');
-              }}
-              onBill={(id) => window.open(`/api/orders/${id}/bill`, '_blank')}
-              onCheckout={(order) => {
-                setCheckoutOrderData(order);
-                setShowCheckout(true);
-              }}
+        {(activeSection === 'takeaway' || activeSection === 'orders') && (can('orders:view') || activeSection === 'takeaway') && (
+          <div className="content waiter-orders-content position-relative p-0 pt-3 flex-column d-flex">
+            <WaiterOrdersContainer 
+               orders={filteredOrders} 
+               onEdit={loadOrderToEdit} 
+               onBill={generateBill} 
+               onCheckout={checkoutOrder} 
             />
-          </div>
-        )}
-
-        {activeSection === 'orders' && can('orders:view') && (
-          <div className="content waiter-orders-content">
-            <div className="d-flex align-items-center mb-4 p-1 bg-white rounded-pill shadow-sm position-relative order-toggle-container" style={{ border: '1px solid #e2e8f0' }}>
-              <div 
-                className="position-absolute bg-primary rounded-pill"
-                style={{ 
-                  height: 'calc(100% - 8px)', 
-                  width: 'calc(50% - 4px)',
-                  left: '4px',
-                  top: '4px',
-                  transform: orderViewMode === 'myOrders' ? 'translateX(0)' : 'translateX(100%)',
-                  transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                  zIndex: 0
-                }}
-              />
-              <button 
-                className={`btn border-0 fw-bold position-relative flex-grow-1 waiter-order-toggle-btn ${orderViewMode === 'myOrders' ? 'text-white' : 'text-secondary'}`}
-                style={{ zIndex: 1, transition: 'color 0.3s', padding: '6px 0' }}
-                onClick={() => setOrderViewMode('myOrders')}
-              >
-                My Orders
-              </button>
-              <button 
-                className={`btn border-0 fw-bold position-relative flex-grow-1 waiter-order-toggle-btn ${orderViewMode === 'allOrders' ? 'text-white' : 'text-secondary'}`}
-                style={{ zIndex: 1, transition: 'color 0.3s', padding: '6px 0' }}
-                onClick={() => setOrderViewMode('allOrders')}
-              >
-                All Orders
-              </button>
-            </div>
-            <WaiterOrders orders={filteredOrders} onEdit={loadOrderToEdit} onBill={generateBill} onCheckout={checkoutOrder} />
           </div>
         )}
 

@@ -13,11 +13,13 @@ import {
   AlertTriangle,
   ArrowUpRight,
   Package,
-  CheckCircle2
+  CheckCircle2,
+  Users
 } from 'lucide-react';
 import api from '../../../api/client.js';
 import IngredientModal from './IngredientModal.jsx';
 import RecipeModal from './RecipeModal.jsx';
+import SuppliersTab from './SuppliersTab.jsx';
 import CustomDropdown from '../../ui/CustomDropdown.jsx';
 import '../../../common/css/admin/inventory/inventory.css';
 
@@ -246,7 +248,7 @@ const AdminInventory = ({ menus, ingredients, transactions, reload, externalView
           <p className="tiny-text text-muted mb-0">Manage kitchen resources, stock levels and dish compositions.</p>
         </div>
 
-      <div className="inventory-tabs">
+        <div className="inventory-tabs">
           <button className={`inventory-tab ${view === 'dashboard' ? 'active' : ''}`} onClick={() => setView('dashboard')}>
             <LayoutDashboard size={16} className="me-2" /> Dashboard
           </button>
@@ -261,6 +263,9 @@ const AdminInventory = ({ menus, ingredients, transactions, reload, externalView
           </button>
           <button className={`inventory-tab ${view === 'units' ? 'active' : ''}`} onClick={() => setView('units')}>
             <Package size={16} className="me-2" /> Units
+          </button>
+          <button className={`inventory-tab ${view === 'suppliers' ? 'active' : ''}`} onClick={() => setView('suppliers')}>
+            <Users size={16} className="me-2" /> Suppliers
           </button>
         </div>
 
@@ -633,6 +638,8 @@ const AdminInventory = ({ menus, ingredients, transactions, reload, externalView
           </div>
         </div>
       )}
+
+      {view === 'suppliers' && <SuppliersTab />}
 
       <IngredientModal 
         open={showIngredientModal} 

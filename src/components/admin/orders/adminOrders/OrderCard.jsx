@@ -24,8 +24,17 @@ const OrderCard = ({ order, onOpen }) => {
     <div className={`kot-card status-${order.status}`}>
       <div className="kot-header">
         <div className="kot-badge-row">
-          <span className={`kot-badge ${isOnline ? 'online' : 'dine-in'}`}>
-            {isOnline ? '🌐 Online' : '🍽️ Dine In'}
+          <span className={`kot-badge ${isOnline ? 'online' : order.orderType === 'takeaway' || order.orderType === 'pickup' ? 'takeaway' : order.orderType === 'delivery' ? 'delivery' : 'dine-in'}`}>
+            {isOnline 
+              ? '🌐 Online' 
+              : order.orderType === 'takeaway' 
+                ? '🛍️ Takeaway' 
+                : order.orderType === 'delivery'
+                  ? '🚚 Delivery'
+                  : order.orderType === 'pickup'
+                    ? '🛒 Pick up'
+                    : '🍽️ Dine In'
+            }
           </span>
           <span className="kot-status-badge" style={{ backgroundColor: statusColorMap[order.status] || '#94a3b8' }}>
             {statusLabelMap[order.status] || order.status}
