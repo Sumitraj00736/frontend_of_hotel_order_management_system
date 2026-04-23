@@ -14,6 +14,7 @@ const OrderDetailModal = ({
   menus = [],
   categories = [],
   staff = [],
+  customers = [],
   paymentMethods,
   onChangePaymentMethod,
   onPay,
@@ -24,7 +25,7 @@ const OrderDetailModal = ({
   const [localOrder, setLocalOrder] = useState(order);
   const [activeTab, setActiveTab] = useState('customer');
   const [paymentStatus, setPaymentStatus] = useState(order.paymentStatus || 'paid');
-  const [paymentMode, setPaymentMode] = useState(order.paymentMethod || paymentMethods?.[order._id] || 'cash');
+  const [payments, setPayments] = useState([{ method: order.paymentMethod || paymentMethods?.[order._id] || 'cash', amount: 0 }]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
   const updateTimersRef = React.useRef({});
@@ -32,13 +33,15 @@ const OrderDetailModal = ({
   const lastPayloadRef = React.useRef('');
   const [assignedStaffId, setAssignedStaffId] = useState(order.assignedStaff?._id || '');
   const [customerName, setCustomerName] = useState(order.customerName || '');
+  const [customerId, setCustomerId] = useState(order.customerId || '');
 
   React.useEffect(() => {
     setLocalOrder(order);
     setPaymentStatus(order.paymentStatus || 'paid');
-    setPaymentMode(order.paymentMethod || paymentMethods?.[order._id] || 'cash');
+    setPayments([{ method: order.paymentMethod || paymentMethods?.[order._id] || 'cash', amount: 0 }]);
     setAssignedStaffId(order.assignedStaff?._id || '');
     setCustomerName(order.customerName || '');
+    setCustomerId(order.customerId || '');
   }, [order, paymentMethods]);
 
   const items = localOrder?.items || [];
@@ -93,6 +96,9 @@ const OrderDetailModal = ({
       };
       if (pendingUpdateRef.current.customerName !== null) {
         payload.customerName = pendingUpdateRef.current.customerName;
+      }
+      if (pendingUpdateRef.current.customerId !== undefined) {
+        payload.customerId = pendingUpdateRef.current.customerId;
       }
       if (pendingUpdateRef.current.assignedStaff !== null) {
         payload.assignedStaff = pendingUpdateRef.current.assignedStaff;
@@ -203,26 +209,25 @@ const OrderDetailModal = ({
               activeTab={activeTab}
               onTabChange={setActiveTab}
               customerName={customerName}
-              onCustomerChange={updateCustomerName}
+              customerId={customerId}
+              customers={customers}
+              onCustomerChange={(id, name) => {
+                setCustomerId(id);
+                setCustomerName(name);
+                scheduleOrderSync({ customerName: name, customerId: id });
+              }}
             />
 
             <div className="remarks-card">
               <input placeholder="Add remarks to invoice" />
             </div>
 
-            <div className="tender-card">
-              <div className="label">Tender Amount</div>
-              <input placeholder="Rs 0.00" />
-            </div>
-
             <OrderPaymentPanel
               paymentStatus={paymentStatus}
-              paymentMode={paymentMode}
               onStatusChange={setPaymentStatus}
-              onModeChange={(mode) => {
-                setPaymentMode(mode);
-                onChangePaymentMethod(order._id, mode);
-              }}
+              payments={payments}
+              onUpdatePayments={setPayments}
+              totalToPay={total}
             />
           </div>
 
@@ -245,7 +250,7 @@ const OrderDetailModal = ({
               {order.paymentStatus === 'paid' ? (
                 <button className="btn btn-outline-light" disabled>Paid</button>
               ) : (
-                <button className="btn btn-danger" onClick={() => onPay({ orderId: order._id, paymentMethod: paymentMode, paymentStatus })}>
+                <button className="btn btn-danger" onClick={() => onPay({ orderId: order._id, payments, paymentStatus, customerName, customerId })}>
                   Confirm Checkout
                 </button>
               )}

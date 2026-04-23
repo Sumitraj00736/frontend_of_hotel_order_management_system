@@ -7,6 +7,7 @@ import '../../../../common/css/admin/orders/kotCards.css';
 
 const AdminOrders = ({
   orders = [],
+  customers = [],
   menus = [],
   staff = [],
   paymentMethods,
@@ -82,6 +83,7 @@ const AdminOrders = ({
           menus={menus}
           categories={categories}
           staff={staff}
+          customers={customers}
           paymentMethods={paymentMethods}
           onChangePaymentMethod={onChangePaymentMethod}
           onPay={async (id) => {

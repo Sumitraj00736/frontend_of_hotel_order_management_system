@@ -1044,6 +1044,7 @@ const AdminDashboard = () => {
           {activeSection === 'orders' && hasPermission('orders:view') && (
             <AdminOrders
               orders={orders}
+              customers={customers}
               menus={menus}
               staff={users}
               paymentMethods={paymentMethods}
