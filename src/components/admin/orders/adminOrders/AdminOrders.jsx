@@ -36,7 +36,7 @@ const AdminOrders = ({
   };
   const closeDetails = () => setSelected(null);
 
-  const countLabel = `${total} ${filter === 'paid' ? 'Paid' : filter === 'cancelled' ? 'Cancelled' : 'Active'}`;
+  const countLabel = `${total} ${filter === 'kot' ? 'KOTs & Bills' : 'Recent Orders'}`;
   const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
 
   return (

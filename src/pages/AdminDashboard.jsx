@@ -874,13 +874,23 @@ const AdminDashboard = () => {
     const bill = res.data;
     const html = `
       <html>
-        <head><title>Bill - Table ${bill.tableNumber}</title></head>
+        <head>
+          <title>Bill - ${bill.orderType === 'delivery' ? 'Delivery' : bill.orderType === 'takeaway' ? 'Takeaway' : `Table ${bill.tableNumber}`}</title>
+        </head>
         <body>
-          <h2>Bill for Table ${bill.tableNumber}</h2>
-          <p>Order ID: ${bill.orderId}</p>
-          <p>Waiter: ${bill.waiter || 'N/A'}</p>
-          <p>Kitchen: ${bill.kitchen || 'N/A'}</p>
-          <p>Order Time: ${new Date(bill.createdAt).toLocaleString()}</p>
+          <h2>${bill.orderType === 'delivery' ? 'DELIVERY INVOICE' : bill.orderType === 'takeaway' ? 'TAKEAWAY INVOICE' : `Bill for Table ${bill.tableNumber}`}</h2>
+          <p>Order ID: ${bill.invoiceNo || bill.kotNo || bill.orderId}</p>
+          <p>Time: ${new Date(bill.createdAt).toLocaleString()}</p>
+          ${bill.orderType === 'delivery' || bill.orderType === 'takeaway' ? `
+            <hr />
+            <p><strong>Customer:</strong> ${bill.customerName || 'Cash Customer'} ${bill.customerPhone ? `(${bill.customerPhone})` : ''}</p>
+            ${bill.deliveryAddress ? `<p><strong>Address:</strong> ${bill.deliveryAddress}</p>` : ''}
+            ${bill.deliveryPlatform ? `<p><strong>Platform:</strong> ${bill.deliveryPlatform}</p>` : ''}
+          ` : `
+            <p>Customer: ${bill.customerName || 'Cash Customer'}</p>
+            <p>Waiter: ${bill.waiter || 'N/A'}</p>
+            <p>Kitchen: ${bill.kitchen || 'N/A'}</p>
+          `}
           <hr />
           <ul>
             ${bill.items

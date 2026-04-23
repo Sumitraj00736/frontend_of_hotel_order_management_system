@@ -55,12 +55,12 @@ const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable }) => {
             onClick={() => setShowDropdown(!showDropdown)}
             style={{ transition: 'all 0.2s ease' }}
           >
-            + Add New Order <span className="badge bg-light text-dark rounded-1 p-1 px-2 d-none d-sm-inline ms-1">N</span> <ChevronDown size={16} />
+            Create Order <span className="badge bg-light text-dark border rounded-1 p-1 px-2 d-none d-sm-inline ms-1">+</span> <ChevronDown size={16} />
           </button>
           
           {showDropdown && (
             <div className="position-absolute bg-white rounded-4 shadow-lg p-3" style={{ top: 'calc(100% + 8px)', right: 0, width: 'max-content', zIndex: 1050, minWidth: '400px', border: '1px solid #eaeaea' }}>
-              <h5 className="fw-bold mb-3 text-dark px-1">Add New Order</h5>
+               <h5 className="fw-bold mb-3 text-dark px-1">Select Order Mode</h5>
               <div className="row g-2">
                 {orderTypes.map(type => (
                   <div className="col-6" key={type.id}>

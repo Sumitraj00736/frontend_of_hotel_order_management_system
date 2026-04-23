@@ -6,14 +6,25 @@ const OrderInvoicePanel = ({ order, total }) => {
     <div className="invoice-card">
       <div className="invoice-title">ESTIMATE INVOICE</div>
       <div className="invoice-meta">
-        <div>Invoice No: ##</div>
+        <div>Invoice No: {order?.invoiceNo || order?.kotNo || '##'}</div>
         <div>Date: {new Date(order?.createdAt || Date.now()).toLocaleDateString()}</div>
-        <div>Dine In: Table {order?.table?.tableNumber || '-'}</div>
+        {order?.orderType === 'delivery' || order?.orderType === 'takeaway' ? (
+          <>
+            <div>Type: <span className="text-uppercase fw-bold">{order?.orderType}</span></div>
+            <div>Customer: {order?.customerName || order?.customer?.name || 'Cash Customer'} {order?.customerPhone && `(${order?.customerPhone})`}</div>
+            {order?.deliveryAddress && <div>Address: {order?.deliveryAddress}</div>}
+            {order?.deliveryPlatform && <div>Platform: {order?.deliveryPlatform}</div>}
+          </>
+        ) : (
+          <>
+            <div>Dine In: Table {order?.table?.tableNumber || '-'}</div>
+            <div>Customer: {order?.customerName || order?.customer?.name || 'Cash Customer'}</div>
+          </>
+        )}
         <div>
           Waiter: {order?.source === 'guest' ? 'Order by QR code' : order?.createdBy?.name || 'N/A'}
         </div>
         <div>Kitchen: {order?.kitchenAssigned?.name || 'N/A'}</div>
-        <div>Customer: {order?.customerName || order?.customer?.name || 'Cash Customer'}</div>
       </div>
       <div className="invoice-items">
         <div className="invoice-head">
