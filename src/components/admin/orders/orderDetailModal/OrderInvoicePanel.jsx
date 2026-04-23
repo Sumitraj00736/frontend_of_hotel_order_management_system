@@ -33,8 +33,8 @@ const OrderInvoicePanel = ({ order, total }) => {
           <span>QTY</span>
           <span>Amount</span>
         </div>
-        {items.map((item) => (
-          <div key={item._id} className="invoice-item">
+        {items.map((item, idx) => (
+          <div key={item._id || `${item.menuItem?._id}-${idx}`} className="invoice-item">
             <span>{item.menuItem?.name || 'Item'}</span>
             <span>{item.priceAtOrderTime}</span>
             <span>{item.quantity}</span>

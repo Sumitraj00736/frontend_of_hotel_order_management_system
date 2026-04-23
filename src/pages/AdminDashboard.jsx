@@ -100,6 +100,7 @@ const AdminDashboard = () => {
   const [ordersLimit, setOrdersLimit] = useState(12);
   const [ordersTotal, setOrdersTotal] = useState(0);
   const [ordersFilter, setOrdersFilter] = useState('active');
+  const [orderTypeFilter, setOrderTypeFilter] = useState('');
   const [orderDashboardData, setOrderDashboardData] = useState(null);
   const [overviewDashboardData, setOverviewDashboardData] = useState(null);
   const [financeDashboardData, setFinanceDashboardData] = useState(null);
@@ -423,8 +424,8 @@ const AdminDashboard = () => {
     }
   }, [activeSection, loadDashboardExtras]);
 
-  const loadOrdersPage = async (page = ordersPage, limit = ordersLimit, category = ordersFilter) => {
-    const res = await api.get('/api/orders', { params: { paginate: 1, page, limit, category } });
+  const loadOrdersPage = async (page = ordersPage, limit = ordersLimit, category = ordersFilter, orderType = orderTypeFilter) => {
+    const res = await api.get('/api/orders', { params: { paginate: 1, page, limit, category, orderType } });
     const payload = res.data;
     if (payload.success && Array.isArray(payload.data)) {
       setOrders(payload.data);
@@ -445,9 +446,9 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (activeSection === 'orders') {
-      loadOrdersPage(ordersPage, ordersLimit, ordersFilter);
+      loadOrdersPage(ordersPage, ordersLimit, ordersFilter, orderTypeFilter);
     }
-  }, [activeSection, ordersPage, ordersLimit, ordersFilter]);
+  }, [activeSection, ordersPage, ordersLimit, ordersFilter, orderTypeFilter]);
 
   useEffect(() => {
     if (activeSection.startsWith('tables')) {
@@ -1076,6 +1077,11 @@ const AdminDashboard = () => {
               limit={ordersLimit}
               total={ordersTotal}
               filter={ordersFilter}
+              orderTypeFilter={orderTypeFilter}
+              onOrderTypeChange={(next) => {
+                setOrderTypeFilter(next);
+                setOrdersPage(1);
+              }}
               onFilterChange={(next) => {
                 setOrdersFilter(next);
                 setOrdersPage(1);

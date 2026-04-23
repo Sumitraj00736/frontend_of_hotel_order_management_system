@@ -17,6 +17,7 @@ const OrderDetailModal = ({
   customers = [],
   paymentMethods,
   onChangePaymentMethod,
+  onPay,
   onPrint,
   onUpdateOrder,
   onClose,

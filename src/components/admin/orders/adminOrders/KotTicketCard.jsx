@@ -25,7 +25,7 @@ const KotTicketCard = ({ order, onStatusChange, onPrint }) => {
     onStatusChange(order._id, val);
   };
 
-  const currentPrintStatus = order.status === 'completed' ? 'Completed' :
+  const currentPrintStatus = order.status === 'served' ? 'Completed' :
                              order.status === 'cancelled' ? 'Cancelled' : 
                              order.status.charAt(0).toUpperCase() + order.status.slice(1);
 
@@ -100,7 +100,7 @@ const KotTicketCard = ({ order, onStatusChange, onPrint }) => {
                  <input type="text" placeholder="Search options..." />
                </div>
                <div className={`kot-dropdown-item ${currentPrintStatus === 'Pending' ? 'active text-danger' : ''}`} onClick={() => handleStatusSelect('pending')}>Pending</div>
-               <div className={`kot-dropdown-item ${currentPrintStatus === 'Completed' ? 'active text-danger' : ''}`} onClick={() => handleStatusSelect('completed')}>Completed</div>
+               <div className={`kot-dropdown-item ${currentPrintStatus === 'Completed' ? 'active text-danger' : ''}`} onClick={() => handleStatusSelect('served')}>Completed</div>
                <div className={`kot-dropdown-item ${currentPrintStatus === 'Cancelled' ? 'active text-danger' : ''}`} onClick={() => handleStatusSelect('cancelled')}>Cancelled</div>
             </div>
           )}

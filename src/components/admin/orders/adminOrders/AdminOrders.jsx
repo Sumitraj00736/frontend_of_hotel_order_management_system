@@ -24,7 +24,9 @@ const AdminOrders = ({
   onLimitChange,
   onNewOrder,
   onAddTable,
-  categories = []
+  categories = [],
+  orderTypeFilter = '',
+  onOrderTypeChange
 }) => {
   const [selected, setSelected] = useState(null);
   const [autoAddItem, setAutoAddItem] = useState(false);
@@ -38,13 +40,51 @@ const AdminOrders = ({
   };
   const closeDetails = () => setSelected(null);
 
-  const countLabel = `${total} ${filter === 'kot' ? 'KOTs & Bills' : 'Recent Orders'}`;
+  const filterLabels = {
+    active: 'Active Orders',
+    kot: 'KOTs & Bills',
+    paid: 'Paid History',
+    cancelled: 'Cancelled Records',
+    all: 'All Order History'
+  };
+
+  const countLabel = `${total} ${filterLabels[filter] || 'Orders'}`;
   const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
 
   return (
     <div className="card glass-card full-screen-card">
-      <OrdersHeader title="Orders" countLabel={countLabel} onNewOrder={onNewOrder} onAddTable={onAddTable} />
+      <OrdersHeader 
+        title="Orders" 
+        countLabel={countLabel} 
+        onNewOrder={onNewOrder} 
+        onAddTable={onAddTable} 
+        onFilterChange={onFilterChange}
+      />
       <OrdersFilterTabs filter={filter} onChange={onFilterChange} />
+      
+      {['all', 'paid', 'cancelled'].includes(filter) && (
+        <div className="d-flex gap-2 mb-3 overflow-auto pb-2 noscrollbar">
+          {[
+            { id: '', label: 'All Modes' },
+            { id: 'dine_in', label: 'Dine In' },
+            { id: 'delivery', label: 'Delivery' },
+            { id: 'takeaway', label: 'Takeaway' },
+            { id: 'pickup', label: 'Pickup' }
+          ].map(t => (
+            <button
+              key={t.id}
+              className={`btn btn-sm fw-600 rounded-pill px-3 text-nowrap ${orderTypeFilter === t.id ? 'active' : ''}`}
+              style={orderTypeFilter === t.id 
+                ? { backgroundColor: '#FC8019', color: '#fff', border: '1px solid #FC8019' } 
+                : { backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }}
+              onClick={() => onOrderTypeChange?.(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       <OrdersGrid 
         orders={orders} 
         onOpen={openDetails} 

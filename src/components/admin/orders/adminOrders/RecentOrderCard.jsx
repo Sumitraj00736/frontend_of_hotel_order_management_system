@@ -81,9 +81,13 @@ const RecentOrderCard = ({ order, onOpen }) => {
               <button className="roc-icon-btn" title="Quick Action"><Zap size={18} /></button>
             </div>
             
-            <button className="roc-checkout-btn" onClick={() => onOpen(order)}>
-              Checkout
-            </button>
+            {order.status === 'paid' ? (
+              <div className="roc-paid-badge">Paid</div>
+            ) : (
+              <button className="roc-checkout-btn" onClick={() => onOpen(order)}>
+                Checkout
+              </button>
+            )}
           </div>
         )}
       </div>

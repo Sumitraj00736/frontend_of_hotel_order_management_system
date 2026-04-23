@@ -1,17 +1,22 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart, ChevronDown } from 'lucide-react';
+import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart, ChevronDown, MoreVertical } from 'lucide-react';
 
-const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable }) => {
+const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChange }) => {
   const [rippling, setRippling] = useState(false);
   const [ripplePos, setRipplePos] = useState({ x: 0, y: 0 });
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const btnRef = useRef(null);
   const dropdownRef = useRef(null);
+  const moreMenuRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
+      }
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target)) {
+        setShowMoreMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -87,9 +92,9 @@ const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable }) => {
         </div>
         <button
           ref={btnRef}
-          className="btn btn-primary fw-600 rounded-3 shadow-sm px-3 orders-add-table-btn"
+          className="btn fw-600 rounded-3 shadow-sm px-3 orders-add-table-btn"
           onClick={handleAddTable}
-          style={{ position: 'relative', overflow: 'hidden', transition: 'transform 0.15s ease' }}
+          style={{ position: 'relative', overflow: 'hidden', transition: 'transform 0.15s ease', backgroundColor: '#FC8019', borderColor: '#FC8019', color: '#fff' }}
         >
           {rippling && (
             <span
@@ -99,6 +104,30 @@ const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable }) => {
           )}
           + Add Table
         </button>
+
+        <div className="position-relative" ref={moreMenuRef}>
+          <button 
+            className="btn btn-light border p-2 rounded-3 d-flex align-items-center justify-content-center"
+            onClick={() => setShowMoreMenu(!showMoreMenu)}
+          >
+            <MoreVertical size={20} />
+          </button>
+          
+          {showMoreMenu && (
+            <div className="position-absolute bg-white rounded-3 shadow-lg py-2" style={{ top: 'calc(100% + 8px)', right: 0, zIndex: 1050, minWidth: '180px', border: '1px solid #eaeaea' }}>
+               <div className="px-3 py-2 fw-bold text-muted small border-bottom mb-1">View Records</div>
+               <button className="dropdown-item px-3 py-2 d-flex align-items-center gap-2" onClick={() => { onFilterChange?.('paid'); setShowMoreMenu(false); }}>
+                 <div className="bg-success-subtle p-1 rounded-1 text-success">💰</div> Paid Orders
+               </button>
+               <button className="dropdown-item px-3 py-2 d-flex align-items-center gap-2" onClick={() => { onFilterChange?.('cancelled'); setShowMoreMenu(false); }}>
+                 <div className="bg-danger-subtle p-1 rounded-1 text-danger">🚫</div> Cancelled Orders
+               </button>
+               <button className="dropdown-item px-3 py-2 d-flex align-items-center gap-2" onClick={() => { onFilterChange?.('all'); setShowMoreMenu(false); }}>
+                 <div className="bg-primary-subtle p-1 rounded-1 text-primary">📑</div> All Orders
+               </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
