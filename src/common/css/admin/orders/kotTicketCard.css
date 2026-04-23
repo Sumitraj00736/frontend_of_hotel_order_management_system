@@ -16,9 +16,9 @@
 
 .kot-ticket-main-title {
   text-align: center;
-  font-size: 1.75rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
   color: #0f172a;
   letter-spacing: -0.02em;
 }
@@ -26,8 +26,8 @@
 .kot-ticket-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 0.95rem;
+  gap: 6px;
+  font-size: 0.85rem;
 }
 
 .kot-ticket-row {
@@ -42,8 +42,10 @@
 
 .kot-ticket-table-header {
   display: flex;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #64748b;
 }
 
 .kot-ticket-items {
@@ -54,22 +56,22 @@
 
 .kot-ticket-item {
   display: flex;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .kot-ticket-totals {
   display: flex;
   justify-content: space-between;
-  font-weight: 500;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
 .kot-ticket-footer-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 0.95rem;
-  margin-bottom: 24px;
+  gap: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
 }
 
 .kot-ticket-thank-you {
@@ -92,13 +94,13 @@
 
 .kot-action-btn {
   width: 100%;
-  padding: 10px 16px;
+  padding: 8px 12px;
   background: white;
   border: 1px solid #e1e5e9;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: #475569;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: space-between;
