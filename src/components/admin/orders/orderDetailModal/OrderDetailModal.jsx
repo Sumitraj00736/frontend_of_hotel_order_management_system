@@ -17,17 +17,17 @@ const OrderDetailModal = ({
   customers = [],
   paymentMethods,
   onChangePaymentMethod,
-  onPay,
   onPrint,
   onUpdateOrder,
-  onClose
+  onClose,
+  initialShowAddItem = false
 }) => {
   const [localOrder, setLocalOrder] = useState(order);
   const [activeTab, setActiveTab] = useState('customer');
   const [paymentStatus, setPaymentStatus] = useState(order.paymentStatus || 'paid');
   const [payments, setPayments] = useState([{ method: order.paymentMethod || paymentMethods?.[order._id] || 'cash', amount: 0 }]);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showAddItem, setShowAddItem] = useState(false);
+  const [showAddItem, setShowAddItem] = useState(initialShowAddItem);
   const updateTimersRef = React.useRef({});
   const pendingUpdateRef = React.useRef({ items: null, customerName: null, assignedStaff: null });
   const lastPayloadRef = React.useRef('');
@@ -250,7 +250,15 @@ const OrderDetailModal = ({
               {order.paymentStatus === 'paid' ? (
                 <button className="btn btn-outline-light" disabled>Paid</button>
               ) : (
-                <button className="btn btn-danger" onClick={() => onPay({ orderId: order._id, payments, paymentStatus, customerName, customerId })}>
+                <button className="btn btn-danger" onClick={() => onPay({ 
+                  orderId: order._id, 
+                  payments, 
+                  paymentStatus, 
+                  customerName, 
+                  customerId,
+                  discountType,
+                  discountValue: discount
+                })}>
                   Confirm Checkout
                 </button>
               )}

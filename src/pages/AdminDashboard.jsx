@@ -847,6 +847,9 @@ const AdminDashboard = () => {
       await api.post(`/api/bills/${orderId}/pay`, {
         paymentMethod: method,
         paymentStatus: payload?.paymentStatus || 'paid',
+        payments: payload?.payments,
+        customerId: payload?.customerId,
+        customerName: payload?.customerName,
         discountType: payload?.discountType,
         discountValue: payload?.discountValue,
         tenderAmount: payload?.tenderAmount,

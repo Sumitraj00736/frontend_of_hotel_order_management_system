@@ -27,11 +27,13 @@ const AdminOrders = ({
   categories = []
 }) => {
   const [selected, setSelected] = useState(null);
+  const [autoAddItem, setAutoAddItem] = useState(false);
 
-  const openDetails = (order) => {
+  const openDetails = (order, triggerAdd = false) => {
     if (!paymentMethods[order._id]) {
       onChangePaymentMethod(order._id, order.paymentMethod || 'cash');
     }
+    setAutoAddItem(triggerAdd);
     setSelected(order);
   };
   const closeDetails = () => setSelected(null);
@@ -43,7 +45,15 @@ const AdminOrders = ({
     <div className="card glass-card full-screen-card">
       <OrdersHeader title="Orders" countLabel={countLabel} onNewOrder={onNewOrder} onAddTable={onAddTable} />
       <OrdersFilterTabs filter={filter} onChange={onFilterChange} />
-      <OrdersGrid orders={orders} onOpen={openDetails} />
+      <OrdersGrid 
+        orders={orders} 
+        onOpen={openDetails} 
+        filter={filter} 
+        onPrint={onPrint}
+        onStatusChange={async (orderId, status) => {
+          await onUpdateOrder({ orderId, status });
+        }}
+      />
       <div className="orders-pagination">
         <div className="orders-page-info">
           Page {page} of {totalPages}
@@ -85,6 +95,7 @@ const AdminOrders = ({
           staff={staff}
           customers={customers}
           paymentMethods={paymentMethods}
+          initialShowAddItem={autoAddItem}
           onChangePaymentMethod={onChangePaymentMethod}
           onPay={async (id) => {
             await onPay(id);

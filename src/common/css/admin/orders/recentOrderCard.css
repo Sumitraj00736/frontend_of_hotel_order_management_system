@@ -1,0 +1,184 @@
+.recent-order-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 280px;
+}
+
+.recent-order-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  padding-left: 2px;
+}
+
+.recent-order-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 280px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.recent-order-card:hover {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  border-color: #cbd5e1;
+}
+
+/* Normal State Content */
+.roc-normal-state {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+}
+
+.roc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.roc-type {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.roc-time {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #10b981; /* Green color match */
+}
+
+.roc-items-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roc-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.roc-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.roc-item-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #f59e0b; /* Orange dot */
+}
+
+.roc-item-name {
+  font-weight: 500;
+}
+
+.roc-item-qty {
+  font-weight: 500;
+}
+
+.roc-item-more {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.roc-footer {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.05rem;
+}
+
+.roc-dishes {
+  color: #1e293b;
+}
+
+.roc-price {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Hover State Content */
+.roc-hover-state {
+  height: 100%;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+}
+
+.roc-hover-price {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.roc-hover-hint {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.roc-icon-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: auto;
+}
+
+.roc-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.roc-icon-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.roc-checkout-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #10b981;
+  background-color: #f0fdf4;
+  color: #10b981;
+  font-weight: 600;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 16px;
+}
+
+.roc-checkout-btn:hover {
+  background-color: #10b981;
+  color: white;
+}
