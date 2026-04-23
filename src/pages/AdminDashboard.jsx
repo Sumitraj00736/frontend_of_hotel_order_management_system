@@ -854,7 +854,10 @@ const AdminDashboard = () => {
         tipsAmount: payload?.tipsAmount,
         roundOff: payload?.roundOff
       });
-      loadAll();
+      await loadAll();
+      if (activeSection === 'orders') {
+        await loadOrdersPage(ordersPage, ordersLimit, ordersFilter);
+      }
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to mark paid');
     }
