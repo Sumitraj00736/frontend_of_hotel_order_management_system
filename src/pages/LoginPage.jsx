@@ -40,8 +40,8 @@ const LoginPage = () => {
   };
 
   const finalizeLogin = (data) => {
-    const { user, branches = [] } = data;
-    saveSession('firebase-token-managed-internally', user, branches);
+    const { user, branches = [], token } = data;
+    saveSession(token, user, branches);
 
     if (branches.length > 0) {
       setBranchId(branches[0].branchId);

@@ -12,7 +12,14 @@ import { useAuth } from './contexts/AuthContext.jsx';
 
 const ProtectedRoute = ({ children, roles }) => {
   const { userData, isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <Navigate to="/login" />;
+  
+  // Use a direct check to ensure the token exists in storage
+  const hasToken = !!localStorage.getItem('hotel_token');
+
+  if (!isAuthenticated || !hasToken) {
+    return <Navigate to="/login" />;
+  }
+
   if (roles) {
     const userRole = userData?.user?.role || '';
     const normalized = String(userRole).toLowerCase();
@@ -21,6 +28,7 @@ const ProtectedRoute = ({ children, roles }) => {
   }
   return children;
 };
+
 
 const App = () => (
   <Routes>

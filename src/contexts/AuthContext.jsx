@@ -25,8 +25,9 @@ export const AuthProvider = ({ children }) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const idToken = await userCredential.user.getIdToken();
     const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/firebase-login`, { idToken });
-    setUserData(response.data);
-    return response.data;
+    const payload = { ...response.data, token: idToken };
+    setUserData(payload);
+    return payload;
   };
 
   const register = async (email, password, extraData) => {
@@ -45,8 +46,9 @@ export const AuthProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${idToken}` }
       });
 
-      setUserData(response.data);
-      return response.data;
+      const payload = { ...response.data, token: idToken };
+      setUserData(payload);
+      return payload;
     } finally {
       isRegistering.current = false;
     }
@@ -57,8 +59,9 @@ export const AuthProvider = ({ children }) => {
     const userCredential = await signInWithPopup(auth, provider);
     const idToken = await userCredential.user.getIdToken();
     const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/firebase-login`, { idToken });
-    setUserData(response.data);
-    return response.data;
+    const payload = { ...response.data, token: idToken };
+    setUserData(payload);
+    return payload;
   };
 
   const logout = () => {
@@ -80,7 +83,11 @@ export const AuthProvider = ({ children }) => {
           const idToken = await user.getIdToken();
           // Auto-sync session with backend on reload
           const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/firebase-login`, { idToken });
-          setUserData(response.data);
+          const payload = { ...response.data, token: idToken };
+          setUserData(payload);
+          // Sync with localStorage for the API client
+          const { saveSession } = await import('../api/session.js');
+          saveSession(idToken, payload.user, payload.branches);
         } catch (err) {
           console.error('[AuthContext] Session sync failed:', err);
           setUserData(null);
