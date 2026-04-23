@@ -3,10 +3,14 @@ import OrderDetailModal from '../orderDetailModal/OrderDetailModal.jsx';
 import OrdersHeader from './OrdersHeader.jsx';
 import OrdersFilterTabs from './OrdersFilterTabs.jsx';
 import OrdersGrid from './OrdersGrid.jsx';
+import OrderAnalytics from './OrderAnalytics.jsx';
+import KotTicketCard from './KotTicketCard.jsx';
+import { motion, AnimatePresence } from 'framer-motion';
 import '../../../../common/css/admin/orders/kotCards.css';
 
 const AdminOrders = ({
   orders = [],
+  kots = [],
   customers = [],
   menus = [],
   staff = [],
@@ -14,7 +18,9 @@ const AdminOrders = ({
   onChangePaymentMethod,
   onPay,
   onPrint,
+  onKotPrint,
   onUpdateOrder,
+  onKotStatusUpdate,
   page = 1,
   limit = 12,
   total = 0,
@@ -30,6 +36,7 @@ const AdminOrders = ({
 }) => {
   const [selected, setSelected] = useState(null);
   const [autoAddItem, setAutoAddItem] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const openDetails = (order, triggerAdd = false) => {
     if (!paymentMethods[order._id]) {
@@ -45,23 +52,38 @@ const AdminOrders = ({
     kot: 'KOTs & Bills',
     paid: 'Paid History',
     cancelled: 'Cancelled Records',
-    all: 'All Order History'
+    all: 'All Order History',
+    analytics: 'Analytics'
   };
 
   const countLabel = `${total} ${filterLabels[filter] || 'Orders'}`;
   const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
 
+  const displayOrders = useMemo(() => {
+    if (!searchTerm) return orders;
+    const q = searchTerm.toLowerCase();
+    return orders.filter(o => 
+      (o.customerName || '').toLowerCase().includes(q) ||
+      (o.table?.tableNumber?.toString() || '').includes(q) ||
+      (o.invoiceNo || o.kotNo || '').toLowerCase().includes(q)
+    );
+  }, [orders, searchTerm]);
+
   return (
     <div className="card glass-card full-screen-card p-4 border-0 shadow-sm" style={{ backgroundColor: '#ffffff', borderRadius: '24px' }}>
-      <OrdersHeader 
-        title="Orders" 
-        countLabel={countLabel} 
-        onNewOrder={onNewOrder} 
-        onAddTable={onAddTable} 
-        onFilterChange={onFilterChange}
-      />
-      <div className="mb-4">
-        <OrdersFilterTabs filter={filter} onChange={onFilterChange} />
+      <div className="sticky-top bg-white pt-2 pb-3" style={{ zIndex: 1020, margin: '-24px -24px 24px -24px', padding: '24px 24px 0 24px', borderBottom: '1px solid #f1f5f9' }}>
+        <OrdersHeader 
+          title="Orders" 
+          countLabel={countLabel} 
+          onNewOrder={onNewOrder} 
+          onAddTable={onAddTable} 
+          onFilterChange={onFilterChange}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
+        <div className="mt-3">
+          <OrdersFilterTabs filter={filter} onChange={onFilterChange} />
+        </div>
       </div>
       
       {['all', 'paid', 'cancelled'].includes(filter) && (
@@ -84,46 +106,77 @@ const AdminOrders = ({
         </div>
       )}
 
-      <OrdersGrid 
-        orders={orders} 
-        onOpen={openDetails} 
-        filter={filter} 
-        onPrint={onPrint}
-        onStatusChange={async (orderId, status) => {
-          await onUpdateOrder({ orderId, status });
-        }}
-      />
-      <div className="orders-pagination">
-        <div className="orders-page-info">
-          Page {page} of {totalPages}
+      <div className="orders-data-section">
+
+
+      {filter === 'analytics' ? (
+        <OrderAnalytics orders={orders} />
+      ) : filter === 'kot' ? (
+        <div className="row g-4 kot-grid">
+          {kots.length > 0 ? (
+            kots.map(kot => (
+              <div key={kot.kotId} className="col-md-6 col-lg-4 col-xl-3">
+                <KotTicketCard 
+                  kot={kot} 
+                  onStatusUpdate={onKotStatusUpdate}
+                  onPrint={onKotPrint}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-5 w-100">
+              <h5 className="text-muted">No active KOTs found</h5>
+            </div>
+          )}
         </div>
-        <div className="orders-page-controls">
-          <button
-            className="chip ghost"
-            disabled={page <= 1}
-            onClick={() => onPageChange?.(Math.max(1, page - 1))}
-          >
-            Prev
-          </button>
-          <button
-            className="chip ghost"
-            disabled={page >= totalPages}
-            onClick={() => onPageChange?.(Math.min(totalPages, page + 1))}
-          >
-            Next
-          </button>
-          <select
-            className="chip ghost"
-            value={limit}
-            onChange={(e) => onLimitChange?.(Number(e.target.value))}
-          >
-            {[6, 12, 24, 48].map((size) => (
-              <option key={size} value={size}>
-                {size} / page
-              </option>
-            ))}
-          </select>
-        </div>
+      ) : (
+        <>
+          <OrdersGrid 
+            orders={displayOrders} 
+            onOpen={openDetails} 
+            filter={filter} 
+            onPrint={onPrint}
+            onStatusChange={async (orderId, status) => {
+              await onUpdateOrder({ orderId, status });
+            }}
+          />
+          {filter !== 'active' && (
+            <div className="orders-pagination mt-4 d-flex justify-content-between align-items-center">
+              <div className="orders-page-info fw-600 text-muted small">
+                Page {page} of {totalPages}
+              </div>
+              <div className="orders-page-controls d-flex gap-2">
+                <button
+                  className="btn btn-sm btn-light border px-3"
+                  disabled={page <= 1}
+                  onClick={() => onPageChange?.(Math.max(1, page - 1))}
+                >
+                  Prev
+                </button>
+                <button
+                  className="btn btn-sm btn-light border px-3"
+                  disabled={page >= totalPages}
+                  onClick={() => onPageChange?.(Math.min(totalPages, page + 1))}
+                >
+                  Next
+                </button>
+                <select
+                  className="form-select form-select-sm border shadow-sm"
+                  style={{ width: 'auto' }}
+                  value={limit}
+                  onChange={(e) => onLimitChange?.(Number(e.target.value))}
+                >
+                  {[6, 12, 24, 48].map((size) => (
+                    <option key={size} value={size}>
+                      {size} / page
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+        </>
+      )}
       </div>
 
       {selected && (

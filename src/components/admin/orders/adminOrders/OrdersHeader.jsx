@@ -1,11 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart, ChevronDown, MoreVertical } from 'lucide-react';
+import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart, ChevronDown, MoreVertical, Search, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChange }) => {
+const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChange, searchTerm, onSearchChange }) => {
   const [rippling, setRippling] = useState(false);
   const [ripplePos, setRipplePos] = useState({ x: 0, y: 0 });
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const btnRef = useRef(null);
   const dropdownRef = useRef(null);
   const moreMenuRef = useRef(null);
@@ -54,6 +56,44 @@ const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChang
         </div>
         
         <div className="d-flex gap-2 align-items-center">
+          <AnimatePresence>
+            {isSearching ? (
+              <motion.div 
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: 280, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                className="position-relative"
+              >
+                <Search size={16} className="position-absolute text-muted" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input 
+                  autoFocus
+                  type="text" 
+                  className="form-control form-control-sm ps-5 border-0 bg-light rounded-pill fw-600"
+                  placeholder="Search orders..."
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  style={{ height: '38px', fontSize: '13px' }}
+                />
+                <button 
+                  className="btn btn-link position-absolute p-0 text-muted" 
+                  style={{ right: '12px', top: '50%', transform: 'translateY(-50%)' }}
+                  onClick={() => { setIsSearching(false); onSearchChange(''); }}
+                >
+                  <X size={16} />
+                </button>
+              </motion.div>
+            ) : (
+              <motion.button 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="btn btn-light border p-2 rounded-3 d-flex align-items-center justify-content-center"
+                onClick={() => setIsSearching(true)}
+              >
+                <Search size={20} className="text-dark" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
           <div className="position-relative" ref={dropdownRef}>
             <button 
               className={`btn border fw-700 rounded-3 shadow-sm px-3 d-flex align-items-center gap-2 ${showDropdown ? 'text-white' : 'btn-light'}`}

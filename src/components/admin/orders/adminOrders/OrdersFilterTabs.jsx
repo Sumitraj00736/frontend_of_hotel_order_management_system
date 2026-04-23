@@ -21,6 +21,12 @@ const OrdersFilterTabs = ({ filter, onChange }) => {
       >
         Order History
       </button>
+      <button 
+        className={`btn orders-filter-btn ${filter === 'analytics' ? 'active' : ''}`} 
+        onClick={() => onChange('analytics')}
+      >
+        Order Analytics
+      </button>
     </div>
   );
 };
