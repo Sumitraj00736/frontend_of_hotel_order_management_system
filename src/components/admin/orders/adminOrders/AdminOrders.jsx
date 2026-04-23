@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import OrderDetailModal from '../orderDetailModal/OrderDetailModal.jsx';
 import OrdersHeader from './OrdersHeader.jsx';
 import OrdersFilterTabs from './OrdersFilterTabs.jsx';
