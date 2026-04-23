@@ -135,6 +135,7 @@ const AdminWebsite = () => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [previewTemplateId, setPreviewTemplateId] = useState(null);
 
   const branches = getBranches();
   const activeBranchId = getBranchId() || branches[0]?.branchId;
@@ -178,13 +179,13 @@ const AdminWebsite = () => {
     }
   }, [settings]);
 
-  const selectTemplate = (templateId, palette) => {
-    setSettings((current) => ({
-      ...current,
-      template: templateId,
-      colorPalette: palette
-    }));
+  const selectTemplate = (templateId) => {
+    set('template', templateId);
   };
+
+  const handlePreviewTemplate = useCallback((templateId) => {
+    setPreviewTemplateId(templateId);
+  }, []);
 
   const renderBuilderDashboard = () => (
     <>
@@ -220,14 +221,22 @@ const AdminWebsite = () => {
         <div className="web-theme-grid">
           {WEBSITE_TEMPLATES.map((TemplateComponent) => (
             <WebsiteThemeCard
-              key={TemplateComponent.template.id}
-              title={TemplateComponent.template.name}
-              subtitle={TemplateComponent.template.subtitle}
-              selected={settings.template === TemplateComponent.template.id}
-              onSelect={() => selectTemplate(TemplateComponent.template.id, TemplateComponent.template.palette)}
-            >
-              <TemplateComponent mode="card" restaurantName={restaurantName} />
-            </WebsiteThemeCard>
+  key={TemplateComponent.template.id}
+  title={TemplateComponent.template.name}
+  subtitle={TemplateComponent.template.subtitle}
+  selected={settings.template === TemplateComponent.template.id}
+  colorPalette={settings.template === TemplateComponent.template.id ? settings.colorPalette : TemplateComponent.template.palette}
+  
+  // Handlers
+  onPreview={() => window.open(shareLink, '_blank')}
+  onSelect={() => selectTemplate(TemplateComponent.template.id, settings.colorPalette)}
+  onColorChange={(newPalette) => {
+    // Only allow color change if it's the active template or select it simultaneously
+    setSettings(prev => ({ ...prev, colorPalette: newPalette, template: TemplateComponent.template.id }));
+  }}
+>
+  <TemplateComponent mode="card" restaurantName={restaurantName} />
+</WebsiteThemeCard>
           ))}
         </div>
       </section>
@@ -460,9 +469,34 @@ const AdminWebsite = () => {
         ) : (
           <div className="web-dashboard-grid">
             <div className="web-builder-column">
-              {tab === 'builder' && renderBuilderDashboard()}
-              {tab === 'images' && renderImagesPanel()}
-              {tab === 'appearance' && renderAppearancePanel()}
+              {previewTemplateId && (
+                <div className="template-full-preview">
+                  <div className="preview-header">
+                    <h3>Template Preview</h3>
+                    <button onClick={() => setPreviewTemplateId(null)} className="close-preview-btn">×</button>
+                  </div>
+                  <div className="preview-container">
+                    {(() => {
+                      const PreviewComponent = WEBSITE_TEMPLATES.find((t) => t.template.id === previewTemplateId);
+                      return PreviewComponent ? (
+                        <PreviewComponent 
+                          mode="mobile" 
+                          restaurantName={restaurantName} 
+                          settings={settings} 
+                          colorPalette={settings.colorPalette}
+                        />
+                      ) : null;
+                    })()}
+                  </div>
+                </div>
+              )}
+              {!previewTemplateId && (
+                <>
+                  {tab === 'builder' && renderBuilderDashboard()}
+                  {tab === 'images' && renderImagesPanel()}
+                  {tab === 'appearance' && renderAppearancePanel()}
+                </>
+              )}
             </div>
 
             <aside className="web-preview-column">
