@@ -52,7 +52,7 @@ const AdminOrders = ({
   const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
 
   return (
-    <div className="card glass-card full-screen-card">
+    <div className="card glass-card full-screen-card p-4 border-0 shadow-sm" style={{ backgroundColor: '#ffffff', borderRadius: '24px' }}>
       <OrdersHeader 
         title="Orders" 
         countLabel={countLabel} 
@@ -60,7 +60,9 @@ const AdminOrders = ({
         onAddTable={onAddTable} 
         onFilterChange={onFilterChange}
       />
-      <OrdersFilterTabs filter={filter} onChange={onFilterChange} />
+      <div className="mb-4">
+        <OrdersFilterTabs filter={filter} onChange={onFilterChange} />
+      </div>
       
       {['all', 'paid', 'cancelled'].includes(filter) && (
         <div className="d-flex gap-2 mb-3 overflow-auto pb-2 noscrollbar">

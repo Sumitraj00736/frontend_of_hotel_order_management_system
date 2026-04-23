@@ -1,22 +1,26 @@
 .kot-ticket-container {
-  background-color: #ffffff;
-  border: 1px solid #e1e7e5;
-  border-radius: 8px;
-  padding: 24px;
+  background-color: #fdfdfd;
+  background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
+  background-size: 10px 10px;
+  background-position: 0 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 32px;
   width: 100%;
-  color: #1a1a1a;
+  color: #1e293b;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.02);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
 }
 
 .kot-ticket-main-title {
   text-align: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 20px 0;
-  color: #1a1a1a;
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin: 0 0 24px 0;
+  color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
 .kot-ticket-info {
@@ -182,7 +186,7 @@
 }
 
 .kot-dropdown-item.active {
-  background: #fee2e2;
-  color: #ef4444;
-  font-weight: 500;
+  background: #fff7ed;
+  color: #FC8019;
+  font-weight: 600;
 }

@@ -46,7 +46,7 @@ const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChang
   ];
 
   return (
-    <div className="orders-header-container d-flex justify-content-between align-items-center p-3 mb-0 bg-white border-bottom position-relative">
+    <div className="orders-header-container d-flex justify-content-between align-items-center mb-4 position-relative">
       <div className="d-flex gap-3 align-items-center">
         <h4 className="fw-800 m-0 text-dark" style={{ letterSpacing: '-0.02em' }}>{title}</h4>
         <div className="orders-count-pill">

@@ -15,17 +15,19 @@
 
 .recent-order-card {
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
   overflow: hidden;
-  height: 280px;
+  height: 300px;
   position: relative;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .recent-order-card:hover {
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-  border-color: #cbd5e1;
+  box-shadow: 0 12px 30px rgba(252, 128, 25, 0.08);
+  border-color: rgba(252, 128, 25, 0.3);
+  transform: translateY(-4px);
 }
 
 /* Normal State Content */
@@ -118,25 +120,30 @@
 /* Hover State Content */
 .roc-hover-state {
   height: 100%;
-  padding: 24px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #fffbf2 100%);
+  border-radius: 12px;
 }
 
 .roc-hover-price {
-  font-size: 1.8rem;
-  font-weight: 800;
+  font-size: 2.2rem;
+  font-weight: 900;
   color: #111827;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
 }
 
 .roc-hover-hint {
-  font-size: 0.95rem;
-  color: #64748b;
-  margin-bottom: 24px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .roc-icon-actions {
