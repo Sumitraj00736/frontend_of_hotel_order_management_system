@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import OrderPaymentPanel from '../../admin/orders/orderDetailModal/OrderPaymentPanel.jsx';
-import OrderSummaryPanel from '../../admin/orders/orderDetailModal/OrderSummaryPanel.jsx';
+import OrderPaymentPanel from '../../admin/orders/checkout/OrderPaymentPanel.jsx';
+import OrderSummaryPanel from '../../admin/orders/checkout/OrderSummaryPanel.jsx';
 import '../../../common/css/admin/orders/orderDetail.css';
 
 const WaiterCheckoutModal = ({ order, onClose, onConfirm, onPrint }) => {

@@ -1,6 +1,6 @@
 import React from 'react';
-import RecentOrderCard from './RecentOrderCard.jsx';
-import KotTicketCard from './KotTicketCard.jsx';
+import RecentOrderCard from '../cards/RecentOrderCard.jsx';
+import KotTicketCard from '../cards/KotTicketCard.jsx';
 
 const OrdersGrid = ({ orders, onOpen, filter, onStatusChange, onPrint }) => {
   if (orders.length === 0) {

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import AddItemsModal from '../addItemsModal/AddItemsModal.jsx';
+import AddItemsModal from '../addItems/AddItemsModal.jsx';
 import OrderHeader from './OrderHeader.jsx';
 import OrderItemsTable from './OrderItemsTable.jsx';
 import OrderCustomerPanel from './OrderCustomerPanel.jsx';
@@ -81,7 +81,7 @@ const OrderDetailModal = ({
     itemNote: item.itemNote
   });
 
-  const syncWithBackend = async () => {
+  const syncWithBackend = async (options = {}) => {
     const payloadItems = (pendingUpdateRef.current.items || latestItemsRef.current).map((i) => buildItemPayload(i));
     const payload = {
       orderId: order._id,
@@ -96,8 +96,9 @@ const OrderDetailModal = ({
     if (pendingUpdateRef.current.assignedStaff !== null) {
       payload.assignedStaff = pendingUpdateRef.current.assignedStaff;
     }
+    
     const nextPayloadKey = JSON.stringify(payload);
-    if (nextPayloadKey === lastPayloadRef.current) return;
+    if (!options.force && nextPayloadKey === lastPayloadRef.current) return;
     lastPayloadRef.current = nextPayloadKey;
     
     setIsSyncing(true);
@@ -113,7 +114,8 @@ const OrderDetailModal = ({
     }
   };
 
-  const scheduleOrderSync = ({ items: nextItems, customerName: nextCustomer, assignedStaff: nextStaff } = {}) => {
+  const scheduleOrderSync = (updates = {}) => {
+    const { items: nextItems, customerName: nextCustomer, assignedStaff: nextStaff } = updates;
     if (nextItems) {
       latestItemsRef.current = nextItems;
       setLocalOrder((prev) => ({ ...prev, items: nextItems }));
@@ -128,14 +130,15 @@ const OrderDetailModal = ({
     if (updateTimersRef.current.order) {
       clearTimeout(updateTimersRef.current.order);
     }
-    updateTimersRef.current.order = setTimeout(syncWithBackend, 1500);
+    updateTimersRef.current.order = setTimeout(() => syncWithBackend(), 1500);
   };
 
   const handleManualSave = () => {
     if (updateTimersRef.current.order) {
       clearTimeout(updateTimersRef.current.order);
+      updateTimersRef.current.order = null;
     }
-    syncWithBackend();
+    syncWithBackend({ force: true });
   };
 
   const handleAddItem = (payload) => {

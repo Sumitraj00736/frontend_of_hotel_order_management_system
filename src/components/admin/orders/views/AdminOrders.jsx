@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import OrderDetailModal from '../orderDetailModal/OrderDetailModal.jsx';
-import OrdersHeader from './OrdersHeader.jsx';
-import OrdersFilterTabs from './OrdersFilterTabs.jsx';
-import OrdersGrid from './OrdersGrid.jsx';
+import OrderDetailModal from '../checkout/OrderDetailModal.jsx';
+import OrdersHeader from '../filters/OrdersHeader.jsx';
+import OrdersFilterTabs from '../filters/OrdersFilterTabs.jsx';
+import OrdersGrid from '../filters/OrdersGrid.jsx';
 import OrderAnalytics from './OrderAnalytics.jsx';
-import KotTicketCard from './KotTicketCard.jsx';
+import KotTicketCard from '../cards/KotTicketCard.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../../../../common/css/admin/orders/kotCards.css';
 
