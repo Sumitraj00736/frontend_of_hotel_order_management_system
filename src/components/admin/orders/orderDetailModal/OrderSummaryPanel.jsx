@@ -6,25 +6,30 @@ const OrderSummaryPanel = ({
   discount,
   onDiscountTypeChange,
   onDiscountChange,
+  taxRate = 0,
+  onTaxRateChange,
+  tipsAmount = 0,
+  onTipsChange,
   total
 }) => {
+  const discountValue =
+    discountType === 'percent'
+      ? (subtotal * Number(discount || 0)) / 100
+      : Number(discount || 0);
+  const taxableAmount = Math.max(0, subtotal - discountValue);
+  const taxAmount = (taxableAmount * Number(taxRate || 0)) / 100;
+
   return (
     <div className="checkout-middle">
       <div className="summary-row">
-        <div>Item total</div>
+        <div>Item Total</div>
         <div>Rs {subtotal.toFixed(2)}</div>
       </div>
-      <div className="summary-row">
-        <div>Loyalty Discount (0%)</div>
-        <div>Rs 0</div>
-      </div>
-      <div className="summary-row">
-        <div>Sub Total</div>
-        <div>Rs {subtotal.toFixed(2)}</div>
-      </div>
+
+      {/* Discount row */}
       <div className="summary-row">
         <div className="inline-input">
-          Discount (-)
+          Discount (–)
           <select
             className="discount-type"
             value={discountType}
@@ -34,19 +39,59 @@ const OrderSummaryPanel = ({
             <option value="percent">%</option>
           </select>
           <input
+            type="number"
+            min="0"
             value={discount}
             onChange={(e) => onDiscountChange(e.target.value)}
+            style={{ width: '60px' }}
           />
         </div>
-        <div>Rs 0.00</div>
+        <div className="text-danger">– Rs {discountValue.toFixed(2)}</div>
       </div>
+
       <div className="summary-row">
         <div>Taxable Amount</div>
-        <div>Rs {subtotal.toFixed(2)}</div>
+        <div>Rs {taxableAmount.toFixed(2)}</div>
       </div>
+
+      {/* Tax row */}
       <div className="summary-row">
-        <div>Total Amount</div>
-        <div>Rs {total.toFixed(2)}</div>
+        <div className="inline-input">
+          Tax (%)
+          <input
+            type="number"
+            min="0"
+            max="100"
+            value={taxRate}
+            onChange={(e) => onTaxRateChange?.(e.target.value)}
+            style={{ width: '50px' }}
+          />
+        </div>
+        <div className={taxAmount > 0 ? 'text-warning' : ''}>
+          {taxAmount > 0 ? `+ Rs ${taxAmount.toFixed(2)}` : 'Rs 0.00'}
+        </div>
+      </div>
+
+      {/* Tips row — optional */}
+      <div className="summary-row">
+        <div className="inline-input">
+          Tips
+          <input
+            type="number"
+            min="0"
+            value={tipsAmount}
+            onChange={(e) => onTipsChange?.(e.target.value)}
+            style={{ width: '60px' }}
+          />
+        </div>
+        <div>{tipsAmount > 0 ? `+ Rs ${Number(tipsAmount).toFixed(2)}` : 'Rs 0.00'}</div>
+      </div>
+
+      <div className="summary-divider" />
+
+      <div className="summary-row summary-total-row">
+        <div className="fw-bold">Total Payable</div>
+        <div className="fw-bold text-primary">Rs {total.toFixed(2)}</div>
       </div>
     </div>
   );

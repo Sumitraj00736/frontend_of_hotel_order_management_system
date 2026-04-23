@@ -27,12 +27,13 @@ const OrderAnalytics = ({ orders = [] }) => {
     orders.forEach(o => {
       const date = new Date(o.createdAt);
       const hour = date.getHours();
-      hourlyData[hour].sales += o.totalAmount || 0;
+      const revenue = o.finalAmount || o.totalAmount || 0;
+      hourlyData[hour].sales += revenue;
       hourlyData[hour].orders += 1;
       
       if (typeMap[o.orderType] !== undefined) typeMap[o.orderType]++;
       if (statusMap[o.status] !== undefined) statusMap[o.status]++;
-      if (o.status !== 'cancelled') totalRevenue += o.totalAmount || 0;
+      if (o.status !== 'cancelled') totalRevenue += revenue;
     });
 
     const typeData = Object.entries(typeMap).map(([name, value]) => ({ 

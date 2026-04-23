@@ -19,7 +19,7 @@ const OrdersGrid = ({ orders, onOpen, filter, onStatusChange, onPrint }) => {
         if (filter === 'kot') {
           return <KotTicketCard key={order._id} order={order} onStatusChange={onStatusChange} onPrint={onPrint} />;
         }
-        return <RecentOrderCard key={order._id} order={order} onOpen={onOpen} />;
+        return <RecentOrderCard key={order._id} order={order} onOpen={onOpen} onPrint={onPrint} />;
       })}
     </div>
   );

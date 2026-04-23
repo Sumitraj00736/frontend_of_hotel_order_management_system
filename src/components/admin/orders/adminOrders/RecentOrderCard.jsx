@@ -17,7 +17,7 @@ const timeAgo = (dateStr) => {
   return `${diffWeeks} weeks ago`;
 };
 
-const RecentOrderCard = ({ order, onOpen }) => {
+const RecentOrderCard = ({ order, onOpen, onPrint }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   // Derive display values
@@ -105,9 +105,9 @@ const RecentOrderCard = ({ order, onOpen }) => {
               <p className="roc-hover-hint">Quick Actions</p>
               
               <div className="roc-icon-actions">
-                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="roc-icon-btn" onClick={() => onOpen(order, true)} title="Add Items"><Plus size={20} /></motion.button>
-                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="roc-icon-btn" onClick={() => window.print()} title="Print Bill"><Printer size={20} /></motion.button>
-                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="roc-icon-btn" title="View Details"><FileText size={20} /></motion.button>
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="roc-icon-btn" onClick={() => onOpen(order, true)} title="Add Items" disabled={order.status === 'paid'}><Plus size={20} /></motion.button>
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="roc-icon-btn" onClick={() => onPrint?.(order._id, 'bill')} title="Print Bill"><Printer size={20} /></motion.button>
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="roc-icon-btn" onClick={() => onOpen(order)} title="View Details"><FileText size={20} /></motion.button>
               </div>
               
               {order.status === 'paid' ? (

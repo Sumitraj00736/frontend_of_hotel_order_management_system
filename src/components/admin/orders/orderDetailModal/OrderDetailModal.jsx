@@ -58,6 +58,8 @@ const OrderDetailModal = ({
   );
   const [discountType, setDiscountType] = useState(order.discountType || 'amount');
   const [discount, setDiscount] = useState(order.discountValue || 0);
+  const [taxRate, setTaxRate] = useState(order.taxRate || 0);
+  const [tipsAmount, setTipsAmount] = useState(order.tipsAmount || 0);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSaved, setLastSaved] = useState(new Date(order.updatedAt || order.createdAt));
   
@@ -65,7 +67,9 @@ const OrderDetailModal = ({
     discountType === 'percent'
       ? (subtotal * Number(discount || 0)) / 100
       : Number(discount || 0);
-  const total = Math.max(0, subtotal - discountValue);
+  const taxableAmount = Math.max(0, subtotal - discountValue);
+  const taxAmount = (taxableAmount * Number(taxRate || 0)) / 100;
+  const total = Math.max(0, taxableAmount + taxAmount + Number(tipsAmount || 0));
 
   const buildItemPayload = (item) => ({
     menuItem: item.menuItem?._id || item.menuItem,
@@ -262,6 +266,10 @@ const OrderDetailModal = ({
             discount={discount}
             onDiscountTypeChange={setDiscountType}
             onDiscountChange={setDiscount}
+            taxRate={taxRate}
+            onTaxRateChange={setTaxRate}
+            tipsAmount={tipsAmount}
+            onTipsChange={setTipsAmount}
             total={total}
           />
 
@@ -294,7 +302,10 @@ const OrderDetailModal = ({
                     customerName, 
                     customerId,
                     discountType,
-                    discountValue: discount
+                    discountValue: discount,
+                    taxRate: Number(taxRate || 0),
+                    tipsAmount: Number(tipsAmount || 0),
+                    roundOff: 0
                   })}>
                     Confirm Checkout
                   </button>
