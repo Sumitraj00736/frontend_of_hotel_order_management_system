@@ -1,18 +1,21 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
 import WaiterApp from './pages/WaiterApp.jsx';
 import KitchenDashboard from './pages/KitchenDashboard.jsx';
 import GuestTablePage from './pages/GuestTablePage.jsx';
 import PublicCafePage from './pages/PublicCafePage.jsx';
-import { getCurrentUser } from './api/session.js';
+import ForgotPassword from './pages/auth/ForgotPassword.jsx';
+import { useAuth } from './contexts/AuthContext.jsx';
 
 const ProtectedRoute = ({ children, roles }) => {
-  const user = getCurrentUser();
-  if (!user) return <Navigate to="/login" />;
+  const { userData, isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" />;
   if (roles) {
-    const normalized = String(user.role || '').toLowerCase();
+    const userRole = userData?.user?.role || '';
+    const normalized = String(userRole).toLowerCase();
     const allowed = roles.map((r) => String(r || '').toLowerCase());
     if (!allowed.includes(normalized)) return <Navigate to="/login" />;
   }
@@ -23,6 +26,8 @@ const App = () => (
   <Routes>
     <Route path="/" element={<Navigate to="/login" />} />
     <Route path="/login" element={<LoginPage />} />
+    <Route path="/register" element={<RegisterPage />} />
+    <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/guest/:tableId" element={<GuestTablePage />} />
     <Route
       path="/admin"

@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getMessaging, isSupported, onMessage } from 'firebase/messaging';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
@@ -14,6 +15,8 @@ export const initFirebase = () => {
   if (getApps().length) return getApps()[0];
   return initializeApp(firebaseConfig);
 };
+
+export const auth = getAuth(initFirebase());
 
 export const getMessagingInstance = async () => {
   const supported = await isSupported();
