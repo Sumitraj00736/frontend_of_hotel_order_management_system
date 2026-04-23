@@ -8,20 +8,24 @@ import './customcss/table.css';
 import './customcss/form.css';
 import App from './App.jsx';
 import { ThemeProvider } from './components/ThemeContext.jsx';
+import { AuthProvider } from './contexts/AuthContext.jsx';
 
-// registerSW({ immediate: true });
+registerSW({ immediate: true });
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/firebase-messaging-sw.js')
-    .then((reg) => console.log('SW registered:', reg))
-    .catch((err) => console.error('SW error:', err));
+    .then((reg) => console.log('Firebase SW registered:', reg))
+    .catch((err) => console.error('Firebase SW error:', err));
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </AuthProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

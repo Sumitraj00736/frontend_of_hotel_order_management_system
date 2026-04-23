@@ -43,6 +43,7 @@ import {
   setBranchId,
   hasPermission
 } from '../../../api/session.js';
+import { useAuth } from '../../../contexts/AuthContext.jsx';
 import ThemeToggle from '../../ThemeToggle.jsx';
 import '../../../common/css/admin/sidebar/adminSidebar.css';
 
@@ -138,9 +139,16 @@ const AdminSidebar = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleLogout = () => {
-    clearSession();
-    window.location.href = '/login';
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      clearSession();
+      window.location.href = '/login';
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
   };
 
   const handleSelect = (section) => {
