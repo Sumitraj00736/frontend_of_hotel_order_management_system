@@ -1284,3 +1284,159 @@ body.dark-mode .web-phone-bezel {
     height: 30px;
   }
 }
+
+
+
+
+/* Container for the grid is handled in AdminWebsite.jsx, 
+   these styles focus on the card itself */
+
+.web-theme-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.web-theme-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+  border-color: #ff6b00;
+}
+
+.web-theme-card.selected {
+  border: 2px solid #ff6b00;
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+}
+
+/* Preview Shell & Hover Overlay */
+.web-theme-preview-shell {
+  height: 180px;
+  background: #f8fafc;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.web-theme-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.web-theme-card:hover .web-theme-overlay {
+  opacity: 1;
+}
+
+.web-overlay-preview {
+  background: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #1e293b;
+  transform: translateY(10px);
+  transition: transform 0.2s ease;
+}
+
+.web-theme-card:hover .web-overlay-preview {
+  transform: translateY(0);
+}
+
+/* Card Body Content */
+.web-theme-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.web-theme-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.web-theme-card-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Palette Styling */
+.web-theme-palette-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.web-theme-palette-wrapper span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.web-theme-palette-row {
+  display: flex;
+  gap: 8px;
+}
+
+.web-palette-chip {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  padding: 0;
+}
+
+.web-palette-chip.active {
+  transform: scale(1.2);
+  border-color: #ff6b00;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #ff6b00;
+}
+
+/* Select Button */
+.web-theme-select-button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.web-theme-select-button:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.web-theme-select-button.is-selected {
+  background: #ff6b00;
+  color: white;
+  border-color: #ff6b00;
+}
