@@ -8,6 +8,7 @@ import KitchenDashboard from './pages/KitchenDashboard.jsx';
 import GuestTablePage from './pages/GuestTablePage.jsx';
 import PublicCafePage from './pages/PublicCafePage.jsx';
 import ForgotPassword from './pages/auth/ForgotPassword.jsx';
+import ResetPassword from './pages/auth/ResetPassword.jsx';
 import { useAuth } from './contexts/AuthContext.jsx';
 
 const ProtectedRoute = ({ children, roles }) => {
@@ -36,6 +37,7 @@ const App = () => (
     <Route path="/login" element={<LoginPage />} />
     <Route path="/register" element={<RegisterPage />} />
     <Route path="/forgot-password" element={<ForgotPassword />} />
+    <Route path="/reset-password/:token" element={<ResetPassword />} />
     <Route path="/guest/:tableId" element={<GuestTablePage />} />
     <Route
       path="/admin"

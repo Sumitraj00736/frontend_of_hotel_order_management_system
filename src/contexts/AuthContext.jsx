@@ -64,16 +64,40 @@ export const AuthProvider = ({ children }) => {
     return payload;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const { clearSession } = await import('../api/session.js');
+    clearSession();
     setUserData(null);
     return signOut(auth);
   };
 
-  const resetPassword = (email) => {
-    return sendPasswordResetEmail(auth, email);
+  const resetPassword = async (email) => {
+    // Try our backend first so it handles both legacy and potentially firebase users
+    try {
+      return await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, { email });
+    } catch (err) {
+      // Fallback to firebase if backend fails or doesn't know the user
+      return sendPasswordResetEmail(auth, email);
+    }
   };
 
   useEffect(() => {
+    // 1. Initial check: Try to restore session from localStorage for legacy users or fast-boot
+    const restoreSession = async () => {
+      const { getToken, getCurrentUser, getBranches } = await import('../api/session.js');
+      const token = getToken();
+      const user = getCurrentUser();
+      const branches = getBranches();
+
+      if (token && user) {
+        setUserData({ user, branches, token });
+      }
+      setLoading(false);
+    };
+
+    restoreSession();
+
+    // 2. Firebase Listener: Keeps Firebase state in sync
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       
@@ -90,9 +114,11 @@ export const AuthProvider = ({ children }) => {
           saveSession(idToken, payload.user, payload.branches);
         } catch (err) {
           console.error('[AuthContext] Session sync failed:', err);
-          setUserData(null);
+          // Only clear if it was meant to be a firebase session
+          if (user) setUserData(null);
         }
-      } else if (!user) {
+      } else if (!user && !localStorage.getItem('hotel_token')) {
+        // Only clear if there's no legacy token either
         setUserData(null);
       }
       setLoading(false);
