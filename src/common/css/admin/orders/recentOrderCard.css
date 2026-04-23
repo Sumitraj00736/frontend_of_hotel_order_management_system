@@ -186,7 +186,8 @@
 }
 
 .roc-checkout-btn:hover {
-  background-color: #FC8019;
+  background: linear-gradient(135deg, #FFB87A 0%, #FC8019 100%);
+  border-color: #FC8019;
   color: white;
 }
 

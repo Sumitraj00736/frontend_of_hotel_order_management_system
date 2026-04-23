@@ -1102,6 +1102,11 @@ const AdminDashboard = () => {
                 
                 if (type === 'delivery') {
                   setShowAdminDeliveryPlatformModal(true);
+                } else if (type === 'takeaway' || type === 'pickup') {
+                  // Direct to item selection for takeaway/pickup
+                  setSelectedOrderTarget({ type: 'customer', name: 'Walk-in Customer', id: null });
+                  setShowAdminOrderModal(true);
+                  setAddOrderStep(2);
                 } else {
                   setShowAdminAddOrderModal(true);
                 }
@@ -1277,6 +1282,7 @@ const AdminDashboard = () => {
           {showAdminAddOrderModal && (
             <AdminAddOrderModal
               open={showAdminAddOrderModal}
+              type={adminOrderType}
               initialTab={adminOrderType === 'dine_in' ? 'table' : 'customer'}
               onClose={() => setShowAdminAddOrderModal(false)}
               tables={tables}

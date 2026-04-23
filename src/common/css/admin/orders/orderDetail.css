@@ -52,8 +52,8 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  border: 2px solid #e53a2d;
-  color: #e53a2d;
+  border: 2px solid #FC8019;
+  color: #FC8019;
   background: #fff;
   font-size: 20px;
   cursor: pointer;
@@ -221,8 +221,8 @@
 }
 
 .tab-row .active {
-  background: #ffe9e6;
-  color: #e53935;
+  background: #fff7ed;
+  color: #FC8019;
 }
 
 .tab-content input,
@@ -252,13 +252,13 @@
 .payment-card .pay-tabs button.active,
 .payment-card .pay-options button.active {
   border: 1px solid #e53935;
-  background: #ffe9e6;
-  color: #e53935;
+  background: #fff7ed;
+  color: #FC8019;
 }
 
 .payment-card .pay-tabs .active {
-  background: #ffe9e6;
-  color: #e53935;
+  background: #fff7ed;
+  color: #FC8019;
 }
 
 .payment-card .pay-options {
@@ -275,8 +275,8 @@
 
 .payment-card .pay-options button.active {
   border-color: #e53935;
-  background: #ffe9e6;
-  color: #e53935;
+  background: #fff7ed;
+  color: #FC8019;
 }
 
 .checkout-middle {
@@ -635,8 +635,8 @@
 
 .comp-btn.active {
   border-color: #e53935;
-  background: #ffe9e6;
-  color: #e53935;
+  background: #fff7ed;
+  color: #FC8019;
 }
 
 .additem-head {
@@ -684,8 +684,8 @@
 }
 
 .additem-tabs .tab.active {
-  background: #e53935;
-  border-color: #e53935;
+  background: #FC8019;
+  border-color: #FC8019;
   color: #fff;
 }
 
@@ -737,7 +737,7 @@
 
 .menu-price {
   font-size: 12px;
-  color: #e53935;
+  color: #FC8019;
   font-weight: 600;
 }
 
@@ -800,7 +800,7 @@
 .cart-clear {
   border: none;
   background: transparent;
-  color: #e53935;
+  color: #FC8019;
   font-size: 12px;
   cursor: pointer;
 }
@@ -1049,7 +1049,7 @@
 
 .variant-price {
   font-size: 12px;
-  color: #e53935;
+  color: #FC8019;
 }
 
 .customize-note {

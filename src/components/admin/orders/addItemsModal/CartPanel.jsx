@@ -107,7 +107,7 @@ const CartPanel = ({
               </div>
               <div className="d-flex justify-content-between align-items-center">
                 <span className="fw-bold">Total Amount</span>
-                <span className="h5 mb-0 fw-bold text-primary">Rs {cartTotal.toFixed(2)}</span>
+                <span className="h5 mb-0 fw-800" style={{ color: '#FC8019' }}>Rs {cartTotal.toFixed(2)}</span>
               </div>
             </div>
 
@@ -120,8 +120,12 @@ const CartPanel = ({
                 Confirm & Print
               </button>
               <button 
-                className="btn btn-primary py-2 fw-bold w-100 shadow-sm"
-                style={{ fontSize: '14px', backgroundColor: '#e28e93', border: 'none' }}
+                className="btn py-2 fw-800 w-100 shadow-sm text-white"
+                style={{ 
+                  fontSize: '14px', 
+                  background: 'linear-gradient(135deg, #FFB87A 0%, #FC8019 100%)', 
+                  border: 'none' 
+                }}
                 onClick={() => onConfirm?.({ print: false })}
               >
                 Confirm Order

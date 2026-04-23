@@ -56,11 +56,16 @@ const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChang
       <div className="d-flex gap-2">
         <div className="position-relative" ref={dropdownRef}>
           <button 
-            className={`btn border fw-600 rounded-3 shadow-sm px-3 d-flex align-items-center gap-2 ${showDropdown ? 'btn-danger text-white border-danger' : 'btn-light'}`}
+            className={`btn border fw-700 rounded-3 shadow-sm px-3 d-flex align-items-center gap-2 ${showDropdown ? 'text-white' : 'btn-light'}`}
             onClick={() => setShowDropdown(!showDropdown)}
-            style={{ transition: 'all 0.2s ease' }}
+            style={{ 
+              transition: 'all 0.2s ease',
+              backgroundColor: showDropdown ? '#FC8019' : '#fff',
+              borderColor: showDropdown ? '#FC8019' : '#e2e8f0',
+              fontSize: '0.85rem'
+            }}
           >
-            Create Order <span className="badge bg-light text-dark border rounded-1 p-1 px-2 d-none d-sm-inline ms-1">+</span> <ChevronDown size={16} />
+            Create Order <span className="badge bg-light text-dark border rounded-1 p-1 px-2 d-none d-sm-inline ms-1" style={{ fontSize: '0.7rem' }}>+</span> <ChevronDown size={14} />
           </button>
           
           {showDropdown && (
@@ -92,9 +97,17 @@ const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChang
         </div>
         <button
           ref={btnRef}
-          className="btn fw-600 rounded-3 shadow-sm px-3 orders-add-table-btn"
+          className="btn fw-700 rounded-3 shadow-sm px-3 orders-add-table-btn"
           onClick={handleAddTable}
-          style={{ position: 'relative', overflow: 'hidden', transition: 'transform 0.15s ease', backgroundColor: '#FC8019', borderColor: '#FC8019', color: '#fff' }}
+          style={{ 
+            position: 'relative', 
+            overflow: 'hidden', 
+            transition: 'transform 0.15s ease', 
+            background: 'linear-gradient(135deg, #FFB87A 0%, #FC8019 100%)', 
+            border: 'none', 
+            color: '#fff',
+            fontSize: '0.85rem'
+          }}
         >
           {rippling && (
             <span

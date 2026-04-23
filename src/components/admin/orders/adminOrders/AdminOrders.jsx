@@ -75,10 +75,7 @@ const AdminOrders = ({
           ].map(t => (
             <button
               key={t.id}
-              className={`btn btn-sm fw-600 rounded-pill px-3 text-nowrap ${orderTypeFilter === t.id ? 'active' : ''}`}
-              style={orderTypeFilter === t.id 
-                ? { backgroundColor: '#FC8019', color: '#fff', border: '1px solid #FC8019' } 
-                : { backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }}
+              className={`btn orders-filter-btn ${orderTypeFilter === t.id ? 'active' : ''}`}
               onClick={() => onOrderTypeChange?.(t.id)}
             >
               {t.label}

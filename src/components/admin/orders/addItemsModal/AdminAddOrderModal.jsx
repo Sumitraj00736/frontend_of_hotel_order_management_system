@@ -4,7 +4,8 @@ import { Search, X, Users, User, LayoutGrid } from 'lucide-react';
 const AdminAddOrderModal = ({ 
   open, 
   onClose, 
-  initialTab = 'table', // Add default initialTab passed from AdminDashboard
+  type = 'dine_in',
+  initialTab = 'table', 
   tables = [], 
   customers = [], 
   staff = [],
@@ -51,8 +52,13 @@ const AdminAddOrderModal = ({
     <div className="additem-overlay">
       <div className="additem-card" style={{ maxWidth: '1000px', height: '80vh' }}>
         <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-white sticky-top rounded-top-4">
-          <h4 className="fw-bold m-0">Add Order</h4>
-          <button className="btn-close-custom" onClick={onClose}><X size={24} /></button>
+          <div>
+            <h4 className="fw-800 m-0 text-dark" style={{ letterSpacing: '-0.02em' }}>
+              Add {type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+            </h4>
+            <div className="text-muted small fw-500">Select {activeTab === 'table' ? 'a table' : activeTab === 'customer' ? 'a customer' : 'staff member'} to proceed</div>
+          </div>
+          <button className="btn-close-custom bg-light border-0 rounded-circle p-2 px-3" onClick={onClose}><X size={20} /></button>
         </div>
 
         <div className="p-4 bg-light flex-grow-1 overflow-auto">
@@ -66,9 +72,12 @@ const AdminAddOrderModal = ({
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`btn btn-sm px-4 py-2 d-flex align-items-center gap-2 fw-semibold rounded-2 transition-all ${
-                    activeTab === tab.id ? 'btn-primary shadow-sm' : 'btn-ghost text-muted'
+                  className={`btn btn-sm px-4 py-2 d-flex align-items-center gap-2 fw-700 rounded-2 transition-all ${
+                    activeTab === tab.id 
+                      ? 'text-white border-0 shadow-sm' 
+                      : 'btn-ghost text-muted border-0'
                   }`}
+                  style={activeTab === tab.id ? { background: 'linear-gradient(135deg, #FFB87A 0%, #FC8019 100%)' } : {}}
                 >
                   {tab.icon}
                   {tab.label}
@@ -99,13 +108,17 @@ const AdminAddOrderModal = ({
                     style={{ border: '1px solid transparent' }}
                   >
                     <div className="card-body p-3 d-flex justify-content-between align-items-center">
-                      <div>
-                        <div className="fw-bold text-dark">{item.name || (activeTab === 'table' ? `Table ${item.tableNumber}` : 'Unnamed')}</div>
-                        {activeTab !== 'table' && <div className="text-muted small">{item.phone || item.email || item.role}</div>}
+                      <div className="min-width-0">
+                        <div className="fw-800 text-dark text-truncate" style={{ fontSize: '0.9rem' }}>{item.name || (activeTab === 'table' ? `Table ${item.tableNumber}` : 'Unnamed')}</div>
+                        {activeTab !== 'table' && <div className="text-muted small fw-500 text-truncate">{item.phone || item.email || item.role}</div>}
                       </div>
                       {activeTab === 'table' && (
-                        <span className={`badge rounded-pill px-3 py-1 fw-medium ${item.status === 'occupied' ? 'bg-danger-soft text-danger' : 'bg-success-soft text-success'}`}>
-                          {item.status === 'occupied' ? 'Occupied' : 'Open'}
+                        <span className={`badge rounded-pill px-3 py-1 fw-700 text-uppercase`} style={{ 
+                          fontSize: '0.65rem',
+                          backgroundColor: item.status === 'occupied' ? '#fee2e2' : '#f0fdf4',
+                          color: item.status === 'occupied' ? '#ef4444' : '#10b981'
+                        }}>
+                          {item.status === 'occupied' ? 'Busy' : 'Free'}
                         </span>
                       )}
                     </div>

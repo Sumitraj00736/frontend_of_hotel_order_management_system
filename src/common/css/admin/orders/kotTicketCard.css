@@ -188,7 +188,7 @@
 }
 
 .kot-dropdown-item.active {
-  background: #fff7ed;
-  color: #FC8019;
-  font-weight: 600;
+  background: linear-gradient(135deg, #FFB87A 0%, #FC8019 100%);
+  color: #fff;
+  font-weight: 700;
 }
