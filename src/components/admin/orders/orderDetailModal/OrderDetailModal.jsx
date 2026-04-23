@@ -58,6 +58,9 @@ const OrderDetailModal = ({
   );
   const [discountType, setDiscountType] = useState(order.discountType || 'amount');
   const [discount, setDiscount] = useState(order.discountValue || 0);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSaved, setLastSaved] = useState(new Date(order.updatedAt || order.createdAt));
+  
   const discountValue =
     discountType === 'percent'
       ? (subtotal * Number(discount || 0)) / 100
@@ -74,6 +77,38 @@ const OrderDetailModal = ({
     itemNote: item.itemNote
   });
 
+  const syncWithBackend = async () => {
+    const payloadItems = (pendingUpdateRef.current.items || latestItemsRef.current).map((i) => buildItemPayload(i));
+    const payload = {
+      orderId: order._id,
+      items: payloadItems
+    };
+    if (pendingUpdateRef.current.customerName !== null) {
+      payload.customerName = pendingUpdateRef.current.customerName;
+    }
+    if (pendingUpdateRef.current.customerId !== undefined) {
+      payload.customerId = pendingUpdateRef.current.customerId;
+    }
+    if (pendingUpdateRef.current.assignedStaff !== null) {
+      payload.assignedStaff = pendingUpdateRef.current.assignedStaff;
+    }
+    const nextPayloadKey = JSON.stringify(payload);
+    if (nextPayloadKey === lastPayloadRef.current) return;
+    lastPayloadRef.current = nextPayloadKey;
+    
+    setIsSyncing(true);
+    try {
+      const updated = await onUpdateOrder?.(payload);
+      if (updated) {
+        setLocalOrder(updated);
+        setLastSaved(new Date());
+      }
+    } finally {
+      setIsSyncing(false);
+      pendingUpdateRef.current = { items: null, customerName: null, assignedStaff: null };
+    }
+  };
+
   const scheduleOrderSync = ({ items: nextItems, customerName: nextCustomer, assignedStaff: nextStaff } = {}) => {
     if (nextItems) {
       latestItemsRef.current = nextItems;
@@ -89,28 +124,14 @@ const OrderDetailModal = ({
     if (updateTimersRef.current.order) {
       clearTimeout(updateTimersRef.current.order);
     }
-    updateTimersRef.current.order = setTimeout(async () => {
-      const payloadItems = (pendingUpdateRef.current.items || latestItemsRef.current).map((i) => buildItemPayload(i));
-      const payload = {
-        orderId: order._id,
-        items: payloadItems
-      };
-      if (pendingUpdateRef.current.customerName !== null) {
-        payload.customerName = pendingUpdateRef.current.customerName;
-      }
-      if (pendingUpdateRef.current.customerId !== undefined) {
-        payload.customerId = pendingUpdateRef.current.customerId;
-      }
-      if (pendingUpdateRef.current.assignedStaff !== null) {
-        payload.assignedStaff = pendingUpdateRef.current.assignedStaff;
-      }
-      const nextPayloadKey = JSON.stringify(payload);
-      if (nextPayloadKey === lastPayloadRef.current) return;
-      lastPayloadRef.current = nextPayloadKey;
-      const updated = await onUpdateOrder?.(payload);
-      if (updated) setLocalOrder(updated);
-      pendingUpdateRef.current = { items: null, customerName: null, assignedStaff: null };
-    }, 500);
+    updateTimersRef.current.order = setTimeout(syncWithBackend, 1500);
+  };
+
+  const handleManualSave = () => {
+    if (updateTimersRef.current.order) {
+      clearTimeout(updateTimersRef.current.order);
+    }
+    syncWithBackend();
   };
 
   const handleAddItem = (payload) => {
@@ -193,10 +214,12 @@ const OrderDetailModal = ({
           <div className="checkout-left">
             <div className="section-title-row">
               <div className="section-title">Items</div>
-              <div className="section-actions">
-                <button className="ghost-btn small">Complimentary</button>
-                <button className="ghost-btn small" onClick={() => setShowAddItem(true)}>+ Add Item</button>
-              </div>
+              {order.status !== 'paid' && (
+                <div className="section-actions">
+                  <button className="ghost-btn small">Complimentary</button>
+                  <button className="ghost-btn small" onClick={() => setShowAddItem(true)}>+ Add Item</button>
+                </div>
+              )}
             </div>
 
             <OrderItemsTable
@@ -204,6 +227,7 @@ const OrderDetailModal = ({
               onQtyChange={updateItemQuantity}
               onToggleComplimentary={toggleComplimentary}
               onRemove={(menuId, variantId) => updateItemQuantity(menuId, variantId, 0)}
+              isPaid={order.status === 'paid'}
             />
 
             <OrderCustomerPanel
@@ -245,23 +269,39 @@ const OrderDetailModal = ({
             <OrderInvoicePanel order={order} total={total} />
             <div className="net-card">
               <div>
-                <div className="text-muted small">Net sales amount</div>
+                <div className="text-muted small">
+                  {isSyncing ? 'Syncing changes...' : `Last saved: ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                </div>
                 <div className="fw-semibold">Rs {total.toFixed(2)}</div>
               </div>
-              {order.paymentStatus === 'paid' ? (
-                <button className="btn btn-outline-light" disabled>Paid</button>
-              ) : (
-                <button className="btn btn-danger" onClick={() => onPay({ 
-                  orderId: order._id, 
-                  payments, 
-                  paymentStatus, 
-                  customerName, 
-                  customerId,
-                  discountType,
-                  discountValue: discount
-                })}>
-                  Confirm Checkout
-                </button>
+              {order.status !== 'paid' && (
+                <div className="d-flex gap-2">
+                  <button 
+                    className={`btn ${isSyncing ? 'btn-light' : 'btn-outline-primary'}`}
+                    onClick={handleManualSave}
+                    disabled={isSyncing}
+                    style={{ minWidth: '120px' }}
+                  >
+                    {isSyncing ? (
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                    ) : null}
+                    {isSyncing ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button className="btn btn-danger" onClick={() => onPay({ 
+                    orderId: order._id, 
+                    payments, 
+                    paymentStatus, 
+                    customerName, 
+                    customerId,
+                    discountType,
+                    discountValue: discount
+                  })}>
+                    Confirm Checkout
+                  </button>
+                </div>
+              )}
+              {order.status === 'paid' && (
+                <button className="btn btn-outline-success" disabled>Paid & Finalized</button>
               )}
             </div>
           </div>

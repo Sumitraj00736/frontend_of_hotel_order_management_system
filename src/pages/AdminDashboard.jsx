@@ -867,53 +867,90 @@ const AdminDashboard = () => {
     }
   };
 
-  const printBill = async (orderId) => {
+  const printBill = async (orderId, type = 'bill') => {
     // Open a tab/window immediately to preserve user-gesture context on mobile browsers.
     const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=900,height=700');
     if (!printWindow) {
       alert('Pop-up blocked. Please allow pop-ups and try printing again.');
       return;
     }
-    printWindow.document.write('<p style="font-family:sans-serif;padding:16px">Preparing invoice...</p>');
+    printWindow.document.write('<p style="font-family:sans-serif;padding:16px">Preparing ' + (type === 'kot' ? 'KOT' : 'Invoice') + '...</p>');
     printWindow.document.close();
 
-    const res = await api.get(`/api/bills/${orderId}`);
-    const bill = res.data;
-    const html = `
-      <html>
-        <head>
-          <title>Bill - ${bill.orderType === 'delivery' ? 'Delivery' : bill.orderType === 'takeaway' ? 'Takeaway' : `Table ${bill.tableNumber}`}</title>
-        </head>
-        <body>
-          <h2>${bill.orderType === 'delivery' ? 'DELIVERY INVOICE' : bill.orderType === 'takeaway' ? 'TAKEAWAY INVOICE' : `Bill for Table ${bill.tableNumber}`}</h2>
-          <p>Order ID: ${bill.invoiceNo || bill.kotNo || bill.orderId}</p>
-          <p>Time: ${new Date(bill.createdAt).toLocaleString()}</p>
-          ${bill.orderType === 'delivery' || bill.orderType === 'takeaway' ? `
+    try {
+      const res = await api.get(`/api/bills/${orderId}`);
+      const bill = res.data;
+      const html = `
+        <html>
+          <head>
+            <title>${type === 'kot' ? 'KOT' : 'Invoice'} - ${bill.orderType === 'delivery' ? 'Delivery' : bill.orderType === 'takeaway' ? 'Takeaway' : `Table ${bill.tableNumber}`}</title>
+            <style>
+              body { font-family: sans-serif; padding: 20px; line-height: 1.4; }
+              h2 { margin-bottom: 5px; text-transform: uppercase; }
+              hr { border: none; border-top: 1px dashed #000; margin: 15px 0; }
+              ul { list-style: none; padding: 0; }
+              li { margin-bottom: 5px; display: flex; justify-content: space-between; }
+              .customer-info { margin-top: 10px; padding: 10px 0; border-top: 1px dashed #000; }
+              .total-row { margin-top: 10px; font-weight: bold; font-size: 1.2em; border-top: 1px solid #000; padding-top: 10px; }
+            </style>
+          </head>
+          <body>
+            <h2>${type === 'kot' ? 'KITCHEN ORDER TICKET' : (bill.orderType === 'delivery' ? 'DELIVERY INVOICE' : bill.orderType === 'takeaway' ? 'TAKEAWAY INVOICE' : `Bill for Table ${bill.tableNumber}`)}</h2>
+            <p><strong>Order ID:</strong> ${bill.invoiceNo || bill.kotNo || bill.orderId}</p>
+            <p><strong>Time:</strong> ${new Date(bill.createdAt).toLocaleString()}</p>
+            
+            ${bill.orderType === 'delivery' || bill.orderType === 'takeaway' ? `
+              <div class="customer-info">
+                <p style="margin: 2px 0;"><strong>Customer:</strong> ${bill.customerName || 'Walk-in Customer'}</p>
+                ${bill.customerPhone ? `<p style="margin: 2px 0;"><strong>Number:</strong> ${bill.customerPhone}</p>` : ''}
+                ${bill.deliveryAddress ? `<p style="margin: 2px 0;"><strong>Address:</strong> ${bill.deliveryAddress}</p>` : ''}
+                ${bill.deliveryPlatform ? `<p style="margin: 2px 0;"><strong>Platform:</strong> ${bill.deliveryPlatform}</p>` : ''}
+              </div>
+            ` : `
+              <p><strong>Table:</strong> ${bill.tableNumber || 'N/A'}</p>
+              <p><strong>Waiter:</strong> ${bill.waiter || 'N/A'}</p>
+            `}
+            
             <hr />
-            <p><strong>Customer:</strong> ${bill.customerName || 'Cash Customer'} ${bill.customerPhone ? `(${bill.customerPhone})` : ''}</p>
-            ${bill.deliveryAddress ? `<p><strong>Address:</strong> ${bill.deliveryAddress}</p>` : ''}
-            ${bill.deliveryPlatform ? `<p><strong>Platform:</strong> ${bill.deliveryPlatform}</p>` : ''}
-          ` : `
-            <p>Customer: ${bill.customerName || 'Cash Customer'}</p>
-            <p>Waiter: ${bill.waiter || 'N/A'}</p>
-            <p>Kitchen: ${bill.kitchen || 'N/A'}</p>
-          `}
-          <hr />
-          <ul>
-            ${bill.items
-              .map((item) => `<li>${item.name} x ${item.quantity} - NPR ${item.price}</li>`)
-              .join('')}
-          </ul>
-          <h3>Total: NPR ${bill.totalAmount.toFixed(2)}</h3>
-        </body>
-      </html>
-    `;
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+            <ul>
+              ${bill.items
+                .map((item) => `
+                  <li>
+                    <span>${item.name} x ${item.quantity}</span>
+                    ${type !== 'kot' ? `<span>NPR ${item.price.toFixed(2)}</span>` : ''}
+                  </li>
+                `)
+                .join('')}
+            </ul>
+            
+            ${type !== 'kot' ? `
+              <div class="total-row">
+                <span>Total:</span>
+                <span>NPR ${bill.totalAmount.toFixed(2)}</span>
+              </div>
+            ` : ''}
+            
+            <div style="margin-top: 30px; text-align: center; font-size: 0.9em;">
+              <p>${type === 'kot' ? 'FOR KITCHEN USE ONLY' : 'THANK YOU FOR YOUR PATRONAGE!'}</p>
+            </div>
+          </body>
+        </html>
+      `;
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+      
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    } catch (err) {
+      console.error('Print failed:', err);
+      printWindow.document.open();
+      printWindow.document.write('<p style="color:red;padding:16px">Error loading bill data. Please try again.</p>');
+      printWindow.document.close();
+    }
   };
 
   const markAllRead = async () => {
@@ -1058,9 +1095,14 @@ const AdminDashboard = () => {
               onMarkAll={markAllRead}
             />
           )}
-          {activeSection === 'orders' && hasPermission('orders:view') && (
-            <AdminOrders
-              orders={orders}
+          {activeSection === 'orders' && hasPermission('orders:view') && (() => {
+            const activeKots = orders
+              .filter(o => ['pending', 'preparing', 'ready'].includes(o.status))
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            return (
+              <AdminOrders
+                orders={orders}
+                kots={activeKots}
               customers={customers}
               menus={menus}
               staff={users}
@@ -1073,6 +1115,11 @@ const AdminDashboard = () => {
                 await loadOrdersPage(ordersPage, ordersLimit, ordersFilter);
                 return res.data;
               }}
+              onKotStatusUpdate={async (orderId, status) => {
+                await api.patch(`/api/orders/${orderId}/status`, { status });
+                loadOrdersPage(ordersPage, ordersLimit, ordersFilter);
+              }}
+              onKotPrint={printBill}
               page={ordersPage}
               limit={ordersLimit}
               total={ordersTotal}
@@ -1116,7 +1163,8 @@ const AdminDashboard = () => {
                 setTimeout(() => setAutoOpenTableModal(true), 50);
               }}
             />
-          )}
+          );
+        })()}
 
           {activeSection === 'users' && hasPermission('staff:view') && (
             <>

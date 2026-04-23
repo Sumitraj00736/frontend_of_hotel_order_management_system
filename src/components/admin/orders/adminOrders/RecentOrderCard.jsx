@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Plus, Printer, FileText, Zap } from 'lucide-react';
+import { Plus, Printer, FileText, Zap, Utensils, Bike, ShoppingBag, Truck } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import '../../../../common/css/admin/orders/recentOrderCard.css';
 
 const timeAgo = (dateStr) => {
@@ -21,9 +22,20 @@ const RecentOrderCard = ({ order, onOpen }) => {
 
   // Derive display values
   let identifierStr = `Table ${order.table?.tableNumber || '?'}`;
-  if (order.orderType === 'delivery') identifierStr = `Delivery #${order.invoiceNo || order.kotNo || order._id.slice(-4)}`;
-  if (order.orderType === 'takeaway') identifierStr = `Takeaway #${order.invoiceNo || order.kotNo || order._id.slice(-4)}`;
-  if (order.orderType === 'pickup') identifierStr = `Pickup #${order.invoiceNo || order.kotNo || order._id.slice(-4)}`;
+  let TypeIcon = Utensils;
+
+  if (order.orderType === 'delivery') {
+    identifierStr = `Delivery #${order.invoiceNo || order.kotNo || order._id.slice(-4)}`;
+    TypeIcon = Truck;
+  }
+  if (order.orderType === 'takeaway') {
+    identifierStr = `Takeaway #${order.invoiceNo || order.kotNo || order._id.slice(-4)}`;
+    TypeIcon = ShoppingBag;
+  }
+  if (order.orderType === 'pickup') {
+    identifierStr = `Pickup #${order.invoiceNo || order.kotNo || order._id.slice(-4)}`;
+    TypeIcon = Bike;
+  }
   
   const typeStr = order.orderType === 'dine_in' ? 'Dine In' :
                   order.orderType === 'delivery' ? 'Delivery' :
@@ -42,54 +54,77 @@ const RecentOrderCard = ({ order, onOpen }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {!isHovered ? (
-          <div className="roc-normal-state">
-            <div className="roc-header">
-              <span className="roc-type">{typeStr}</span>
-              <span className="roc-time">{timeStr}</span>
-            </div>
-            
-            <div className="roc-items-wrapper">
-              {order.items.slice(0, 3).map((item, idx) => (
-                <div className="roc-item" key={idx}>
-                  <div className="roc-item-left">
-                     <div className="roc-item-dot" />
-                     <span className="roc-item-name">{item.menuItem?.name || item.name || 'Item'}</span>
+        <AnimatePresence mode="wait">
+          {!isHovered ? (
+            <motion.div 
+              key="normal"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="roc-normal-state"
+            >
+              <div className="roc-header">
+                <span className="roc-type">
+                  <TypeIcon size={16} strokeWidth={2.5} color="#FC8019" />
+                  {typeStr}
+                </span>
+                <span className="roc-time">{timeStr}</span>
+              </div>
+              
+              <div className="roc-items-wrapper">
+                {order.items.slice(0, 3).map((item, idx) => (
+                  <div className="roc-item" key={idx}>
+                    <div className="roc-item-left">
+                       <div className="roc-item-dot" />
+                       <span className="roc-item-name">{item.menuItem?.name || item.name || 'Item'}</span>
+                    </div>
+                    <span className="roc-item-qty">x{item.quantity}</span>
                   </div>
-                  <span className="roc-item-qty">{item.quantity}</span>
-                </div>
-              ))}
-              {order.items.length > 3 && (
-                <div className="roc-item-more">+{order.items.length - 3} more items...</div>
+                ))}
+                {order.items.length > 3 && (
+                  <div className="roc-item-more">+{order.items.length - 3} more items...</div>
+                )}
+              </div>
+              
+              <div className="roc-footer">
+                <span className="roc-dishes">{totalDishes} Dishes</span>
+                <span className="roc-price">₹{totalAmt.toLocaleString()}</span>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="hover"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="roc-hover-state"
+            >
+              <h3 className="roc-hover-price">₹{totalAmt.toLocaleString()}</h3>
+              <p className="roc-hover-hint">Quick Actions</p>
+              
+              <div className="roc-icon-actions">
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="roc-icon-btn" onClick={() => onOpen(order, true)} title="Add Items"><Plus size={20} /></motion.button>
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="roc-icon-btn" onClick={() => window.print()} title="Print Bill"><Printer size={20} /></motion.button>
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="roc-icon-btn" title="View Details"><FileText size={20} /></motion.button>
+              </div>
+              
+              {order.status === 'paid' ? (
+                <div className="roc-paid-badge">Paid</div>
+              ) : (
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="roc-checkout-btn" 
+                  onClick={() => onOpen(order)}
+                >
+                  Confirm & Checkout
+                </motion.button>
               )}
-            </div>
-            
-            <div className="roc-footer">
-              <span className="roc-dishes">Dishes: {totalDishes}</span>
-              <span className="roc-price">Rs {totalAmt.toLocaleString()}</span>
-            </div>
-          </div>
-        ) : (
-          <div className="roc-hover-state">
-            <h3 className="roc-hover-price">Rs {totalAmt.toLocaleString()}</h3>
-            <p className="roc-hover-hint">Click to view full order details.</p>
-            
-            <div className="roc-icon-actions">
-              <button className="roc-icon-btn" onClick={() => onOpen(order, true)} title="Add Items"><Plus size={18} /></button>
-              <button className="roc-icon-btn" onClick={() => window.print()} title="Print Bill"><Printer size={18} /></button>
-              <button className="roc-icon-btn" title="View Details"><FileText size={18} /></button>
-              <button className="roc-icon-btn" title="Quick Action"><Zap size={18} /></button>
-            </div>
-            
-            {order.status === 'paid' ? (
-              <div className="roc-paid-badge">Paid</div>
-            ) : (
-              <button className="roc-checkout-btn" onClick={() => onOpen(order)}>
-                Checkout
-              </button>
-            )}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

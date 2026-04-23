@@ -4,7 +4,8 @@ const OrderItemsTable = ({
   items,
   onQtyChange,
   onToggleComplimentary,
-  onRemove
+  onRemove,
+  isPaid
 }) => {
   return (
     <div className="items-card">
@@ -31,23 +32,31 @@ const OrderItemsTable = ({
                 <td>
                   <div className="item-name-row">
                     <span>{item.menuItem?.name || 'Item'}{item.variantName ? ` (${item.variantName})` : ''}</span>
-                    <button className="remove-btn" onClick={() => onRemove(menuId, variantId)}>×</button>
+                    {!isPaid && <button className="remove-btn" onClick={() => onRemove(menuId, variantId)}>×</button>}
                   </div>
                 </td>
                 <td>
-                  <div className="qty-control">
-                    <button className="qty-btn" onClick={() => onQtyChange(menuId, variantId, currentQty - 1)}>-</button>
+                  {isPaid ? (
                     <span className="qty-value">{currentQty}</span>
-                    <button className="qty-btn" onClick={() => onQtyChange(menuId, variantId, currentQty + 1)}>+</button>
-                  </div>
+                  ) : (
+                    <div className="qty-control">
+                      <button className="qty-btn" onClick={() => onQtyChange(menuId, variantId, currentQty - 1)}>-</button>
+                      <span className="qty-value">{currentQty}</span>
+                      <button className="qty-btn" onClick={() => onQtyChange(menuId, variantId, currentQty + 1)}>+</button>
+                    </div>
+                  )}
                 </td>
                 <td>Rs {item.priceAtOrderTime}</td>
                 <td>
-                  <button className={`comp-btn ${isComplimentary ? 'active' : ''}`} onClick={() => onToggleComplimentary(menuId, variantId)}>
+                  <button 
+                    className={`comp-btn ${isComplimentary ? 'active' : ''}`} 
+                    onClick={() => !isPaid && onToggleComplimentary(menuId, variantId)}
+                    disabled={isPaid}
+                  >
                     {isComplimentary ? 'Complimentary' : 'Mark Comp'}
                   </button>
                 </td>
-                <td>Rs {isComplimentary ? '0.00' : (item.priceAtOrderTime || 0) * (currentQty || 1)}</td>
+                <td>Rs {isComplimentary ? '0.00' : ((item.priceAtOrderTime || 0) * (currentQty || 1)).toFixed(2)}</td>
               </tr>
             );
           })}

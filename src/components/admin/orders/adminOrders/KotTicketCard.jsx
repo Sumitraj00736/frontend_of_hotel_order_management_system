@@ -18,7 +18,7 @@ const KotTicketCard = ({ order, onStatusChange, onPrint }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const totalDishes = order.items.reduce((acc, i) => acc + i.quantity, 0);
+  const totalDishes = (order?.items || []).reduce((acc, i) => acc + i.quantity, 0);
 
   const handleStatusSelect = (val) => {
     setShowStatusMenu(false);
@@ -46,6 +46,14 @@ const KotTicketCard = ({ order, onStatusChange, onPrint }) => {
         <div className="kot-ticket-row">
           <span>Order At: {new Date(order.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
         </div>
+        {(order.orderType === 'delivery' || order.orderType === 'takeaway') && (
+          <div className="kot-delivery-details" style={{ marginTop: '8px', padding: '8px', background: '#fff7ed', borderRadius: '4px', border: '1px solid #ffedd5' }}>
+            <div style={{ fontWeight: '600', fontSize: '13px', marginBottom: '4px', color: '#c2410c' }}>Customer Details</div>
+            <div style={{ fontSize: '12px' }}><strong>Name:</strong> {order.customerName || order.customerId?.name || 'Walk-in'}</div>
+            {order.customerPhone && <div style={{ fontSize: '12px' }}><strong>Phone:</strong> {order.customerPhone}</div>}
+            {order.deliveryAddress && <div style={{ fontSize: '12px' }}><strong>Address:</strong> {order.deliveryAddress}</div>}
+          </div>
+        )}
       </div>
 
       <div className="kot-ticket-divider-dashed" />
@@ -59,7 +67,7 @@ const KotTicketCard = ({ order, onStatusChange, onPrint }) => {
       <div className="kot-ticket-divider-dashed" />
 
       <div className="kot-ticket-items">
-        {order.items.map((item, idx) => (
+        {(order?.items || []).map((item, idx) => (
           <div className="kot-ticket-item" key={item._id || idx}>
             <span style={{ width: '40px' }}>{idx + 1}.</span>
             <span style={{ flex: 1 }}>{item.menuItem?.name || item.name || 'Item'}</span>
@@ -72,7 +80,7 @@ const KotTicketCard = ({ order, onStatusChange, onPrint }) => {
 
       <div className="kot-ticket-totals">
         <span>Total (Dishes/QTY)</span>
-        <span>{order.items.length}/{totalDishes}</span>
+        <span>{(order?.items || []).length}/{totalDishes}</span>
       </div>
 
       <div className="kot-ticket-divider-dashed" />
@@ -119,8 +127,8 @@ const KotTicketCard = ({ order, onStatusChange, onPrint }) => {
           
           {showPrintMenu && (
             <div className="kot-dropdown-menu right-aligned">
-               <div className="kot-dropdown-item" onClick={() => { setShowPrintMenu(false); onPrint(order._id); }}>Print KOT</div>
-               <div className="kot-dropdown-item" onClick={() => { setShowPrintMenu(false); onPrint(order._id); }}>Print Invoice</div>
+               <div className="kot-dropdown-item" onClick={() => { setShowPrintMenu(false); onPrint(order._id, 'kot'); }}>Print KOT</div>
+               <div className="kot-dropdown-item" onClick={() => { setShowPrintMenu(false); onPrint(order._id, 'invoice'); }}>Print Invoice</div>
             </div>
           )}
         </div>
