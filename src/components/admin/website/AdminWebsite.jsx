@@ -215,7 +215,7 @@ const AdminWebsite = () => {
         <div className="web-section-header">
           <div>
             <h4>Choose Your Website Theme</h4>
-            <p>Each template is now a separate component, making it easier to expand the builder later.</p>
+            <p>You can edit your website according to your need.</p>
           </div>
         </div>
         <div className="web-theme-grid">
@@ -247,7 +247,7 @@ const AdminWebsite = () => {
             <h4>Core Pages & Features</h4>
             <p>Toggle the sections you want visible in the live website preview.</p>
           </div>
-        </div>
+        </div>             
         <div className="web-feature-grid">
           {featureCards.map((item) => {
             if (item.key === 'delivery') {
