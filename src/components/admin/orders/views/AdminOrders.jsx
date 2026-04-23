@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import OrderDetailModal from '../orderDetailModal/OrderDetailModal.jsx';
-import OrdersHeader from './OrdersHeader.jsx';
-import OrdersFilterTabs from './OrdersFilterTabs.jsx';
-import OrdersGrid from './OrdersGrid.jsx';
+import OrderDetailModal from '../checkout/OrderDetailModal.jsx';
+import OrdersHeader from '../filters/OrdersHeader.jsx';
+import OrdersFilterTabs from '../filters/OrdersFilterTabs.jsx';
+import OrdersGrid from '../filters/OrdersGrid.jsx';
 import OrderAnalytics from './OrderAnalytics.jsx';
-import KotTicketCard from './KotTicketCard.jsx';
+import KotTicketCard from '../cards/KotTicketCard.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../../../../common/css/admin/orders/kotCards.css';
 
@@ -71,7 +71,16 @@ const AdminOrders = ({
 
   return (
     <div className="card glass-card full-screen-card p-4 border-0 shadow-sm" style={{ backgroundColor: '#ffffff', borderRadius: '24px' }}>
-      <div className="sticky-top bg-white pt-2 pb-3" style={{ zIndex: 1020, margin: '-24px -24px 24px -24px', padding: '24px 24px 0 24px', borderBottom: '1px solid #f1f5f9' }}>
+      <div className="sticky-top pt-2 pb-3" style={{ 
+        zIndex: 1020, 
+        margin: '-24px -24px 24px -24px', 
+        padding: '24px 24px 16px 24px', 
+        borderBottom: '1px solid #f1f5f9',
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(12px)',
+        borderTopLeftRadius: '24px',
+        borderTopRightRadius: '24px'
+      }}>
         <OrdersHeader 
           title="Orders" 
           countLabel={countLabel} 
@@ -81,7 +90,7 @@ const AdminOrders = ({
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
         />
-        <div className="mt-3">
+        <div className="mt-4">
           <OrdersFilterTabs filter={filter} onChange={onFilterChange} />
         </div>
       </div>
@@ -112,16 +121,15 @@ const AdminOrders = ({
       {filter === 'analytics' ? (
         <OrderAnalytics orders={orders} />
       ) : filter === 'kot' ? (
-        <div className="row g-4 kot-grid">
+        <div className="kot-grid">
           {kots.length > 0 ? (
             kots.map(kot => (
-              <div key={kot.kotId} className="col-md-6 col-lg-4 col-xl-3">
-                <KotTicketCard 
-                  kot={kot} 
-                  onStatusUpdate={onKotStatusUpdate}
-                  onPrint={onKotPrint}
-                />
-              </div>
+              <KotTicketCard 
+                key={kot._id}
+                order={kot} 
+                onStatusChange={onKotStatusUpdate}
+                onPrint={onKotPrint}
+              />
             ))
           ) : (
             <div className="text-center py-5 w-100">

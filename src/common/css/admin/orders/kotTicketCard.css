@@ -1,90 +1,115 @@
 .kot-ticket-container {
-  background-color: #fdfdfd;
-  background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
-  background-size: 10px 10px;
-  background-position: 0 0;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 32px;
+  background-color: #fffaf0;
+  border-radius: 20px;
+  padding: 24px;
   width: 100%;
   color: #1e293b;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(252, 128, 25, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  border: 1.5px solid #ffedd5;
+}
+
+.kot-ticket-container:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(252, 128, 25, 0.1);
+  border-color: #fdba74;
 }
 
 .kot-ticket-main-title {
   text-align: center;
-  font-size: 1.4rem;
-  font-weight: 800;
-  margin: 0 0 20px 0;
-  color: #0f172a;
-  letter-spacing: -0.02em;
+  font-size: 1.1rem;
+  font-weight: 900;
+  margin: 0 0 16px 0;
+  color: #FC8019;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .kot-ticket-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 0.85rem;
+  gap: 8px;
+  font-size: 0.8rem;
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ffedd5;
 }
 
 .kot-ticket-row {
   display: flex;
   justify-content: space-between;
+  font-weight: 600;
+  color: #475569;
 }
 
 .kot-ticket-divider-dashed {
-  border-top: 1px dashed #b5bfc4;
+  border-top: 2px dashed #f1f5f9;
   margin: 16px 0;
 }
 
 .kot-ticket-table-header {
   display: flex;
-  font-weight: 700;
-  font-size: 0.8rem;
+  font-weight: 800;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  color: #64748b;
+  color: #94a3b8;
+  padding: 0 4px;
 }
 
 .kot-ticket-items {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 4px;
 }
 
 .kot-ticket-item {
   display: flex;
   font-size: 0.85rem;
+  font-weight: 600;
+  align-items: flex-start;
 }
 
 .kot-ticket-totals {
   display: flex;
   justify-content: space-between;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 4px;
+  color: #0f172a;
 }
 
 .kot-ticket-footer-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 0.85rem;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
   margin-bottom: 20px;
 }
 
 .kot-ticket-thank-you {
   text-align: center;
-  margin-top: 12px;
-  font-weight: 500;
+  margin-top: 8px;
+  font-weight: 700;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
 }
 
 /* Actions */
 .kot-ticket-actions {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
+  margin-top: auto;
 }
 
 .kot-ticket-dropdown {
@@ -94,27 +119,29 @@
 
 .kot-action-btn {
   width: 100%;
-  padding: 8px 12px;
-  background: white;
-  border: 1px solid #e1e5e9;
-  border-radius: 8px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1.5px solid #f1f5f9;
+  border-radius: 10px;
   font-size: 0.85rem;
   color: #475569;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .kot-action-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: #fdf2f8;
+  border-color: #FC8019;
+  color: #FC8019;
 }
 
 .kot-action-btn-group {
   display: flex;
+  width: 100%;
 }
 
 .print-icon-btn {
@@ -123,72 +150,85 @@
   border-right: none;
   justify-content: center;
   gap: 8px;
+  flex: 1;
 }
 
 .drop-icon-btn {
   width: auto;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-  border-left: 1px solid #e1e5e9;
+  border-left: 1px solid #f1f5f9;
   justify-content: center;
+  padding: 0 8px;
 }
 
 /* Menu popup */
 .kot-dropdown-menu {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border: 1px solid #f1f5f9;
+  border-radius: 14px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.12);
   padding: 8px;
   z-index: 100;
+  animation: slideInDown 0.2s ease-out;
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .kot-dropdown-menu.right-aligned {
   left: auto;
   right: 0;
-  min-width: 160px;
+  min-width: 180px;
 }
 
 .kot-dropdown-search {
   display: flex;
   align-items: center;
-  padding: 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-radius: 10px;
   margin-bottom: 8px;
 }
 
 .kot-dropdown-search .search-icon {
   color: #94a3b8;
-  margin-right: 8px;
+  margin-right: 10px;
 }
 
 .kot-dropdown-search input {
+  background: transparent;
   border: none;
   outline: none;
   width: 100%;
-  font-size: 0.9rem;
-}
-
-.kot-dropdown-item {
-  padding: 10px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.15s;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   color: #1e293b;
 }
 
+.kot-dropdown-item {
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 600;
+}
+
 .kot-dropdown-item:hover {
-  background: #f1f5f9;
+  background: #fff7ed;
+  color: #FC8019;
 }
 
 .kot-dropdown-item.active {
   background: linear-gradient(135deg, #FFB87A 0%, #FC8019 100%);
   color: #fff;
-  font-weight: 700;
+  font-weight: 800;
 }

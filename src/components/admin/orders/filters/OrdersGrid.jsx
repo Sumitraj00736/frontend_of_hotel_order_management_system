@@ -1,6 +1,6 @@
 import React from 'react';
-import RecentOrderCard from './RecentOrderCard.jsx';
-import KotTicketCard from './KotTicketCard.jsx';
+import RecentOrderCard from '../cards/RecentOrderCard.jsx';
+import KotTicketCard from '../cards/KotTicketCard.jsx';
 
 const OrdersGrid = ({ orders, onOpen, filter, onStatusChange, onPrint }) => {
   if (orders.length === 0) {
@@ -19,7 +19,7 @@ const OrdersGrid = ({ orders, onOpen, filter, onStatusChange, onPrint }) => {
         if (filter === 'kot') {
           return <KotTicketCard key={order._id} order={order} onStatusChange={onStatusChange} onPrint={onPrint} />;
         }
-        return <RecentOrderCard key={order._id} order={order} onOpen={onOpen} />;
+        return <RecentOrderCard key={order._id} order={order} onOpen={onOpen} onPrint={onPrint} />;
       })}
     </div>
   );

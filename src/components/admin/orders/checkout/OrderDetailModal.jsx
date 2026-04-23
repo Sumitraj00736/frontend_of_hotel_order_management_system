@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import AddItemsModal from '../addItemsModal/AddItemsModal.jsx';
+import AddItemsModal from '../addItems/AddItemsModal.jsx';
 import OrderHeader from './OrderHeader.jsx';
 import OrderItemsTable from './OrderItemsTable.jsx';
 import OrderCustomerPanel from './OrderCustomerPanel.jsx';
@@ -58,11 +58,18 @@ const OrderDetailModal = ({
   );
   const [discountType, setDiscountType] = useState(order.discountType || 'amount');
   const [discount, setDiscount] = useState(order.discountValue || 0);
+  const [taxRate, setTaxRate] = useState(order.taxRate || 0);
+  const [tipsAmount, setTipsAmount] = useState(order.tipsAmount || 0);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSaved, setLastSaved] = useState(new Date(order.updatedAt || order.createdAt));
+  
   const discountValue =
     discountType === 'percent'
       ? (subtotal * Number(discount || 0)) / 100
       : Number(discount || 0);
-  const total = Math.max(0, subtotal - discountValue);
+  const taxableAmount = Math.max(0, subtotal - discountValue);
+  const taxAmount = (taxableAmount * Number(taxRate || 0)) / 100;
+  const total = Math.max(0, taxableAmount + taxAmount + Number(tipsAmount || 0));
 
   const buildItemPayload = (item) => ({
     menuItem: item.menuItem?._id || item.menuItem,
@@ -74,7 +81,41 @@ const OrderDetailModal = ({
     itemNote: item.itemNote
   });
 
-  const scheduleOrderSync = ({ items: nextItems, customerName: nextCustomer, assignedStaff: nextStaff } = {}) => {
+  const syncWithBackend = async (options = {}) => {
+    const payloadItems = (pendingUpdateRef.current.items || latestItemsRef.current).map((i) => buildItemPayload(i));
+    const payload = {
+      orderId: order._id,
+      items: payloadItems
+    };
+    if (pendingUpdateRef.current.customerName !== null) {
+      payload.customerName = pendingUpdateRef.current.customerName;
+    }
+    if (pendingUpdateRef.current.customerId !== undefined) {
+      payload.customerId = pendingUpdateRef.current.customerId;
+    }
+    if (pendingUpdateRef.current.assignedStaff !== null) {
+      payload.assignedStaff = pendingUpdateRef.current.assignedStaff;
+    }
+    
+    const nextPayloadKey = JSON.stringify(payload);
+    if (!options.force && nextPayloadKey === lastPayloadRef.current) return;
+    lastPayloadRef.current = nextPayloadKey;
+    
+    setIsSyncing(true);
+    try {
+      const updated = await onUpdateOrder?.(payload);
+      if (updated) {
+        setLocalOrder(updated);
+        setLastSaved(new Date());
+      }
+    } finally {
+      setIsSyncing(false);
+      pendingUpdateRef.current = { items: null, customerName: null, assignedStaff: null };
+    }
+  };
+
+  const scheduleOrderSync = (updates = {}) => {
+    const { items: nextItems, customerName: nextCustomer, assignedStaff: nextStaff } = updates;
     if (nextItems) {
       latestItemsRef.current = nextItems;
       setLocalOrder((prev) => ({ ...prev, items: nextItems }));
@@ -89,28 +130,15 @@ const OrderDetailModal = ({
     if (updateTimersRef.current.order) {
       clearTimeout(updateTimersRef.current.order);
     }
-    updateTimersRef.current.order = setTimeout(async () => {
-      const payloadItems = (pendingUpdateRef.current.items || latestItemsRef.current).map((i) => buildItemPayload(i));
-      const payload = {
-        orderId: order._id,
-        items: payloadItems
-      };
-      if (pendingUpdateRef.current.customerName !== null) {
-        payload.customerName = pendingUpdateRef.current.customerName;
-      }
-      if (pendingUpdateRef.current.customerId !== undefined) {
-        payload.customerId = pendingUpdateRef.current.customerId;
-      }
-      if (pendingUpdateRef.current.assignedStaff !== null) {
-        payload.assignedStaff = pendingUpdateRef.current.assignedStaff;
-      }
-      const nextPayloadKey = JSON.stringify(payload);
-      if (nextPayloadKey === lastPayloadRef.current) return;
-      lastPayloadRef.current = nextPayloadKey;
-      const updated = await onUpdateOrder?.(payload);
-      if (updated) setLocalOrder(updated);
-      pendingUpdateRef.current = { items: null, customerName: null, assignedStaff: null };
-    }, 500);
+    updateTimersRef.current.order = setTimeout(() => syncWithBackend(), 1500);
+  };
+
+  const handleManualSave = () => {
+    if (updateTimersRef.current.order) {
+      clearTimeout(updateTimersRef.current.order);
+      updateTimersRef.current.order = null;
+    }
+    syncWithBackend({ force: true });
   };
 
   const handleAddItem = (payload) => {
@@ -193,10 +221,12 @@ const OrderDetailModal = ({
           <div className="checkout-left">
             <div className="section-title-row">
               <div className="section-title">Items</div>
-              <div className="section-actions">
-                <button className="ghost-btn small">Complimentary</button>
-                <button className="ghost-btn small" onClick={() => setShowAddItem(true)}>+ Add Item</button>
-              </div>
+              {order.status !== 'paid' && (
+                <div className="section-actions">
+                  <button className="ghost-btn small">Complimentary</button>
+                  <button className="ghost-btn small" onClick={() => setShowAddItem(true)}>+ Add Item</button>
+                </div>
+              )}
             </div>
 
             <OrderItemsTable
@@ -204,6 +234,7 @@ const OrderDetailModal = ({
               onQtyChange={updateItemQuantity}
               onToggleComplimentary={toggleComplimentary}
               onRemove={(menuId, variantId) => updateItemQuantity(menuId, variantId, 0)}
+              isPaid={order.status === 'paid'}
             />
 
             <OrderCustomerPanel
@@ -238,6 +269,10 @@ const OrderDetailModal = ({
             discount={discount}
             onDiscountTypeChange={setDiscountType}
             onDiscountChange={setDiscount}
+            taxRate={taxRate}
+            onTaxRateChange={setTaxRate}
+            tipsAmount={tipsAmount}
+            onTipsChange={setTipsAmount}
             total={total}
           />
 
@@ -245,23 +280,42 @@ const OrderDetailModal = ({
             <OrderInvoicePanel order={order} total={total} />
             <div className="net-card">
               <div>
-                <div className="text-muted small">Net sales amount</div>
+                <div className="text-muted small">
+                  {isSyncing ? 'Syncing changes...' : `Last saved: ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                </div>
                 <div className="fw-semibold">Rs {total.toFixed(2)}</div>
               </div>
-              {order.paymentStatus === 'paid' ? (
-                <button className="btn btn-outline-light" disabled>Paid</button>
-              ) : (
-                <button className="btn btn-danger" onClick={() => onPay({ 
-                  orderId: order._id, 
-                  payments, 
-                  paymentStatus, 
-                  customerName, 
-                  customerId,
-                  discountType,
-                  discountValue: discount
-                })}>
-                  Confirm Checkout
-                </button>
+              {order.status !== 'paid' && (
+                <div className="d-flex gap-2">
+                  <button 
+                    className={`btn ${isSyncing ? 'btn-light' : 'btn-outline-primary'}`}
+                    onClick={handleManualSave}
+                    disabled={isSyncing}
+                    style={{ minWidth: '120px' }}
+                  >
+                    {isSyncing ? (
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                    ) : null}
+                    {isSyncing ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button className="btn btn-danger" onClick={() => onPay({ 
+                    orderId: order._id, 
+                    payments, 
+                    paymentStatus, 
+                    customerName, 
+                    customerId,
+                    discountType,
+                    discountValue: discount,
+                    taxRate: Number(taxRate || 0),
+                    tipsAmount: Number(tipsAmount || 0),
+                    roundOff: 0
+                  })}>
+                    Confirm Checkout
+                  </button>
+                </div>
+              )}
+              {order.status === 'paid' && (
+                <button className="btn btn-outline-success" disabled>Paid & Finalized</button>
               )}
             </div>
           </div>
