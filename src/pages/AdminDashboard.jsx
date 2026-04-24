@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { CheckCircle, Volume2 } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
@@ -41,7 +42,63 @@ import '../common/css/admin/common/adminLayout.css';
 import '../common/css/admin/common/adminResponsive.css';
 
 const AdminDashboard = () => {
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Get initial section from URL
+  const getInitialSection = () => {
+    const path = location.pathname;
+    const adminPath = path.replace('/admin/', '');
+    const pathToSection = {
+      '': 'dashboard',
+      'dashboard': 'dashboard',
+      'orders': 'orders',
+      'users': 'users',
+      'customers': 'customers',
+      'tables': 'tables:table',
+      'tables/table': 'tables:table',
+      'tables/space': 'tables:space',
+      'tables/qr': 'tables:qr',
+      'menus': 'menus',
+      'menus/categories': 'menu:categories',
+      'menus/dishes': 'menu:dishes',
+      'menus/addons': 'menu:addons',
+      'menus/submenus': 'menu:submenus',
+      'menus/combos': 'menu:combos',
+      'reports': 'reports',
+      'reports/company': 'reports:company',
+      'reports/sales': 'reports:sales',
+      'reports/items': 'reports:items',
+      'reports/staff': 'reports:staff',
+      'reports/customer': 'reports:customer',
+      'history': 'history',
+      'promotions': 'promotions',
+      'inventory': 'inventory',
+      'inventory/ingredients': 'inventory:ingredients',
+      'inventory/purchases': 'inventory:purchases',
+      'inventory/suppliers': 'inventory:suppliers',
+      'finance': 'finance',
+      'finance/daybook': 'finance:daybook',
+      'finance/sales': 'finance:sales',
+      'finance/purchase': 'finance:purchase',
+      'finance/transactions': 'finance:transactions',
+      'website': 'website',
+      'settings': 'settings',
+      'settings/restaurant-details': 'settings:restaurant-details',
+      'settings/branches': 'settings:branches',
+      'settings/roles': 'settings:roles',
+      'settings/permissions': 'settings:permissions',
+      'settings/taxes': 'settings:taxes',
+      'settings/payment-methods': 'settings:payment-methods',
+      'settings/printers': 'settings:printers',
+      'settings/webhooks': 'settings:webhooks',
+      'notifications': 'notifications'
+    };
+    return pathToSection[adminPath] || 'dashboard';
+  };
+  
+  const [activeSection, setActiveSection] = useState(getInitialSection);
+  const isInitialMount = React.useRef(true);
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [tables, setTables] = useState([]);
@@ -1004,6 +1061,121 @@ const AdminDashboard = () => {
       setActiveSection('dashboard');
     }
   }, [activeSection, isSuperAdmin]);
+
+  // Sync URL path with activeSection (only on mount)
+  useEffect(() => {
+    const path = location.pathname;
+    const adminPath = path.replace('/admin/', '');
+    
+    // Map URL to section
+    const pathToSection = {
+      '': 'dashboard',
+      'dashboard': 'dashboard',
+      'orders': 'orders',
+      'users': 'users',
+      'customers': 'customers',
+      'tables': 'tables:table',
+      'tables/table': 'tables:table',
+      'tables/space': 'tables:space',
+      'tables/qr': 'tables:qr',
+      'menus': 'menus',
+      'menus/categories': 'menu:categories',
+      'menus/dishes': 'menu:dishes',
+      'menus/addons': 'menu:addons',
+      'menus/submenus': 'menu:submenus',
+      'menus/combos': 'menu:combos',
+      'reports': 'reports',
+      'reports/company': 'reports:company',
+      'reports/sales': 'reports:sales',
+      'reports/items': 'reports:items',
+      'reports/staff': 'reports:staff',
+      'reports/customer': 'reports:customer',
+      'history': 'history',
+      'promotions': 'promotions',
+      'inventory': 'inventory',
+      'inventory/ingredients': 'inventory:ingredients',
+      'inventory/purchases': 'inventory:purchases',
+      'inventory/suppliers': 'inventory:suppliers',
+      'finance': 'finance',
+      'finance/daybook': 'finance:daybook',
+      'finance/sales': 'finance:sales',
+      'finance/purchase': 'finance:purchase',
+      'finance/transactions': 'finance:transactions',
+      'website': 'website',
+      'settings': 'settings',
+      'settings/restaurant-details': 'settings:restaurant-details',
+      'settings/branches': 'settings:branches',
+      'settings/roles': 'settings:roles',
+      'settings/permissions': 'settings:permissions',
+      'settings/taxes': 'settings:taxes',
+      'settings/payment-methods': 'settings:payment-methods',
+      'settings/printers': 'settings:printers',
+      'settings/webhooks': 'settings:webhooks',
+      'notifications': 'notifications'
+    };
+    
+    const section = pathToSection[adminPath] || 'dashboard';
+    if (section !== activeSection) {
+      setActiveSection(section);
+    }
+  }, []); // Empty deps - only run once on mount
+
+  // Update URL when activeSection changes (but not on initial load)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
+    const sectionToPath = {
+      'dashboard': '/admin/dashboard',
+      'orders': '/admin/orders',
+      'users': '/admin/users',
+      'customers': '/admin/customers',
+      'tables:table': '/admin/tables/table',
+      'tables:space': '/admin/tables/space',
+      'tables:qr': '/admin/tables/qr',
+      'menus': '/admin/menus',
+      'menu:categories': '/admin/menus/categories',
+      'menu:dishes': '/admin/menus/dishes',
+      'menu:addons': '/admin/menus/addons',
+      'menu:submenus': '/admin/menus/submenus',
+      'menu:combos': '/admin/menus/combos',
+      'reports': '/admin/reports',
+      'reports:company': '/admin/reports/company',
+      'reports:sales': '/admin/reports/sales',
+      'reports:items': '/admin/reports/items',
+      'reports:staff': '/admin/reports/staff',
+      'reports:customer': '/admin/reports/customer',
+      'history': '/admin/history',
+      'promotions': '/admin/promotions',
+      'inventory': '/admin/inventory',
+      'inventory:ingredients': '/admin/inventory/ingredients',
+      'inventory:purchases': '/admin/inventory/purchases',
+      'inventory:suppliers': '/admin/inventory/suppliers',
+      'finance': '/admin/finance',
+      'finance:daybook': '/admin/finance/daybook',
+      'finance:sales': '/admin/finance/sales',
+      'finance:purchase': '/admin/finance/purchase',
+      'finance:transactions': '/admin/finance/transactions',
+      'website': '/admin/website',
+      'settings': '/admin/settings',
+      'settings:restaurant-details': '/admin/settings/restaurant-details',
+      'settings:branches': '/admin/settings/branches',
+      'settings:roles': '/admin/settings/roles',
+      'settings:permissions': '/admin/settings/permissions',
+      'settings:taxes': '/admin/settings/taxes',
+      'settings:payment-methods': '/admin/settings/payment-methods',
+      'settings:printers': '/admin/settings/printers',
+      'settings:webhooks': '/admin/settings/webhooks',
+      'notifications': '/admin/notifications'
+    };
+    
+    const newPath = sectionToPath[activeSection] || '/admin';
+    if (location.pathname !== newPath) {
+      navigate(newPath, { replace: true });
+    }
+  }, [activeSection]);
 
   const handleMobileLogout = () => {
     clearSession();
