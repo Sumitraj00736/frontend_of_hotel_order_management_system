@@ -22,11 +22,32 @@ export const AuthProvider = ({ children }) => {
   const isRegistering = useRef(false);
 
   const login = async (email, password) => {
+    // Production-friendly: support BOTH legacy (Mongo/JWT) and Firebase auth.
+    // 1) Try backend login first (works for all Mongo users, including pre-Firebase accounts).
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+        identifier: email,
+        password
+      });
+      const payload = response.data;
+      setUserData(payload);
+      const { saveSession } = await import('../api/session.js');
+      saveSession(payload.token, payload.user, payload.branches);
+      return payload;
+    } catch (err) {
+      // Only fall back to Firebase if it's an auth failure; otherwise rethrow.
+      const status = err?.response?.status;
+      if (status && status !== 401) throw err;
+    }
+
+    // 2) Firebase login (email/password or Google) + backend session hydration via firebase-login.
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const idToken = await userCredential.user.getIdToken();
     const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/firebase-login`, { idToken });
     const payload = { ...response.data, token: idToken };
     setUserData(payload);
+    const { saveSession } = await import('../api/session.js');
+    saveSession(idToken, payload.user, payload.branches);
     return payload;
   };
 
@@ -72,12 +93,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   const resetPassword = async (email) => {
-    // Try our backend first so it handles both legacy and potentially firebase users
+    // Support both reset systems:
+    // - Firebase reset email for Firebase users
+    // - Backend reset link for legacy Mongo-only users
     try {
-      return await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, { email });
-    } catch (err) {
-      // Fallback to firebase if backend fails or doesn't know the user
-      return sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, email);
+      return { ok: true, provider: 'firebase' };
+    } catch (firebaseErr) {
+      const code = firebaseErr?.code || '';
+      // If Firebase doesn't know this user (or Firebase isn't available), fall back to backend.
+      if (code && code !== 'auth/user-not-found' && code !== 'auth/invalid-email') {
+        // Some other Firebase error (e.g., network) - still allow backend fallback.
+        // eslint-disable-next-line no-console
+        console.warn('[Auth] Firebase reset failed, falling back to backend:', code);
+      }
+      const resp = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, { email });
+      return { ok: true, provider: 'backend', data: resp.data };
     }
   };
 
