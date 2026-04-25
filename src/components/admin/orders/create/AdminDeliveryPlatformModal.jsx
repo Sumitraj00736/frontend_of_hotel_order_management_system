@@ -3,77 +3,118 @@ import { Search, PhoneCall, Globe } from 'lucide-react';
 
 const AdminDeliveryPlatformModal = ({ show, onClose, onContinue }) => {
   const [selectedPlatform, setSelectedPlatform] = useState('Direct Order');
+  const platforms = [
+    {
+      name: 'Direct Order',
+      icon: PhoneCall,
+      toneClass: 'admin-platform-option-direct',
+      description: 'Manual phone and walk-in orders handled directly by your team.',
+      meta: 'Fastest for counter service',
+      available: true
+    },
+    {
+      name: 'Website',
+      icon: Globe,
+      toneClass: 'admin-platform-option-website',
+      description: 'Sync incoming web orders from your branded ordering flow.',
+      meta: 'Coming soon',
+      available: false
+    }
+  ];
 
   if (!show) return null;
 
   return (
-    <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 1055 }}>
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content rounded-4 border-0 shadow-lg p-2">
-          <div className="modal-header border-0 pb-0">
-            <h5 className="modal-title fw-bold">Select Delivery Platform</h5>
+    <div
+      className="modal fade show d-block"
+      style={{ backgroundColor: 'rgba(15, 23, 42, 0.48)', zIndex: 1055 }}
+      onClick={onClose}
+    >
+      <div className="modal-dialog modal-dialog-centered admin-delivery-platform-dialog" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-content admin-delivery-platform-modal border-0 shadow-lg overflow-hidden">
+          <div className="modal-header border-0 admin-delivery-platform-header">
+            <div>
+              <span className="admin-delivery-platform-kicker">Order Intake</span>
+              <h5 className="modal-title fw-bold mb-1">Select Delivery Platform</h5>
+              <p className="admin-delivery-platform-subtitle mb-0">
+                Choose how this order entered the system so the workflow stays organized.
+              </p>
+            </div>
             <button type="button" className="btn-close shadow-none" onClick={onClose}></button>
           </div>
-          <div className="modal-body pb-0 mt-3">
-            <div className="d-flex justify-content-between mb-4 gap-2">
-              <div className="position-relative flex-grow-1" style={{ maxWidth: '150px' }}>
-                <Search size={14} className="position-absolute text-muted" style={{ left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
-                <input type="text" className="form-control form-control-sm ps-4 rounded-3 border-light shadow-sm" placeholder="Search" />
+          <div className="modal-body admin-delivery-platform-body">
+            <div className="admin-delivery-platform-toolbar">
+              <div className="position-relative flex-grow-1 admin-delivery-platform-search">
+                <Search size={14} className="position-absolute text-muted" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input
+                  type="text"
+                  className="form-control form-control-sm ps-5 rounded-3 border-0 shadow-none"
+                  placeholder="Search platform"
+                />
               </div>
-              <button className="btn btn-sm btn-danger rounded-3 fw-bold shadow-sm d-flex align-items-center gap-1 px-3">
+              <button className="btn btn-sm admin-delivery-platform-add-btn rounded-3 fw-semibold d-flex align-items-center gap-1 px-3">
                 + Add Platform
               </button>
             </div>
 
-            <div className="row g-3 mb-5">
-              <div className="col-6">
-                <div 
-                  className="card cursor-pointer h-100 rounded-3 transition-all"
-                  style={{ border: selectedPlatform === 'Direct Order' ? '2px solid #000' : '1px solid #eef1f6', boxShadow: selectedPlatform === 'Direct Order' ? '0 4px 12px rgba(0,0,0,0.05)' : 'none' }}
-                  onClick={() => setSelectedPlatform('Direct Order')}
-                >
-                  <div className="card-body d-flex align-items-center justify-content-between p-3">
-                     <div className="d-flex align-items-center gap-2">
-                       <div className="bg-dark text-white rounded d-flex align-items-center justify-content-center" style={{ width: 36, height: 36 }}>
-                          <PhoneCall size={18} />
-                       </div>
-                       <span className="fw-bold fs-6">Direct Order</span>
-                     </div>
-                     <div className={`rounded-circle border ${selectedPlatform === 'Direct Order' ? 'border-primary' : 'border-secondary'}`} style={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                       {selectedPlatform === 'Direct Order' && <div className="bg-primary rounded-circle" style={{ width: 8, height: 8 }} />}
-                     </div>
+            <div className="row g-3 admin-delivery-platform-grid">
+              {platforms.map((platform) => {
+                const Icon = platform.icon;
+                const isSelected = selectedPlatform === platform.name;
+
+                return (
+                  <div className="col-md-6" key={platform.name}>
+                    <button
+                      type="button"
+                      className={`admin-platform-option ${platform.toneClass} ${isSelected ? 'is-selected' : ''} ${!platform.available ? 'is-disabled' : ''}`}
+                      onClick={() => platform.available && setSelectedPlatform(platform.name)}
+                    >
+                      <div className="admin-platform-option-top">
+                        <div className="d-flex align-items-center gap-3">
+                          <div className="admin-platform-option-icon">
+                            <Icon size={18} />
+                          </div>
+                          <div className="text-start">
+                            <div className="admin-platform-option-title">{platform.name}</div>
+                            <div className="admin-platform-option-meta">{platform.meta}</div>
+                          </div>
+                        </div>
+                        <div className={`admin-platform-option-radio ${isSelected ? 'is-selected' : ''}`}>
+                          <span />
+                        </div>
+                      </div>
+
+                      <p className="admin-platform-option-description mb-0 text-start">
+                        {platform.description}
+                      </p>
+
+                      {!platform.available && (
+                        <span className="admin-platform-option-badge">Upcoming</span>
+                      )}
+                    </button>
                   </div>
-                </div>
-              </div>
-              <div className="col-6">
-                <div 
-                  className="card cursor-pointer h-100 rounded-3 transition-all position-relative"
-                  style={{ border: selectedPlatform === 'Website' ? '1px solid #eef1f6' : '1px solid #eef1f6', opacity: 0.7 }}
-                >
-                  <div className="card-body d-flex align-items-center justify-content-between p-3" onClick={() => setSelectedPlatform('Website')}>
-                     <div className="d-flex align-items-center gap-2">
-                       <div className="bg-danger text-white rounded d-flex align-items-center justify-content-center" style={{ width: 36, height: 36 }}>
-                         <span className="fw-bold">RX</span>
-                       </div>
-                       <span className="fw-bold fs-6">Website</span>
-                     </div>
-                     <div className={`rounded-circle border ${selectedPlatform === 'Website' ? 'border-primary' : 'border-secondary'}`} style={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                       {selectedPlatform === 'Website' && <div className="bg-primary rounded-circle" style={{ width: 8, height: 8 }} />}
-                     </div>
-                  </div>
-                  <span className="badge bg-light text-dark border position-absolute end-0 bottom-0 m-2">Website</span>
-                </div>
-              </div>
+                );
+              })}
             </div>
-            
-            <div className="mb-4">
-              <div className="fw-bold text-danger mb-1" style={{ fontSize: '15px' }}>Reminder:</div>
-              <div className="text-dark">Set a default <span className="text-primary text-decoration-underline cursor-pointer">Delivery Platform</span> so you don't have to select one every time.</div>
+
+            <div className="admin-delivery-platform-reminder">
+              <div className="admin-delivery-platform-reminder-title">Reminder</div>
+              <div className="admin-delivery-platform-reminder-text">
+                Set a default <span>Delivery Platform</span> so you do not need to choose it for every new order.
+              </div>
             </div>
           </div>
-          <div className="modal-footer border-0 pt-0 d-flex gap-3 w-100">
-            <button type="button" className="btn bg-light flex-grow-1 fw-bold py-2 rounded-3 border-0 text-muted" onClick={onClose}>Discard</button>
-            <button type="button" className="btn flex-grow-1 fw-bold py-2 rounded-3 text-white shadow-sm" onClick={() => onContinue(selectedPlatform)} style={{ backgroundColor: '#90C0A4', border: 'none' }}>Continue</button>
+          <div className="modal-footer border-0 admin-delivery-platform-footer">
+            <button type="button" className="btn admin-delivery-platform-secondary-btn flex-grow-1 fw-semibold py-2 rounded-3 border-0" onClick={onClose}>
+              Discard
+            </button>
+            <button
+              type="button"
+              className="btn admin-delivery-platform-primary-btn flex-grow-1 fw-bold py-2 rounded-3 text-white shadow-sm"
+              onClick={() => onContinue(selectedPlatform)}
+            >
+              Continue
+            </button>
           </div>
         </div>
       </div>

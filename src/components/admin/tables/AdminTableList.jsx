@@ -35,7 +35,9 @@ const AdminTableList = ({ tables = [], spaces = [], tableForm, setTableForm, onC
           <div className="text-muted small">Manage tables, cabins, and assignments</div>
         </div>
         <div className="tables-actions">
-          <button className="btn btn-primary tables-add-btn" onClick={() => setAddOpen(true)}>Add New</button>
+          <button className="btn btn-primary tables-add-btn" onClick={() => setAddOpen(true)}>
+            <span className="btn-icon">+</span> Add New
+          </button>
         </div>
       </div>
 

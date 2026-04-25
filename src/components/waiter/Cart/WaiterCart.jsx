@@ -137,7 +137,7 @@ const WaiterCart = ({
                     else onUpdateQty(item.menuItem, item.quantity - 1, item.variantId);
                   }}
                 >
-                  {item.quantity === 1 ? <Trash2 size={14} color="#ef4444" /> : <Minus size={14} />}
+                  {item.quantity === 1 ? <Trash2 size={14} color="#fc8019" /> : <Minus size={14} />}
                 </button>
                 <div className="qty-val">{item.quantity}</div>
                 <button

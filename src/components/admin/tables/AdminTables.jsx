@@ -43,17 +43,34 @@ const AdminTables = ({ tables, tableForm, setTableForm, onCreateTable, onFreeTab
   };
 
   return (
-    <div className="card glass-card full-screen-card">
-      <div className="d-flex justify-content-between align-items-center mb-3">
+    <div className="card glass-card full-screen-card tables-grid-view">
+      <div className="tables-grid-header">
         <div>
-          <h5 className="mb-0">Tables & Layout</h5>
+          <h5 className="mb-0 tables-grid-title">Tables & Layout</h5>
           <div className="text-muted small">Drag tables to arrange; add new tables with row/column</div>
         </div>
-        <div className="d-flex gap-2 flex-wrap w-100 justify-content-end">
-          <input className="form-control table-form-input" placeholder="Table #" value={tableForm.tableNumber} onChange={(e) => setTableForm({ ...tableForm, tableNumber: e.target.value })} />
-          <input className="form-control table-form-input" placeholder="Row" value={tableForm.row || ''} onChange={(e) => setTableForm({ ...tableForm, row: e.target.value })} />
-          <input className="form-control table-form-input" placeholder="Col" value={tableForm.column || ''} onChange={(e) => setTableForm({ ...tableForm, column: e.target.value })} />
-          <button className="btn btn-primary" onClick={onCreateTable}>Add</button>
+        <div className="tables-grid-actions">
+          <input 
+            className="form-control table-form-input" 
+            placeholder="Table #" 
+            value={tableForm.tableNumber} 
+            onChange={(e) => setTableForm({ ...tableForm, tableNumber: e.target.value })} 
+          />
+          <input 
+            className="form-control table-form-input" 
+            placeholder="Row" 
+            value={tableForm.row || ''} 
+            onChange={(e) => setTableForm({ ...tableForm, row: e.target.value })} 
+          />
+          <input 
+            className="form-control table-form-input" 
+            placeholder="Col" 
+            value={tableForm.column || ''} 
+            onChange={(e) => setTableForm({ ...tableForm, column: e.target.value })} 
+          />
+          <button className="btn btn-primary tables-add-btn" onClick={onCreateTable}>
+            <span className="btn-icon">+</span> Add
+          </button>
         </div>
       </div>
 
@@ -102,7 +119,7 @@ const AdminTables = ({ tables, tableForm, setTableForm, onCreateTable, onFreeTab
       </div>
       {modal.open && (
         <div className="modal-overlay fullscreen" onClick={closeModal}>
-          <div className="modal-panel fullscreen small animate-in" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-panel fullscreen small animate-in tables-modal-panel" onClick={(e) => e.stopPropagation()}>
             <div className="d-flex justify-content-between align-items-center mb-3 modal-header-line">
               <div className="d-flex flex-column">
                 <div className="eyebrow text-uppercase">Table</div>

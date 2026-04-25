@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import MenuSection from './MenuSection.jsx';
 import AdminDeliveryCartPanel from './AdminDeliveryCartPanel.jsx';
 import CustomizeDishModal from './CustomizeDishModal.jsx';
-import { Bike, Search, X } from 'lucide-react';
+import { Bike, Clock3, MapPinned, PackageCheck } from 'lucide-react';
 import '../../../../common/css/admin/orders/orderDetail.css';
 
 const AdminDeliveryOrderModal = ({
@@ -82,6 +82,7 @@ const AdminDeliveryOrderModal = ({
     (sum, i) => sum + (i.isComplimentary ? 0 : (i.priceAtOrderTime || 0) * (i.quantity || 1)),
     0
   );
+  const riderCount = staffOptions.filter((member) => String(member.role || '').toLowerCase().includes('rider')).length;
 
   const handleConfirm = () => {
     onConfirmDeliveryOrder({
@@ -97,28 +98,46 @@ const AdminDeliveryOrderModal = ({
 
   return (
     <div className="additem-overlay" onClick={onClose} style={{ zIndex: 1050 }}>
-      {/* Full screen modal container */}
-      <div className="bg-white mx-auto d-flex flex-column rounded-0" style={{ width: '100%', height: '100%', maxWidth: '1440px' }} onClick={e => e.stopPropagation()}>
-        
-        {/* Custom Header for Delivery Order */}
-        <div className="d-flex justify-content-between align-items-center p-3 border-bottom shadow-sm z-3 bg-white">
-           <div className="d-flex align-items-center gap-3">
-              <h4 className="m-0 fw-bold d-flex align-items-center gap-2">
-                 <Bike size={20} className="text-secondary" /> Delivery Order
-              </h4>
-              <div className="badge bg-dark rounded-pill fw-medium px-3 py-2 d-flex align-items-center gap-1">
-                 <span className="bg-white rounded-circle d-inline-block" style={{ width: 14, height: 14 }}>
-                    <span className="bg-dark rounded-circle d-inline-block m-1" style={{ width: 6, height: 6 }}></span>
-                 </span>
-                 {deliveryPlatform}
-              </div>
-           </div>
-           <button className="btn-close shadow-none" onClick={onClose}></button>
+      <div className="delivery-order-modal-shell" onClick={e => e.stopPropagation()}>
+        <div className="delivery-order-modal-head">
+          <div className="delivery-order-modal-title-group">
+            <div className="delivery-order-modal-icon">
+              <Bike size={22} />
+            </div>
+            <div>
+              <div className="delivery-order-modal-kicker">Delivery Workspace</div>
+              <h4 className="delivery-order-modal-title">Create Delivery Order</h4>
+              <p className="delivery-order-modal-subtitle">
+                Manage customer details, assign a rider, and prepare the cart from one responsive workspace.
+              </p>
+            </div>
+          </div>
+
+          <div className="delivery-order-modal-head-actions">
+            <div className="delivery-platform-pill">
+              <span className="delivery-platform-pill-dot" />
+              {deliveryPlatform || 'Delivery'}
+            </div>
+            <button className="btn-close shadow-none delivery-order-close" onClick={onClose}></button>
+          </div>
         </div>
 
-        {/* Layout */}
-        <div className="d-flex flex-grow-1 overflow-hidden additem-layout">
-          {/* Menu Section */}
+        <div className="delivery-order-summary-bar">
+          <div className="delivery-order-summary-chip">
+            <PackageCheck size={16} />
+            <span>{cartQty} items in cart</span>
+          </div>
+          <div className="delivery-order-summary-chip">
+            <MapPinned size={16} />
+            <span>{customerName?.trim() ? customerName : 'Customer details pending'}</span>
+          </div>
+          <div className="delivery-order-summary-chip">
+            <Clock3 size={16} />
+            <span>{riderCount} riders available</span>
+          </div>
+        </div>
+
+        <div className="delivery-order-layout additem-layout">
           <MenuSection
             addSubMenu={addSubMenu}
             menuSubMenus={menuSubMenus}
@@ -133,10 +152,8 @@ const AdminDeliveryOrderModal = ({
             filteredMenus={filteredMenus}
             onAdd={onAddItem}
             onCustomize={setCustomizeItem}
-            // For delivery, no table selection header is needed, so we pass explicit flag logic or omit it.
           />
 
-          {/* Delivery Cart Panel */}
           <AdminDeliveryCartPanel
             items={items}
             cartQty={cartQty}
@@ -157,6 +174,7 @@ const AdminDeliveryOrderModal = ({
             onAssignRider={setAssignedRiderId}
             onConfirm={handleConfirm}
             onUpdateItemQuantity={onUpdateItemQuantity}
+            onClearCart={onClearCart}
             onConfirmDisabled={confirmDisabled}
           />
         </div>

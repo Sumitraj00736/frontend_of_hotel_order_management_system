@@ -364,7 +364,7 @@ body.dark-mode .menu-pos-card:hover .menu-add-icon {
 
 .spice-pill.active {
   background: #fee2e2;
-  color: #ef4444;
+  color: #fc8019;
   border-color: #fca5a5;
 }
 
@@ -867,7 +867,7 @@ body.dark-mode .menu-pos-card:hover .menu-add-icon {
   .mobile-fab-cart .badge {
     top: -6px !important;
     right: -6px !important;
-    background: #ef4444 !important;
+    background: #fc8019 !important;
     font-size: 10px !important;
     padding: 2px 5px !important;
     border-radius: 8px !important;

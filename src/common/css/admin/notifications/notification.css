@@ -66,7 +66,7 @@
   position: absolute;
   width: 16px;
   height: 16px;
-  background: #ef4444;
+  background: #fc8019;
   border-radius: 50%;
   top: 2px;
   left: 2px;
@@ -113,9 +113,9 @@
 }
 
 .notify-tab.active {
-  background: #ef4444;
+  background: #fc8019;
   color: #fff;
-  border-color: #ef4444;
+  border-color: #fc8019;
   box-shadow: 0 10px 20px rgba(239,68,68,0.15);
 }
 
@@ -133,8 +133,8 @@
 }
 
 .notify-filter-toggle.active {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: #fc8019;
+  color: #fc8019;
   background: #fff5f5;
 }
 
@@ -172,8 +172,8 @@
 }
 
 .filter-chip.active {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: #fc8019;
+  color: #fc8019;
   background: #fff5f5;
 }
 
@@ -211,7 +211,7 @@
 
 .filter-option.selected {
   background: #feecec;
-  color: #ef4444;
+  color: #fc8019;
 }
 
 .filter-input {
@@ -223,9 +223,9 @@
 
 .chip.apply {
   margin-top: 6px;
-  background: #ef4444;
+  background: #fc8019;
   color: #fff;
-  border-color: #ef4444;
+  border-color: #fc8019;
 }
 .notify-day {
   margin-top: 12px;
@@ -320,10 +320,10 @@ body.dark-mode .notify-tab {
   color: #f8fafc;
 }
 body.dark-mode .notify-tab.active {
-  background: #ef4444;
+  background: #fc8019;
   color: #fff;
-  border-color: #ef4444;
-  box-shadow: 0 10px 20px rgba(239,68,68,0.35);
+  border-color: #fc8019;
+  box-shadow: 0 10px 20px rgba(252, 128, 25, 0.35);
 }
 body.dark-mode .notify-filter-toggle {
   background: #374151;
@@ -331,8 +331,8 @@ body.dark-mode .notify-filter-toggle {
   color: #f8fafc;
 }
 body.dark-mode .notify-filter-toggle.active {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: #fc8019;
+  color: #fc8019;
   background: #7f1d1d;
 }
 body.dark-mode .filter-icon {

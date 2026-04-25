@@ -100,11 +100,11 @@
 
 .settings-nav-item.active {
   background: #fff5f5;
-  color: #ef4444;
+  color: #fc8019;
 }
 
 .settings-nav-item.active .dot {
-  background: #ef4444;
+  background: #fc8019;
 }
 
 .settings-nav-item.disabled {
@@ -324,8 +324,8 @@
 }
 
 .type-chip.active {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: #fc8019;
+  color: #fc8019;
   background: #fff5f5;
 }
 
@@ -344,7 +344,7 @@
 }
 
 .btn-primary {
-  background: #ef4444;
+  background: #fc8019;
   color: #fff;
 }
 
@@ -404,7 +404,7 @@
 }
 
 .link.danger {
-  color: #ef4444;
+  color: #fc8019;
 }
 
 .empty-state {
@@ -801,8 +801,8 @@
 }
 
 .danger-card.danger {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: #fc8019;
+  color: #fc8019;
 }
 
 .text-muted {

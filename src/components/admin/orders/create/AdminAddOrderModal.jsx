@@ -116,7 +116,7 @@ const AdminAddOrderModal = ({
                         <span className={`badge rounded-pill px-3 py-1 fw-700 text-uppercase`} style={{ 
                           fontSize: '0.65rem',
                           backgroundColor: item.status === 'occupied' ? '#fee2e2' : '#f0fdf4',
-                          color: item.status === 'occupied' ? '#ef4444' : '#10b981'
+                          color: item.status === 'occupied' ? '#fc8019' : '#10b981'
                         }}>
                           {item.status === 'occupied' ? 'Busy' : 'Free'}
                         </span>

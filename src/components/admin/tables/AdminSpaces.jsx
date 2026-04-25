@@ -31,7 +31,7 @@ const AdminSpaces = ({ spaces = [], spaceForm, setSpaceForm, onCreateSpace, onUp
         </div>
         <div className="tables-actions">
           <button className="btn btn-primary tables-add-btn" onClick={() => setAddOpen(true)}>
-            Add New
+            <span className="btn-icon">+</span> Add New
           </button>
         </div>
       </div>
@@ -70,7 +70,7 @@ const AdminSpaces = ({ spaces = [], spaceForm, setSpaceForm, onCreateSpace, onUp
 
       {editing && (
         <div className="modal-overlay fullscreen" onClick={() => setEditing(null)}>
-          <div className="modal-panel fullscreen small animate-in" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-panel fullscreen small animate-in tables-modal-panel" onClick={(e) => e.stopPropagation()}>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h5>Edit Space</h5>
               <button className="btn btn-outline-light" onClick={() => setEditing(null)}>Close</button>
