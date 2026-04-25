@@ -17,8 +17,12 @@ const UserHeader = ({ search, onSearch, onInvite }) => {
             placeholder="Search"
           />
         </div>
-        <button className="btn btn-primary users-invite" onClick={onInvite}>
-          <Plus size={16} />
+        <button 
+          className="btn btn-primary users-invite d-flex align-items-center gap-2 shadow-sm" 
+          onClick={onInvite}
+          style={{ background: '#f5a524', borderColor: '#f5a524', color: '#fff', fontWeight: '700' }}
+        >
+          <Plus size={18} strokeWidth={2.5} />
           Invite Staff
         </button>
       </div>

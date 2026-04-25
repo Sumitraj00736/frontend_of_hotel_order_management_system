@@ -845,7 +845,7 @@ const AdminDashboard = () => {
         ? payload.paymentMethod
         : paymentMethods[orderId] || 'cash';
     try {
-      await api.post(`/api/bills/${orderId}/pay`, {
+      const res = await api.post(`/api/bills/${orderId}/pay`, {
         paymentMethod: method,
         paymentStatus: payload?.paymentStatus || 'paid',
         payments: payload?.payments,
@@ -858,12 +858,28 @@ const AdminDashboard = () => {
         tipsAmount: payload?.tipsAmount,
         roundOff: payload?.roundOff
       });
+      
+      const updatedOrder = res.data?.order || res.data;
+      
+      pushToast({
+        title: 'Checkout Successful',
+        message: `Order #${updatedOrder.invoiceNo || orderId.slice(-4)} has been finalized.`,
+        type: 'success'
+      });
+
       await loadAll();
       if (activeSection === 'orders') {
         await loadOrdersPage(ordersPage, ordersLimit, ordersFilter);
       }
+      
+      return updatedOrder;
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to mark paid');
+      pushToast({
+        title: 'Checkout Failed',
+        message: error.response?.data?.message || 'Failed to process payment',
+        type: 'error'
+      });
+      return null;
     }
   };
 

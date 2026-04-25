@@ -5,8 +5,10 @@ import {
   signOut, 
   onAuthStateChanged, 
   sendPasswordResetEmail,
+  signInWithPopup,
   GoogleAuthProvider,
-  signInWithPopup
+  RecaptchaVerifier,
+  signInWithPhoneNumber
 } from 'firebase/auth';
 import { auth } from '../utils/firebase';
 import axios from 'axios';
@@ -112,6 +114,54 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setupRecaptcha = (containerId) => {
+    if (!containerId) return null;
+    if (window.recaptchaVerifier) return window.recaptchaVerifier;
+
+    try {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+        size: 'invisible',
+        callback: () => {
+          // reCAPTCHA solved
+        }
+      });
+      return window.recaptchaVerifier;
+    } catch (err) {
+      console.error('[Auth] Recaptcha setup failed:', err);
+      return null;
+    }
+  };
+
+  const signInWithPhone = async (phoneNumber, verifier) => {
+    try {
+      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+      return confirmationResult;
+    } catch (err) {
+      console.error('[Auth] Phone sign-in failed:', err);
+      throw err;
+    }
+  };
+
+  const verifyOtp = async (confirmationResult, code) => {
+    try {
+      const result = await confirmationResult.confirm(code);
+      const user = result.user;
+      const idToken = await user.getIdToken();
+      
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/firebase-login`, { idToken });
+      const payload = { ...response.data, token: idToken };
+      
+      setUserData(payload);
+      const { saveSession } = await import('../api/session.js');
+      saveSession(idToken, payload.user, payload.branches);
+      
+      return payload;
+    } catch (err) {
+      console.error('[Auth] OTP verification failed:', err);
+      throw err;
+    }
+  };
+
   useEffect(() => {
     // 1. Initial check: Try to restore session from localStorage for legacy users or fast-boot
     const restoreSession = async () => {
@@ -167,7 +217,10 @@ export const AuthProvider = ({ children }) => {
     loginWithGoogle,
     logout,
     resetPassword,
-    isAuthenticated: !!userData
+    setupRecaptcha,
+    signInWithPhone,
+    verifyOtp,
+    isAuthenticated: !!userData?.token
   };
 
   return (

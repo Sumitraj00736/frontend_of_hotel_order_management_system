@@ -7,6 +7,7 @@ import OrderCustomerPanel from './OrderCustomerPanel.jsx';
 import OrderPaymentPanel from './OrderPaymentPanel.jsx';
 import OrderSummaryPanel from './OrderSummaryPanel.jsx';
 import OrderInvoicePanel from './OrderInvoicePanel.jsx';
+import ThermalReceiptModal from './ThermalReceiptModal.jsx';
 import '../../../../common/css/admin/orders/orderDetail.css';
 
 const OrderDetailModal = ({
@@ -27,8 +28,42 @@ const OrderDetailModal = ({
   const [activeTab, setActiveTab] = useState('customer');
   const [paymentStatus, setPaymentStatus] = useState(order.paymentStatus || 'paid');
   const [payments, setPayments] = useState([{ method: order.paymentMethod || paymentMethods?.[order._id] || 'cash', amount: 0 }]);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [showAddItem, setShowAddItem] = useState(initialShowAddItem);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [finalOrder, setFinalOrder] = useState(null);
+
+  const handleConfirmPay = async () => {
+    try {
+      setIsSyncing(true);
+      const result = await onPay({ 
+        orderId: order._id, 
+        payments, 
+        paymentStatus, 
+        customerName, 
+        customerId,
+        discountType,
+        discountValue: discount,
+        taxRate: Number(taxRate || 0),
+        tipsAmount: Number(tipsAmount || 0),
+        roundOff: 0
+      });
+      
+      // Merge API result with localOrder to ensure items are always present
+      const merged = {
+        ...localOrder,
+        ...(result && typeof result === 'object' ? result : {}),
+        items: (result?.items?.length ? result.items : localOrder?.items) || [],
+        totalAmount: total,
+        customerName,
+      };
+      setFinalOrder(merged);
+      setShowReceipt(true);
+    } catch (err) {
+       console.error('Payment failed:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
   const updateTimersRef = React.useRef({});
   const pendingUpdateRef = React.useRef({ items: null, customerName: null, assignedStaff: null });
   const lastPayloadRef = React.useRef('');
@@ -298,24 +333,16 @@ const OrderDetailModal = ({
                     ) : null}
                     {isSyncing ? 'Saving...' : 'Save Changes'}
                   </button>
-                  <button className="btn btn-danger" onClick={() => onPay({ 
-                    orderId: order._id, 
-                    payments, 
-                    paymentStatus, 
-                    customerName, 
-                    customerId,
-                    discountType,
-                    discountValue: discount,
-                    taxRate: Number(taxRate || 0),
-                    tipsAmount: Number(tipsAmount || 0),
-                    roundOff: 0
-                  })}>
-                    Confirm Checkout
+                  <button className="btn btn-danger" onClick={handleConfirmPay} disabled={isSyncing}>
+                    {isSyncing ? 'Processing...' : 'Confirm Checkout'}
                   </button>
                 </div>
               )}
               {order.status === 'paid' && (
-                <button className="btn btn-outline-success" disabled>Paid & Finalized</button>
+                <button className="btn btn-outline-success" onClick={() => {
+                   setFinalOrder(order);
+                   setShowReceipt(true);
+                }}>Print Receipt</button>
               )}
             </div>
           </div>
@@ -335,6 +362,19 @@ const OrderDetailModal = ({
             onUpdateItemQuantity={updateItemQuantity}
             onUpdateItemNote={updateItemNote}
             categories={categories}
+          />
+        )}
+
+        {showReceipt && finalOrder && (
+          <ThermalReceiptModal 
+             isOpen={showReceipt}
+             order={finalOrder}
+             storeName={finalOrder.branchName || finalOrder.orgName || 'Restaurant'}
+             storePhone={finalOrder.branchPhone || ''}
+             onClose={() => {
+               setShowReceipt(false);
+               onClose();
+             }}
           />
         )}
       </div>

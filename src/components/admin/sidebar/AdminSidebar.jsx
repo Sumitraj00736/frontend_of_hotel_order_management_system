@@ -574,16 +574,10 @@ const AdminSidebar = ({
               {isOpen && (
                 <div className={`sidebar-sub ${financeOpen ? 'open' : ''}`}>
                   <button
-                    className={`sidebar-button sub ${activeSection === 'finance:daybook' ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:daybook')}
+                    className={`sidebar-button sub ${activeSection === 'finance:dashboard' ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:dashboard')}
                   >
-                    Day Book
-                  </button>
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'finance:daybook-history' ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:daybook-history')}
-                  >
-                    Daybook History
+                    Dashboard
                   </button>
                   <button
                     className={`sidebar-button sub ${activeSection === 'finance:transactions' ? 'active' : ''}`}
@@ -592,19 +586,67 @@ const AdminSidebar = ({
                     Transactions
                   </button>
                   <button
-                    className={`sidebar-button sub ${activeSection.startsWith('finance:sales-purchase') ? 'active' : ''}`}
+                    className={`sidebar-button sub ${activeSection === 'finance:daybook' ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:daybook')}
+                  >
+                    Day Book
+                  </button>
+                  <button
+                    className={`sidebar-button sub ${activeSection.startsWith('finance:sales-purchase') && !activeSection.includes('purchase-bills') ? 'active' : ''}`}
                     onClick={() => handleSelect('finance:sales-purchase:sales-invoices')}
                   >
-                    Sales & Purchase
+                    Sales
+                  </button>
+                  <button
+                    className={`sidebar-button sub ${activeSection.includes('purchase-bills') || activeSection.includes('purchase-returns') ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:sales-purchase:purchase-bills')}
+                  >
+                    Purchase
+                  </button>
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'finance:income' ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:income')}
+                  >
+                    Income
+                  </button>
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'finance:expenses' ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:expenses')}
+                  >
+                    Expenses
+                  </button>
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'finance:payments' ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:payments')}
+                  >
+                    Payments
+                  </button>
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'finance:cashbanks' ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:cashbanks')}
+                  >
+                    Cash & Banks
+                  </button>
+                  <button
+                    className={`sidebar-button sub ${activeSection === 'finance:reports' ? 'active' : ''}`}
+                    onClick={() => handleSelect('finance:reports')}
+                  >
+                    Reports
                   </button>
                 </div>
               )}
 
               {renderCollapsedPopover('finance', 'Finance', [
-                { id: 'finance:daybook', label: 'Day Book', permission: 'billing:view' },
-                { id: 'finance:daybook-history', label: 'Daybook History', permission: 'billing:view' },
-                { id: 'finance:transactions', label: 'Transactions', permission: 'billing:view' },
-                { id: 'finance:sales-purchase:sales-invoices', label: 'Sales & Purchase', permission: 'billing:view' }
+                { id: 'finance:dashboard',   label: 'Dashboard',   permission: 'billing:view' },
+                { id: 'finance:transactions',label: 'Transactions', permission: 'billing:view' },
+                { id: 'finance:daybook',     label: 'Day Book',    permission: 'billing:view' },
+                { id: 'finance:sales-purchase:sales-invoices', label: 'Sales', permission: 'billing:view' },
+                { id: 'finance:sales-purchase:purchase-bills', label: 'Purchase', permission: 'billing:view' },
+                { id: 'finance:income',      label: 'Income',      permission: 'billing:view' },
+                { id: 'finance:expenses',    label: 'Expenses',    permission: 'billing:view' },
+                { id: 'finance:payments',    label: 'Payments',    permission: 'billing:view' },
+                { id: 'finance:cashbanks',   label: 'Cash & Banks',permission: 'billing:view' },
+                { id: 'finance:reports',     label: 'Reports',     permission: 'billing:view' },
               ])}
             </div>
           )}

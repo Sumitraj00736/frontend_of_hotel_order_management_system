@@ -223,9 +223,9 @@
 }
 
 .admin-sidebar .sidebar-button.active {
-  background: #fff3e8;
-  border: 1px solid #f4c28b;
-  color: #d9583f;
+  background: #fff4e5;
+  border: 1px solid #f99f1b;
+  color: #f5a524;
   box-shadow: none;
 }
 
@@ -327,9 +327,9 @@
   align-items: center;
   gap: 10px;
   padding: 12px;
-  border: 1px solid #f1f1f1;
+  border: 1px solid #ffedd5;
   border-radius: 12px;
-  background: #f7f9ff;
+  background: #fff7ed;
   cursor: pointer;
 }
 
@@ -347,8 +347,8 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: #e8ecff;
-  color: #1f2937;
+  background: #f5a524;
+  color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -522,8 +522,8 @@ body.dark-mode .text-muted {
 }
 
 .admin-sidebar .profile-panel-item:hover {
-  background: #eef2ff;
-  border-color: #dbeafe;
+  background: #fff7ed;
+  border-color: #ffedd5;
 }
 
 .admin-sidebar .profile-panel-item span {

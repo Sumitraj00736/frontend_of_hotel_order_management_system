@@ -2,11 +2,13 @@ const TOKEN_KEY = 'hotel_token';
 const USER_KEY = 'hotel_user';
 const BRANCH_KEY = 'hotel_branch';
 const BRANCHES_KEY = 'hotel_branches';
+const PROVIDER_KEY = 'hotel_auth_provider'; // 'backend' | 'firebase'
 
-export const saveSession = (token, user, branches = []) => {
+export const saveSession = (token, user, branches = [], provider = 'backend') => {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   localStorage.setItem(BRANCHES_KEY, JSON.stringify(branches));
+  localStorage.setItem(PROVIDER_KEY, provider);
   if (branches.length > 0) {
     localStorage.setItem(BRANCH_KEY, branches[0].branchId || branches[0]._id);
   }
@@ -17,9 +19,11 @@ export const clearSession = () => {
   localStorage.removeItem(USER_KEY);
   localStorage.removeItem(BRANCH_KEY);
   localStorage.removeItem(BRANCHES_KEY);
+  localStorage.removeItem(PROVIDER_KEY);
 };
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
+export const getAuthProvider = () => localStorage.getItem(PROVIDER_KEY) || 'backend';
 
 export const getCurrentUser = () => {
   const raw = localStorage.getItem(USER_KEY);

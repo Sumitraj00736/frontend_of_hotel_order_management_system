@@ -64,7 +64,7 @@
 }
 
 .users-tab.active {
-  background: #ef4444;
+  background: #f5a524;
   color: #fff;
 }
 
@@ -110,8 +110,8 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #e0e7ff;
-  color: #1f2937;
+  background: #fff7ed;
+  color: #f5a524;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -131,7 +131,7 @@
 }
 
 .role-waiter {
-  color: #ef4444;
+  color: #f5a524;
 }
 
 .role-kitchen {
@@ -378,8 +378,8 @@ body.dark-mode .users-tab {
 }
 
 body.dark-mode .users-tab.active {
-  background: #7f1d1d !important;
-  color: #fca5a5 !important;
+  background: #9a3412 !important;
+  color: #ffedd5 !important;
 }
 
 body.dark-mode .user-avatar {

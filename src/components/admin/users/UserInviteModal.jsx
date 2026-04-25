@@ -6,7 +6,7 @@ const UserInviteModal = ({ userForm, setUserForm, onClose, onCreate, roles = [] 
       <div className="modal-panel fullscreen small animate-in" onClick={(e) => e.stopPropagation()}>
         <div className="d-flex justify-content-between align-items-center mb-3 modal-header-line">
           <div>
-            <div className="eyebrow">Invite Staff</div>
+            <div className="eyebrow" style={{ color: '#f5a524', fontWeight: '700' }}>Invite Staff</div>
             <h5 className="mb-0">Create account</h5>
           </div>
           <button className="btn btn-outline-light" onClick={onClose}>

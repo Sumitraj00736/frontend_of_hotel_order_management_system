@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { saveSession, setBranchId } from "../api/session.js";
 import { Mail, Lock, Phone, User, Store, Eye, EyeOff, Loader2 } from "lucide-react";
+import axios from "axios";
 import "../common/css/Login.css";
 
 const GoogleIcon = () => (
@@ -17,11 +18,17 @@ const GoogleIcon = () => (
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, setupRecaptcha, signInWithPhone, verifyOtp } = useAuth();
 
+  const [loginMethod, setLoginMethod] = useState("email"); // "email" or "phone"
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [otp, setOtp] = useState("");
+  const [showOtpField, setShowOtpField] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -84,8 +91,70 @@ const LoginPage = () => {
     }
   };
 
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    if (!phoneNumber) return setError("Please enter your phone number");
+    
+    setLoading(true);
+    setError("");
+    try {
+      // Smart Nepal Formatting (+977)
+      let formattedNumber = phoneNumber.trim().replace(/\s+/g, '');
+      
+      // If it's a typical 10-digit Nepal mobile number (starts with 9, 7, or 1 and is 10 digits)
+      if (formattedNumber.length === 10 && /^[971]/.test(formattedNumber)) {
+        formattedNumber = '+977' + formattedNumber;
+      } else if (!formattedNumber.startsWith('+')) {
+        // Fallback: just add + if user gave code but forgot +
+        formattedNumber = '+' + formattedNumber;
+      }
+      
+      const verifier = setupRecaptcha("recaptcha-container");
+      
+      // ✅ Security Check: Verify if number exists in DB BEFORE sending SMS
+      try {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/check-phone`, { phone: formattedNumber });
+      } catch (checkErr) {
+        setLoading(false);
+        const msg = checkErr.response?.data?.message || "This phone number is not registered.";
+        setError(msg);
+        triggerShake();
+        return;
+      }
+
+      const result = await signInWithPhone(formattedNumber, verifier);
+      setConfirmationResult(result);
+      setShowOtpField(true);
+    } catch (err) {
+      console.error("OTP Send Error:", err);
+      setError("Failed to send SMS. Please check your number.");
+      triggerShake();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!otp) return setError("Please enter the verification code");
+
+    setLoading(true);
+    setError("");
+    try {
+      const data = await verifyOtp(confirmationResult, otp);
+      finalizeLogin(data);
+    } catch (err) {
+      console.error("OTP Verify Error:", err);
+      setError("Invalid or expired OTP code.");
+      triggerShake();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="login-bg">
+      <div id="recaptcha-container"></div>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{
@@ -98,51 +167,107 @@ const LoginPage = () => {
       >
         <div className="login-header">
           <div className="logo-box" style={{ 
-            background: 'var(--primary-orange)', 
+            background: 'var(--accent)', 
             color: 'white', 
             fontWeight: '900',
             fontSize: '36px',
             border: '4px solid rgba(255,255,255,0.1)'
           }}>M</div>
           <h2 className="brand">MeroRestro</h2>
-          <p className="subtitle">Welcome back to your kitchen</p>
+          <p className="subtitle">Welcome back to your workspace</p>
+        </div>
+
+        <div className="login-tabs">
+          <button 
+            className={`login-tab ${loginMethod === 'email' ? 'active' : ''}`}
+            onClick={() => { setLoginMethod('email'); setError(""); }}
+          >
+            Email Login
+          </button>
+          <button 
+            className={`login-tab ${loginMethod === 'phone' ? 'active' : ''}`}
+            onClick={() => { setLoginMethod('phone'); setError(""); }}
+          >
+            Phone Login
+          </button>
         </div>
 
         {error && <div className="error-banner">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="input-group-v2">
-            <Mail size={18} className="icon" />
-            <input 
-              placeholder="Email or Phone" 
-              value={identifier} 
-              onChange={(e) => setIdentifier(e.target.value)} 
-              required 
-            />
-          </div>
+        {loginMethod === "email" ? (
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="input-group-v2">
+              <Mail size={18} className="icon" />
+              <input 
+                placeholder="Email or Phone" 
+                value={identifier} 
+                onChange={(e) => setIdentifier(e.target.value)} 
+                required 
+              />
+            </div>
 
-          <div className="input-group-v2">
-            <Lock size={18} className="icon" />
-            <input 
-              type={showPassword ? "text" : "password"} 
-              placeholder="Password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-            />
-            <button type="button" className="eye-btn" onClick={() => setShowPassword(!showPassword)}>
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            <div className="input-group-v2">
+              <Lock size={18} className="icon" />
+              <input 
+                type={showPassword ? "text" : "password"} 
+                placeholder="Password" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+              />
+              <button type="button" className="eye-btn" onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <div className="forgot-link">
+              <Link to="/forgot-password">Forgot Password?</Link>
+            </div>
+
+            <button className="submit-btn" disabled={loading}>
+              {loading ? <Loader2 size={20} className="spinner" /> : "Login"}
             </button>
+          </form>
+        ) : (
+          <div className="login-form">
+            {!showOtpField ? (
+              <form onSubmit={handleSendOtp}>
+                <div className="input-group-v2">
+                  <Phone size={18} className="icon" />
+                  <input 
+                    placeholder="Phone (incl. +977)" 
+                    value={phoneNumber} 
+                    onChange={(e) => setPhoneNumber(e.target.value)} 
+                    required 
+                    type="tel"
+                  />
+                </div>
+                <button className="submit-btn" disabled={loading}>
+                  {loading ? <Loader2 size={20} className="spinner" /> : "Send SMS Code"}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyOtp}>
+                <div className="input-group-v2">
+                  <Store size={18} className="icon" />
+                  <input 
+                    placeholder="6-digit OTP Code" 
+                    value={otp} 
+                    onChange={(e) => setOtp(e.target.value)} 
+                    required 
+                    maxLength={6}
+                  />
+                </div>
+                <button className="submit-btn" disabled={loading}>
+                  {loading ? <Loader2 size={20} className="spinner" /> : "Verify & Login"}
+                </button>
+                <div className="forgot-link">
+                  <button type="button" className="text-btn" onClick={() => setShowOtpField(false)}>Change Phone Number</button>
+                </div>
+              </form>
+            )}
           </div>
-
-          <div className="forgot-link">
-            <Link to="/forgot-password">Forgot Password?</Link>
-          </div>
-
-          <button className="submit-btn" disabled={loading}>
-            {loading ? <Loader2 size={20} className="spinner" /> : "Login"}
-          </button>
-        </form>
+        )}
 
         <div className="divider">
           <span>OR CONTINUE WITH</span>

@@ -198,8 +198,8 @@ const AdminOrders = ({
           initialShowAddItem={autoAddItem}
           onChangePaymentMethod={onChangePaymentMethod}
           onPay={async (id) => {
-            await onPay(id);
-            closeDetails();
+            const result = await onPay(id);
+            return result;
           }}
           onPrint={onPrint}
           onUpdateOrder={async (payload) => {
