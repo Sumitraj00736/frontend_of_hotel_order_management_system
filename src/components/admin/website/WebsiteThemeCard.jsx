@@ -2,75 +2,149 @@ import React from 'react';
 import { ExternalLink, CheckCircle } from 'lucide-react';
 
 const WebsiteThemeCard = ({ 
-  title, 
-  subtitle, 
-  selected, 
-  onPreview, 
-  onSelect, 
+  selectedTemplateId, 
+  onSelectTemplate, 
   colorPalette, 
-  onColorChange, 
-  children 
+  onColorPaletteChange 
 }) => {
-  const paletteOptions = [
-    { value: 'light', label: 'Sunlit Cream', color: '#fdfbf7' },
-    { value: 'dark', label: 'Midnight Luxe', color: '#1a1a1a' },
-    { value: 'rustic', label: 'Classic Roast', color: '#4a3728' },
-    { value: 'green', label: 'Fresh Garden', color: '#2d4c3e' }
+  // Templates Data
+  const templatesData = [
+    {
+      id: 'modern-bistro',
+      name: 'Modern Bistro',
+      subtitle: 'Moody hero with spotlight dishes.',
+      previewImg:
+        'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=80',
+      liveUrl:
+        'http://localhost:5173/admin/website/templates/modernbistro'
+    },
+    {
+      id: 'elegant-fine-dining',
+      name: 'Elegant Fine Dining',
+      subtitle: 'Sophisticated layout for upscale restaurants.',
+      previewImg:
+        'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80',
+      liveUrl:
+        'http://localhost:5173/admin/website/templates/ElegantFineDiningTemplate'
+    },
+    {
+      id: 'vibrant-cafe',
+      name: 'Vibrant Cafe',
+      subtitle: 'Bright and colorful for casual eateries.',
+      previewImg:
+        'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80',
+      liveUrl:
+        'http://localhost:5173/admin/website/templates/VibrantCafeTemplate'
+    },
+    {
+      id: 'classic-eatery',
+      name: 'Classic Eatery',
+      subtitle: 'Timeless design with a warm feel.',
+      previewImg:
+        'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&q=80',
+      liveUrl:
+        'http://localhost:5173/admin/website/templates/ClassicEateryTemplate'
+    }
   ];
 
+  // Palette Options
+  const paletteOptions = [
+    { value: 'red', label: 'Red', color: '#ef4444' },
+    { value: 'blue', label: 'Blue', color: '#3b82f6' },
+    { value: 'green', label: 'Green', color: '#22c55e' },
+    { value: 'purple', label: 'Purple', color: '#a855f7' }
+  ];
+
+  // Handlers
+  const handlePreview = (url) => {
+    window.open(url, '_blank');
+  };
+
   return (
-    <div className={`web-theme-card ${selected ? 'selected' : ''}`}>
-      {/* Visual Preview Area */}
-      <div className="web-theme-preview-shell">
-        {children}
-        <div className="web-theme-overlay">
-           <button type="button" className="web-overlay-preview" onClick={onPreview}>
-             <ExternalLink size={18} /> Preview Live
-           </button>
-        </div>
-      </div>
+    <div className="web-theme-grid">
+      {templatesData.map((template) => {
+        const selected = selectedTemplateId === template.id;
 
-      <div className="web-theme-card-body">
-        <div className="web-theme-info">
-          <div className="web-theme-card-title">{title}</div>
-          <div className="web-theme-card-subtitle">{subtitle}</div>
-        </div>
-
-        {/* Color Palette Selector */}
-        <div className="web-theme-palette-wrapper">
-          <span>Theme Tint:</span>
-          <div className="web-theme-palette-row">
-            {paletteOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={`web-palette-chip ${colorPalette === option.value ? 'active' : ''}`}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onColorChange(option.value);
-                }}
-                title={option.label}
-                style={{ backgroundColor: option.color }}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="web-theme-actions">
-          <button 
-            type="button" 
-            className={`web-theme-select-button ${selected ? 'is-selected' : ''}`} 
-            onClick={onSelect}
+        return (
+          <div
+            key={template.id}
+            className={`web-theme-card ${selected ? 'selected' : ''}`}
           >
-            {selected ? (
-              <><CheckCircle size={16} /> Selected</>
-            ) : (
-              'Apply Template'
-            )}
-          </button>
-        </div>
-      </div>
+            {/* Preview */}
+            <div className="web-theme-preview-shell">
+              <img
+                src={template.previewImg}
+                alt={template.name}
+                className="web-theme-preview-img"
+              />
+
+              <div className="web-theme-overlay">
+                <button
+                  type="button"
+                  className="web-overlay-preview"
+                  onClick={() => handlePreview(template.liveUrl)}
+                >
+                  <ExternalLink size={18} /> Preview Live
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="web-theme-card-body">
+              {/* Title */}
+              <div className="web-theme-info">
+                <div className="web-theme-card-title">
+                  {template.name}
+                </div>
+                <div className="web-theme-card-subtitle">
+                  {template.subtitle}
+                </div>
+              </div>
+
+              {/* Palette */}
+              <div className="web-theme-palette-wrapper">
+                <span>Theme Tint:</span>
+                <div className="web-theme-palette-row">
+                  {paletteOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`web-palette-chip ${
+                        colorPalette === option.value ? 'active' : ''
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onColorPaletteChange?.(option.value);
+                      }}
+                      title={option.label}
+                      style={{ backgroundColor: option.color }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Action */}
+              <div className="web-theme-actions">
+                <button
+                  type="button"
+                  className={`web-theme-select-button ${
+                    selected ? 'is-selected' : ''
+                  }`}
+                  onClick={() => onSelectTemplate?.(template.id)}
+                >
+                  {selected ? (
+                    <>
+                      <CheckCircle size={16} /> Selected
+                    </>
+                  ) : (
+                    'Apply Template'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

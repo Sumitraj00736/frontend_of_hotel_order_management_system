@@ -17,7 +17,7 @@ import {
 import api from '../../../api/client.js';
 import WebsiteThemeCard from './WebsiteThemeCard.jsx';
 import WebsitePhonePreview from './WebsitePhonePreview.jsx';
-import ModernBistroTemplate from './templates/ModernBistroTemplate.jsx';
+import ModernBistroTemplate from './templates/modernbistro/ModernBistroTemplate.jsx';
 import ElegantFineDiningTemplate from './templates/ElegantFineDiningTemplate.jsx';
 import VibrantCafeTemplate from './templates/VibrantCafeTemplate.jsx';
 import ClassicEateryTemplate from './templates/ClassicEateryTemplate.jsx';
@@ -218,27 +218,12 @@ const AdminWebsite = () => {
             <p>You can edit your website according to your need.</p>
           </div>
         </div>
-        <div className="web-theme-grid">
-          {WEBSITE_TEMPLATES.map((TemplateComponent) => (
-            <WebsiteThemeCard
-  key={TemplateComponent.template.id}
-  title={TemplateComponent.template.name}
-  subtitle={TemplateComponent.template.subtitle}
-  selected={settings.template === TemplateComponent.template.id}
-  colorPalette={settings.template === TemplateComponent.template.id ? settings.colorPalette : TemplateComponent.template.palette}
-  
-  // Handlers
-  onPreview={() => window.open(shareLink, '_blank')}
-  onSelect={() => selectTemplate(TemplateComponent.template.id, settings.colorPalette)}
-  onColorChange={(newPalette) => {
-    // Only allow color change if it's the active template or select it simultaneously
-    setSettings(prev => ({ ...prev, colorPalette: newPalette, template: TemplateComponent.template.id }));
-  }}
->
-  <TemplateComponent mode="card" restaurantName={restaurantName} />
-</WebsiteThemeCard>
-          ))}
-        </div>
+        <WebsiteThemeCard
+          selectedTemplateId={settings.template}
+          onSelectTemplate={(templateId) => set('template', templateId)}
+          colorPalette={settings.colorPalette}
+          onColorPaletteChange={(palette) => set('colorPalette', palette)}
+        />
       </section>
 
       <section className="web-block">
@@ -504,6 +489,7 @@ const AdminWebsite = () => {
                 TemplateComponent={activeTemplate}
                 restaurantName={restaurantName}
                 settings={settings}
+                colorPalette={settings.colorPalette}
               />
             </aside>
           </div>
