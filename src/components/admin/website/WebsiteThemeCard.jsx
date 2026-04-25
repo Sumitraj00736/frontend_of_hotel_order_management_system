@@ -49,7 +49,7 @@ const WebsiteThemeCard = ({
 
   // Palette Options
   const paletteOptions = [
-    { value: 'red', label: 'Red', color: '#ef4444' },
+    { value: 'red', label: 'Red', color: '#fc8019' },
     { value: 'blue', label: 'Blue', color: '#3b82f6' },
     { value: 'green', label: 'Green', color: '#22c55e' },
     { value: 'purple', label: 'Purple', color: '#a855f7' }

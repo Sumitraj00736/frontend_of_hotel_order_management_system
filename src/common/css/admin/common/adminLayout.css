@@ -255,7 +255,7 @@ body.dark-mode .content {
   .mobile-branch-option.active {
     background: #fff1f2;
     border-color: #fecaca;
-    color: #ef4444;
+    color: #fc8019;
   }
 
   .mobile-admin-branding {
@@ -280,7 +280,7 @@ body.dark-mode .content {
     width: 28px;
     height: 28px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+    background: linear-gradient(135deg, #fc8019, #dc2626);
     color: #fff;
     font-size: 14px;
     font-weight: 800;
@@ -489,7 +489,7 @@ body.dark-mode .content {
     height: 18px;
     padding: 0 4px;
     border-radius: 999px;
-    background: #ef4444;
+    background: #fc8019;
     color: #fff;
     font-size: 10px;
     font-weight: 700;

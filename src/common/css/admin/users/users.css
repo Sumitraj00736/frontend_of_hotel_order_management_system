@@ -64,7 +64,7 @@
 }
 
 .users-tab.active {
-  background: #ef4444;
+  background: #fc8019;
   color: #fff;
 }
 
@@ -131,7 +131,7 @@
 }
 
 .role-waiter {
-  color: #ef4444;
+  color: #fc8019;
 }
 
 .role-kitchen {
@@ -205,7 +205,7 @@
 }
 
 .users-menu .users-danger {
-  color: #ef4444;
+  color: #fc8019;
   font-weight: 600;
 }
 

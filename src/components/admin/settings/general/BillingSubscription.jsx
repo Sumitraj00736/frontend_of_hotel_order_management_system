@@ -8,7 +8,7 @@ const BillingSubscription = ({ data }) => {
   const tiles = [
     { key: 'members', label: 'Members', color: '#f97316' },
     { key: 'tables', label: 'Tables', color: '#8b5cf6' },
-    { key: 'customers', label: 'Customers', color: '#ef4444' },
+    { key: 'customers', label: 'Customers', color: '#fc8019' },
     { key: 'dishes', label: 'Dishes', color: '#2563eb' },
     { key: 'addOns', label: 'Add-ons', color: '#f59e0b' },
     { key: 'spaces', label: 'Spaces', color: '#0ea5e9' }

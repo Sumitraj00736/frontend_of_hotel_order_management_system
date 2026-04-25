@@ -12,7 +12,7 @@ const defaultCards = [
 const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', color: '#ef4444', permissions: [] });
+  const [form, setForm] = useState({ name: '', description: '', color: '#fc8019', permissions: [] });
 
   const counts = useMemo(() => {
     const map = {};
@@ -56,7 +56,7 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
     }
     setShowModal(false);
     setEditing(null);
-    setForm({ name: '', description: '', color: '#ef4444', permissions: [] });
+    setForm({ name: '', description: '', color: '#fc8019', permissions: [] });
   };
 
   return (
@@ -93,7 +93,7 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
                   setForm({
                     name: role.name,
                     description: role.description || '',
-                    color: role.color || '#ef4444',
+                    color: role.color || '#fc8019',
                     permissions: normalizePermissions(role.name, basePermissions)
                   });
                   setShowModal(true);
@@ -119,7 +119,7 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
             <input className="field-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             <label className="field-label">Select Color *</label>
             <div className="color-row">
-              {['#16a34a', '#f97316', '#8b5cf6', '#0ea5e9', '#ef4444', '#111827'].map((c) => (
+              {['#16a34a', '#f97316', '#8b5cf6', '#0ea5e9', '#fc8019', '#111827'].map((c) => (
                 <button
                   key={c}
                   className={`color-swatch ${form.color === c ? 'active' : ''}`}

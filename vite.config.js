@@ -15,7 +15,7 @@ export default defineConfig({
         name: 'Hotel Order Management',
         short_name: 'Hotel OMS',
         description: 'Hotel order and operations management application',
-        theme_color: '#ef4444',
+        theme_color: '#fc8019',
         background_color: '#ffffff',
         display: 'standalone',
         scope: '/',
