@@ -9,31 +9,15 @@ import ExpensesPage from './expenses/ExpensesPage.jsx';
 import PaymentsPage from './payments/PaymentsPage.jsx';
 import CashBanksPage from './cashbanks/CashBanksPage.jsx';
 import FinanceReports from './reports/FinanceReports.jsx';
-import { ChevronLeft } from 'lucide-react';
 import '../../../common/css/admin/finance/finance.css';
 
-const NAV_ITEMS = [
-  { id: 'dashboard',    label: 'Dashboard',       icon: '🏠' },
-  { id: 'transactions', label: 'Transactions',     icon: '↕️' },
-  { id: 'daybook',      label: 'Day Book',         icon: '📖' },
-  { id: 'sales-purchase', label: 'Sales',          icon: '🧾', sub: 'sales-invoices' },
-  { id: 'purchase',     label: 'Purchase',         icon: '🛒', sub: 'purchase-bills' },
-  { id: 'income',       label: 'Income',           icon: '💰' },
-  { id: 'expenses',     label: 'Expenses',         icon: '💸' },
-  { id: 'payments',     label: 'Payments',         icon: '💳' },
-  { id: 'cashbanks',    label: 'Cash & Banks',     icon: '🏦' },
-  { id: 'reports',      label: 'Reports',          icon: '📊' },
-];
-
-export default function AdminFinance({ section, onNavigate }) {
+export default function AdminFinance({ section, onNavigate, financeDashboardData, report, transactionHistory }) {
   const parts = String(section || 'finance:dashboard').split(':');
   const view  = parts[1] || 'dashboard';
   const sub   = parts[2];
 
-  const activeId = view === 'sales-purchase' || view === 'purchase' ? 'sales-purchase' : view;
-
   const renderContent = () => {
-    if (view === 'dashboard')       return <FinanceDashboard />;
+    if (view === 'dashboard')       return <FinanceDashboard financeDashboardData={financeDashboardData} report={report} transactionHistory={transactionHistory} />;
     if (view === 'daybook-history') return <DayBookHistoryPage onBack={() => onNavigate('finance:daybook')} />;
     if (view === 'daybook')         return <DayBookPage onNavigateHistory={() => onNavigate('finance:daybook-history')} />;
     if (view === 'transactions')    return <TransactionsPage />;
@@ -55,46 +39,8 @@ export default function AdminFinance({ section, onNavigate }) {
   };
 
   return (
-    <div className="finance-container">
-      {/* ── Sidebar ── */}
-      <aside className="fin-sidebar">
-        <div className="fin-sidebar-top">
-          <button className="fin-back-btn" onClick={() => onNavigate?.('dashboard')}>
-            <ChevronLeft size={16} />
-          </button>
-          <span className="fin-sidebar-title">Finance</span>
-        </div>
-
-        <nav className="fin-nav">
-          {NAV_ITEMS.map((item) => {
-            const isActive = view === item.id ||
-              (item.id === 'sales-purchase' && view === 'purchase') ||
-              (item.id === 'sales-purchase' && view === 'sales-purchase');
-            return (
-              <button
-                key={item.id}
-                className={`fin-nav-item ${isActive ? 'active' : ''}`}
-                onClick={() => {
-                  if (item.id === 'purchase') {
-                    onNavigate(`finance:sales-purchase:purchase-bills`);
-                  } else if (item.sub) {
-                    onNavigate(`finance:${item.id}:${item.sub}`);
-                  } else {
-                    onNavigate(`finance:${item.id}`);
-                  }
-                }}
-              >
-                <span className="fin-nav-icon">{item.icon}</span>
-                <span className="fin-nav-label">{item.label}</span>
-                {isActive && <span className="fin-nav-indicator" />}
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
-
-      {/* ── Content ── */}
-      <main className="fin-content">
+    <div className="finance-container" style={{ display: 'block' }}>
+      <main className="fin-content" style={{ height: 'auto', overflowY: 'visible', background: 'transparent' }}>
         {renderContent()}
       </main>
     </div>

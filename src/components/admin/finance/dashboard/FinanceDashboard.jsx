@@ -19,55 +19,40 @@ const KPI_CONFIG = [
 
 function fmt(n) { return `Rs ${Number(n || 0).toLocaleString()}`; }
 
-export default function FinanceDashboard() {
+export default function FinanceDashboard({ financeDashboardData, report, transactionHistory }) {
   const [kpis,         setKpis]         = useState(null);
   const [chartData,    setChartData]    = useState([]);
   const [recentTxns,   setRecentTxns]   = useState([]);
   const [payMethods,   setPayMethods]   = useState([]);
   const [loading,      setLoading]      = useState(true);
-  const [range,        setRange]        = useState('today');
+  const [range,        setRange]        = useState('today'); // Kept for UI
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [dashRes, txnRes, reportRes] = await Promise.all([
-        api.get('/api/reports/finance-dashboard').catch(() => ({ data: {} })),
-        api.get('/api/reports/transactions', { params: { limit: 8, page: 1 } }).catch(() => ({ data: { data: [] } })),
-        api.get('/api/reports/summary').catch(() => ({ data: {} })),
-      ]);
+  useEffect(() => {
+    if (!financeDashboardData && !report) return;
+    setLoading(false);
 
-      const dash   = dashRes.data   || {};
-      const report = reportRes.data || {};
+    const dash = financeDashboardData || {};
+    const rep = report || {};
+    
+    setKpis({
+      sales:      dash.totalRevenue      ?? rep.totalRevenue      ?? 0,
+      purchase:   dash.totalPurchases    ?? rep.totalPurchases    ?? 0,
+      income:     dash.totalIncome       ?? rep.totalIncome       ?? 0,
+      expenses:   dash.totalExpenses     ?? rep.totalExpenses     ?? 0,
+      paymentIn:  dash.totalPaymentIn    ?? 0,
+      paymentOut: dash.totalPaymentOut   ?? 0,
+    });
 
-      // KPIs
-      setKpis({
-        sales:      dash.totalRevenue      ?? report.totalRevenue      ?? 0,
-        purchase:   dash.totalPurchases    ?? report.totalPurchases    ?? 0,
-        income:     dash.totalIncome       ?? report.totalIncome       ?? 0,
-        expenses:   dash.totalExpenses     ?? report.totalExpenses     ?? 0,
-        paymentIn:  dash.totalPaymentIn    ?? 0,
-        paymentOut: dash.totalPaymentOut   ?? 0,
-      });
+    const raw = dash.dailyRevenue || dash.salesByDay || [];
+    setChartData(raw.length ? raw : generatePlaceholder());
 
-      // Chart — daily revenue from last 7 days
-      const raw = dash.dailyRevenue || dash.salesByDay || [];
-      setChartData(raw.length ? raw : generatePlaceholder());
-
-      // Recent transactions
-      const txnData = txnRes.data;
-      const rows = Array.isArray(txnData) ? txnData : (txnData?.data || []);
-      setRecentTxns(rows.slice(0, 8));
-
-      // Payment method breakdown
-      setPayMethods(dash.paymentBreakdown || []);
-    } catch (e) {
-      console.error('[FinanceDashboard]', e);
-    } finally {
-      setLoading(false);
-    }
-  }, [range]);
-
-  useEffect(() => { load(); }, [load]);
+    const txnRows = Array.isArray(transactionHistory?.data) 
+      ? transactionHistory.data 
+      : Array.isArray(transactionHistory) ? transactionHistory : [];
+    
+    setRecentTxns(txnRows.slice(0, 8));
+    setPayMethods(dash.paymentBreakdown || []);
+  }, [financeDashboardData, report, transactionHistory]);
 
   return (
     <div className="fd-root">
@@ -88,8 +73,8 @@ export default function FinanceDashboard() {
               </button>
             ))}
           </div>
-          <button className="fd-refresh-btn" onClick={load} disabled={loading}>
-            <RefreshCw size={15} className={loading ? 'spin' : ''} />
+          <button className="fd-refresh-btn" disabled={loading}>
+            <RefreshCw size={15} />
           </button>
         </div>
       </div>

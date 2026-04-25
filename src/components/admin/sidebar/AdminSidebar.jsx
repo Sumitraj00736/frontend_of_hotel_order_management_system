@@ -550,105 +550,16 @@ const AdminSidebar = ({
 
           {/* FINANCE */}
           {hasPermission('billing:view') && (
-            <div
-              className="sidebar-group"
-              onMouseEnter={() => !isOpen && !isMobile && setHoveredMenu('finance')}
-              onMouseLeave={() => !isOpen && !isMobile && setHoveredMenu(null)}
+            <button
+              className={`sidebar-button ${activeSection.startsWith('finance') ? 'active' : ''} ${
+                isOpen ? '' : 'compact'
+              }`}
+              onClick={() => handleSelect('finance:dashboard')}
+              title="FINANCE"
             >
-              <button
-                className={`sidebar-button ${activeSection.startsWith('finance') ? 'active' : ''} ${
-                  isOpen ? '' : 'compact'
-                }`}
-                onClick={() => (isOpen ? handleToggleMenu('finance') : setHoveredMenu('finance'))}
-                title="FINANCE"
-              >
-                <span className="sidebar-icon">{iconMap.finance}</span>
-                <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Finance</span>
-                {isOpen && (
-                  <span className="ms-auto">
-                    {financeOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                  </span>
-                )}
-              </button>
-
-              {isOpen && (
-                <div className={`sidebar-sub ${financeOpen ? 'open' : ''}`}>
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'finance:dashboard' ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:dashboard')}
-                  >
-                    Dashboard
-                  </button>
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'finance:transactions' ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:transactions')}
-                  >
-                    Transactions
-                  </button>
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'finance:daybook' ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:daybook')}
-                  >
-                    Day Book
-                  </button>
-                  <button
-                    className={`sidebar-button sub ${activeSection.startsWith('finance:sales-purchase') && !activeSection.includes('purchase-bills') ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:sales-purchase:sales-invoices')}
-                  >
-                    Sales
-                  </button>
-                  <button
-                    className={`sidebar-button sub ${activeSection.includes('purchase-bills') || activeSection.includes('purchase-returns') ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:sales-purchase:purchase-bills')}
-                  >
-                    Purchase
-                  </button>
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'finance:income' ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:income')}
-                  >
-                    Income
-                  </button>
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'finance:expenses' ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:expenses')}
-                  >
-                    Expenses
-                  </button>
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'finance:payments' ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:payments')}
-                  >
-                    Payments
-                  </button>
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'finance:cashbanks' ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:cashbanks')}
-                  >
-                    Cash & Banks
-                  </button>
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'finance:reports' ? 'active' : ''}`}
-                    onClick={() => handleSelect('finance:reports')}
-                  >
-                    Reports
-                  </button>
-                </div>
-              )}
-
-              {renderCollapsedPopover('finance', 'Finance', [
-                { id: 'finance:dashboard',   label: 'Dashboard',   permission: 'billing:view' },
-                { id: 'finance:transactions',label: 'Transactions', permission: 'billing:view' },
-                { id: 'finance:daybook',     label: 'Day Book',    permission: 'billing:view' },
-                { id: 'finance:sales-purchase:sales-invoices', label: 'Sales', permission: 'billing:view' },
-                { id: 'finance:sales-purchase:purchase-bills', label: 'Purchase', permission: 'billing:view' },
-                { id: 'finance:income',      label: 'Income',      permission: 'billing:view' },
-                { id: 'finance:expenses',    label: 'Expenses',    permission: 'billing:view' },
-                { id: 'finance:payments',    label: 'Payments',    permission: 'billing:view' },
-                { id: 'finance:cashbanks',   label: 'Cash & Banks',permission: 'billing:view' },
-                { id: 'finance:reports',     label: 'Reports',     permission: 'billing:view' },
-              ])}
-            </div>
+              <span className="sidebar-icon">{iconMap.finance}</span>
+              <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>Finance</span>
+            </button>
           )}
 
           {/* REPORTS */}

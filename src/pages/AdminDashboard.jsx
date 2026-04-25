@@ -28,6 +28,7 @@ import AdminHistory from '../components/admin/history/AdminHistory.jsx';
 import AdminPromotionTimeline from '../components/admin/promotions/AdminPromotionTimeline.jsx';
 import AdminInventory from '../components/admin/inventory/AdminInventory.jsx';
 import AdminFinance from '../components/admin/finance/AdminFinance.jsx';
+import FinanceSidebar from '../components/admin/finance/FinanceSidebar.jsx';
 import AdminWebsite from '../components/admin/website/AdminWebsite.jsx';
 import AdminSettings from '../components/admin/settings/AdminSettings.jsx';
 import SettingsSidebar from '../components/admin/settings/SettingsSidebar.jsx';
@@ -1233,6 +1234,12 @@ const AdminDashboard = () => {
               onSelect={(view) => setActiveSection(`settings:${view}`)}
               onBack={() => setActiveSection('dashboard')}
             />
+          ) : activeSection.startsWith('finance') && !isMobile && hasPermission('billing:view') ? (
+            <FinanceSidebar
+              section={activeSection}
+              onNavigate={(s) => setActiveSection(s.includes(':') ? s : `finance:${s}`)}
+              onBack={() => setActiveSection('dashboard')}
+            />
           ) : (
             <AdminSidebar
               activeSection={activeSection}
@@ -1433,7 +1440,13 @@ const AdminDashboard = () => {
             />
           )}
           {activeSection.startsWith('finance') && hasPermission('billing:view') && (
-            <AdminFinance section={activeSection} onNavigate={setActiveSection} />
+            <AdminFinance
+              section={activeSection}
+              onNavigate={setActiveSection}
+              financeDashboardData={financeDashboardData}
+              report={report}
+              transactionHistory={transactionHistory}
+            />
           )}
           {activeSection.startsWith('reports') && hasPermission('reports:view') && (
             <AdminReports
