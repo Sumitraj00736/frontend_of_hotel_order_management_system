@@ -21,6 +21,10 @@ export default function PurchaseBillFormModal({ open, onClose, onSaved }) {
   const [items, setItems] = useState([emptyItem()]);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [paymentStatus, setPaymentStatus] = useState('paid');
+  const [taxRate, setTaxRate] = useState(0);
+  const [discountValue, setDiscountValue] = useState(0);
+  const [discountType, setDiscountType] = useState('amount');
+  const [roundOff, setRoundOff] = useState(0);
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
@@ -65,6 +69,13 @@ export default function PurchaseBillFormModal({ open, onClose, onSaved }) {
   };
 
   const totalAmount = items.reduce((s, r) => s + Number(r.amount || 0), 0);
+  const discountAmount =
+    discountType === 'percent'
+      ? Math.min(totalAmount, (totalAmount * Number(discountValue || 0)) / 100)
+      : Math.min(totalAmount, Number(discountValue || 0));
+  const taxableAmount = Math.max(0, totalAmount - discountAmount);
+  const taxAmount = (taxableAmount * Number(taxRate || 0)) / 100;
+  const estimatedGrandTotal = Math.max(0, taxableAmount + taxAmount + Number(roundOff || 0));
 
   const filteredSuppliers = suppliers.filter(s =>
     !supplierSearch || s.name.toLowerCase().includes(supplierSearch.toLowerCase())
@@ -81,10 +92,13 @@ export default function PurchaseBillFormModal({ open, onClose, onSaved }) {
         billReferenceNumber,
         referenceNo: billReferenceNumber,
         title: 'Purchase',
-        amount: totalAmount,
         paymentMethod,
         paymentStatus,
         paidAt: billDate,
+        taxRate: Number(taxRate || 0),
+        discountType,
+        discountValue: Number(discountValue || 0),
+        roundOff: Number(roundOff || 0),
         note,
         items: items.map((r) => ({
           ingredientId: r.ingredientId || undefined,
@@ -246,6 +260,28 @@ export default function PurchaseBillFormModal({ open, onClose, onSaved }) {
 
         <div style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           <label>
+            Discount Type
+            <select value={discountType} onChange={(e) => setDiscountType(e.target.value)}>
+              <option value="amount">Amount</option>
+              <option value="percent">Percent</option>
+            </select>
+          </label>
+          <label>
+            Discount {discountType === 'percent' ? '(%)' : '(Rs)'}
+            <input type="number" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} />
+          </label>
+          <label>
+            Tax Rate (%)
+            <input type="number" value={taxRate} onChange={(e) => setTaxRate(e.target.value)} />
+          </label>
+          <label>
+            Round Off
+            <input type="number" value={roundOff} onChange={(e) => setRoundOff(e.target.value)} />
+          </label>
+        </div>
+
+        <div style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <label>
             Payment mode
             <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
               <option value="cash">Cash</option>
@@ -269,7 +305,13 @@ export default function PurchaseBillFormModal({ open, onClose, onSaved }) {
           <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} style={{ width: '100%' }} />
         </label>
 
-        <p style={{ fontWeight: 700, marginTop: 8 }}>Total: Rs {totalAmount.toFixed(2)}</p>
+        <div style={{ marginTop: 10, padding: 12, background: '#f8fafc', borderRadius: 10, color: '#334155' }}>
+          <div>Estimated Subtotal: Rs {totalAmount.toFixed(2)}</div>
+          <div>Estimated Discount: Rs {discountAmount.toFixed(2)}</div>
+          <div>Estimated Tax: Rs {taxAmount.toFixed(2)}</div>
+          <div style={{ fontWeight: 700 }}>Estimated Grand Total: Rs {estimatedGrandTotal.toFixed(2)}</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Final finance totals are calculated and validated by the backend on save.</div>
+        </div>
         {err && <p style={{ color: '#b91c1c' }}>{err}</p>}
 
         <div className="finance-form-actions">

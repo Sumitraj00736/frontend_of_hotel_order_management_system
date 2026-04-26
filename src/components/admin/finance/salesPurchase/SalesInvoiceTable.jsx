@@ -14,6 +14,8 @@ export default function SalesInvoiceTable({ rows }) {
             <th>Parties</th>
             <th>Order Type</th>
             <th>TXN Amount</th>
+            <th>Paid</th>
+            <th>Due</th>
             <th>Mode</th>
             <th>Status</th>
             <th>TXN Date</th>
@@ -30,9 +32,11 @@ export default function SalesInvoiceTable({ rows }) {
                 <span style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: 6 }}>{row.orderType}</span>
               </td>
               <td style={{ color: '#16a34a', fontWeight: 600 }}>{formatMoney(row.txnAmount)}</td>
+              <td style={{ color: '#166534' }}>{formatMoney(row.amountPaid)}</td>
+              <td style={{ color: row.amountDue > 0 ? '#dc2626' : '#64748b' }}>{formatMoney(row.amountDue)}</td>
               <td>{row.mode}</td>
               <td>
-                <span style={{ color: '#16a34a' }}>{row.status}</span>
+                <span style={{ color: row.status === 'paid' ? '#16a34a' : row.status === 'partial' ? '#d97706' : '#dc2626' }}>{row.status}</span>
               </td>
               <td>{row.txnDate ? new Date(row.txnDate).toLocaleDateString('en-CA').replace(/-/g, '.') : '—'}</td>
               <td>{row.billedBy}</td>

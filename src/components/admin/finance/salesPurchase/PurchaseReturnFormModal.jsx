@@ -17,6 +17,9 @@ export default function PurchaseReturnFormModal({ open, onClose, onSaved }) {
   const [items, setItems] = useState([emptyItem()]);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [paymentStatus, setPaymentStatus] = useState('paid');
+  const [discount, setDiscount] = useState(0);
+  const [taxRate, setTaxRate] = useState(0);
+  const [roundOff, setRoundOff] = useState(0);
   const [remarks, setRemarks] = useState('');
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
@@ -35,6 +38,9 @@ export default function PurchaseReturnFormModal({ open, onClose, onSaved }) {
   };
 
   const totalAmount = items.reduce((s, r) => s + Number(r.amount || 0), 0);
+  const taxableAmount = Math.max(0, totalAmount - Number(discount || 0));
+  const taxAmount = (taxableAmount * Number(taxRate || 0)) / 100;
+  const estimatedGrandTotal = Math.max(0, taxableAmount + taxAmount + Number(roundOff || 0));
 
   const handleSave = async () => {
     setSaving(true);
@@ -44,11 +50,11 @@ export default function PurchaseReturnFormModal({ open, onClose, onSaved }) {
         supplierName,
         billDate,
         billReferenceNumber,
-        totalAmount,
-        subTotal: totalAmount,
-        taxableAmount: totalAmount,
         paymentMethod,
         paymentStatus,
+        discount: Number(discount || 0),
+        taxRate: Number(taxRate || 0),
+        roundOff: Number(roundOff || 0),
         remarks,
         items: items.map((r) => ({
           description: r.description,
@@ -137,6 +143,20 @@ export default function PurchaseReturnFormModal({ open, onClose, onSaved }) {
         </button>
         <div style={{ marginTop: 12, display: 'flex', gap: 12 }}>
           <label>
+            Discount
+            <input type="number" value={discount} onChange={(e) => setDiscount(e.target.value)} />
+          </label>
+          <label>
+            Tax Rate (%)
+            <input type="number" value={taxRate} onChange={(e) => setTaxRate(e.target.value)} />
+          </label>
+          <label>
+            Round Off
+            <input type="number" value={roundOff} onChange={(e) => setRoundOff(e.target.value)} />
+          </label>
+        </div>
+        <div style={{ marginTop: 12, display: 'flex', gap: 12 }}>
+          <label>
             Payment
             <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
               <option value="cash">Cash</option>
@@ -158,7 +178,13 @@ export default function PurchaseReturnFormModal({ open, onClose, onSaved }) {
           Remarks
           <textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} rows={2} style={{ width: '100%' }} />
         </label>
-        <p style={{ fontWeight: 700 }}>Total: Rs {totalAmount.toFixed(2)}</p>
+        <div style={{ marginTop: 10, padding: 12, background: '#f8fafc', borderRadius: 10, color: '#334155' }}>
+          <div>Estimated Subtotal: Rs {totalAmount.toFixed(2)}</div>
+          <div>Estimated Discount: Rs {Number(discount || 0).toFixed(2)}</div>
+          <div>Estimated Tax: Rs {taxAmount.toFixed(2)}</div>
+          <div style={{ fontWeight: 700 }}>Estimated Total: Rs {estimatedGrandTotal.toFixed(2)}</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Final totals are calculated and validated by the backend.</div>
+        </div>
         {err && <p style={{ color: '#b91c1c' }}>{err}</p>}
         <div className="finance-form-actions">
           <button type="button" className="finance-btn ghost" onClick={onClose}>

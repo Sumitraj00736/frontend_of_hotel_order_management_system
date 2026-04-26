@@ -7,12 +7,12 @@ export default function PaymentsPage() {
   const [rows,    setRows]    = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ date: '', party: '', amount: '', mode: 'cash', note: '', type: 'in' });
+  const [form, setForm] = useState({ date: '', party: '', amount: '', mode: 'cash', note: '' });
 
   const load = async () => {
     setLoading(true);
     try {
-      const res  = await api.get('/api/payments', { params: { type: tab } });
+      const res  = await api.get('/api/payments', { params: { direction: tab } });
       const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
       setRows(data);
     } catch (e) { console.error(e); }
@@ -24,9 +24,16 @@ export default function PaymentsPage() {
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/api/payments', { ...form, type: tab });
+      await api.post('/api/payments', {
+        direction: tab,
+        txnDate: form.date,
+        partyName: form.party,
+        amount: Number(form.amount || 0),
+        paymentMethod: form.mode,
+        remarks: form.note
+      });
       setShowAdd(false);
-      setForm({ date: '', party: '', amount: '', mode: 'cash', note: '', type: tab });
+      setForm({ date: '', party: '', amount: '', mode: 'cash', note: '' });
       load();
     } catch (err) { alert(err.response?.data?.message || 'Failed to add payment'); }
   };
@@ -93,13 +100,13 @@ export default function PaymentsPage() {
               {rows.map((r, i) => (
                 <tr key={r._id || i}>
                   <td>{i + 1}</td>
-                  <td>{r.date ? new Date(r.date).toLocaleDateString() : '—'}</td>
-                  <td>{r.party || r.partyName || '—'}</td>
+                  <td>{r.txnDate ? new Date(r.txnDate).toLocaleDateString() : '—'}</td>
+                  <td>{r.partyName || r.party || '—'}</td>
                   <td style={{ color: tab==='in' ? '#16a34a':'#dc2626', fontWeight:600 }}>
                     Rs {Number(r.amount || 0).toLocaleString()}
                   </td>
-                  <td>{r.mode || r.paymentMode || 'Cash'}</td>
-                  <td>{r.note || r.description || '—'}</td>
+                  <td>{r.paymentMethod || r.mode || 'Cash'}</td>
+                  <td>{r.remarks || r.note || r.description || '—'}</td>
                   <td>{r.entryBy || r.createdBy?.name || '—'}</td>
                 </tr>
               ))}

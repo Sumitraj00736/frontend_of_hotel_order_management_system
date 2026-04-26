@@ -81,7 +81,7 @@ export default function SalesReturnsTab() {
                   <td>{r.paymentMethod}</td>
                   <td>{r.paymentStatus === 'unpaid_credit' ? 'Credit' : 'Paid'}</td>
                   <td>{r.txnDate ? new Date(r.txnDate).toLocaleDateString('en-CA').replace(/-/g, '.') : '—'}</td>
-                  <td>—</td>
+                  <td>{r.status === 'void' ? 'Voided' : '—'}</td>
                 </tr>
               ))}
             </tbody>

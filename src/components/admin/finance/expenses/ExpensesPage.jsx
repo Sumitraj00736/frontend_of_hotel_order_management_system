@@ -27,7 +27,14 @@ export default function ExpensesPage() {
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/api/expenses', form);
+      await api.post('/api/expenses', {
+        paidAt: form.date,
+        category: form.category,
+        title: form.description || form.category || 'Expense',
+        note: form.description,
+        amount: Number(form.amount || 0),
+        paymentMethod: form.paymentMode
+      });
       setShowAdd(false);
       setForm({ date: '', category: '', description: '', amount: '', paymentMode: 'cash' });
       load();
@@ -35,7 +42,7 @@ export default function ExpensesPage() {
   };
 
   const thisMonth = rows
-    .filter(r => new Date(r.date || r.createdAt).getMonth() === new Date().getMonth())
+    .filter(r => new Date(r.paidAt || r.createdAt).getMonth() === new Date().getMonth())
     .reduce((s, r) => s + Number(r.amount || 0), 0);
 
   return (
@@ -86,10 +93,10 @@ export default function ExpensesPage() {
               {rows.map((r, i) => (
                 <tr key={r._id || i}>
                   <td>{i + 1}</td>
-                  <td>{r.date ? new Date(r.date).toLocaleDateString() : '—'}</td>
+                  <td>{r.paidAt ? new Date(r.paidAt).toLocaleDateString() : '—'}</td>
                   <td><span className="fd-type-badge expense">{r.category || '—'}</span></td>
-                  <td>{r.description || r.note || '—'}</td>
-                  <td>{r.paymentMode || r.paymentMethod || 'Cash'}</td>
+                  <td>{r.title || r.description || r.note || '—'}</td>
+                  <td>{r.paymentMethod || r.paymentMode || 'Cash'}</td>
                   <td style={{ color:'#dc2626', fontWeight:600 }}>Rs {Number(r.amount || 0).toLocaleString()}</td>
                   <td>{r.entryBy || r.createdBy?.name || '—'}</td>
                 </tr>

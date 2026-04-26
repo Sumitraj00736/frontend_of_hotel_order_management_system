@@ -26,7 +26,7 @@ export default function PurchaseBillsTab() {
   }, []);
 
   const kpis = React.useMemo(() => {
-    const totalPurchases = rows.reduce((s, r) => s + Number(r.amount || 0), 0);
+    const totalPurchases = rows.reduce((s, r) => s + Number((r.grandTotal ?? r.amount) || 0), 0);
     const qty = rows.reduce((s, r) => {
       const line = Array.isArray(r.items) ? r.items.reduce((a, i) => a + Number(i.qty || i.quantity || 0), 0) : 0;
       return s + line;
@@ -96,9 +96,9 @@ export default function PurchaseBillsTab() {
                   <td style={{ color: '#2563eb' }}>{r.referenceNo || r._id}</td>
                   <td>{r.supplierName || '—'}</td>
                   <td>{r.billReferenceNumber || r.referenceNo || '—'}</td>
-                  <td style={{ color: '#16a34a' }}>{formatMoney(r.amount)}</td>
+                  <td style={{ color: '#16a34a' }}>{formatMoney(r.grandTotal ?? r.amount)}</td>
                   <td>{r.paymentMethod}</td>
-                  <td>{r.paymentStatus === 'unpaid_credit' ? 'Credit' : 'Paid'}</td>
+                  <td>{r.amountDue > 0 ? `Credit (${formatMoney(r.amountDue)})` : 'Paid'}</td>
                   <td>{r.paidAt ? new Date(r.paidAt).toLocaleDateString('en-CA').replace(/-/g, '.') : '—'}</td>
                 </tr>
               ))}

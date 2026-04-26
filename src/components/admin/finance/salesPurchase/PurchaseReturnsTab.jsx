@@ -90,7 +90,7 @@ export default function PurchaseReturnsTab() {
                   <td>{r.paymentMethod}</td>
                   <td>{r.paymentStatus === 'unpaid_credit' ? 'Credit' : 'Paid'}</td>
                   <td>{r.billDate ? new Date(r.billDate).toLocaleDateString('en-CA').replace(/-/g, '.') : '—'}</td>
-                  <td>—</td>
+                  <td>{r.status === 'void' ? 'Voided' : '—'}</td>
                 </tr>
               ))}
             </tbody>
