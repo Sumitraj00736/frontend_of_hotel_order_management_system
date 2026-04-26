@@ -48,6 +48,19 @@ const PaymentBadge = ({ method }) => {
   );
 };
 
+const getHistoryPaymentMethod = (item) => {
+  if (item.paymentMethod) return item.paymentMethod;
+  if (Array.isArray(item.paymentMethods) && item.paymentMethods.length === 1) return item.paymentMethods[0];
+  if (Array.isArray(item.paymentMethods) && item.paymentMethods.length > 1) return 'split';
+  return 'N/A';
+};
+
+const getHistoryTotal = (item) => Number(item.grandTotal ?? item.totalAmount ?? item.finalAmount ?? 0);
+
+const getHistoryDate = (item) => item.closedAt || item.paidAt || item.createdAt;
+
+const getWaiterName = (item) => item.waiterName || item.waiter?.name || 'N/A';
+
 const HistoryCard = ({ item, variants }) => (
   <motion.div
     variants={variants}
@@ -61,18 +74,18 @@ const HistoryCard = ({ item, variants }) => (
           <Armchair size={14} />
         </div>
         <div>
-          <div className="fw-semibold" style={{ fontSize: 14 }}>Table {item.tableNumber}</div>
+          <div className="fw-semibold" style={{ fontSize: 14 }}>{item.tableNumber ? `Table ${item.tableNumber}` : item.customerName || 'Sales Invoice'}</div>
           <div className="tiny-text text-muted">#{item.invoiceNo || item._id?.slice(-6)}</div>
         </div>
       </div>
-      <PaymentBadge method={item.paymentMethod} />
+      <PaymentBadge method={getHistoryPaymentMethod(item)} />
     </div>
 
     {/* Meta Info */}
     <div className="hist-meta">
       <div className="d-flex align-items-center gap-1">
         <User size={11} className="text-muted" />
-        <span>{item.waiter?.name || 'N/A'}</span>
+        <span>{getWaiterName(item)}</span>
       </div>
       <div className="d-flex align-items-center gap-1">
         <ChefHat size={11} className="text-muted" />
@@ -80,7 +93,7 @@ const HistoryCard = ({ item, variants }) => (
       </div>
       <div className="d-flex align-items-center gap-1">
         <Calendar size={11} className="text-muted" />
-        <span>{new Date(item.paidAt || item.createdAt).toLocaleString()}</span>
+        <span>{new Date(getHistoryDate(item)).toLocaleString()}</span>
       </div>
     </div>
 
@@ -103,7 +116,7 @@ const HistoryCard = ({ item, variants }) => (
     {/* Footer Total */}
     <div className="hist-card-footer">
       <span className="hist-label">TOTAL</span>
-      <span className="hist-total">NPR {(item.totalAmount || 0).toFixed(2)}</span>
+      <span className="hist-total">NPR {getHistoryTotal(item).toFixed(2)}</span>
     </div>
   </motion.div>
 );
@@ -114,7 +127,7 @@ const AdminHistory = ({ history = [] }) => {
   const [payFilter, setPayFilter] = useState('all');
 
   const stats = useMemo(() => {
-    const total = history.reduce((sum, item) => sum + (item.totalAmount || 0), 0);
+    const total = history.reduce((sum, item) => sum + getHistoryTotal(item), 0);
     const count = history.length;
     return {
       total: total.toFixed(2),
@@ -129,8 +142,10 @@ const AdminHistory = ({ history = [] }) => {
         !search ||
         String(item.tableNumber).includes(search) ||
         (item.invoiceNo || '').toLowerCase().includes(search.toLowerCase()) ||
-        (item.waiter?.name || '').toLowerCase().includes(search.toLowerCase());
-      const matchPay = payFilter === 'all' || item.paymentMethod?.toLowerCase() === payFilter;
+        getWaiterName(item).toLowerCase().includes(search.toLowerCase()) ||
+        (item.customerName || '').toLowerCase().includes(search.toLowerCase());
+      const paymentMethod = String(getHistoryPaymentMethod(item)).toLowerCase();
+      const matchPay = payFilter === 'all' || paymentMethod === payFilter || (payFilter === 'split' && paymentMethod === 'split');
       return matchSearch && matchPay;
     });
   }, [history, search, payFilter]);
@@ -194,6 +209,7 @@ const AdminHistory = ({ history = [] }) => {
             <option value="card">Card</option>
             <option value="fonepay">Fonepay</option>
             <option value="esewa">eSewa</option>
+            <option value="split">Split</option>
           </select>
 
           <div className="hist-view-toggle">

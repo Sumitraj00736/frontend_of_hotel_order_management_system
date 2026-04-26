@@ -1,12 +1,14 @@
 import { io } from 'socket.io-client';
-import { getCurrentUser, getBranchId } from './session.js';
+import { getBranchId, getToken } from './session.js';
 
 export const createSocket = () => {
-  const socket = io(import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL || 'https://hotel-order-management-system.onrender.com');
-  const user = getCurrentUser();
+  const token = getToken();
   const branchId = getBranchId();
-  if (user?.role) {
-    socket.emit('join-role', { role: user.role, branchId });
-  }
+  const socket = io(import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL || 'https://hotel-order-management-system.onrender.com', {
+    auth: token ? { token } : undefined
+  });
+  socket.on('connect', () => {
+    socket.emit('join-role', { branchId });
+  });
   return socket;
 };

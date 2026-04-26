@@ -18,34 +18,43 @@ export default function CashBanksPage() {
   const load = async () => {
     setLoading(true);
     try {
-      // Fetch from finance-dashboard which usually breaks down by payment method
       const [dashRes, paymentsInRes, paymentsOutRes] = await Promise.all([
         api.get('/api/reports/finance-dashboard').catch(() => ({ data: {} })),
-        api.get('/api/payments', { params: { type: 'in' } }).catch(() => ({ data: [] })),
-        api.get('/api/payments', { params: { type: 'out' } }).catch(() => ({ data: [] })),
+        api.get('/api/payments', { params: { direction: 'in' } }).catch(() => ({ data: [] })),
+        api.get('/api/payments', { params: { direction: 'out' } }).catch(() => ({ data: [] })),
       ]);
 
       const dash = dashRes.data || {};
       const inData  = Array.isArray(paymentsInRes.data)  ? paymentsInRes.data  : (paymentsInRes.data?.data  || []);
       const outData = Array.isArray(paymentsOutRes.data) ? paymentsOutRes.data : (paymentsOutRes.data?.data || []);
 
-      const tIn  = inData.reduce((s,r)  => s + Number(r.amount || 0), 0);
-      const tOut = outData.reduce((s,r) => s + Number(r.amount || 0), 0);
+      const tIn  = dash.kpis?.paymentIn ?? inData.reduce((s, r) => s + Number(r.amount || 0), 0);
+      const tOut = dash.kpis?.paymentOut ?? outData.reduce((s, r) => s + Number(r.amount || 0), 0);
       setTotalIn(tIn);
       setTotalOut(tOut);
 
-      // Build balances from breakdown or fallback
-      const breakdown = dash.paymentBreakdown || [];
-      if (breakdown.length) {
-        setBalances(breakdown.map(b => ({
-          method: b.method,
-          amount: b.amount || 0,
-        })));
+      const methodTotals = new Map();
+      for (const row of inData) {
+        const method = String(row.paymentMethod || 'cash').toLowerCase();
+        methodTotals.set(method, (methodTotals.get(method) || 0) + Number(row.amount || 0));
+      }
+      for (const row of outData) {
+        const method = String(row.paymentMethod || 'cash').toLowerCase();
+        methodTotals.set(method, (methodTotals.get(method) || 0) - Number(row.amount || 0));
+      }
+
+      if (methodTotals.size) {
+        setBalances(Array.from(methodTotals.entries()).map(([method, amount]) => ({ method, amount })));
       } else {
-        // Aggregate from bills
-        const billsRes = await api.get('/api/reports/summary').catch(() => ({ data: {} }));
-        const methods = ['cash','card','fonepay','bank'];
-        setBalances(methods.map(m => ({ method: m, amount: 0 })));
+        const breakdown = Array.isArray(dash.paymentBreakdown) ? dash.paymentBreakdown : [];
+        setBalances(
+          breakdown.length
+            ? breakdown.map((b) => ({
+                method: String(b.method || 'cash').toLowerCase(),
+                amount: Number(b.amount || 0)
+              }))
+            : Object.keys(METHOD_ICONS).map((method) => ({ method, amount: 0 }))
+        );
       }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }

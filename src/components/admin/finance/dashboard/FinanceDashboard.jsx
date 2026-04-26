@@ -35,16 +35,23 @@ export default function FinanceDashboard({ financeDashboardData, report, transac
     const rep = report || {};
     
     setKpis({
-      sales:      dash.totalRevenue      ?? rep.totalRevenue      ?? 0,
-      purchase:   dash.totalPurchases    ?? rep.totalPurchases    ?? 0,
-      income:     dash.totalIncome       ?? rep.totalIncome       ?? 0,
-      expenses:   dash.totalExpenses     ?? rep.totalExpenses     ?? 0,
-      paymentIn:  dash.totalPaymentIn    ?? 0,
-      paymentOut: dash.totalPaymentOut   ?? 0,
+      sales:      dash.kpis?.sales       ?? rep.totalSales        ?? rep.paid ?? 0,
+      purchase:   dash.kpis?.purchase    ?? rep.purchase          ?? 0,
+      income:     dash.kpis?.income      ?? rep.income            ?? 0,
+      expenses:   dash.kpis?.expenses    ?? rep.expenses          ?? 0,
+      paymentIn:  dash.kpis?.paymentIn   ?? rep.paymentIn         ?? 0,
+      paymentOut: dash.kpis?.paymentOut  ?? rep.paymentOut        ?? 0,
     });
 
-    const raw = dash.dailyRevenue || dash.salesByDay || [];
-    setChartData(raw.length ? raw : generatePlaceholder());
+    const raw = Array.isArray(dash.salesSeries) ? dash.salesSeries : [];
+    setChartData(
+      raw.length
+        ? raw.map((row) => ({
+            label: row.label || row.month || row.day || '—',
+            revenue: Number(row.sales || 0)
+          }))
+        : generatePlaceholder()
+    );
 
     const txnRows = Array.isArray(transactionHistory?.data) 
       ? transactionHistory.data 
@@ -191,12 +198,12 @@ export default function FinanceDashboard({ financeDashboardData, report, transac
               <tbody>
                 {recentTxns.map((r, i) => (
                   <tr key={i}>
-                    <td>{r.date || r.txnDate || r.entryDate || '—'}</td>
+                    <td>{formatTxnDate(r.txnDate || r.entryDate)}</td>
                     <td><span className="fd-inv-link">{r.txnNo || r.invoiceNo || '—'}</span></td>
                     <td>{r.particular || r.customerName || r.description || '—'}</td>
                     <td><span className="fd-type-badge">{r.txnType || r.type || 'Sales'}</span></td>
-                    <td>{r.pmtMode || r.paymentMethod || 'Cash'}</td>
-                    <td style={{ color: '#16a34a', fontWeight: 600 }}>Rs {r.amount || 0}</td>
+                    <td>{r.paymentMode || r.pmtMode || r.paymentMethod || 'Cash'}</td>
+                    <td style={{ color: '#16a34a', fontWeight: 600 }}>{fmt(r.amount || 0)}</td>
                     <td>
                       <span className={`fd-status-badge ${(r.status || 'paid').toLowerCase()}`}>
                         {r.status || 'Paid'}
@@ -242,4 +249,11 @@ export default function FinanceDashboard({ financeDashboardData, report, transac
 function generatePlaceholder() {
   const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   return days.map(label => ({ label, revenue: 0 }));
+}
+
+function formatTxnDate(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString('en-CA').replace(/-/g, '.');
 }

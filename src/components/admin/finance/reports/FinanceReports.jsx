@@ -28,17 +28,21 @@ export default function FinanceReports() {
       const d = dashRes.data   || {};
 
       setSummary({
-        revenue:   s.totalRevenue   ?? d.totalRevenue   ?? 0,
-        expenses:  s.totalExpenses  ?? d.totalExpenses  ?? 0,
-        purchases: s.totalPurchases ?? d.totalPurchases ?? 0,
-        income:    s.totalIncome    ?? d.totalIncome    ?? 0,
-        profit:    (s.totalRevenue ?? 0) - (s.totalExpenses ?? 0) - (s.totalPurchases ?? 0),
-        orders:    s.totalOrders    ?? 0,
-        avgOrder:  s.avgOrderValue  ?? 0,
+        revenue:   s.totalSales    ?? d.kpis?.sales      ?? 0,
+        expenses:  s.expenses      ?? d.kpis?.expenses   ?? 0,
+        purchases: s.purchase      ?? d.kpis?.purchase   ?? 0,
+        income:    s.income        ?? d.kpis?.income     ?? 0,
+        profit:    (s.totalSales ?? d.kpis?.sales ?? 0) - (s.expenses ?? d.kpis?.expenses ?? 0) - (s.purchase ?? d.kpis?.purchase ?? 0) + (s.income ?? d.kpis?.income ?? 0),
+        orders:    s.totalOrders   ?? 0,
+        avgOrder:  s.totalOrders ? ((s.totalSales ?? 0) / s.totalOrders) : 0,
       });
 
-      const daily = d.dailyRevenue || d.salesByDay || [];
-      setChartData(daily.length ? daily : []);
+      const series = Array.isArray(d.salesSeries) ? d.salesSeries : [];
+      setChartData(series.map((row) => ({
+        label: row.label || row.month || row.day || '—',
+        revenue: Number(row.sales || 0),
+        expenses: 0
+      })));
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
