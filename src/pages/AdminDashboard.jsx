@@ -528,6 +528,28 @@ const AdminDashboard = () => {
     ensureNotificationPermission();
     const socket = createSocket();
 
+    socket.on('socket:error', (payload) => {
+      pushToast({
+        id: `socket-error-${payload?.message || 'unknown'}`,
+        title: 'Realtime connection issue',
+        message: payload?.message || 'Socket join failed.',
+        type: 'error',
+        sound: false,
+        duration: 4500
+      });
+    });
+
+    socket.on('connect_error', (error) => {
+      pushToast({
+        id: `socket-connect-${error?.message || 'unknown'}`,
+        title: 'Realtime disconnected',
+        message: error?.message || 'Socket connection failed.',
+        type: 'error',
+        sound: false,
+        duration: 4500
+      });
+    });
+
     socket.on('notify', (payload) => {
       setNotifications((prev) => [{ ...payload, read: false }, ...prev].slice(0, 50));
       if (payload.type === 'order:paid') {

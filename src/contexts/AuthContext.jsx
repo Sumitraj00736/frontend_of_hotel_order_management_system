@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { 
+import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   signOut, 
@@ -12,8 +12,17 @@ import {
 } from 'firebase/auth';
 import { auth } from '../utils/firebase';
 import axios from 'axios';
+import {
+  clearSession,
+  getAuthProvider,
+  getBranches,
+  getCurrentUser,
+  getToken,
+  saveSession
+} from '../api/session.js';
 
 const AuthContext = createContext();
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -27,14 +36,13 @@ export const AuthProvider = ({ children }) => {
     // Production-friendly: support BOTH legacy (Mongo/JWT) and Firebase auth.
     // 1) Try backend login first (works for all Mongo users, including pre-Firebase accounts).
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         identifier: email,
         password
       });
       const payload = response.data;
       setUserData(payload);
-      const { saveSession } = await import('../api/session.js');
-      saveSession(payload.token, payload.user, payload.branches);
+      saveSession(payload.token, payload.user, payload.branches, 'backend');
       return payload;
     } catch (err) {
       // Only fall back to Firebase if it's an auth failure; otherwise rethrow.
@@ -45,11 +53,10 @@ export const AuthProvider = ({ children }) => {
     // 2) Firebase login (email/password or Google) + backend session hydration via firebase-login.
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const idToken = await userCredential.user.getIdToken();
-    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/firebase-login`, { idToken });
+    const response = await axios.post(`${API_BASE_URL}/api/auth/firebase-login`, { idToken });
     const payload = { ...response.data, token: idToken };
     setUserData(payload);
-    const { saveSession } = await import('../api/session.js');
-    saveSession(idToken, payload.user, payload.branches);
+    saveSession(idToken, payload.user, payload.branches, 'firebase');
     return payload;
   };
 
@@ -60,7 +67,7 @@ export const AuthProvider = ({ children }) => {
       const idToken = await firebaseUser.getIdToken();
       
       // Create staff/user in MongoDB via our API
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/register`, {
         ...extraData,
         email,
         password, // Added this field
@@ -71,6 +78,7 @@ export const AuthProvider = ({ children }) => {
 
       const payload = { ...response.data, token: idToken };
       setUserData(payload);
+      saveSession(idToken, payload.user, payload.branches, 'firebase');
       return payload;
     } finally {
       isRegistering.current = false;
@@ -81,14 +89,14 @@ export const AuthProvider = ({ children }) => {
     const provider = new GoogleAuthProvider();
     const userCredential = await signInWithPopup(auth, provider);
     const idToken = await userCredential.user.getIdToken();
-    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/firebase-login`, { idToken });
+    const response = await axios.post(`${API_BASE_URL}/api/auth/firebase-login`, { idToken });
     const payload = { ...response.data, token: idToken };
     setUserData(payload);
+    saveSession(idToken, payload.user, payload.branches, 'firebase');
     return payload;
   };
 
   const logout = async () => {
-    const { clearSession } = await import('../api/session.js');
     clearSession();
     setUserData(null);
     return signOut(auth);
@@ -109,7 +117,7 @@ export const AuthProvider = ({ children }) => {
         // eslint-disable-next-line no-console
         console.warn('[Auth] Firebase reset failed, falling back to backend:', code);
       }
-      const resp = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, { email });
+      const resp = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
       return { ok: true, provider: 'backend', data: resp.data };
     }
   };
@@ -148,12 +156,11 @@ export const AuthProvider = ({ children }) => {
       const user = result.user;
       const idToken = await user.getIdToken();
       
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/firebase-login`, { idToken });
+      const response = await axios.post(`${API_BASE_URL}/api/auth/firebase-login`, { idToken });
       const payload = { ...response.data, token: idToken };
       
       setUserData(payload);
-      const { saveSession } = await import('../api/session.js');
-      saveSession(idToken, payload.user, payload.branches);
+      saveSession(idToken, payload.user, payload.branches, 'firebase');
       
       return payload;
     } catch (err) {
@@ -164,8 +171,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // 1. Initial check: Try to restore session from localStorage for legacy users or fast-boot
-    const restoreSession = async () => {
-      const { getToken, getCurrentUser, getBranches } = await import('../api/session.js');
+    const restoreSession = () => {
       const token = getToken();
       const user = getCurrentUser();
       const branches = getBranches();
@@ -187,18 +193,20 @@ export const AuthProvider = ({ children }) => {
         try {
           const idToken = await user.getIdToken();
           // Auto-sync session with backend on reload
-          const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/firebase-login`, { idToken });
+          const response = await axios.post(`${API_BASE_URL}/api/auth/firebase-login`, { idToken });
           const payload = { ...response.data, token: idToken };
           setUserData(payload);
           // Sync with localStorage for the API client
-          const { saveSession } = await import('../api/session.js');
-          saveSession(idToken, payload.user, payload.branches);
+          saveSession(idToken, payload.user, payload.branches, 'firebase');
         } catch (err) {
           console.error('[AuthContext] Session sync failed:', err);
           // Only clear if it was meant to be a firebase session
-          if (user) setUserData(null);
+          if (getAuthProvider() === 'firebase') {
+            clearSession();
+            setUserData(null);
+          }
         }
-      } else if (!user && !localStorage.getItem('hotel_token')) {
+      } else if (!user && !getToken()) {
         // Only clear if there's no legacy token either
         setUserData(null);
       }

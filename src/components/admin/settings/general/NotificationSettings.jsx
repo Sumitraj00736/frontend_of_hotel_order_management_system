@@ -7,6 +7,7 @@ const NotificationSettings = ({ value, onSave }) => {
   const [pushSupported, setPushSupported] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
   const [testStatus, setTestStatus] = useState('');
+  const [testDetails, setTestDetails] = useState(null);
   const [pushError, setPushError] = useState('');
 
   useEffect(() => {
@@ -92,20 +93,26 @@ const NotificationSettings = ({ value, onSave }) => {
                 onChange={async () => {
                   if (pushLoading || !pushSupported) return;
                   setPushLoading(true);
-                    try {
-                      if (pushEnabled) {
-                        await unsubscribePush();
-                        setPushEnabled(false);
-                        setPushError('');
-                      } else {
-                        await subscribePush();
-                        setPushEnabled(true);
-                        setPushError('');
-                      }
-                    } finally {
-                      setPushLoading(false);
+                  setTestStatus('');
+                  setTestDetails(null);
+                  try {
+                    if (pushEnabled) {
+                      const result = await unsubscribePush();
+                      setPushEnabled(false);
+                      setPushError('');
+                      setTestStatus(result?.message || 'Push disabled for this device');
+                    } else {
+                      const result = await subscribePush();
+                      setPushEnabled(true);
+                      setPushError('');
+                      setTestStatus(result?.message || 'Push enabled for this device');
                     }
-                  }}
+                  } catch (err) {
+                    setPushError(err?.message || 'Push setup failed');
+                  } finally {
+                    setPushLoading(false);
+                  }
+                }}
               />
               <span />
             </label>
@@ -115,11 +122,20 @@ const NotificationSettings = ({ value, onSave }) => {
               disabled={!pushEnabled || pushLoading}
               onClick={async () => {
                 setTestStatus('');
+                setTestDetails(null);
                 try {
-                  await sendTestPush();
-                  setTestStatus('Test sent');
+                  const result = await sendTestPush();
+                  const delivery = result?.delivery || {};
+                  const successCount = Number(delivery.successCount || 0);
+                  const failureCount = Number(delivery.failureCount || 0);
+                  setTestStatus(result?.message || 'Test sent');
+                  setTestDetails(
+                    `Attempted ${Number(delivery.attempted || result?.count || 0)} delivery${Number(delivery.attempted || result?.count || 0) === 1 ? '' : 'ies'}: ${successCount} succeeded, ${failureCount} failed.`
+                  );
+                  setPushError('');
                 } catch (err) {
                   setTestStatus('Test failed');
+                  setPushError(err?.message || 'Test push failed');
                 }
               }}
             >
@@ -128,6 +144,7 @@ const NotificationSettings = ({ value, onSave }) => {
           </div>
         </div>
         {testStatus && <div className="settings-hint">{testStatus}</div>}
+        {testDetails && <div className="settings-hint">{testDetails}</div>}
         {pushError && <div className="settings-hint" style={{ color: '#dc2626' }}>{pushError}</div>}
       </div>
     </div>

@@ -16,6 +16,12 @@ const getDeviceId = () => {
   return id;
 };
 
+const extractApiErrorMessage = (error, fallback) =>
+  error?.response?.data?.message ||
+  error?.response?.data?.error ||
+  error?.message ||
+  fallback;
+
 /* ---------------------------
    SUPPORT CHECK
 ---------------------------- */
@@ -29,10 +35,14 @@ export const isPushSupported = async () => {
 ---------------------------- */
 export const getPushStatus = async () => {
   const deviceId = getDeviceId();
-  const res = await api.get('/api/push/status', {
-    params: { deviceId }
-  });
-  return res.data;
+  try {
+    const res = await api.get('/api/push/status', {
+      params: { deviceId }
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error(extractApiErrorMessage(error, 'Push status check failed'));
+  }
 };
 
 /* ---------------------------
@@ -92,13 +102,22 @@ export const subscribePush = async () => {
   }
 
   // 6. Send to backend
-  await api.post('/api/push/subscribe', {
-    fcmToken,
-    deviceId,
-    platform: 'web'
-  });
+  try {
+    const res = await api.post('/api/push/subscribe', {
+      fcmToken,
+      deviceId,
+      platform: 'web'
+    });
 
-  return { enabled: true, token: fcmToken };
+    return {
+      enabled: true,
+      token: fcmToken,
+      message: res.data?.message || 'Subscribed',
+      subscriptionId: res.data?.subscriptionId
+    };
+  } catch (error) {
+    throw new Error(extractApiErrorMessage(error, 'Push subscribe failed'));
+  }
 };
 
 /* ---------------------------
@@ -141,9 +160,15 @@ export const unsubscribePush = async () => {
     }
   }
 
-  await api.post('/api/push/unsubscribe', { deviceId });
-
-  return { enabled: false };
+  try {
+    const res = await api.post('/api/push/unsubscribe', { deviceId });
+    return {
+      enabled: false,
+      message: res.data?.message || 'Unsubscribed'
+    };
+  } catch (error) {
+    throw new Error(extractApiErrorMessage(error, 'Push unsubscribe failed'));
+  }
 };
 
 /* ---------------------------
@@ -156,10 +181,14 @@ export const sendTestPush = async () => {
     console.log('[PushClient] Auto-subscribing before test...');
     await subscribePush();
   }
-  
-  const res = await api.post('/api/push/test', {
-    title: 'Test Notification',
-    body: 'Push is working ✅'
-  });
-  return res.data;
+
+  try {
+    const res = await api.post('/api/push/test', {
+      title: 'Test Notification',
+      body: 'Push is working ✅'
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error(extractApiErrorMessage(error, 'Test push failed'));
+  }
 };

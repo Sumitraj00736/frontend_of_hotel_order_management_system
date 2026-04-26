@@ -104,7 +104,7 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
       } catch (err) {
         if (mounted) {
           console.warn('Push status check failed:', err);
-          // Don't show error toast on every load, just log it
+          setPushError(err?.response?.data?.message || err?.message || 'Push status check failed');
         }
       }
     };
@@ -172,8 +172,10 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
               onClick={async () => {
                 try {
                   await sendTestPush();
+                  setPushError('');
                 } catch (err) {
-                  alert(`Test push failed: ${err.message}`);
+                  const message = err?.response?.data?.message || err?.message || 'Test push failed';
+                  setPushError(message);
                 }
               }}
             >

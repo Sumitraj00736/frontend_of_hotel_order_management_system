@@ -21,7 +21,7 @@ const AdminSettings = ({ activeView }) => {
   const [notificationSettings, setNotificationSettings] = useState(null);
   const [taxes, setTaxes] = useState([]);
   const [activityLogs, setActivityLogs] = useState({ data: [], page: 1, limit: 50, total: 0 });
-  const [activityFilters, setActivityFilters] = useState({ type: '', search: '', dateFrom: '', dateTo: '' });
+  const [activityFilters, setActivityFilters] = useState({ type: '', action: '', entityType: '', search: '', dateFrom: '', dateTo: '' });
   const [billingSummary, setBillingSummary] = useState(null);
   const [roleData, setRoleData] = useState(null);
   const [departments, setDepartments] = useState([]);
