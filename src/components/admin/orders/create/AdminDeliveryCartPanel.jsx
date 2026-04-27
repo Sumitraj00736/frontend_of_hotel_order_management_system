@@ -57,9 +57,7 @@ const AdminDeliveryCartPanel = ({
           <div className="delivery-cart-empty">
             <ShoppingBag size={26} className="delivery-cart-empty-icon" />
             <div className="delivery-cart-empty-title">No items added yet</div>
-            <div className="delivery-cart-empty-text">
-              Pick dishes from the menu to start building this delivery order.
-            </div>
+            
           </div>
         ) : (
           <div className="delivery-cart-item-list">

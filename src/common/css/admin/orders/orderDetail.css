@@ -1090,7 +1090,7 @@
 }
 
 .delivery-order-modal-shell {
-  width: min(1500px, 96vw);
+  width: min(1500px, 64vw);
   height: min(880px, 94vh);
   display: flex;
   flex-direction: column;
@@ -1100,7 +1100,7 @@
   border: 1px solid #eef1f6;
   box-shadow: 0 18px 40px rgba(16, 24, 40, 0.08);
   overflow: hidden;
-  margin: 0;
+  margin-left: 120px;
   animation: checkout-rise-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1235,7 +1235,7 @@
 
 .delivery-cart-panel {
   min-width: 0;
-  height: 100%;
+  height: calc(100% - 20px);
   display: flex;
   flex-direction: column;
   border: 1px solid #eef1f6;
@@ -1243,6 +1243,7 @@
   background: #fff;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
   overflow: hidden;
+  max-height: 820px;
 }
 
 .delivery-cart-top {
