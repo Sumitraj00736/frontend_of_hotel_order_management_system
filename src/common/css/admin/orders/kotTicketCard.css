@@ -232,3 +232,184 @@
   color: #fff;
   font-weight: 800;
 }
+
+/* ===== Responsive ===== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .kot-ticket-container {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .kot-ticket-main-title {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+
+  .kot-ticket-info {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .kot-ticket-divider-dashed {
+    margin: 12px 0;
+  }
+
+  .kot-ticket-items {
+    gap: 10px;
+  }
+
+  .kot-ticket-totals {
+    font-size: 0.85rem;
+  }
+
+  .kot-ticket-actions {
+    gap: 10px;
+  }
+
+  .kot-action-btn {
+    padding: 9px 12px;
+    font-size: 0.8rem;
+  }
+
+  .kot-dropdown-menu.right-aligned {
+    min-width: 160px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .kot-ticket-container {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .kot-ticket-main-title {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+
+  .kot-ticket-info {
+    padding: 10px;
+    gap: 6px;
+    font-size: 0.75rem;
+  }
+
+  .kot-ticket-row {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  .kot-ticket-divider-dashed {
+    margin: 10px 0;
+  }
+
+  .kot-ticket-table-header {
+    font-size: 0.7rem;
+    padding: 0 2px;
+  }
+
+  .kot-ticket-items {
+    gap: 8px;
+    padding: 2px;
+  }
+
+  .kot-ticket-item {
+    font-size: 0.8rem;
+  }
+
+  .kot-ticket-totals {
+    font-size: 0.85rem;
+    padding: 2px;
+  }
+
+  .kot-ticket-footer-info {
+    font-size: 0.7rem;
+    margin-bottom: 14px;
+  }
+
+  .kot-ticket-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .kot-action-btn-group {
+    flex-direction: column;
+  }
+
+  .print-icon-btn,
+  .drop-icon-btn {
+    border-radius: 10px !important;
+    border-right: 1.5px solid #f1f5f9 !important;
+    border-left: 1.5px solid #f1f5f9 !important;
+  }
+
+  .kot-action-btn {
+    padding: 12px 14px;
+    font-size: 0.85rem;
+    min-height: 44px;
+  }
+
+  .kot-dropdown-menu {
+    top: calc(100% + 6px);
+    padding: 6px;
+  }
+
+  .kot-dropdown-search {
+    padding: 8px 10px;
+  }
+
+  .kot-dropdown-item {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .kot-ticket-container {
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .kot-ticket-main-title {
+    font-size: 0.9rem;
+  }
+
+  .kot-ticket-info {
+    padding: 8px;
+    font-size: 0.72rem;
+  }
+
+  .kot-ticket-table-header {
+    display: none;
+  }
+
+  .kot-ticket-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 6px 0;
+    border-bottom: 1px dashed #f1f5f9;
+  }
+
+  .kot-ticket-item:last-child {
+    border-bottom: none;
+  }
+
+  .kot-ticket-totals {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+
+  .kot-action-btn {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+
+  .kot-ticket-thank-you {
+    font-size: 0.65rem;
+  }
+}
