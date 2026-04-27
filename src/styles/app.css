@@ -10,6 +10,40 @@
   --shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
 }
 
+html {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+svg {
+  max-width: 100%;
+}
+
 body.dark-mode {
   --bg: #0f172a;
   --bg-2: #111827;
@@ -312,6 +346,12 @@ a:visited {
 }
 .stock-table-wrap table {
   min-width: 560px;
+}
+
+.stock-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .reports-grid-company > .span-2 {
