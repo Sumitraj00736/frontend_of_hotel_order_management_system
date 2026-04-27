@@ -333,6 +333,138 @@
   }
 }
 
+/* Tablet */
+@media (max-width: 768px) {
+  .login-bg {
+    padding: 16px;
+  }
+
+  .login-card-v2 {
+    max-width: 420px;
+    padding: 40px 32px;
+    border-radius: 28px;
+  }
+
+  .brand {
+    font-size: 28px;
+  }
+
+  .logo-box {
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+  }
+
+  .input-group-v2 input {
+    padding: 14px 14px 14px 48px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  .submit-btn,
+  .google-btn {
+    padding: 14px;
+    font-size: 15px;
+    min-height: 48px;
+  }
+
+  .login-tab {
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .login-bg {
+    padding: 12px;
+  }
+
+  .login-card-v2 {
+    padding: 28px 20px;
+    border-radius: 22px;
+  }
+
+  .brand {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .logo-box {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    border-radius: 14px;
+  }
+
+  .login-header {
+    margin-bottom: 24px;
+  }
+
+  .login-tabs {
+    margin-bottom: 24px;
+  }
+
+  .input-group-v2 {
+    margin-bottom: 16px;
+  }
+
+  .input-group-v2 input {
+    padding: 14px 14px 14px 44px;
+    font-size: 16px;
+    border-radius: 14px;
+  }
+
+  .input-group-v2 .icon {
+    left: 14px;
+    font-size: 14px;
+  }
+
+  .eye-btn {
+    right: 10px;
+    padding: 6px;
+  }
+
+  .forgot-link {
+    margin-bottom: 20px;
+  }
+
+  .forgot-link a {
+    font-size: 13px;
+  }
+
+  .submit-btn,
+  .google-btn {
+    padding: 14px;
+    font-size: 15px;
+    min-height: 48px;
+    border-radius: 14px;
+  }
+
+  .google-btn {
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .divider {
+    margin: 20px 0;
+    font-size: 11px;
+  }
+
+  .footer-note {
+    margin-top: 24px;
+    font-size: 12px;
+  }
+
+  .error-banner {
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+}
+
 /* Dark Mode Support */
 body.dark-mode .login-bg {
   background: var(--slate-900);

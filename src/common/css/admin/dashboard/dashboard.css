@@ -1627,6 +1627,64 @@ body.dark-mode .finance-method-bar {
   background: #1e293b;
 }
 
+/* Tablet */
+@media (max-width: 1024px) {
+  .dashboard-screen {
+    padding: 18px 20px;
+  }
+
+  .dash-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .panel-grid.two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-grid.three-col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .staff-panel-body,
+  .customer-panel-body {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .staff-bars {
+    min-height: 140px;
+    padding: 12px 8px 6px;
+  }
+
+  .staff-bar-item {
+    min-height: 120px;
+    gap: 8px;
+  }
+
+  .finance-spotlight {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .finance-spotlight-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .finance-chart-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .finance-chart-canvas .mini-line-chart {
+    height: 180px;
+  }
+
+  .banner-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 1200px) {
   .dash-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

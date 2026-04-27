@@ -228,3 +228,188 @@
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
+/* ===== Responsive ===== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .recent-order-container {
+    min-width: 260px;
+  }
+
+  .recent-order-card {
+    height: 280px;
+  }
+
+  .roc-normal-state {
+    padding: 16px;
+  }
+
+  .roc-header {
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+  }
+
+  .roc-type {
+    font-size: 0.85rem;
+  }
+
+  .roc-hover-price {
+    font-size: 1.5rem;
+  }
+
+  .roc-hover-state {
+    padding: 18px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .recent-order-container {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .recent-order-card {
+    height: auto;
+    min-height: 240px;
+  }
+
+  .roc-normal-state {
+    padding: 14px;
+  }
+
+  .roc-header {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    gap: 8px;
+  }
+
+  .roc-type {
+    font-size: 0.8rem;
+  }
+
+  .roc-time {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+  }
+
+  .roc-items-wrapper {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .roc-item {
+    font-size: 0.8rem;
+  }
+
+  .roc-item-more {
+    font-size: 0.75rem;
+  }
+
+  .roc-footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .roc-price {
+    font-size: 1rem;
+  }
+
+  .roc-hover-state {
+    padding: 16px;
+  }
+
+  .roc-hover-price {
+    font-size: 1.3rem;
+    margin-bottom: 2px;
+  }
+
+  .roc-hover-hint {
+    font-size: 0.75rem;
+    margin-bottom: 16px;
+  }
+
+  .roc-icon-actions {
+    margin-bottom: 14px;
+  }
+
+  .roc-icon-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+
+  .roc-checkout-btn {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+
+  .roc-paid-badge {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .recent-order-card {
+    border-radius: 12px;
+    min-height: 220px;
+  }
+
+  .roc-normal-state {
+    padding: 12px;
+  }
+
+  .roc-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .roc-type {
+    font-size: 0.78rem;
+  }
+
+  .roc-time {
+    align-self: flex-start;
+  }
+
+  .roc-items-wrapper {
+    padding: 8px;
+  }
+
+  .roc-item {
+    font-size: 0.78rem;
+  }
+
+  .roc-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .roc-price {
+    font-size: 1.05rem;
+  }
+
+  .roc-hover-state {
+    padding: 14px;
+  }
+
+  .roc-hover-price {
+    font-size: 1.2rem;
+  }
+
+  .roc-icon-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .roc-checkout-btn {
+    font-size: 0.85rem;
+  }
+}
