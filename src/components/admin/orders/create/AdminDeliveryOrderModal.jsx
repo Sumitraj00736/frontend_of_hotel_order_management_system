@@ -97,47 +97,47 @@ const AdminDeliveryOrderModal = ({
   };
 
   return (
-    <div className="additem-overlay" onClick={onClose} style={{ zIndex: 1050 }}>
-      <div className="delivery-order-modal-shell" onClick={e => e.stopPropagation()}>
-        <div className="delivery-order-modal-head">
+    <div className="checkout-overlay" onClick={onClose} style={{ zIndex: 1050 }}>
+      <div className="checkout-panel delivery-order-modal-shell" onClick={e => e.stopPropagation()}>
+        <div className="checkout-header">
           <div className="delivery-order-modal-title-group">
             <div className="delivery-order-modal-icon">
-              <Bike size={22} />
+              <Bike size={20} />
             </div>
             <div>
               <div className="delivery-order-modal-kicker">Delivery Workspace</div>
-              <h4 className="delivery-order-modal-title">Create Delivery Order</h4>
+              <h4 className="checkout-title">Create Delivery Order</h4>
               <p className="delivery-order-modal-subtitle">
                 Manage customer details, assign a rider, and prepare the cart from one responsive workspace.
               </p>
             </div>
           </div>
 
-          <div className="delivery-order-modal-head-actions">
+          <div className="checkout-actions delivery-order-modal-head-actions">
             <div className="delivery-platform-pill">
               <span className="delivery-platform-pill-dot" />
               {deliveryPlatform || 'Delivery'}
             </div>
-            <button className="btn-close shadow-none delivery-order-close" onClick={onClose}></button>
+            <button className="btn-close shadow-none checkout-close delivery-order-close" onClick={onClose}></button>
           </div>
         </div>
 
         <div className="delivery-order-summary-bar">
           <div className="delivery-order-summary-chip">
-            <PackageCheck size={16} />
+            <PackageCheck size={14} />
             <span>{cartQty} items in cart</span>
           </div>
           <div className="delivery-order-summary-chip">
-            <MapPinned size={16} />
+            <MapPinned size={14} />
             <span>{customerName?.trim() ? customerName : 'Customer details pending'}</span>
           </div>
           <div className="delivery-order-summary-chip">
-            <Clock3 size={16} />
+            <Clock3 size={14} />
             <span>{riderCount} riders available</span>
           </div>
         </div>
 
-        <div className="delivery-order-layout additem-layout">
+        <div className="checkout-body delivery-order-layout additem-layout">
           <MenuSection
             addSubMenu={addSubMenu}
             menuSubMenus={menuSubMenus}

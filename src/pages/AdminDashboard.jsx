@@ -60,6 +60,7 @@ const AdminDashboard = () => {
       '': 'dashboard',
       'dashboard': 'dashboard',
       'orders': 'orders',
+      'orders/delivery': 'orders:delivery',
       'users': 'users',
       'customers': 'customers',
       'tables': 'tables:table',
@@ -1228,6 +1229,7 @@ const AdminDashboard = () => {
     const sectionToPath = {
       'dashboard': '/admin/dashboard',
       'orders': '/admin/orders',
+      'orders:delivery': '/admin/orders/delivery',
       'users': '/admin/users',
       'customers': '/admin/customers',
       'tables:table': '/admin/tables/table',
@@ -1441,6 +1443,31 @@ const AdminDashboard = () => {
             />
           );
         })()}
+
+          {activeSection === 'orders:delivery' && canAccessAdminSection('orders') && (
+            <AdminDeliveryOrderModal
+              open={true}
+              onClose={() => setActiveSection('orders')}
+              deliveryPlatform={deliveryPlatform}
+              menus={menus}
+              categories={categories}
+              staff={users}
+              items={adminOrderItems}
+              onAddItem={(item) => setAdminOrderItems((prev) => [...prev, item])}
+              onUpdateItemQuantity={(index, qty) => {
+                if (qty < 1) {
+                  setAdminOrderItems((prev) => prev.filter((_, i) => i !== index));
+                } else {
+                  setAdminOrderItems((prev) =>
+                    prev.map((i, idx) => (idx === index ? { ...i, quantity: qty } : i))
+                  );
+                }
+              }}
+              onClearCart={() => setAdminOrderItems([])}
+              onConfirmDeliveryOrder={handleAdminSubmitDeliveryOrder}
+              confirmDisabled={adminOrderItems.length === 0}
+            />
+          )}
 
           {activeSection === 'users' && canAccessAdminSection('users') && (
             <>

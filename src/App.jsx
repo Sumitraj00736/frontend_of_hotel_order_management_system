@@ -43,6 +43,7 @@ const adminPaths = [
   '/admin',
   '/admin/dashboard',
   '/admin/orders',
+  '/admin/orders/delivery',
   '/admin/users',
   '/admin/customers',
   '/admin/tables',
