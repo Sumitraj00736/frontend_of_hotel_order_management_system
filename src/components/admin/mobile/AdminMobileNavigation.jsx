@@ -7,30 +7,31 @@ const AdminMobileNavigation = ({ isMobile, activeSection, onChangeSection, canAc
 
   const mobileMenuItems = useMemo(() => {
     const tabs = [
-      { key: 'dashboard', label: 'Home', icon: Home, match: (section) => section === 'dashboard', permission: 'dashboard:view' },
-      { key: 'orders', label: 'Orders', icon: ListChecks, match: (section) => section === 'orders', permission: 'orders:view' },
-      { key: 'users', label: 'Users', icon: Users, match: (section) => section === 'users', permission: 'staff:view' },
-      { key: 'customers', label: 'Customers', icon: Users, match: (section) => section === 'customers', permission: 'customers:view' },
-      { key: 'tables:table', label: 'Tables', icon: Table2, match: (section) => section.startsWith('tables'), permission: 'tables:view' },
-      { key: 'menu:dishes', label: 'Menu', icon: BookOpen, match: (section) => section.startsWith('menu'), permission: 'menu:view' },
-      { key: 'inventory:ingredients', label: 'Stock', icon: Boxes, match: (section) => section.startsWith('inventory'), permission: 'inventory:view' },
-      { key: 'reports:company', label: 'Reports', icon: BarChart3, match: (section) => section.startsWith('reports'), permission: 'reports:view' },
-      { key: 'history', label: 'History', icon: History, match: (section) => section === 'history', permission: 'reports:view' },
-      { key: 'website', label: 'Website', icon: Globe, match: (section) => section === 'website', permission: 'website:view' },
-      { key: 'notifications', label: 'Alerts', icon: Bell, match: (section) => section === 'notifications', permission: 'notifications:view' },
-      { key: 'settings:restaurant-details', label: 'Settings', icon: Settings, match: (section) => section.startsWith('settings'), permission: 'settings:view' }
+      { key: 'dashboard', label: 'Home', icon: Home, match: (section) => section === 'dashboard' },
+      { key: 'orders', label: 'Orders', icon: ListChecks, match: (section) => section === 'orders' },
+      { key: 'users', label: 'Users', icon: Users, match: (section) => section === 'users' },
+      { key: 'customers', label: 'Customers', icon: Users, match: (section) => section === 'customers' },
+      { key: 'tables:table', label: 'Tables', icon: Table2, match: (section) => section.startsWith('tables') },
+      { key: 'menu:dishes', label: 'Menu', icon: BookOpen, match: (section) => section.startsWith('menu') },
+      { key: 'inventory:ingredients', label: 'Stock', icon: Boxes, match: (section) => section.startsWith('inventory') },
+      { key: 'reports:company', label: 'Reports', icon: BarChart3, match: (section) => section.startsWith('reports') },
+      { key: 'history', label: 'History', icon: History, match: (section) => section === 'history' },
+      { key: 'website', label: 'Website', icon: Globe, match: (section) => section === 'website' },
+      { key: 'notifications', label: 'Alerts', icon: Bell, match: (section) => section === 'notifications' },
+      { key: 'profile', label: 'Profile', icon: Users, match: (section) => section === 'profile' },
+      { key: 'settings:restaurant-details', label: 'Settings', icon: Settings, match: (section) => section.startsWith('settings') }
     ];
-    return tabs.filter((tab) => canAccess(tab.permission));
+    return tabs.filter((tab) => canAccess(tab.key));
   }, [canAccess]);
 
   const mobilePrimaryTabs = useMemo(() => {
     const tabs = [
-      { key: 'dashboard', label: 'Home', icon: Home, match: (section) => section === 'dashboard', permission: 'dashboard:view' },
-      { key: 'orders', label: 'Orders', icon: ListChecks, match: (section) => section === 'orders', permission: 'orders:view' },
-      { key: 'tables:table', label: 'Tables', icon: Table2, match: (section) => section.startsWith('tables'), permission: 'tables:view' },
-      { key: 'menu:dishes', label: 'Menu', icon: BookOpen, match: (section) => section.startsWith('menu'), permission: 'menu:view' }
+      { key: 'dashboard', label: 'Home', icon: Home, match: (section) => section === 'dashboard' },
+      { key: 'orders', label: 'Orders', icon: ListChecks, match: (section) => section === 'orders' },
+      { key: 'tables:table', label: 'Tables', icon: Table2, match: (section) => section.startsWith('tables') },
+      { key: 'menu:dishes', label: 'Menu', icon: BookOpen, match: (section) => section.startsWith('menu') }
     ];
-    return tabs.filter((tab) => canAccess(tab.permission));
+    return tabs.filter((tab) => canAccess(tab.key));
   }, [canAccess]);
 
   const sectionSubTabs = useMemo(() => {

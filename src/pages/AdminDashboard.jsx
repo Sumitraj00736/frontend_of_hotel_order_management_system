@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { CheckCircle, Volume2 } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
@@ -39,6 +39,12 @@ import AddItemsModal from '../components/admin/orders/addItems/AddItemsModal.jsx
 import AdminDeliveryPlatformModal from '../components/admin/orders/create/AdminDeliveryPlatformModal.jsx';
 import AdminDeliveryOrderModal from '../components/admin/orders/create/AdminDeliveryOrderModal.jsx';
 import { playSound } from '../utils/sound.js';
+import UserSelfProfile from '../components/profile/UserSelfProfile.jsx';
+import {
+  ADMIN_SECTION_PRIORITY,
+  canAccessSection,
+  findFirstAccessibleSection
+} from '../common/accessControl.js';
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/admin/common/adminResponsive.css';
 
@@ -78,12 +84,13 @@ const AdminDashboard = () => {
       'inventory/ingredients': 'inventory:ingredients',
       'inventory/purchases': 'inventory:purchases',
       'inventory/suppliers': 'inventory:suppliers',
-      'finance': 'finance',
+      'finance': 'finance:dashboard',
       'finance/daybook': 'finance:daybook',
       'finance/sales': 'finance:sales',
       'finance/purchase': 'finance:purchase',
       'finance/transactions': 'finance:transactions',
       'website': 'website',
+      'profile': 'profile',
       'settings': 'settings',
       'settings/restaurant-details': 'settings:restaurant-details',
       'settings/branches': 'settings:branches',
@@ -111,6 +118,8 @@ const AdminDashboard = () => {
   const [addons, setAddons] = useState([]);
   const [combos, setCombos] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [profile, setProfile] = useState(null);
+  const [profileSaving, setProfileSaving] = useState(false);
   const [report, setReport] = useState(null);
   const [overview, setOverview] = useState({ activeByWaiter: [] });
   const [analytics, setAnalytics] = useState(null);
@@ -145,13 +154,17 @@ const AdminDashboard = () => {
     orgName || currentUser?.restaurantName || currentUser?.name || 'Restaurant';
   const isSuperAdmin = currentUser?.role?.toLowerCase() === 'superadmin';
   const canAccessAdminSection = useCallback(
-    (permission) => {
-      if (!permission) return true;
-      if (permission === 'settings:view' || permission === 'settings:edit') {
-        return isSuperAdmin && hasPermission(permission);
-      }
-      return hasPermission(permission);
+    (section) => {
+      if (!section) return false;
+      return canAccessSection(section, hasPermission, { isSuperAdmin });
     },
+    [isSuperAdmin]
+  );
+  const fallbackSection = useMemo(
+    () =>
+      findFirstAccessibleSection(ADMIN_SECTION_PRIORITY, hasPermission, {
+        isSuperAdmin
+      }) || 'dashboard',
     [isSuperAdmin]
   );
   const [ordersPage, setOrdersPage] = useState(1);
@@ -222,16 +235,6 @@ const AdminDashboard = () => {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const lastAlertIdRef = useRef(null);
   const audioRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'));
-
-  const unblockAudio = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.play().then(() => {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        setSoundEnabled(true);
-      }).catch(e => console.log('[Audio] Unblock failed:', e));
-    }
-  }, []);
 
   const playBell = useCallback((eventId = null) => {
     if (eventId && lastAlertIdRef.current === eventId) return;
@@ -322,6 +325,34 @@ const AdminDashboard = () => {
   const loadNotifications = async (filters = notificationFilters) => {
     const res = await api.get('/api/notifications', { params: filters });
     setNotifications(res.data);
+  };
+
+  const loadMyProfile = async () => {
+    const res = await api.get('/api/profile/me');
+    setProfile(res.data || null);
+  };
+
+  const saveProfile = async (payload) => {
+    setProfileSaving(true);
+    try {
+      const res = await api.put('/api/profile/me', payload);
+      setProfile(res.data || null);
+      pushToast({
+        title: 'Profile updated',
+        message: 'Your personal details were saved successfully.',
+        type: 'success',
+        sound: false
+      });
+    } catch (error) {
+      pushToast({
+        title: 'Profile update failed',
+        message: error.response?.data?.message || 'Unable to save profile changes.',
+        type: 'error',
+        sound: false
+      });
+    } finally {
+      setProfileSaving(false);
+    }
   };
 
   const loadPromotions = async (userId) => {
@@ -437,6 +468,33 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (activeSection === 'users') {
       loadUsers();
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
+    if (soundEnabled) return undefined;
+
+    const unlockAudio = () => {
+      if (!audioRef.current) return;
+      audioRef.current.play().then(() => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setSoundEnabled(true);
+      }).catch(() => {});
+    };
+
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    if (activeSection === 'profile') {
+      loadMyProfile();
     }
   }, [activeSection]);
 
@@ -1096,10 +1154,10 @@ const AdminDashboard = () => {
   }, [isMobile]);
 
   useEffect(() => {
-    if (activeSection.startsWith('settings') && !isSuperAdmin) {
-      setActiveSection('dashboard');
+    if (!canAccessAdminSection(activeSection) && activeSection !== fallbackSection) {
+      setActiveSection(fallbackSection);
     }
-  }, [activeSection, isSuperAdmin]);
+  }, [activeSection, canAccessAdminSection, fallbackSection]);
 
   // Sync URL path with activeSection (only on mount)
   useEffect(() => {
@@ -1141,6 +1199,7 @@ const AdminDashboard = () => {
       'finance/purchase': 'finance:purchase',
       'finance/transactions': 'finance:transactions',
       'website': 'website',
+      'profile': 'profile',
       'settings': 'settings',
       'settings/restaurant-details': 'settings:restaurant-details',
       'settings/branches': 'settings:branches',
@@ -1193,11 +1252,13 @@ const AdminDashboard = () => {
       'inventory:purchases': '/admin/inventory/purchases',
       'inventory:suppliers': '/admin/inventory/suppliers',
       'finance': '/admin/finance',
+      'finance:dashboard': '/admin/finance',
       'finance:daybook': '/admin/finance/daybook',
       'finance:sales': '/admin/finance/sales',
       'finance:purchase': '/admin/finance/purchase',
       'finance:transactions': '/admin/finance/transactions',
       'website': '/admin/website',
+      'profile': '/admin/profile',
       'settings': '/admin/settings',
       'settings:restaurant-details': '/admin/settings/restaurant-details',
       'settings:branches': '/admin/settings/branches',
@@ -1223,12 +1284,6 @@ const AdminDashboard = () => {
 
   return (
     <div className={`admin-shell ${isMobile ? 'mobile-app-shell' : ''}`}>
-      {!soundEnabled && (
-        <div className="sound-enable-banner" onClick={unblockAudio}>
-          <Volume2 size={18} />
-          <span>Tap to enable order alerts sound</span>
-        </div>
-      )}
       <NotificationToasts notifications={toasts} />
       <AdminHeader
         isMobile={isMobile}
@@ -1250,13 +1305,17 @@ const AdminDashboard = () => {
       />
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
-          {activeSection.startsWith('settings') && !isMobile && isSuperAdmin ? (
+          {activeSection.startsWith('settings') &&
+          !isMobile &&
+          canAccessAdminSection('settings:restaurant-details') ? (
             <SettingsSidebar
               active={activeSection.split(':')[1] || 'restaurant-details'}
               onSelect={(view) => setActiveSection(`settings:${view}`)}
               onBack={() => setActiveSection('dashboard')}
             />
-          ) : activeSection.startsWith('finance') && !isMobile && hasPermission('billing:view') ? (
+          ) : activeSection.startsWith('finance') &&
+            !isMobile &&
+            canAccessAdminSection(activeSection) ? (
             <FinanceSidebar
               section={activeSection}
               onNavigate={(s) => setActiveSection(s.includes(':') ? s : `finance:${s}`)}
@@ -1275,7 +1334,7 @@ const AdminDashboard = () => {
 
         <div className="content">
           <div className="section-wrapper" key={activeSection}>
-          {activeSection === 'dashboard' && hasPermission('dashboard:view') && (
+          {activeSection === 'dashboard' && canAccessAdminSection('dashboard') && (
             <AdminOverview
               report={report}
               overview={overview}
@@ -1300,7 +1359,7 @@ const AdminDashboard = () => {
               onChangeDashboardOptions={setDashboardOptions}
             />
           )}
-          {activeSection === 'notifications' && hasPermission('notifications:view') && (
+          {activeSection === 'notifications' && canAccessAdminSection('notifications') && (
             <NotificationPage
               notifications={notifications}
               filters={notificationFilters}
@@ -1312,7 +1371,7 @@ const AdminDashboard = () => {
               onMarkAll={markAllRead}
             />
           )}
-          {activeSection === 'orders' && hasPermission('orders:view') && (() => {
+          {activeSection === 'orders' && canAccessAdminSection('orders') && (() => {
             const activeKots = orders
               .filter(o => ['pending', 'preparing', 'ready'].includes(o.status))
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -1383,7 +1442,7 @@ const AdminDashboard = () => {
           );
         })()}
 
-          {activeSection === 'users' && hasPermission('staff:view') && (
+          {activeSection === 'users' && canAccessAdminSection('users') && (
             <>
               <AdminUsers
                 users={users}
@@ -1407,7 +1466,7 @@ const AdminDashboard = () => {
               )}
             </>
           )}
-          {activeSection === 'customers' && hasPermission('customers:view') && (
+          {activeSection === 'customers' && canAccessAdminSection('customers') && (
             <AdminCustomers
               customers={customers}
               rewards={customerRewards}
@@ -1419,16 +1478,16 @@ const AdminDashboard = () => {
               onUpdateCustomer={updateCustomer}
             />
           )}
-          {activeSection === 'tables:table' && hasPermission('tables:view') && (
+          {activeSection === 'tables:table' && canAccessAdminSection('tables:table') && (
             <Table tables={tables} spaces={spaces} reload={loadAll} />
           )}
-          {activeSection === 'tables:space' && hasPermission('tables:view') && (
+          {activeSection === 'tables:space' && canAccessAdminSection('tables:space') && (
             <Space spaces={spaces} reload={loadSpaces} />
           )}
-          {activeSection === 'tables:qr' && hasPermission('tables:view') && (
+          {activeSection === 'tables:qr' && canAccessAdminSection('tables:qr') && (
             <AdminQrCodes qrData={qrData} search={qrSearch} setSearch={setQrSearch} />
           )}
-          {activeSection === 'menus' && hasPermission('menu:view') && (
+          {activeSection === 'menus' && canAccessAdminSection('menus') && (
             <AdminMenus
               menus={menus}
               menuForm={menuForm}
@@ -1437,8 +1496,16 @@ const AdminDashboard = () => {
               onEditMenu={editMenu}
             />
           )}
-          {activeSection === 'website' && hasPermission('website:view') && <AdminWebsite />}
-          {activeSection.startsWith('settings') && isSuperAdmin && hasPermission('settings:view') && (
+          {activeSection === 'website' && canAccessAdminSection('website') && <AdminWebsite />}
+          {activeSection === 'profile' && canAccessAdminSection('profile') && (
+            <UserSelfProfile
+              profile={profile}
+              onSave={saveProfile}
+              onLogout={handleMobileLogout}
+              saving={profileSaving}
+            />
+          )}
+          {activeSection.startsWith('settings') && canAccessAdminSection(activeSection) && (
             <>
               {isMobile && (
                 <AdminMobileSettingsTabs
@@ -1452,7 +1519,7 @@ const AdminDashboard = () => {
               />
             </>
           )}
-          {activeSection.startsWith('inventory') && hasPermission('inventory:view') && (
+          {activeSection.startsWith('inventory') && canAccessAdminSection(activeSection) && (
             <AdminInventory
               menus={menus}
               ingredients={ingredients}
@@ -1461,7 +1528,7 @@ const AdminDashboard = () => {
               externalView={activeSection.split(':')[1] || 'ingredients'}
             />
           )}
-          {activeSection.startsWith('finance') && hasPermission('billing:view') && (
+          {activeSection.startsWith('finance') && canAccessAdminSection(activeSection) && (
             <AdminFinance
               section={activeSection}
               onNavigate={setActiveSection}
@@ -1470,7 +1537,7 @@ const AdminDashboard = () => {
               transactionHistory={transactionHistory}
             />
           )}
-          {activeSection.startsWith('reports') && hasPermission('reports:view') && (
+          {activeSection.startsWith('reports') && canAccessAdminSection(activeSection) && (
             <AdminReports
               view={activeSection.split(':')[1] || 'company'}
               onChangeView={(view) => setActiveSection(`reports:${view}`)}
@@ -1488,7 +1555,7 @@ const AdminDashboard = () => {
               onCreateExpense={async (payload) => { await api.post('/api/expenses', payload); loadFinance(financeFilters); }}
             />
           )}
-          {activeSection.startsWith('menu') && hasPermission('menu:view') && (() => {
+          {activeSection.startsWith('menu') && canAccessAdminSection(activeSection) && (() => {
             const view = activeSection.split(':')[1] || 'dishes';
             if (view === 'categories') {
               return (
@@ -1545,7 +1612,7 @@ const AdminDashboard = () => {
               />
             );
           })()}
-          {activeSection === 'history' && hasPermission('reports:view') && <AdminHistory history={history} />}
+          {activeSection === 'history' && canAccessAdminSection('history') && <AdminHistory history={history} />}
           </div>{/* end section-wrapper */}
         </div>
       </div>

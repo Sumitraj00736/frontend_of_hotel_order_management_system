@@ -44,6 +44,7 @@ import {
   hasPermission
 } from '../../../api/session.js';
 import { useAuth } from '../../../contexts/AuthContext.jsx';
+import { canAccessSection } from '../../../common/accessControl.js';
 import ThemeToggle from '../../ThemeToggle.jsx';
 import '../../../common/css/admin/sidebar/adminSidebar.css';
 
@@ -93,18 +94,6 @@ const reportsSubIcons = {
 
 const coreSections = ['dashboard', 'orders', 'users', 'customers', 'website', 'notifications'];
 
-const sectionPermissions = {
-  dashboard: 'dashboard:view',
-  orders: 'orders:view',
-  users: 'staff:view',
-  tables: 'tables:view',
-  website: 'website:view',
-  customers: 'customers:view',
-  notifications: 'notifications:view',
-  settings: 'settings:view',
-  history: 'reports:view'
-};
-
 const AdminSidebar = ({
   activeSection = 'dashboard',
   onSelect,
@@ -124,6 +113,7 @@ const AdminSidebar = ({
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
 
   const user = getCurrentUser();
+  const isSuperAdmin = user?.role?.toLowerCase() === 'superadmin';
   const branches = getBranches() || [];
   const activeBranchId = getBranchId() || branches[0]?.branchId || branches[0]?._id;
   const activeBranch = branches.find((b) => (b.branchId || b._id) === activeBranchId);
@@ -140,6 +130,7 @@ const AdminSidebar = ({
   }, []);
 
   const { logout } = useAuth();
+  const canAccess = (section) => canAccessSection(section, hasPermission, { isSuperAdmin });
 
   const handleLogout = async () => {
     try {
@@ -323,7 +314,7 @@ const AdminSidebar = ({
 
         <div className="sidebar-buttons">
           {coreSections
-            .filter((section) => hasPermission(sectionPermissions[section]))
+            .filter((section) => canAccess(section))
             .map((section) => (
               <button
                 key={section}
@@ -353,7 +344,7 @@ const AdminSidebar = ({
           onMouseEnter={() => !isOpen && setHoveredMenu('tables')}
           onMouseLeave={() => !isOpen && setHoveredMenu(null)}
         >
-          {hasPermission('tables:view') && (
+          {canAccess('tables:table') && (
             <button
               className={`sidebar-button ${activeSection.startsWith('tables') ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
                 onClick={() => (isOpen ? handleToggleMenu('tables') : setHoveredMenu('tables'))}
@@ -367,11 +358,11 @@ const AdminSidebar = ({
           {isOpen && (
             <div className={`sidebar-sub ${tablesOpen ? 'open' : ''}`}>
               {[
-                { id: 'tables:table', label: 'Table', icon: tableSubIcons.table, permission: 'tables:view' },
-                { id: 'tables:space', label: 'Space', icon: tableSubIcons.space, permission: 'tables:view' },
-                { id: 'tables:qr', label: 'QR Codes', icon: tableSubIcons.qr, permission: 'tables:view' }
+                { id: 'tables:table', label: 'Table', icon: tableSubIcons.table },
+                { id: 'tables:space', label: 'Space', icon: tableSubIcons.space },
+                { id: 'tables:qr', label: 'QR Codes', icon: tableSubIcons.qr }
               ]
-                .filter((link) => !link.permission || hasPermission(link.permission))
+                .filter((link) => canAccess(link.id))
                 .map((link) => (
                   <button
                     key={link.id}
@@ -385,14 +376,14 @@ const AdminSidebar = ({
             </div>
           )}
           {renderCollapsedPopover('tables', 'Table & Space', [
-            { id: 'tables:table', label: 'Table' },
-            { id: 'tables:space', label: 'Space' },
-            { id: 'tables:qr', label: 'QR Codes' }
+            { id: 'tables:table', label: 'Table', permission: 'tables:view' },
+            { id: 'tables:space', label: 'Space', permission: 'tables:view' },
+            { id: 'tables:qr', label: 'QR Codes', permission: 'tables:view' }
           ])}
         </div>
 
           {/* MENU */}
-          {hasPermission('menu:view') && (
+          {canAccess('menus') && (
             <div
               className="sidebar-group"
               onMouseEnter={() => !isOpen && !isMobile && setHoveredMenu('menu')}
@@ -416,64 +407,74 @@ const AdminSidebar = ({
 
               {isOpen && (
                 <div className={`sidebar-sub ${menuOpen ? 'open' : ''}`}>
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'menu:dishes' ? 'active' : ''}`}
-                    onClick={() => handleSelect('menu:dishes')}
-                  >
-                    <span className="sidebar-icon">{menuSubIcons.dishes}</span>
-                    Dishes
-                  </button>
+                  {canAccess('menu:dishes') && (
+                    <button
+                      className={`sidebar-button sub ${activeSection === 'menu:dishes' ? 'active' : ''}`}
+                      onClick={() => handleSelect('menu:dishes')}
+                    >
+                      <span className="sidebar-icon">{menuSubIcons.dishes}</span>
+                      Dishes
+                    </button>
+                  )}
 
-                  <button
-                    className={`sidebar-button sub ${
-                      activeSection === 'menu:categories' ? 'active' : ''
-                    }`}
-                    onClick={() => handleSelect('menu:categories')}
-                  >
-                    <span className="sidebar-icon">{menuSubIcons.categories}</span>
-                    Category
-                  </button>
+                  {canAccess('menu:categories') && (
+                    <button
+                      className={`sidebar-button sub ${
+                        activeSection === 'menu:categories' ? 'active' : ''
+                      }`}
+                      onClick={() => handleSelect('menu:categories')}
+                    >
+                      <span className="sidebar-icon">{menuSubIcons.categories}</span>
+                      Category
+                    </button>
+                  )}
 
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'menu:addons' ? 'active' : ''}`}
-                    onClick={() => handleSelect('menu:addons')}
-                  >
-                    <span className="sidebar-icon">{menuSubIcons.addons}</span>
-                    Ad-Ons & Extras
-                  </button>
+                  {canAccess('menu:addons') && (
+                    <button
+                      className={`sidebar-button sub ${activeSection === 'menu:addons' ? 'active' : ''}`}
+                      onClick={() => handleSelect('menu:addons')}
+                    >
+                      <span className="sidebar-icon">{menuSubIcons.addons}</span>
+                      Ad-Ons & Extras
+                    </button>
+                  )}
 
-                  <button
-                    className={`sidebar-button sub ${
-                      activeSection === 'menu:submenus' ? 'active' : ''
-                    }`}
-                    onClick={() => handleSelect('menu:submenus')}
-                  >
-                    <span className="sidebar-icon">{menuSubIcons.submenus}</span>
-                    Sub Menu
-                  </button>
+                  {canAccess('menu:submenus') && (
+                    <button
+                      className={`sidebar-button sub ${
+                        activeSection === 'menu:submenus' ? 'active' : ''
+                      }`}
+                      onClick={() => handleSelect('menu:submenus')}
+                    >
+                      <span className="sidebar-icon">{menuSubIcons.submenus}</span>
+                      Sub Menu
+                    </button>
+                  )}
 
-                  <button
-                    className={`sidebar-button sub ${activeSection === 'menu:combos' ? 'active' : ''}`}
-                    onClick={() => handleSelect('menu:combos')}
-                  >
-                    <span className="sidebar-icon">{menuSubIcons.combos}</span>
-                    Combo Offer
-                  </button>
+                  {canAccess('menu:combos') && (
+                    <button
+                      className={`sidebar-button sub ${activeSection === 'menu:combos' ? 'active' : ''}`}
+                      onClick={() => handleSelect('menu:combos')}
+                    >
+                      <span className="sidebar-icon">{menuSubIcons.combos}</span>
+                      Combo Offer
+                    </button>
+                  )}
                 </div>
               )}
 
               {renderCollapsedPopover('menu', 'Menu', [
-                { id: 'menu:dishes', label: 'Dishes', permission: 'menu:view' },
-                { id: 'menu:categories', label: 'Category', permission: 'menu:view' },
-                { id: 'menu:addons', label: 'Ad-Ons & Extras', permission: 'menu:view' },
-                { id: 'menu:submenus', label: 'Sub Menu', permission: 'menu:view' },
-                { id: 'menu:combos', label: 'Combo Offer', permission: 'menu:view' }
+                { id: 'menu:dishes', label: 'Dishes', permission: 'menu:dishes:view' },
+                { id: 'menu:categories', label: 'Category', permission: 'menu:categories:view' },
+                { id: 'menu:addons', label: 'Ad-Ons & Extras', permission: 'menu:addons:view' },
+                { id: 'menu:submenus', label: 'Sub Menu', permission: 'menu:submenus:view' },
+                { id: 'menu:combos', label: 'Combo Offer', permission: 'menu:combos:view' }
               ])}
             </div>
           )}
 
           {/* INVENTORY */}
-          {hasPermission('inventory:view') && (
+          {canAccess('inventory:ingredients') && (
             <div
               className="sidebar-group"
               onMouseEnter={() => !isOpen && !isMobile && setHoveredMenu('inventory')}
@@ -497,45 +498,53 @@ const AdminSidebar = ({
 
               {isOpen && (
                 <div className={`sidebar-sub ${inventoryOpen ? 'open' : ''}`}>
-                  <button
-                    className={`sidebar-button sub ${
-                      activeSection === 'inventory:ingredients' ? 'active' : ''
-                    }`}
-                    onClick={() => handleSelect('inventory:ingredients')}
-                  >
-                    <span className="sidebar-icon">{inventorySubIcons.ingredients}</span>
-                    Ingredients
-                  </button>
+                  {canAccess('inventory:ingredients') && (
+                    <button
+                      className={`sidebar-button sub ${
+                        activeSection === 'inventory:ingredients' ? 'active' : ''
+                      }`}
+                      onClick={() => handleSelect('inventory:ingredients')}
+                    >
+                      <span className="sidebar-icon">{inventorySubIcons.ingredients}</span>
+                      Ingredients
+                    </button>
+                  )}
 
-                  <button
-                    className={`sidebar-button sub ${
-                      activeSection === 'inventory:recipes' ? 'active' : ''
-                    }`}
-                    onClick={() => handleSelect('inventory:recipes')}
-                  >
-                    <span className="sidebar-icon">{inventorySubIcons.recipes}</span>
-                    Recipes
-                  </button>
+                  {canAccess('inventory:recipes') && (
+                    <button
+                      className={`sidebar-button sub ${
+                        activeSection === 'inventory:recipes' ? 'active' : ''
+                      }`}
+                      onClick={() => handleSelect('inventory:recipes')}
+                    >
+                      <span className="sidebar-icon">{inventorySubIcons.recipes}</span>
+                      Recipes
+                    </button>
+                  )}
 
-                   <button
-                    className={`sidebar-button sub ${
-                      activeSection === 'inventory:transactions' ? 'active' : ''
-                    }`}
-                    onClick={() => handleSelect('inventory:transactions')}
-                  >
-                    <span className="sidebar-icon">{inventorySubIcons.transactions}</span>
-                    Stock Transactions
-                  </button>
+                  {canAccess('inventory:transactions') && (
+                    <button
+                      className={`sidebar-button sub ${
+                        activeSection === 'inventory:transactions' ? 'active' : ''
+                      }`}
+                      onClick={() => handleSelect('inventory:transactions')}
+                    >
+                      <span className="sidebar-icon">{inventorySubIcons.transactions}</span>
+                      Stock Transactions
+                    </button>
+                  )}
 
-                  <button
-                    className={`sidebar-button sub ${
-                      activeSection === 'inventory:suppliers' ? 'active' : ''
-                    }`}
-                    onClick={() => handleSelect('inventory:suppliers')}
-                  >
-                    <span className="sidebar-icon">{inventorySubIcons.suppliers}</span>
-                    Suppliers
-                  </button>
+                  {canAccess('inventory:suppliers') && (
+                    <button
+                      className={`sidebar-button sub ${
+                        activeSection === 'inventory:suppliers' ? 'active' : ''
+                      }`}
+                      onClick={() => handleSelect('inventory:suppliers')}
+                    >
+                      <span className="sidebar-icon">{inventorySubIcons.suppliers}</span>
+                      Suppliers
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -543,13 +552,13 @@ const AdminSidebar = ({
                 { id: 'inventory:ingredients', label: 'Ingredients', permission: 'inventory:view' },
                 { id: 'inventory:recipes', label: 'Recipes', permission: 'inventory:view' },
                 { id: 'inventory:transactions', label: 'Stock Transactions', permission: 'inventory:view' },
-                { id: 'inventory:suppliers', label: 'Suppliers', permission: 'inventory:view' }
+                { id: 'inventory:suppliers', label: 'Suppliers', permission: 'suppliers:view' }
               ])}
             </div>
           )}
 
           {/* FINANCE */}
-          {hasPermission('billing:view') && (
+          {canAccess('finance:dashboard') && (
             <button
               className={`sidebar-button ${activeSection.startsWith('finance') ? 'active' : ''} ${
                 isOpen ? '' : 'compact'
@@ -563,7 +572,7 @@ const AdminSidebar = ({
           )}
 
           {/* REPORTS */}
-          {hasPermission('reports:view') && (
+          {canAccess('reports:company') && (
             <div
               className="sidebar-group"
               onMouseEnter={() => !isOpen && !isMobile && setHoveredMenu('reports')}
@@ -587,59 +596,67 @@ const AdminSidebar = ({
 
               {isOpen && (
                 <div className={`sidebar-sub ${reportsOpen ? 'open' : ''}`}>
-                  <button
-                    className={`sidebar-button sub ${
-                      activeSection === 'reports:company' ? 'active' : ''
-                    }`}
-                    onClick={() => handleSelect('reports:company')}
-                  >
-                    <span className="sidebar-icon">{reportsSubIcons.company}</span>
-                    Company
-                  </button>
+                  {canAccess('reports:company') && (
+                    <button
+                      className={`sidebar-button sub ${
+                        activeSection === 'reports:company' ? 'active' : ''
+                      }`}
+                      onClick={() => handleSelect('reports:company')}
+                    >
+                      <span className="sidebar-icon">{reportsSubIcons.company}</span>
+                      Company
+                    </button>
+                  )}
 
-                  <button
-                    className={`sidebar-button sub ${
-                      activeSection === 'reports:waiter' ? 'active' : ''
-                    }`}
-                    onClick={() => handleSelect('reports:waiter')}
-                  >
-                    <span className="sidebar-icon">{reportsSubIcons.waiter}</span>
-                    Waiter
-                  </button>
+                  {canAccess('reports:waiter') && (
+                    <button
+                      className={`sidebar-button sub ${
+                        activeSection === 'reports:waiter' ? 'active' : ''
+                      }`}
+                      onClick={() => handleSelect('reports:waiter')}
+                    >
+                      <span className="sidebar-icon">{reportsSubIcons.waiter}</span>
+                      Waiter
+                    </button>
+                  )}
 
-                  <button
-                    className={`sidebar-button sub ${
-                      activeSection === 'reports:kitchen' ? 'active' : ''
-                    }`}
-                    onClick={() => handleSelect('reports:kitchen')}
-                  >
-                    <span className="sidebar-icon">{reportsSubIcons.kitchen}</span>
-                    Kitchen
-                  </button>
+                  {canAccess('reports:kitchen') && (
+                    <button
+                      className={`sidebar-button sub ${
+                        activeSection === 'reports:kitchen' ? 'active' : ''
+                      }`}
+                      onClick={() => handleSelect('reports:kitchen')}
+                    >
+                      <span className="sidebar-icon">{reportsSubIcons.kitchen}</span>
+                      Kitchen
+                    </button>
+                  )}
 
-                  <button
-                    className={`sidebar-button sub ${
-                      activeSection === 'reports:stock' ? 'active' : ''
-                    }`}
-                    onClick={() => handleSelect('reports:stock')}
-                  >
-                    <span className="sidebar-icon">{reportsSubIcons.stock}</span>
-                    Stock
-                  </button>
+                  {canAccess('reports:stock') && (
+                    <button
+                      className={`sidebar-button sub ${
+                        activeSection === 'reports:stock' ? 'active' : ''
+                      }`}
+                      onClick={() => handleSelect('reports:stock')}
+                    >
+                      <span className="sidebar-icon">{reportsSubIcons.stock}</span>
+                      Stock
+                    </button>
+                  )}
                 </div>
               )}
 
               {renderCollapsedPopover('reports', 'Reports', [
-                { id: 'reports:company', label: 'Company', permission: 'reports:view' },
-                { id: 'reports:waiter', label: 'Waiter', permission: 'reports:view' },
-                { id: 'reports:kitchen', label: 'Kitchen', permission: 'reports:view' },
-                { id: 'reports:stock', label: 'Stock', permission: 'reports:view' }
+                { id: 'reports:company', label: 'Company', permission: 'reports:company' },
+                { id: 'reports:waiter', label: 'Waiter', permission: 'reports:waiter' },
+                { id: 'reports:kitchen', label: 'Kitchen', permission: 'reports:kitchen' },
+                { id: 'reports:stock', label: 'Stock', permission: 'reports:stock' }
               ])}
             </div>
           )}
 
           {/* HISTORY */}
-          {hasPermission('reports:view') && (
+          {canAccess('history') && (
             <button
               className={`sidebar-button ${activeSection === 'history' ? 'active' : ''} ${
                 isOpen ? '' : 'compact'
@@ -653,7 +670,7 @@ const AdminSidebar = ({
           )}
 
           {/* SETTINGS */}
-          {hasPermission('settings:view') && user?.role?.toLowerCase() === 'superadmin' && (
+          {canAccess('settings:restaurant-details') && (
             <button
               className={`sidebar-button ${activeSection.startsWith('settings') ? 'active' : ''} ${
                 isOpen ? '' : 'compact'

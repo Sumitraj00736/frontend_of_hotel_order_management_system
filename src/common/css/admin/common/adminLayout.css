@@ -29,6 +29,7 @@
 .content {
   position: relative;
   z-index: auto;
+  min-width: 0;
 }
 
 @media (max-width: 992px) {
@@ -42,6 +43,11 @@
     height: auto;
     gap: 0;
     min-height: auto;
+  }
+
+  .admin-shell.staff-app-shell {
+    padding: 10px;
+    background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
   }
 
   .admin-shell.mobile-app-shell .sidebar-placeholder {
@@ -98,21 +104,6 @@
     z-index: 1000;
     display: flex;
     flex-direction: column;
-
-/* Dark Mode Styles */
-body.dark-mode .admin-shell {
-  background: #0f172a;
-}
-
-body.dark-mode .admin-shell.mobile-app-shell {
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-}
-
-body.dark-mode .content {
-  background: rgba(30, 41, 59, 0.95);
-  border-color: rgba(51, 65, 85, 0.75);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
-}
     gap: 8px;
     padding: 10px 4px 12px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.93) 100%);
@@ -684,6 +675,22 @@ body.dark-mode .content {
     border-color: #fecaca;
     color: #b91c1c;
   }
+}
+
+/* Dark Mode Styles */
+body.dark-mode .admin-shell {
+  background: #0f172a;
+}
+
+body.dark-mode .admin-shell.mobile-app-shell,
+body.dark-mode .admin-shell.staff-app-shell {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+}
+
+body.dark-mode .content {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(51, 65, 85, 0.75);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 992px) {

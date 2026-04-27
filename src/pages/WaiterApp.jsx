@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
- import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed, ShoppingBag, Volume2, Bike } from 'lucide-react';
+ import { CheckCircle, ShoppingCart, Search, Home, UtensilsCrossed, ShoppingBag, Bike } from 'lucide-react';
 import api from '../api/client.js';
 import NotificationToasts from '../components/NotificationToasts.jsx';
 import { createSocket } from '../api/socket.js';
@@ -42,6 +42,7 @@ const WaiterApp = () => {
   const [spiceLevel, setSpiceLevel] = useState('medium');
   const [instructions, setInstructions] = useState('');
   const [profile, setProfile] = useState(null);
+  const [profileSaving, setProfileSaving] = useState(false);
   const [myAnalytics, setMyAnalytics] = useState(null);
   const [promotions, setPromotions] = useState([]);
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -61,16 +62,6 @@ const WaiterApp = () => {
   const initAttemptedRef = useRef(false);
   const lastAlertIdRef = useRef(null);
   const audioRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'));
-
-  const unblockAudio = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.play().then(() => {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        setSoundEnabled(true);
-      }).catch(e => console.log('[Audio] Unblock failed:', e));
-    }
-  }, []);
 
   const playBell = useCallback((eventId = null) => {
     // Deduplicate: Don't ring twice for the same event ID within a short window (5s)
@@ -209,6 +200,50 @@ const WaiterApp = () => {
     setNotifications(res.data);
   };
 
+  const saveProfile = async (payload) => {
+    setProfileSaving(true);
+    try {
+      const res = await api.put('/api/profile/me', payload);
+      setProfile(res.data);
+      pushToast({
+        title: 'Profile updated',
+        message: 'Your details were saved successfully.',
+        type: 'success',
+        sound: false
+      });
+    } catch (error) {
+      pushToast({
+        title: 'Profile update failed',
+        message: error.response?.data?.message || 'Unable to save your profile.',
+        type: 'error',
+        sound: false
+      });
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    if (soundEnabled) return undefined;
+
+    const unlockAudio = () => {
+      if (!audioRef.current) return;
+      audioRef.current.play().then(() => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setSoundEnabled(true);
+      }).catch(() => {});
+    };
+
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, [soundEnabled]);
+
   useEffect(() => {
     loadData('mine');
     loadNotifications();
@@ -328,17 +363,20 @@ const WaiterApp = () => {
                 pushToast({ title: 'Success', message: 'Notifications enabled!', type: 'success' });
               } catch (err) {
                 console.error('Subscribe failed:', err);
-                pushToast({ 
-                  title: 'Notification Error', 
-                  message: `Registration failed: ${err.message}. Check browser settings or branch access.`, 
-                  type: 'error',
-                  duration: 8000
-                });
+                const isRegistrationIssue = /gettoken failed|registration failed|push service error/i.test(err?.message || '');
+                if (!isRegistrationIssue) {
+                  pushToast({
+                    title: 'Notification Error',
+                    message: `Registration failed: ${err.message}. Check browser settings or branch access.`,
+                    type: 'error',
+                    duration: 8000
+                  });
+                }
               }
             };
 
             if (Notification.permission === 'granted') {
-              handleSubscribe();
+              handleSubscribe().catch(() => {});
             } else {
               pushToast({
                 title: '🔔 Notifications',
@@ -590,7 +628,7 @@ const WaiterApp = () => {
   };
 
   return (
-    <div className="admin-shell">
+    <div className="admin-shell staff-app-shell">
       <NotificationToasts notifications={notifications} />
 
       {showEditModal && (
@@ -693,12 +731,6 @@ const WaiterApp = () => {
       )}
 
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
-        {!soundEnabled && (
-          <div className="sound-enable-banner" onClick={unblockAudio}>
-            <Volume2 size={18} />
-            <span>Tap to enable order alerts sound</span>
-          </div>
-        )}
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
           <WaiterSidebar
             activeSection={activeSection}
@@ -808,7 +840,7 @@ const WaiterApp = () => {
 
         {activeSection === 'profile' && (
           <div className="content grid-3">
-            <WaiterProfile profile={profile} onLogout={handleLogout} />
+            <WaiterProfile profile={profile} onLogout={handleLogout} onSave={saveProfile} saving={profileSaving} />
             <WaiterAnalytics analytics={myAnalytics} />
             <WaiterPromotionTimeline promotions={promotions} />
           </div>

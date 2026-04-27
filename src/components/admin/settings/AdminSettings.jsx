@@ -188,6 +188,7 @@ const AdminSettings = ({ activeView }) => {
               ...prev,
               roles: (prev?.roles || []).map((r) => (r._id === id ? res.data : r))
             }));
+            await loadRoles();
           }}
         />
       )}

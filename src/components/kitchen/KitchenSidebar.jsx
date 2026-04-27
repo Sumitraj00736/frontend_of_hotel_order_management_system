@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ListChecks, Bell, ChevronDown, ChevronRight, LogOut } from 'lucide-react';
+import { ListChecks, Bell, ChevronDown, ChevronRight, LogOut, UserRound } from 'lucide-react';
 import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../api/session.js';
 import '../../common/css/admin/sidebar/adminSidebar.css';
 
 const iconMap = {
   orders: <ListChecks size={18} strokeWidth={1.5} />,
-  notifications: <Bell size={18} strokeWidth={1.5} />
+  notifications: <Bell size={18} strokeWidth={1.5} />,
+  profile: <UserRound size={18} strokeWidth={1.5} />
 };
 
 const KitchenSidebar = ({ activeSection = 'orders', onSelect, isOpen = true, onToggleSidebar, unreadCount = 0 }) => {
@@ -60,7 +61,7 @@ const KitchenSidebar = ({ activeSection = 'orders', onSelect, isOpen = true, onT
       </div>
 
       <div className="sidebar-buttons">
-        {['orders', 'notifications'].map((section) => (
+        {['orders', 'notifications', 'profile'].map((section) => (
           <button
             key={section}
             className={`sidebar-button ${activeSection === section ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
@@ -91,7 +92,11 @@ const KitchenSidebar = ({ activeSection = 'orders', onSelect, isOpen = true, onT
         </button>
         {profileOpen && (
           <div className="profile-popover">
-            <div className="profile-popover-body">
+              <div className="profile-popover-body">
+              <button className="profile-panel-item" onClick={() => onSelect?.('profile')}>
+                <span className="sidebar-icon"><UserRound size={14} /></span>
+                Profile
+              </button>
               <button className="sidebar-button sub" onClick={handleLogout}>
                 <span className="sidebar-icon"><LogOut size={14} /></span>
                 Log out

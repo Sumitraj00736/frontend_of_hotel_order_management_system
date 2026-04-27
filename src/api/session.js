@@ -1,3 +1,5 @@
+import { DEFAULT_ROLE_PERMISSIONS } from '../common/permissions.js';
+
 const TOKEN_KEY = 'hotel_token';
 const USER_KEY = 'hotel_user';
 const BRANCH_KEY = 'hotel_branch';
@@ -54,7 +56,12 @@ export const getBranchPermissions = () => {
   const branches = getBranches();
   const branchId = getBranchId();
   const active = branches.find((b) => (b.branchId || b._id) === branchId) || branches[0];
-  return active?.permissions || [];
+  const explicit = Array.isArray(active?.permissions) ? active.permissions : [];
+  const roleKey = String(active?.role || active?.roleName || getCurrentUser()?.role || '')
+    .toLowerCase()
+    .trim();
+  const defaults = DEFAULT_ROLE_PERMISSIONS[roleKey] || [];
+  return Array.from(new Set([...defaults, ...explicit]));
 };
 
 export const getBranchRole = () => {

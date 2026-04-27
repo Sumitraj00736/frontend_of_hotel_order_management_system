@@ -14,7 +14,11 @@ const WaiterMenu = ({ menuItems, onAdd }) => (
           </div>
           <div className="menu-info">
             <div className="menu-name">{item.name}</div>
-            <div className="menu-category">{item.category || 'General'}</div>
+            <div className="menu-category">
+              {typeof item.category === 'object'
+                ? item.category?.name || 'General'
+                : item.category || 'General'}
+            </div>
             <div className="menu-price-row">
               <span className="menu-price">
                 {item.variants?.length > 0 

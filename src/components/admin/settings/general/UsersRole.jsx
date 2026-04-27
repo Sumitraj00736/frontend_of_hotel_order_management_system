@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { PERMISSION_GROUPS, WAITER_ALLOWED_PERMISSIONS } from '../../../../common/permissions.js';
 
-const defaultCards = [
-  { name: 'Admin', icon: '🧭' },
-  { name: 'Billing', icon: '💳' },
-  { name: 'Kitchen', icon: '🍳' },
-  { name: 'Waiter', icon: '🍽️' },
-  { name: 'SuperAdmin', icon: '🛡️' }
-];
+const iconByRole = {
+  admin: '🧭',
+  billing: '💳',
+  kitchen: '🍳',
+  waiter: '🍽️',
+  superadmin: '🛡️',
+  manager: '📋'
+};
 
 const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
   const [showModal, setShowModal] = useState(false);
@@ -67,23 +68,19 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
       </div>
 
       <div className="settings-card">
-        <div className="settings-card-title">Default Roles</div>
+        <div className="settings-card-title">Roles & Access</div>
         <div className="role-grid">
-          {defaultCards.map((card) => (
-            <div key={card.name} className="role-card">
-              <div className="role-icon">{card.icon}</div>
-              <div>
-                <div className="role-name">{card.name}</div>
-                <div className="role-meta">Total User: {counts[card.name.toLowerCase()] || counts[card.name] || 0}</div>
-              </div>
-            </div>
-          ))}
           {roles.map((role) => (
             <div key={role._id} className="role-card">
-              <div className="role-icon" style={{ background: role.color }}>{role.name.charAt(0)}</div>
+              <div className="role-icon" style={{ background: role.color }}>
+                {iconByRole[role.name] || role.name.charAt(0).toUpperCase()}
+              </div>
               <div>
                 <div className="role-name">{role.name}</div>
-                <div className="role-meta">Total User: {counts[role.name] || 0}</div>
+                <div className="role-meta">
+                  Total User: {counts[role.name] || 0}
+                  {role.isDefault ? ' · Default role' : ''}
+                </div>
               </div>
               <button
                 className="role-edit-btn"
@@ -114,7 +111,17 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
               <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
             </div>
             <label className="field-label">Role Name *</label>
-            <input className="field-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <input
+              className="field-input"
+              value={form.name}
+              disabled={editing?.isDefault}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+            {editing?.isDefault && (
+              <div className="profile-sub" style={{ marginTop: 6 }}>
+                Default role names are fixed. You can still update permissions, description, and color.
+              </div>
+            )}
             <label className="field-label">Role Description</label>
             <input className="field-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             <label className="field-label">Select Color *</label>
@@ -161,7 +168,7 @@ const UsersRole = ({ data, onCreateRole, onUpdateRole }) => {
 
             <div className="modal-actions">
               <button className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={submit}>Create Role</button>
+              <button className="btn btn-primary" onClick={submit}>{editing ? 'Update Role' : 'Create Role'}</button>
             </div>
           </div>
         </div>

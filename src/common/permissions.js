@@ -11,6 +11,11 @@ export const PERMISSION_GROUPS = [
       { key: 'tables:edit', label: 'Edit Table and Space' },
       { key: 'menu:view', label: 'View Menu' },
       { key: 'menu:edit', label: 'Edit Menu' },
+      { key: 'menu:dishes:view', label: 'View Menu Dishes' },
+      { key: 'menu:categories:view', label: 'View Menu Categories' },
+      { key: 'menu:addons:view', label: 'View Menu Add-ons' },
+      { key: 'menu:submenus:view', label: 'View Menu SubMenus' },
+      { key: 'menu:combos:view', label: 'View Menu Combos' },
       { key: 'inventory:view', label: 'View Inventory' },
       { key: 'inventory:edit', label: 'Edit Inventory' },
       { key: 'reports:view', label: 'View Reports' },
@@ -44,6 +49,7 @@ export const PERMISSION_GROUPS = [
   {
     title: 'Reports',
     items: [
+      { key: 'reports:view', label: 'View Reports Dashboard' },
       { key: 'reports:company', label: 'Company Report' },
       { key: 'reports:waiter', label: 'Waiter Report' },
       { key: 'reports:kitchen', label: 'Kitchen Report' },
@@ -68,11 +74,78 @@ export const WAITER_ALLOWED_PERMISSIONS = [
   'tables:view',
   'tables:edit',
   'menu:view',
+  'menu:dishes:view',
+  'menu:categories:view',
+  'menu:addons:view',
+  'menu:submenus:view',
+  'menu:combos:view',
   'notifications:view',
   'customers:view',
   'customers:edit',
   'billing:view'
 ];
+
+export const DEFAULT_ROLE_PERMISSIONS = {
+  admin: ['*'],
+  superadmin: ['*'],
+  manager: [
+    'dashboard:view',
+    'orders:view',
+    'orders:edit',
+    'orders:checkout:view',
+    'orders:checkout:edit',
+    'tables:view',
+    'tables:edit',
+    'menu:view',
+    'menu:edit',
+    'menu:dishes:view',
+    'menu:categories:view',
+    'menu:addons:view',
+    'menu:submenus:view',
+    'menu:combos:view',
+    'inventory:view',
+    'inventory:edit',
+    'reports:view',
+    'reports:company',
+    'reports:waiter',
+    'reports:kitchen',
+    'reports:stock',
+    'notifications:view',
+    'website:view',
+    'website:edit',
+    'staff:view',
+    'staff:edit',
+    'customers:view',
+    'customers:edit',
+    'suppliers:view',
+    'suppliers:edit',
+    'settings:view',
+    'settings:edit',
+    'settings:invoice',
+    'settings:kot',
+    'settings:printer',
+    'roles:manage',
+    'billing:view'
+  ],
+  waiter: WAITER_ALLOWED_PERMISSIONS,
+  kitchen: [
+    'dashboard:view',
+    'orders:view',
+    'orders:edit',
+    'menu:view',
+    'menu:dishes:view',
+    'notifications:view'
+  ],
+  billing: [
+    'dashboard:view',
+    'orders:view',
+    'orders:checkout:view',
+    'orders:checkout:edit',
+    'reports:view',
+    'reports:company',
+    'billing:view'
+  ]
+};
 
 export const DEFAULT_ROLE_OPTIONS = [
   { value: 'admin', label: 'Admin' },

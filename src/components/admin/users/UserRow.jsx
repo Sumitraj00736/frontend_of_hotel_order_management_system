@@ -68,10 +68,10 @@ const UserRow = ({ index, user, roles = [], onEdit, onLoadPromotions, onSetStatu
                     setOpen(false);
                   }}
                 >
-                  {role.value === 'superadmin' && <Shield size={14} />}
-                  {role.value === 'admin' && <UserPlus size={14} />}
-                  {role.value === 'kitchen' && <ChefHat size={14} />}
-                  {role.value === 'waiter' && <UtensilsCrossed size={14} />}
+                  {(role.value || role.name) === 'superadmin' && <Shield size={14} />}
+                  {(role.value || role.name) === 'admin' && <UserPlus size={14} />}
+                  {(role.value || role.name) === 'kitchen' && <ChefHat size={14} />}
+                  {(role.value || role.name) === 'waiter' && <UtensilsCrossed size={14} />}
                   {role.label || role.name || role.value}
                 </button>
               ))}
