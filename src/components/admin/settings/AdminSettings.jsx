@@ -15,7 +15,7 @@ import KotSetting from './order/KotSetting.jsx';
 import PrinterSetting from './order/PrinterSetting.jsx';
 import '../../../common/css/admin/settings/settings.css';
 
-const AdminSettings = ({ activeView }) => {
+const AdminSettings = ({ activeView, onNotify }) => {
   const [restaurantDetails, setRestaurantDetails] = useState(null);
   const [taxSettings, setTaxSettings] = useState(null);
   const [notificationSettings, setNotificationSettings] = useState(null);
@@ -26,6 +26,7 @@ const AdminSettings = ({ activeView }) => {
   const [roleData, setRoleData] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [invoiceSettings, setInvoiceSettings] = useState(null);
+  const [invoiceSaving, setInvoiceSaving] = useState(false);
   const [kotSettings, setKotSettings] = useState(null);
   const [printerSettings, setPrinterSettings] = useState(null);
   const [supportItems, setSupportItems] = useState([]);
@@ -118,7 +119,7 @@ const AdminSettings = ({ activeView }) => {
   }, [view]);
 
   return (
-    <div className="settings-content">
+    <div className={`settings-content ${view === 'invoice-setting' ? 'settings-content-invoice' : ''}`}>
       {view === 'restaurant-details' && (
         <RestaurantDetails
           value={restaurantDetails}
@@ -212,9 +213,25 @@ const AdminSettings = ({ activeView }) => {
       {view === 'invoice-setting' && (
         <InvoiceSetting
           value={invoiceSettings}
+          saving={invoiceSaving}
           onSave={async (payload) => {
-            const res = await api.put('/api/settings/invoice', payload);
-            setInvoiceSettings(res.data || payload);
+            setInvoiceSaving(true);
+            try {
+              const res = await api.put('/api/settings/invoice', payload);
+              setInvoiceSettings(res.data || payload);
+              onNotify?.({
+                title: 'Invoice Setting Saved',
+                message: 'Your invoice preview and checkout invoice settings were updated successfully.'
+              });
+            } catch (error) {
+              onNotify?.({
+                title: 'Save Failed',
+                message: error?.response?.data?.message || 'Unable to save invoice settings right now.',
+                sound: true
+              });
+            } finally {
+              setInvoiceSaving(false);
+            }
           }}
         />
       )}

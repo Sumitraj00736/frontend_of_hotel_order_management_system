@@ -1335,7 +1335,10 @@ const AdminDashboard = () => {
         </div>
 
         <div className="content">
-          <div className="section-wrapper" key={activeSection}>
+          <div
+            className={`section-wrapper${activeSection === 'settings:invoice-setting' ? ' invoice-settings-wrapper' : ''}`}
+            key={activeSection}
+          >
           {activeSection === 'dashboard' && canAccessAdminSection('dashboard') && (
             <AdminOverview
               report={report}
@@ -1543,6 +1546,7 @@ const AdminDashboard = () => {
               )}
               <AdminSettings
                 activeView={activeSection.split(':')[1] || 'restaurant-details'}
+                onNotify={pushToast}
               />
             </>
           )}

@@ -9,6 +9,7 @@ const WaiterCheckoutModal = ({ order, onClose, onConfirm, onPrint }) => {
   const [paymentMode, setPaymentMode] = useState(order?.paymentMethod || 'cash');
   const [discountType, setDiscountType] = useState(order?.discountType || 'amount');
   const [discount, setDiscount] = useState(order?.discountValue || 0);
+  const [tenderAmount, setTenderAmount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const items = order?.items || [];
@@ -74,6 +75,8 @@ const WaiterCheckoutModal = ({ order, onClose, onConfirm, onPrint }) => {
             discount={discount}
             onDiscountTypeChange={setDiscountType}
             onDiscountChange={setDiscount}
+            tenderAmount={tenderAmount}
+            onTenderAmountChange={setTenderAmount}
             total={total}
           />
 
@@ -119,7 +122,8 @@ const WaiterCheckoutModal = ({ order, onClose, onConfirm, onPrint }) => {
                         paymentMethod: paymentMode,
                         paymentStatus,
                         discountType,
-                        discountValue: Number(discount || 0)
+                        discountValue: Number(discount || 0),
+                        tenderAmount: Number(tenderAmount || 0)
                       });
                       onClose?.();
                     } finally {
