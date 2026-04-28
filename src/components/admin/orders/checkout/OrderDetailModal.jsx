@@ -316,7 +316,27 @@ const OrderDetailModal = ({
           />
 
           <div className="checkout-right">
-            <OrderInvoicePanel order={order} total={total} />
+            <OrderInvoicePanel
+              order={localOrder}
+              total={total}
+              staff={staff}
+              previewState={{
+                subtotal,
+                discountType,
+                discountValue: discount,
+                taxableAmount,
+                taxRate,
+                taxAmount,
+                tipsAmount,
+                roundOff: 0,
+                tenderAmount: Number(tenderAmount || 0),
+                paymentStatus,
+                paymentMethod: payments[0]?.method,
+                payments,
+                customerName,
+                assignedStaffId
+              }}
+            />
             <div className="net-card">
               <div>
                 <div className="text-muted small">

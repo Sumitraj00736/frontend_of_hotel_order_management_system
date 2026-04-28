@@ -118,7 +118,7 @@ const AdminSettings = ({ activeView }) => {
   }, [view]);
 
   return (
-    <div className="settings-content">
+    <div className={`settings-content ${view === 'invoice-setting' ? 'settings-content-invoice' : ''}`}>
       {view === 'restaurant-details' && (
         <RestaurantDetails
           value={restaurantDetails}
