@@ -118,7 +118,7 @@ const AdminDeliveryOrderModal = ({
               <span className="delivery-platform-pill-dot" />
               {deliveryPlatform || 'Delivery'}
             </div>
-            <button className="btn-close shadow-none checkout-close delivery-order-close" onClick={onClose}></button>
+            <button className="btn-close shadow-none checkout-close delivery-order-close" onClick={onClose}>X</button>
           </div>
         </div>
 
