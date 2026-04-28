@@ -97,7 +97,7 @@ const AdminDeliveryOrderModal = ({
   };
 
   return (
-    <div className="checkout-overlay" onClick={onClose} style={{ zIndex: 1050 }}>
+    <div className="checkout-overlay" onClick={onClose}>
       <div className="checkout-panel delivery-order-modal-shell" onClick={e => e.stopPropagation()}>
         <div className="checkout-header">
           <div className="delivery-order-modal-title-group">

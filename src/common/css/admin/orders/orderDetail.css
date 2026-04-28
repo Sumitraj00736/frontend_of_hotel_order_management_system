@@ -19,16 +19,18 @@
   --card-shadow: rgba(0, 0, 0, 0.4);
 }
 
+
 .checkout-overlay {
 
   /* Modal Backdrop */
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
   /* Make sure modal backdrop covers the fixed sidebar (z-index:1200) */
   z-index: 2000;
   padding: 20px;
