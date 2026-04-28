@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ImageUp, Minus, Plus } from 'lucide-react';
+import { ImageUp, Loader2, Minus, Plus } from 'lucide-react';
 import { uploadToCloudinary } from '../../../../api/upload.js';
 import InvoicePreviewCard from './InvoicePreviewCard.jsx';
 import {
@@ -110,7 +110,7 @@ const UploadField = ({ label, value, onUpload }) => (
   </label>
 );
 
-const InvoiceSetting = ({ value, onSave }) => {
+const InvoiceSetting = ({ value, onSave, saving = false }) => {
   const [form, setForm] = useState(mergeInvoiceSettings(value || DEFAULT_INVOICE_SETTINGS));
   const [uploading, setUploading] = useState({ logo: false, qr: false });
 
@@ -299,10 +299,17 @@ const InvoiceSetting = ({ value, onSave }) => {
           <div className="settings-actions">
             <button
               className="btn btn-primary"
-              onClick={() => onSave?.(form)}
-              disabled={uploading.logo || uploading.qr}
+              onClick={() => {
+                void onSave?.(form);
+              }}
+              disabled={uploading.logo || uploading.qr || saving}
             >
-              {uploading.logo || uploading.qr ? 'Uploading...' : 'Save Changes'}
+              {saving ? (
+                <>
+                  <Loader2 size={16} className="btn-spinner" />
+                  <span>Saving...</span>
+                </>
+              ) : uploading.logo || uploading.qr ? 'Uploading...' : 'Save Changes'}
             </button>
           </div>
         </div>

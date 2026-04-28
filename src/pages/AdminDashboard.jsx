@@ -1546,6 +1546,7 @@ const AdminDashboard = () => {
               )}
               <AdminSettings
                 activeView={activeSection.split(':')[1] || 'restaurant-details'}
+                onNotify={pushToast}
               />
             </>
           )}
