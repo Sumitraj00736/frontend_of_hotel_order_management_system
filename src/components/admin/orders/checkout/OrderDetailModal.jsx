@@ -30,6 +30,7 @@ const OrderDetailModal = ({
   const [payments, setPayments] = useState([{ method: order.paymentMethod || paymentMethods?.[order._id] || 'cash', amount: 0 }]);
   const [showAddItem, setShowAddItem] = useState(initialShowAddItem);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [tenderAmount, setTenderAmount] = useState(0);
   const [finalOrder, setFinalOrder] = useState(null);
 
   const handleConfirmPay = async () => {
@@ -43,6 +44,7 @@ const OrderDetailModal = ({
         customerId,
         discountType,
         discountValue: discount,
+        tenderAmount: Number(tenderAmount || 0),
         taxRate: Number(taxRate || 0),
         tipsAmount: Number(tipsAmount || 0),
         roundOff: 0
@@ -308,6 +310,8 @@ const OrderDetailModal = ({
             onTaxRateChange={setTaxRate}
             tipsAmount={tipsAmount}
             onTipsChange={setTipsAmount}
+            tenderAmount={tenderAmount}
+            onTenderAmountChange={setTenderAmount}
             total={total}
           />
 
