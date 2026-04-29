@@ -1,8 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import TransactionKpiCards from './TransactionKpiCards.jsx';
-import TransactionsTable from './TransactionsTable.jsx';
 import { fetchFinanceDashboard, fetchTransactions } from './transactionsApi.js';
 import '../../../../common/css/admin/finance/finance.css';
+
+// Modular Components
+import TransactionHeader from './components/TransactionHeader.jsx';
+import TransactionFilters from './components/TransactionFilters.jsx';
+import TransactionKpiGrid from './components/TransactionKpiGrid.jsx';
+import TransactionTable from './components/TransactionTable.jsx';
+import TransactionPagination from './components/TransactionPagination.jsx';
 
 export default function TransactionsPage() {
   const [dateFrom, setDateFrom] = useState('');
@@ -28,7 +33,6 @@ export default function TransactionsPage() {
       setKpis(dash.kpis || null);
       setRows(tx.data || []);
       setTotal(tx.total || 0);
-      if (tx.warning) console.warn(tx.warning);
     } catch (e) {
       console.error(e);
       setKpis(null);
@@ -48,43 +52,30 @@ export default function TransactionsPage() {
   }, [load]);
 
   return (
-    <div className="finance-screen">
-      <div className="finance-page-head">
-        <div>
-          <h1 className="finance-page-title">Transactions</h1>
-          <div className="finance-breadcrumb">Finance / Transactions</div>
-        </div>
-        <div className="finance-toolbar">
-          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
-          <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
-          <button type="button" className="finance-btn" onClick={() => load()} disabled={loading}>
-            Refresh
-          </button>
-        </div>
-      </div>
+    <div className="fd-root">
+      <TransactionHeader />
+      
+      <TransactionFilters 
+        dateFrom={dateFrom} 
+        setDateFrom={setDateFrom} 
+        dateTo={dateTo} 
+        setDateTo={setDateTo} 
+        loading={loading}
+        onRefresh={load}
+      />
 
-      <TransactionKpiCards kpis={kpis} />
+      <TransactionKpiGrid kpis={kpis} />
 
-      {loading ? <div className="finance-empty">Loading…</div> : <TransactionsTable rows={rows} />}
+      <TransactionTable rows={rows} loading={loading} />
 
-      <div style={{ marginTop: 12, fontSize: '0.85rem', color: '#64748b' }}>
-        Page {page} — showing {rows.length} of {total} row(s)
-        {total > limit && (
-          <span style={{ marginLeft: 12 }}>
-            <button type="button" className="finance-btn ghost" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              Prev
-            </button>
-            <button
-              type="button"
-              className="finance-btn ghost"
-              disabled={page * limit >= total}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Next
-            </button>
-          </span>
-        )}
-      </div>
+      <TransactionPagination 
+        page={page} 
+        limit={limit} 
+        total={total} 
+        rowsCount={rows.length}
+        onPrev={() => setPage((p) => Math.max(1, p - 1))}
+        onNext={() => setPage((p) => p + 1)}
+      />
     </div>
   );
 }
