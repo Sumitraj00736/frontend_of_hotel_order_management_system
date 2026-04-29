@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  X, Plus, Trash2, Calendar, Hash, User, 
+  CreditCard, FileText, Calculator, ChevronDown,
+  ShoppingCart
+} from 'lucide-react';
 import { createPurchase } from './salesPurchaseApi.js';
 import api from '../../../../api/client.js';
 
@@ -52,7 +57,6 @@ export default function PurchaseBillFormModal({ open, onClose, onSaved }) {
     setItems((prev) => {
       const next = [...prev];
       next[idx] = { ...next[idx], ...patch };
-      // Auto-fill UOM from ingredient
       if (patch.ingredientId) {
         const ing = ingredients.find(i => i._id === patch.ingredientId);
         if (ing) {
@@ -121,203 +125,323 @@ export default function PurchaseBillFormModal({ open, onClose, onSaved }) {
   };
 
   return (
-    <div className="finance-modal-overlay">
-      <div className="finance-modal" style={{ maxWidth: 950 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3>Add Purchase Bill</h3>
-          <button type="button" className="finance-btn ghost" onClick={onClose}>✕</button>
-        </div>
-
-        <div className="finance-form-grid" style={{ marginTop: 12 }}>
-          {/* Supplier selector */}
-          <label style={{ position: 'relative' }}>
-            Supplier
-            <div style={{ position: 'relative' }}>
-              <input
-                value={supplierId ? (suppliers.find(s => s._id === supplierId)?.name || supplierName) : supplierSearch}
-                placeholder="Search or type supplier name"
-                onChange={(e) => {
-                  setSupplierSearch(e.target.value);
-                  setSupplierId('');
-                  setSupplierName(e.target.value);
-                  setShowSupplierDrop(true);
-                }}
-                onFocus={() => setShowSupplierDrop(true)}
-              />
-              {showSupplierDrop && filteredSuppliers.length > 0 && (
-                <div style={{
-                  position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
-                  background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8,
-                  maxHeight: 200, overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
-                }}>
-                  {filteredSuppliers.map(s => (
-                    <div
-                      key={s._id}
-                      style={{ padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
-                      onMouseDown={() => {
-                        setSupplierId(s._id);
-                        setSupplierName(s.name);
-                        setSupplierSearch('');
-                        setShowSupplierDrop(false);
-                      }}
-                    >
-                      <span style={{ fontWeight: 600 }}>{s.name}</span>
-                      {s.phone && <span style={{ fontSize: 12, color: '#6b7280', marginLeft: 8 }}>{s.phone}</span>}
-                    </div>
-                  ))}
-                </div>
-              )}
+    <div className="fd-modal-overlay">
+      <div className="fd-modal" style={{ maxWidth: 1000, overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
+        <div className="fd-modal-head">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ background: '#f5a52415', color: '#f5a524', padding: '8px', borderRadius: '10px' }}>
+              <ShoppingCart size={20} />
             </div>
-          </label>
-
-          <label>
-            Bill Date *
-            <input type="date" value={billDate} onChange={(e) => setBillDate(e.target.value)} />
-          </label>
-          <label>
-            Bill Reference Number
-            <input value={billReferenceNumber} onChange={(e) => setBillReferenceNumber(e.target.value)} />
-          </label>
+            <div>
+              <h3 style={{ margin: 0 }}>Add Purchase Bill</h3>
+              <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Create a new inventory purchase record</p>
+            </div>
+          </div>
+          <button className="fd-modal-close" onClick={onClose}><X size={18} /></button>
         </div>
 
-        {/* Items Table */}
-        <div style={{ overflowX: 'auto', marginTop: 16 }}>
-          <table className="finance-data-table">
-            <thead>
-              <tr>
-                <th>SN</th>
-                <th style={{ minWidth: 160 }}>Ingredient / Item</th>
-                <th>Qty</th>
-                <th>UOM</th>
-                <th>Rate</th>
-                <th>Amount</th>
-                <th>Account Head</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((row, idx) => (
-                <tr key={idx}>
-                  <td>{idx + 1}</td>
-                  <td>
-                    <select
-                      style={{ minWidth: 160 }}
-                      value={row.ingredientId}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === '__manual__') {
-                          updateItem(idx, { ingredientId: '', name: '' });
-                        } else {
-                          updateItem(idx, { ingredientId: val });
-                        }
-                      }}
-                    >
-                      <option value="">— Select ingredient —</option>
-                      {ingredients.map(ing => (
-                        <option key={ing._id} value={ing._id}>{ing.name} ({ing.unit})</option>
-                      ))}
-                      <option value="__manual__">✏ Type manually</option>
-                    </select>
-                    {!row.ingredientId && (
-                      <input
-                        style={{ marginTop: 4 }}
-                        value={row.name}
-                        placeholder="Item name"
-                        onChange={(e) => updateItem(idx, { name: e.target.value })}
-                      />
-                    )}
-                  </td>
-                  <td>
-                    <input type="number" value={row.qty} onChange={(e) => updateItem(idx, { qty: e.target.value })} />
-                  </td>
-                  <td>
-                    <input value={row.uom} onChange={(e) => updateItem(idx, { uom: e.target.value })} placeholder="UOM" />
-                  </td>
-                  <td>
-                    <input type="number" value={row.rate} onChange={(e) => updateItem(idx, { rate: e.target.value })} />
-                  </td>
-                  <td style={{ fontWeight: 600 }}>Rs {row.amount}</td>
-                  <td>
-                    <input value={row.accountHead} onChange={(e) => updateItem(idx, { accountHead: e.target.value })} placeholder="Account" />
-                  </td>
-                  <td>
-                    <button type="button" className="finance-btn ghost" style={{ padding: '2px 8px' }} onClick={() => setItems(prev => prev.filter((_, i) => i !== idx))}>✕</button>
-                  </td>
+        <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+            <div className="fd-form-row">
+              <label><User size={12} style={{ marginRight: 6 }} />Supplier Name</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  className="fd-date-input"
+                  style={{ width: '100%', height: '40px' }}
+                  value={supplierId ? (suppliers.find(s => s._id === supplierId)?.name || supplierName) : supplierSearch}
+                  placeholder="Search or type supplier name..."
+                  onChange={(e) => {
+                    setSupplierSearch(e.target.value);
+                    setSupplierId('');
+                    setSupplierName(e.target.value);
+                    setShowSupplierDrop(true);
+                  }}
+                  onFocus={() => setShowSupplierDrop(true)}
+                />
+                {showSupplierDrop && filteredSuppliers.length > 0 && (
+                  <div style={{
+                    position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 1000,
+                    background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px',
+                    maxHeight: 200, overflowY: 'auto', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    marginTop: '4px'
+                  }}>
+                    {filteredSuppliers.map(s => (
+                      <div
+                        key={s._id}
+                        style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}
+                        className="hover-bg-slate-50"
+                        onMouseDown={() => {
+                          setSupplierId(s._id);
+                          setSupplierName(s.name);
+                          setSupplierSearch('');
+                          setShowSupplierDrop(false);
+                        }}
+                      >
+                        <div style={{ fontWeight: 600, fontSize: '13px', color: '#0f172a' }}>{s.name}</div>
+                        {s.phone && <div style={{ fontSize: '11px', color: '#64748b' }}>{s.phone}</div>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="fd-form-row">
+              <label><Calendar size={12} style={{ marginRight: 6 }} />Bill Date</label>
+              <input 
+                type="date" 
+                className="fd-date-input" 
+                style={{ width: '100%', height: '40px' }}
+                value={billDate} 
+                onChange={(e) => setBillDate(e.target.value)} 
+              />
+            </div>
+
+            <div className="fd-form-row">
+              <label><Hash size={12} style={{ marginRight: 6 }} />Bill Reference</label>
+              <input 
+                className="fd-date-input" 
+                style={{ width: '100%', height: '40px' }}
+                placeholder="INV-001"
+                value={billReferenceNumber} 
+                onChange={(e) => setBillReferenceNumber(e.target.value)} 
+              />
+            </div>
+          </div>
+
+          <div className="fd-table-card" style={{ padding: 0, marginBottom: '20px', border: '1px solid #e2e8f0' }}>
+            <table className="fd-table">
+              <thead style={{ background: '#f8fafc' }}>
+                <tr>
+                  <th style={{ width: '40px', textAlign: 'center' }}>#</th>
+                  <th style={{ minWidth: '240px' }}>Item / Ingredient</th>
+                  <th style={{ width: '100px' }}>Qty</th>
+                  <th style={{ width: '100px' }}>UOM</th>
+                  <th style={{ width: '120px' }}>Rate</th>
+                  <th style={{ width: '120px' }}>Amount</th>
+                  <th>Account</th>
+                  <th style={{ width: '40px' }}></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {items.map((row, idx) => (
+                  <tr key={idx}>
+                    <td style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>{idx + 1}</td>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <div style={{ position: 'relative' }}>
+                          <select
+                            style={{ width: '100%', height: '36px', padding: '0 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', appearance: 'none', background: '#fff' }}
+                            value={row.ingredientId}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === '__manual__') updateItem(idx, { ingredientId: '', name: '' });
+                              else updateItem(idx, { ingredientId: val });
+                            }}
+                          >
+                            <option value="">— Select ingredient —</option>
+                            {ingredients.map(ing => (
+                              <option key={ing._id} value={ing._id}>{ing.name} ({ing.unit})</option>
+                            ))}
+                            <option value="__manual__">✏ Type manually</option>
+                          </select>
+                          <ChevronDown size={14} style={{ position: 'absolute', right: '10px', top: '11px', color: '#94a3b8', pointerEvents: 'none' }} />
+                        </div>
+                        {!row.ingredientId && (
+                          <input
+                            style={{ height: '32px', fontSize: '12px', padding: '0 10px', border: '1px solid #e2e8f0', borderRadius: '6px' }}
+                            value={row.name}
+                            placeholder="Type item name..."
+                            onChange={(e) => updateItem(idx, { name: e.target.value })}
+                          />
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <input 
+                        type="number" 
+                        style={{ width: '100%', height: '36px', textAlign: 'right', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0 10px' }}
+                        value={row.qty} 
+                        onChange={(e) => updateItem(idx, { qty: e.target.value })} 
+                      />
+                    </td>
+                    <td>
+                      <input 
+                        style={{ width: '100%', height: '36px', textAlign: 'center', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0 6px', fontSize: '12px' }}
+                        value={row.uom} 
+                        onChange={(e) => updateItem(idx, { uom: e.target.value })} 
+                        placeholder="kg/ltr" 
+                      />
+                    </td>
+                    <td>
+                      <input 
+                        type="number" 
+                        style={{ width: '100%', height: '36px', textAlign: 'right', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0 10px' }}
+                        value={row.rate} 
+                        onChange={(e) => updateItem(idx, { rate: e.target.value })} 
+                      />
+                    </td>
+                    <td style={{ fontWeight: 700, color: '#0f172a', textAlign: 'right' }}>
+                      {row.amount.toFixed(2)}
+                    </td>
+                    <td>
+                      <input 
+                        style={{ width: '100%', height: '36px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0 10px', fontSize: '12px' }}
+                        value={row.accountHead} 
+                        onChange={(e) => updateItem(idx, { accountHead: e.target.value })} 
+                        placeholder="Account..." 
+                      />
+                    </td>
+                    <td>
+                      <button 
+                        className="fd-modal-close" 
+                        style={{ width: '28px', height: '28px', background: '#fef2f2', color: '#dc2626' }}
+                        onClick={() => setItems(prev => prev.filter((_, i) => i !== idx))}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div style={{ padding: '12px 16px', background: '#f8fafc' }}>
+              <button 
+                className="fd-action-btn ghost" 
+                style={{ width: '100%', justifyContent: 'center', borderStyle: 'dashed', background: '#fff' }}
+                onClick={() => setItems((prev) => [...prev, emptyItem()])}
+              >
+                <Plus size={16} />
+                <span>Add Another Item</span>
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', alignItems: 'start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="fd-form-row">
+                  <label><CreditCard size={12} style={{ marginRight: 6 }} />Payment Mode</label>
+                  <select 
+                    style={{ height: '40px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0 12px' }}
+                    value={paymentMethod} 
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="bank">Bank</option>
+                    <option value="fonepay">Fonepay</option>
+                    <option value="owner">Owner</option>
+                  </select>
+                </div>
+                <div className="fd-form-row">
+                  <label><FileText size={12} style={{ marginRight: 6 }} />Status</label>
+                  <select 
+                    style={{ height: '40px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0 12px' }}
+                    value={paymentStatus} 
+                    onChange={(e) => setPaymentStatus(e.target.value)}
+                  >
+                    <option value="paid">Paid</option>
+                    <option value="unpaid_credit">Unpaid / Credit</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                <div className="fd-form-row">
+                  <label>Discount Type</label>
+                  <select 
+                    style={{ height: '40px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0 10px' }}
+                    value={discountType} 
+                    onChange={(e) => setDiscountType(e.target.value)}
+                  >
+                    <option value="amount">Fixed</option>
+                    <option value="percent">Percent (%)</option>
+                  </select>
+                </div>
+                <div className="fd-form-row">
+                  <label>Discount Value</label>
+                  <input 
+                    type="number" 
+                    className="fd-date-input" 
+                    style={{ height: '40px' }}
+                    value={discountValue} 
+                    onChange={(e) => setDiscountValue(e.target.value)} 
+                  />
+                </div>
+                <div className="fd-form-row">
+                  <label>Tax (%)</label>
+                  <input 
+                    type="number" 
+                    className="fd-date-input" 
+                    style={{ height: '40px' }}
+                    value={taxRate} 
+                    onChange={(e) => setTaxRate(e.target.value)} 
+                  />
+                </div>
+              </div>
+
+              <div className="fd-form-row">
+                <label>Remarks / Notes</label>
+                <textarea 
+                  className="fd-date-input"
+                  style={{ height: '80px', padding: '12px' }}
+                  value={note} 
+                  onChange={(e) => setNote(e.target.value)} 
+                  placeholder="Additional information about this purchase..."
+                />
+              </div>
+            </div>
+
+            <div style={{ background: '#0f172a', borderRadius: '16px', padding: '24px', color: '#fff' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', borderBottom: '1px solid #334155', paddingBottom: '12px' }}>
+                <Calculator size={18} color="#f5a524" />
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>Payment Summary</h4>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#94a3b8' }}>
+                  <span>Subtotal</span>
+                  <span style={{ color: '#fff' }}>Rs {totalAmount.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#94a3b8' }}>
+                  <span>Discount {discountType === 'percent' ? `(${discountValue}%)` : ''}</span>
+                  <span style={{ color: '#ef4444' }}>- Rs {discountAmount.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#94a3b8' }}>
+                  <span>Tax ({taxRate}%)</span>
+                  <span style={{ color: '#fff' }}>+ Rs {taxAmount.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#94a3b8' }}>
+                  <span>Round Off</span>
+                  <input 
+                    type="number" 
+                    style={{ background: 'transparent', border: 'none', borderBottom: '1px dashed #334155', color: '#fff', width: '60px', textAlign: 'right', outline: 'none' }}
+                    value={roundOff} 
+                    onChange={(e) => setRoundOff(e.target.value)} 
+                  />
+                </div>
+                
+                <div style={{ marginTop: '12px', paddingTop: '16px', borderTop: '2px solid #1e293b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '16px', fontWeight: 600 }}>Grand Total</span>
+                  <span style={{ fontSize: '24px', fontWeight: 800, color: '#f5a524' }}>Rs {estimatedGrandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <button
-          type="button"
-          className="finance-btn ghost"
-          style={{ marginTop: 8 }}
-          onClick={() => setItems((prev) => [...prev, emptyItem()])}
-        >
-          + Add Row
-        </button>
+        {err && <div style={{ padding: '12px 24px', background: '#fef2f2', color: '#dc2626', fontSize: '13px', borderTop: '1px solid #fee2e2' }}>{err}</div>}
 
-        <div style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-          <label>
-            Discount Type
-            <select value={discountType} onChange={(e) => setDiscountType(e.target.value)}>
-              <option value="amount">Amount</option>
-              <option value="percent">Percent</option>
-            </select>
-          </label>
-          <label>
-            Discount {discountType === 'percent' ? '(%)' : '(Rs)'}
-            <input type="number" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} />
-          </label>
-          <label>
-            Tax Rate (%)
-            <input type="number" value={taxRate} onChange={(e) => setTaxRate(e.target.value)} />
-          </label>
-          <label>
-            Round Off
-            <input type="number" value={roundOff} onChange={(e) => setRoundOff(e.target.value)} />
-          </label>
-        </div>
-
-        <div style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-          <label>
-            Payment mode
-            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-              <option value="cash">Cash</option>
-              <option value="card">Card</option>
-              <option value="bank">Bank</option>
-              <option value="fonepay">Fonepay</option>
-              <option value="owner">Owner</option>
-            </select>
-          </label>
-          <label>
-            Status
-            <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
-              <option value="paid">Paid</option>
-              <option value="unpaid_credit">Unpaid / Credit</option>
-            </select>
-          </label>
-        </div>
-
-        <label style={{ display: 'block', marginTop: 8 }}>
-          Remarks
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} style={{ width: '100%' }} />
-        </label>
-
-        <div style={{ marginTop: 10, padding: 12, background: '#f8fafc', borderRadius: 10, color: '#334155' }}>
-          <div>Estimated Subtotal: Rs {totalAmount.toFixed(2)}</div>
-          <div>Estimated Discount: Rs {discountAmount.toFixed(2)}</div>
-          <div>Estimated Tax: Rs {taxAmount.toFixed(2)}</div>
-          <div style={{ fontWeight: 700 }}>Estimated Grand Total: Rs {estimatedGrandTotal.toFixed(2)}</div>
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Final finance totals are calculated and validated by the backend on save.</div>
-        </div>
-        {err && <p style={{ color: '#b91c1c' }}>{err}</p>}
-
-        <div className="finance-form-actions">
-          <button type="button" className="finance-btn ghost" onClick={onClose}>Cancel</button>
-          <button type="button" className="finance-btn primary" onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving…' : 'Save Purchase Bill'}
+        <div className="fd-modal-form" style={{ padding: '16px 24px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', flexDirection: 'row', justifyContent: 'flex-end', gap: '12px', marginTop: 0 }}>
+          <button className="fd-action-btn ghost" onClick={onClose} style={{ minWidth: '100px' }}>Cancel</button>
+          <button 
+            className="fd-action-btn primary" 
+            onClick={handleSave} 
+            disabled={saving}
+            style={{ minWidth: '160px', height: '40px' }}
+          >
+            {saving ? 'Processing...' : 'Complete Purchase'}
           </button>
         </div>
       </div>
