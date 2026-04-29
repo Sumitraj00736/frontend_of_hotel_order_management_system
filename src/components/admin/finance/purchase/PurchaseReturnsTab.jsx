@@ -2,11 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { RotateCw, DollarSign, Package, Plus, Users } from 'lucide-react';
 import { formatMoney } from '../shared/formatMoney.js';
 import { fetchPurchaseReturns } from './purchaseApi.js';
-import PurchaseReturnFormModal from './PurchaseReturnFormModal.jsx';
 
 export default function PurchaseReturnsTab({ dateFrom, dateTo, refreshKey, setLoading }) {
   const [rows, setRows] = useState([]);
-  const [showAdd, setShowAdd] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -109,8 +107,6 @@ export default function PurchaseReturnsTab({ dateFrom, dateTo, refreshKey, setLo
             </tbody>
           </table>
         </div>
-      </div>
-
       </div>
     </div>
   );

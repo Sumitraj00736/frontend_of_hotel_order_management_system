@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, FileText, RotateCcw } from 'lucide-react';
 import SalesInvoiceTab from './SalesInvoiceTab.jsx';
 import SalesReturnsTab from './SalesReturnsTab.jsx';
 import SectionHeader from '../shared/SectionHeader.jsx';
 import SalesReturnFormModal from './SalesReturnFormModal.jsx';
 
 const TABS = [
-  { id: 'invoices', label: 'Sales Invoices' },
-  { id: 'returns', label: 'Sales Returns' }
+  { id: 'invoices', label: 'Sales Invoices', icon: FileText },
+  { id: 'returns', label: 'Sales Returns', icon: RotateCcw }
 ];
 
 export default function SalesLayout({ activeTab, onTabChange }) {
@@ -66,7 +66,8 @@ export default function SalesLayout({ activeTab, onTabChange }) {
               className={`fd-tab-item ${currentTab === tab.id ? 'active' : ''}`}
               onClick={() => onTabChange(tab.id)}
             >
-              {tab.label}
+              <tab.icon size={16} />
+              <span>{tab.label}</span>
             </button>
           ))}
         </div>

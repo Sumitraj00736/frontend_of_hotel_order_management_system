@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, ShoppingBag, RotateCw } from 'lucide-react';
 import PurchaseBillsTab from './PurchaseBillsTab.jsx';
 import PurchaseReturnsTab from './PurchaseReturnsTab.jsx';
 import SectionHeader from '../shared/SectionHeader.jsx';
@@ -7,8 +7,8 @@ import PurchaseBillFormModal from './PurchaseBillFormModal.jsx';
 import PurchaseReturnFormModal from './PurchaseReturnFormModal.jsx';
 
 const TABS = [
-  { id: 'bills', label: 'Purchase Bills' },
-  { id: 'returns', label: 'Purchase Returns' }
+  { id: 'bills', label: 'Purchase Bills', icon: ShoppingBag },
+  { id: 'returns', label: 'Purchase Returns', icon: RotateCw }
 ];
 
 export default function PurchaseLayout({ activeTab, onTabChange }) {
@@ -67,7 +67,8 @@ export default function PurchaseLayout({ activeTab, onTabChange }) {
               className={`fd-tab-item ${currentTab === tab.id ? 'active' : ''}`}
               onClick={() => onTabChange(tab.id)}
             >
-              {tab.label}
+              <tab.icon size={16} />
+              <span>{tab.label}</span>
             </button>
           ))}
         </div>

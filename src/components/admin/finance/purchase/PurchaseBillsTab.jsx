@@ -2,11 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { ShoppingCart, Package, Users, Plus } from 'lucide-react';
 import { formatMoney } from '../shared/formatMoney.js';
 import { fetchPurchases } from './purchaseApi.js';
-import PurchaseBillFormModal from './PurchaseBillFormModal.jsx';
 
 export default function PurchaseBillsTab({ dateFrom, dateTo, refreshKey, setLoading }) {
   const [rows, setRows] = useState([]);
-  const [showAdd, setShowAdd] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -109,8 +107,6 @@ export default function PurchaseBillsTab({ dateFrom, dateTo, refreshKey, setLoad
             </tbody>
           </table>
         </div>
-      </div>
-
       </div>
     </div>
   );

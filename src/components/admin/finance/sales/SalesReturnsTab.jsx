@@ -2,11 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { RotateCcw, DollarSign, Package, Plus } from 'lucide-react';
 import { formatMoney } from '../shared/formatMoney.js';
 import { fetchSalesReturns } from './salesApi.js';
-import SalesReturnFormModal from './SalesReturnFormModal.jsx';
 
 export default function SalesReturnsTab({ dateFrom, dateTo, refreshKey, setLoading }) {
   const [rows, setRows] = useState([]);
-  const [showAdd, setShowAdd] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -100,7 +98,7 @@ export default function SalesReturnsTab({ dateFrom, dateTo, refreshKey, setLoadi
         </div>
       </div>
 
-      <SalesReturnFormModal open={showAdd} onClose={() => setShowAdd(false)} onSaved={load} />
+      </div>
     </div>
   );
 }
