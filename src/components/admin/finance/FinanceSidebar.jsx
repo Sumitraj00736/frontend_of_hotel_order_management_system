@@ -87,9 +87,7 @@ export default function FinanceSidebar({ section, onNavigate, onBack }) {
                 key={item.id}
                 className={`sidebar-button ${isActive ? 'active' : ''}`}
                 onClick={() => {
-                  if (item.id === 'purchase') {
-                    onNavigate(`finance:sales-purchase:purchase-bills`);
-                  } else if (item.sub) {
+                  if (item.sub) {
                     onNavigate(`finance:${item.id}:${item.sub}`);
                   } else {
                     onNavigate(`finance:${item.id}`);
