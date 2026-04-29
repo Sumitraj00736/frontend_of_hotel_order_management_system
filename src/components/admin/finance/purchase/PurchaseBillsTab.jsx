@@ -50,13 +50,6 @@ export default function PurchaseBillsTab({ dateFrom, dateTo, refreshKey, setLoad
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-        <button className="fd-action-btn primary" onClick={() => setShowAdd(true)}>
-          <Plus size={16} />
-          <span>Add Purchase Bill</span>
-        </button>
-      </div>
-
       <div className="fd-kpi-grid">
         {kpis.map((item, idx) => (
           <div key={idx} className="fd-kpi-card" style={{ '--card-index': idx }}>
@@ -118,7 +111,7 @@ export default function PurchaseBillsTab({ dateFrom, dateTo, refreshKey, setLoad
         </div>
       </div>
 
-      <PurchaseBillFormModal open={showAdd} onClose={() => setShowAdd(false)} onSaved={load} />
+      </div>
     </div>
   );
 }
