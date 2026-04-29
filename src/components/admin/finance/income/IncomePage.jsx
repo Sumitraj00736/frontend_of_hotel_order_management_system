@@ -12,7 +12,7 @@ export default function IncomePage() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/api/income');
+      const res = await api.get('/api/incomes');
       const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
       setRows(data);
       setTotal(data.reduce((s, r) => s + Number(r.amount || 0), 0));
@@ -25,7 +25,7 @@ export default function IncomePage() {
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/api/income', form);
+      await api.post('/api/incomes', form);
       setShowAdd(false);
       setForm({ date: '', category: '', description: '', amount: '', paymentMode: 'cash' });
       load();
