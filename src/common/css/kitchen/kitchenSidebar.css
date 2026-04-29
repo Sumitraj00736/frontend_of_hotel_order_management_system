@@ -189,11 +189,53 @@
 }
 
 /* Footer / Profile */
+
+/* Ensure the footer is the anchor for the pop-out */
 .sidebar-footer {
   padding: 15px;
   border-top: 1px solid #eee;
+  position: relative; /* Anchor for the absolute menu */
+  margin-top: auto; 
 }
 
+/* Hide the menu by default and position it to the right */
+.profile-menu {
+  position: absolute;
+  left: 100%; /* Move it completely outside the sidebar */
+  bottom: 15px; /* Align with footer padding */
+  width: 200px; /* Give it a fixed width for the pop-out */
+  background: white;
+  box-shadow: 10px 0 25px rgba(0,0,0,0.1);
+  border-radius: 0 12px 12px 0; /* Rounded corners on the outer side */
+  padding: 8px;
+  margin-left: 10px;
+  
+  /* Animation properties */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-10px);
+  transition: all var(--transition-speed) ease;
+  pointer-events: none;
+}
+
+/* Show the menu when hovering over the footer */
+.sidebar-footer:hover .profile-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+/* Add a small "arrow" or connector (Optional) */
+.profile-menu::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  background: transparent; /* Creates a bridge so the mouse can move across */
+}
 .user-profile {
   position: relative;
 }
@@ -228,17 +270,7 @@
 .user-name { font-size: 0.85rem; font-weight: 600; margin: 0; }
 .user-email { font-size: 0.7rem; color: var(--text-muted); margin: 0; }
 
-.profile-menu {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  width: 100%;
-  background: white;
-  box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-  border-radius: 12px;
-  padding: 8px;
-  margin-bottom: 10px;
-}
+
 
 .profile-menu button {
   width: 100%;
