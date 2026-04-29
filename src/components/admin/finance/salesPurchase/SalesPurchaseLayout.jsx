@@ -1,47 +1,71 @@
-import React, { useState, useCallback } from 'react';
-import SalesPurchaseTabs from './SalesPurchaseTabs.jsx';
+import React, { useState } from 'react';
 import SalesInvoiceTab from './SalesInvoiceTab.jsx';
 import PurchaseBillsTab from './PurchaseBillsTab.jsx';
 import SalesReturnsTab from './SalesReturnsTab.jsx';
 import PurchaseReturnsTab from './PurchaseReturnsTab.jsx';
-import '../../../../common/css/admin/finance/finance.css';
+import SectionHeader from './components/SectionHeader.jsx';
 
-// Modular Components
-import SalesPurchaseHeader from './components/SalesPurchaseHeader.jsx';
-import SalesPurchaseFilters from './components/SalesPurchaseFilters.jsx';
+const MODULE_TABS = {
+  sales: [
+    { id: 'sales-invoices', label: 'Sales Invoices' },
+    { id: 'sales-returns', label: 'Sales Returns' }
+  ],
+  purchase: [
+    { id: 'purchase-bills', label: 'Purchase Bills' },
+    { id: 'purchase-returns', label: 'Purchase Returns' }
+  ]
+};
 
-export default function SalesPurchaseLayout({ activeTab, onTabChange }) {
+export default function SalesPurchaseLayout({ module = 'sales', activeTab, onTabChange }) {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const tab = activeTab || 'sales-invoices';
+  const tabs = MODULE_TABS[module] || MODULE_TABS.sales;
+  const currentTab = activeTab || tabs[0].id;
 
-  const handleRefresh = useCallback(() => {
-    setRefreshKey(prev => prev + 1);
-  }, []);
+  const handleRefresh = () => setRefreshKey(prev => prev + 1);
 
   return (
     <div className="fd-root">
-      <SalesPurchaseHeader>
-        <SalesPurchaseFilters 
-          dateFrom={dateFrom} 
-          setDateFrom={setDateFrom} 
-          dateTo={dateTo} 
-          setDateTo={setDateTo} 
-          loading={loading}
-          onRefresh={handleRefresh}
-        />
-      </SalesPurchaseHeader>
+      <SectionHeader 
+        title={module === 'sales' ? 'Sales Management' : 'Purchase Management'}
+        dateFrom={dateFrom}
+        onDateFromChange={setDateFrom}
+        dateTo={dateTo}
+        onDateToChange={setDateTo}
+        onRefresh={handleRefresh}
+        loading={loading}
+      />
 
-      <SalesPurchaseTabs active={tab} onChange={onTabChange} />
+      <div style={{ padding: '0 24px' }}>
+        <div className="fd-tab-bar" style={{ marginBottom: '24px' }}>
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              className={`fd-tab-item ${currentTab === tab.id ? 'active' : ''}`}
+              onClick={() => onTabChange(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-      <div style={{ marginTop: '24px' }}>
-        {tab === 'sales-invoices' && <SalesInvoiceTab dateFrom={dateFrom} dateTo={dateTo} refreshKey={refreshKey} setLoading={setLoading} />}
-        {tab === 'purchase-bills' && <PurchaseBillsTab dateFrom={dateFrom} dateTo={dateTo} refreshKey={refreshKey} setLoading={setLoading} />}
-        {tab === 'sales-returns' && <SalesReturnsTab dateFrom={dateFrom} dateTo={dateTo} refreshKey={refreshKey} setLoading={setLoading} />}
-        {tab === 'purchase-returns' && <PurchaseReturnsTab dateFrom={dateFrom} dateTo={dateTo} refreshKey={refreshKey} setLoading={setLoading} />}
+        <div className="fd-content-body">
+          {currentTab === 'sales-invoices' && (
+            <SalesInvoiceTab dateFrom={dateFrom} dateTo={dateTo} refreshKey={refreshKey} setLoading={setLoading} />
+          )}
+          {currentTab === 'purchase-bills' && (
+            <PurchaseBillsTab dateFrom={dateFrom} dateTo={dateTo} refreshKey={refreshKey} setLoading={setLoading} />
+          )}
+          {currentTab === 'sales-returns' && (
+            <SalesReturnsTab dateFrom={dateFrom} dateTo={dateTo} refreshKey={refreshKey} setLoading={setLoading} />
+          )}
+          {currentTab === 'purchase-returns' && (
+            <PurchaseReturnsTab dateFrom={dateFrom} dateTo={dateTo} refreshKey={refreshKey} setLoading={setLoading} />
+          )}
+        </div>
       </div>
     </div>
   );

@@ -26,12 +26,15 @@ export default function AdminFinance({ section, onNavigate, financeDashboardData
     if (view === 'payments')        return <PaymentsPage />;
     if (view === 'cashbanks')       return <CashBanksPage />;
     if (view === 'reports')         return <FinanceReports />;
-    if (view === 'sales-purchase' || view === 'purchase') {
-      const tab = sub || (view === 'purchase' ? 'purchase-bills' : 'sales-invoices');
+    if (view === 'sales-purchase' || view === 'sales' || view === 'purchase') {
+      const module = view === 'purchase' ? 'purchase' : 'sales';
+      const defaultTab = module === 'purchase' ? 'purchase-bills' : 'sales-invoices';
+      const tab = sub || defaultTab;
       return (
         <SalesPurchaseLayout
+          module={module}
           activeTab={tab}
-          onTabChange={(id) => onNavigate(`finance:sales-purchase:${id}`)}
+          onTabChange={(id) => onNavigate(`finance:${module}:${id}`)}
         />
       );
     }

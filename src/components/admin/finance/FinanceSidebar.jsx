@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { id: 'dashboard',    label: 'Dashboard',       icon: '🏠' },
   { id: 'transactions', label: 'Transactions',     icon: '↕️' },
   { id: 'daybook',      label: 'Day Book',         icon: '📖' },
-  { id: 'sales-purchase', label: 'Sales',          icon: '🧾', sub: 'sales-invoices' },
+  { id: 'sales',        label: 'Sales',          icon: '🧾', sub: 'sales-invoices' },
   { id: 'purchase',     label: 'Purchase',         icon: '🛒', sub: 'purchase-bills' },
   { id: 'income',       label: 'Income',           icon: '💰' },
   { id: 'expenses',     label: 'Expenses',         icon: '💸' },
@@ -81,9 +81,7 @@ export default function FinanceSidebar({ section, onNavigate, onBack }) {
       <div className="sidebar-buttons" style={{ flex: 1, overflowY: 'auto' }}>
         <div className="mb-2">
           {NAV_ITEMS.map((item) => {
-            const isActive = view === item.id ||
-              (item.id === 'sales-purchase' && view === 'purchase') ||
-              (item.id === 'sales-purchase' && view === 'sales-purchase');
+            const isActive = view === item.id;
             return (
               <button
                 key={item.id}
