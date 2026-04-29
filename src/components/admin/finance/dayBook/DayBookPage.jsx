@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import DayBookGrid from './DayBookGrid.jsx';
-import DayBookToolbar from './DayBookToolbar.jsx';
-import DayBookReportModal from './DayBookReportModal.jsx';
 import { fetchDaybookSummary } from './dayBookApi.js';
 import '../../../../common/css/admin/finance/finance.css';
+
+// Modular Components
+import DayBookHeader from './components/DayBookHeader.jsx';
+import DayBookToolbar from './components/DayBookToolbar.jsx';
+import DayBookGrid from './components/DayBookGrid.jsx';
+import DayBookSalesModal from './components/DayBookSalesModal.jsx';
+import DayBookReportModal from './DayBookReportModal.jsx';
 
 function todayInput() {
   const d = new Date();
@@ -40,12 +44,8 @@ export default function DayBookPage({ onNavigateHistory }) {
   }, [load]);
 
   return (
-    <div className="finance-screen">
-      <div className="finance-page-head">
-        <div>
-          <h1 className="finance-page-title">Day Book</h1>
-          <div className="finance-breadcrumb">Finance / Day Book</div>
-        </div>
+    <div className="fd-root">
+      <DayBookHeader>
         <DayBookToolbar
           dayValue={dayValue}
           onDayChange={setDayValue}
@@ -54,33 +54,19 @@ export default function DayBookPage({ onNavigateHistory }) {
           onHistory={() => onNavigateHistory?.()}
           loading={loading}
         />
-      </div>
+      </DayBookHeader>
 
-      {loading ? <div className="finance-empty">Loading…</div> : <DayBookGrid summary={summary} totals={totals} />}
-
-      {showSalesSummary && (
-        <div className="finance-modal-overlay" role="dialog">
-          <div className="finance-modal">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3>Sales Summary</h3>
-              <button type="button" className="finance-btn ghost" onClick={() => setShowSalesSummary(false)}>
-                ✕
-              </button>
-            </div>
-            <p style={{ fontSize: '0.9rem', color: '#64748b' }}>
-              Net sales for the selected day (from day book summary).
-            </p>
-            {summary?.netSales && (
-              <pre style={{ background: '#f8fafc', padding: 12, borderRadius: 8, overflow: 'auto' }}>
-                {JSON.stringify(summary.netSales, null, 2)}
-              </pre>
-            )}
-            <button type="button" className="finance-btn" style={{ marginTop: 12 }} onClick={() => setShowSalesSummary(false)}>
-              Close
-            </button>
-          </div>
-        </div>
+      {loading ? (
+        <div className="fd-empty">Loading daybook summary...</div>
+      ) : (
+        <DayBookGrid summary={summary} totals={totals} />
       )}
+
+      <DayBookSalesModal 
+        open={showSalesSummary} 
+        onClose={() => setShowSalesSummary(false)} 
+        netSales={summary?.netSales} 
+      />
 
       <DayBookReportModal
         open={showReport}

@@ -3,23 +3,25 @@ import { RefreshCw, Calendar } from 'lucide-react';
 
 const TransactionFilters = ({ dateFrom, setDateFrom, dateTo, setDateTo, loading, onRefresh }) => {
   return (
-    <div className="fd-header-actions" style={{ background: '#fff', padding: '12px 20px', borderRadius: '12px', border: '1px solid #f1f5f9', marginBottom: '24px', justifyContent: 'space-between' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div className="fd-form-row" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
-          <Calendar size={14} color="#64748b" />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f1f5f960', padding: '4px 10px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+        <div className="fd-form-row" style={{ flexDirection: 'row', alignItems: 'center', gap: '6px' }}>
+          <Calendar size={12} color="#64748b" />
           <input 
             type="date" 
             className="fd-date-input" 
+            style={{ border: 'none', background: 'transparent', padding: '2px 0', fontSize: '12px' }}
             value={dateFrom} 
             onChange={(e) => setDateFrom(e.target.value)} 
           />
         </div>
-        <span style={{ color: '#cbd5e1' }}>—</span>
-        <div className="fd-form-row" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
-          <Calendar size={14} color="#64748b" />
+        <span style={{ color: '#cbd5e1', fontSize: '12px' }}>—</span>
+        <div className="fd-form-row" style={{ flexDirection: 'row', alignItems: 'center', gap: '6px' }}>
+          <Calendar size={12} color="#64748b" />
           <input 
             type="date" 
             className="fd-date-input" 
+            style={{ border: 'none', background: 'transparent', padding: '2px 0', fontSize: '12px' }}
             value={dateTo} 
             onChange={(e) => setDateTo(e.target.value)} 
           />
@@ -31,7 +33,7 @@ const TransactionFilters = ({ dateFrom, setDateFrom, dateTo, setDateTo, loading,
         onClick={onRefresh}
         disabled={loading}
       >
-        <RefreshCw size={16} />
+        <RefreshCw size={14} />
       </button>
     </div>
   );

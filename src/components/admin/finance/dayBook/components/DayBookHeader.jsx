@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TransactionHeader = ({ title = 'Transactions', subtitle = 'Finance / Transactions', children }) => {
+const DayBookHeader = ({ title = 'Day Book', subtitle = 'Finance / Day Book', children }) => {
   return (
     <header className="fd-header">
       <div className="fd-header-content">
@@ -8,7 +8,7 @@ const TransactionHeader = ({ title = 'Transactions', subtitle = 'Finance / Trans
           <h1 className="fd-title">{title}</h1>
           <p className="fd-card-sub">{subtitle}</p>
         </div>
-        
+
         <div className="fd-header-actions">
           {children}
         </div>
@@ -17,4 +17,4 @@ const TransactionHeader = ({ title = 'Transactions', subtitle = 'Finance / Trans
   );
 };
 
-export default TransactionHeader;
+export default DayBookHeader;

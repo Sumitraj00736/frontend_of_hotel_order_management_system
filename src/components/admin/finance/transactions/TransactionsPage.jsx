@@ -53,16 +53,16 @@ export default function TransactionsPage() {
 
   return (
     <div className="fd-root">
-      <TransactionHeader />
-      
-      <TransactionFilters 
-        dateFrom={dateFrom} 
-        setDateFrom={setDateFrom} 
-        dateTo={dateTo} 
-        setDateTo={setDateTo} 
-        loading={loading}
-        onRefresh={load}
-      />
+      <TransactionHeader>
+        <TransactionFilters 
+          dateFrom={dateFrom} 
+          setDateFrom={setDateFrom} 
+          dateTo={dateTo} 
+          setDateTo={setDateTo} 
+          loading={loading}
+          onRefresh={load}
+        />
+      </TransactionHeader>
 
       <TransactionKpiGrid kpis={kpis} />
 
