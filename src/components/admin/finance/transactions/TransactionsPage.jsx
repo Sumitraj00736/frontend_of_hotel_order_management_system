@@ -3,8 +3,7 @@ import { fetchFinanceDashboard, fetchTransactions } from './transactionsApi.js';
 import '../../../../common/css/admin/finance/finance.css';
 
 // Modular Components
-import TransactionHeader from './components/TransactionHeader.jsx';
-import TransactionFilters from './components/TransactionFilters.jsx';
+import SectionHeader from '../shared/SectionHeader.jsx';
 import TransactionKpiGrid from './components/TransactionKpiGrid.jsx';
 import TransactionTable from './components/TransactionTable.jsx';
 import TransactionPagination from './components/TransactionPagination.jsx';
@@ -53,16 +52,15 @@ export default function TransactionsPage() {
 
   return (
     <div className="fd-root">
-      <TransactionHeader>
-        <TransactionFilters 
-          dateFrom={dateFrom} 
-          setDateFrom={setDateFrom} 
-          dateTo={dateTo} 
-          setDateTo={setDateTo} 
-          loading={loading}
-          onRefresh={load}
-        />
-      </TransactionHeader>
+      <SectionHeader 
+        title="Transaction History"
+        dateFrom={dateFrom}
+        onDateFromChange={setDateFrom}
+        dateTo={dateTo}
+        onDateToChange={setDateTo}
+        onRefresh={load}
+        loading={loading}
+      />
 
       <TransactionKpiGrid kpis={kpis} />
 
