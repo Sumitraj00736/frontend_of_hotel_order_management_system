@@ -27,7 +27,7 @@ const AdminDeliveryPlatformModal = ({ show, onClose, onContinue }) => {
   return (
     <div
       className="modal fade show d-block"
-      style={{ backgroundColor: 'rgba(15, 23, 42, 0.48)', zIndex: 1055 }}
+      style={{ backgroundColor: 'rgba(15, 23, 42, 0.6)', zIndex: 2000, backdropFilter: 'blur(4px)' }}
       onClick={onClose}
     >
       <div className="modal-dialog modal-dialog-centered admin-delivery-platform-dialog" onClick={(e) => e.stopPropagation()}>
