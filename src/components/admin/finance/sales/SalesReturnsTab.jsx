@@ -39,13 +39,6 @@ export default function SalesReturnsTab({ dateFrom, dateTo, refreshKey, setLoadi
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-        <button className="fd-action-btn primary" onClick={() => setShowAdd(true)}>
-          <Plus size={16} />
-          <span>Add Sales Return</span>
-        </button>
-      </div>
-
       <div className="fd-kpi-grid">
         {kpis.map((item, idx) => (
           <div key={idx} className="fd-kpi-card" style={{ '--card-index': idx }}>

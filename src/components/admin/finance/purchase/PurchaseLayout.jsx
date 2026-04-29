@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { Plus } from 'lucide-react';
 import PurchaseBillsTab from './PurchaseBillsTab.jsx';
 import PurchaseReturnsTab from './PurchaseReturnsTab.jsx';
 import SectionHeader from '../shared/SectionHeader.jsx';
+import PurchaseBillFormModal from './PurchaseBillFormModal.jsx';
+import PurchaseReturnFormModal from './PurchaseReturnFormModal.jsx';
 
 const TABS = [
   { id: 'bills', label: 'Purchase Bills' },
@@ -13,10 +16,34 @@ export default function PurchaseLayout({ activeTab, onTabChange }) {
   const [dateTo, setDateTo] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(false);
+  
+  // Modal states
+  const [showAddBill, setShowAddBill] = useState(false);
+  const [showAddReturn, setShowAddReturn] = useState(false);
 
   const currentTab = activeTab || 'bills';
 
   const handleRefresh = () => setRefreshKey(prev => prev + 1);
+
+  const renderHeaderAction = () => {
+    if (currentTab === 'bills') {
+      return (
+        <button className="fd-action-btn primary" onClick={() => setShowAddBill(true)}>
+          <Plus size={16} />
+          <span>Add Purchase Bill</span>
+        </button>
+      );
+    }
+    if (currentTab === 'returns') {
+      return (
+        <button className="fd-action-btn primary" onClick={() => setShowAddReturn(true)}>
+          <Plus size={16} />
+          <span>Add Purchase Return</span>
+        </button>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="fd-root">
@@ -28,7 +55,9 @@ export default function PurchaseLayout({ activeTab, onTabChange }) {
         onDateToChange={setDateTo}
         onRefresh={handleRefresh}
         loading={loading}
-      />
+      >
+        {renderHeaderAction()}
+      </SectionHeader>
 
       <div style={{ padding: '0 24px' }}>
         <div className="fd-tab-bar" style={{ marginBottom: '24px' }}>
@@ -52,6 +81,9 @@ export default function PurchaseLayout({ activeTab, onTabChange }) {
           )}
         </div>
       </div>
+      
+      <PurchaseBillFormModal open={showAddBill} onClose={() => setShowAddBill(false)} onSaved={handleRefresh} />
+      <PurchaseReturnFormModal open={showAddReturn} onClose={() => setShowAddReturn(false)} onSaved={handleRefresh} />
     </div>
   );
 }

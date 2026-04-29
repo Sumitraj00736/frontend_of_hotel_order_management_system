@@ -8,7 +8,8 @@ export default function SectionHeader({
   dateTo, 
   onDateToChange, 
   onRefresh, 
-  loading 
+  loading,
+  children
 }) {
   return (
     <div className="fd-header" style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0', padding: '16px 24px', marginBottom: '24px' }}>
@@ -18,6 +19,8 @@ export default function SectionHeader({
         </div>
         
         <div className="fd-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {children}
+          
           <div className="fd-date-filter-group" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#fff', padding: '4px 8px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', borderRadius: '8px', background: '#f8fafc' }}>
               <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>From</span>
