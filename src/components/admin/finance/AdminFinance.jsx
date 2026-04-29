@@ -3,7 +3,8 @@ import FinanceDashboard from './dashboard/FinanceDashboard.jsx';
 import DayBookPage from './dayBook/DayBookPage.jsx';
 import DayBookHistoryPage from './dayBook/DayBookHistoryPage.jsx';
 import TransactionsPage from './transactions/TransactionsPage.jsx';
-import SalesPurchaseLayout from './salesPurchase/SalesPurchaseLayout.jsx';
+import SalesLayout from './sales/SalesLayout.jsx';
+import PurchaseLayout from './purchase/PurchaseLayout.jsx';
 import IncomePage from './income/IncomePage.jsx';
 import ExpensesPage from './expenses/ExpensesPage.jsx';
 import PaymentsPage from './payments/PaymentsPage.jsx';
@@ -26,17 +27,28 @@ export default function AdminFinance({ section, onNavigate, financeDashboardData
     if (view === 'payments')        return <PaymentsPage />;
     if (view === 'cashbanks')       return <CashBanksPage />;
     if (view === 'reports')         return <FinanceReports />;
-    if (view === 'sales-purchase' || view === 'sales' || view === 'purchase') {
-      const module = view === 'purchase' ? 'purchase' : 'sales';
-      const defaultTab = module === 'purchase' ? 'purchase-bills' : 'sales-invoices';
-      const tab = sub || defaultTab;
+    if (view === 'sales') {
+      const tab = sub || 'invoices';
       return (
-        <SalesPurchaseLayout
-          module={module}
+        <SalesLayout
           activeTab={tab}
-          onTabChange={(id) => onNavigate(`finance:${module}:${id}`)}
+          onTabChange={(id) => onNavigate(`finance:sales:${id}`)}
         />
       );
+    }
+    if (view === 'purchase') {
+      const tab = sub || 'bills';
+      return (
+        <PurchaseLayout
+          activeTab={tab}
+          onTabChange={(id) => onNavigate(`finance:purchase:${id}`)}
+        />
+      );
+    }
+    if (view === 'sales-purchase') {
+      // Fallback for any legacy routes
+      onNavigate('finance:sales:invoices');
+      return null;
     }
     return <FinanceDashboard />;
   };

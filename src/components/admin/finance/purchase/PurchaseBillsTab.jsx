@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { ShoppingCart, Package, Users, Plus } from 'lucide-react';
 import { formatMoney } from '../shared/formatMoney.js';
-import { fetchPurchases } from './salesPurchaseApi.js';
+import { fetchPurchases } from './purchaseApi.js';
 import PurchaseBillFormModal from './PurchaseBillFormModal.jsx';
 
 export default function PurchaseBillsTab({ dateFrom, dateTo, refreshKey, setLoading }) {

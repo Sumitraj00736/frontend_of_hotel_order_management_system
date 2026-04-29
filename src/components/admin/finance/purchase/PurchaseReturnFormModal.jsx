@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createPurchaseReturn } from './salesPurchaseApi.js';
+import { createPurchaseReturn } from './purchaseApi.js';
 
 const emptyItem = () => ({
   description: '',

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import SalesInvoiceKpiGrid from './components/SalesInvoiceKpiGrid.jsx';
 import SalesInvoiceTable from './SalesInvoiceTable.jsx';
-import { fetchSalesInvoices } from './salesPurchaseApi.js';
+import { fetchSalesInvoices } from './salesApi.js';
 
 export default function SalesInvoiceTab({ dateFrom, dateTo, refreshKey, setLoading }) {
   const [rows, setRows] = useState([]);

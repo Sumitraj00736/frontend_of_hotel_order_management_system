@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { RotateCw, DollarSign, Package, Plus, Users } from 'lucide-react';
-import { formatMoney } from '../../shared/formatMoney.js';
-import { fetchPurchaseReturns } from './salesPurchaseApi.js';
+import { formatMoney } from '../shared/formatMoney.js';
+import { fetchPurchaseReturns } from './purchaseApi.js';
 import PurchaseReturnFormModal from './PurchaseReturnFormModal.jsx';
 
 export default function PurchaseReturnsTab({ dateFrom, dateTo, refreshKey, setLoading }) {

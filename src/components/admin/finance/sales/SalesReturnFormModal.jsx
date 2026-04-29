@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createSalesReturn } from './salesPurchaseApi.js';
+import { createSalesReturn } from './salesApi.js';
 
 export default function SalesReturnFormModal({ open, onClose, onSaved }) {
   const [customerName, setCustomerName] = useState('');

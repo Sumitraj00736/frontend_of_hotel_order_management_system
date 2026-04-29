@@ -4,7 +4,7 @@ import {
   CreditCard, FileText, Calculator, ChevronDown,
   ShoppingCart
 } from 'lucide-react';
-import { createPurchase } from './salesPurchaseApi.js';
+import { createPurchase } from './purchaseApi.js';
 import api from '../../../../api/client.js';
 
 const emptyItem = () => ({
