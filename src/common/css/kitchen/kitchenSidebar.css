@@ -343,11 +343,90 @@
 /* Responsive Settings */
 @media (max-width: 768px) {
   .kitchen-sidebar {
+    /* Fixed Positioning & Centering */
     position: fixed;
-    height: 100%;
+    bottom: 0;
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    /* Strict Dimensions */
+    width: 90% !important;
+    max-width: 400px !important;
+    height: 64px !important; 
+    
+    /* Layout */
+    flex-direction: row !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Keeps Nav and Profile separated */
+    
+    /* Aesthetics */
+    background: var(--bg-light);
+    border-radius: 20px;
+    border: 1px solid #eee;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    padding: 0 10px;
+    overflow: visible;
   }
-  .sidebar-closed {
-    transform: translateX(-100%);
-    width: 0;
+
+  /* 1. The Navigation Container: Fixing the Gaps */
+  .nav-menu {
+    flex-direction: row !important;
+    display: flex !important;
+    flex: 1; /* Takes up all space except the profile */
+    justify-content: center; /* Centers the group of icons */
+    align-items: center;
+    gap: 12px; /* EXACT gap between every icon */
+    padding: 0;
+    margin: 0;
+  }
+
+  /* 2. The Navigation Item: Fixing Width/Height */
+  .nav-item {
+    flex: none !important; /* Disables the 'grow' behavior from your old code */
+    width: 46px !important; /* Precise touch target width */
+    height: 46px !important; /* Precise touch target height */
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    transition: background 0.2s;
+  }
+
+  /* 3. The Profile/Footer: Fixing Position */
+  .sidebar-footer {
+    border-top: none !important;
+    padding: 0;
+    margin-left: 10px; /* Gap between icons and profile */
+    width: 50px; 
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .profile-toggle {
+    width: 40px;
+    height: 40px;
+    background: #f5f5f5;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+  }
+
+  /* Hide labels and desktop clutter */
+  .sidebar-header, .branch-selector, .toggle-trigger, .user-details, .brand-name,
+  .nav-item span:not(.unread-dot):not(.icon-wrapper) {
+    display: none !important;
+  }
+
+  /* Fixed Pop-up Menu */
+  .profile-menu {
+    bottom: 75px;
+    right: 0;
+    width: 180px;
+    border-radius: 15px;
   }
 }
