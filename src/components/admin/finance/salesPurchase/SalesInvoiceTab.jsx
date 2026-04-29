@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import SalesInvoiceKpis from './SalesInvoiceKpis.jsx';
+import SalesInvoiceKpiGrid from './components/SalesInvoiceKpiGrid.jsx';
 import SalesInvoiceTable from './SalesInvoiceTable.jsx';
 import { fetchSalesInvoices } from './salesPurchaseApi.js';
 
-export default function SalesInvoiceTab() {
+export default function SalesInvoiceTab({ dateFrom, dateTo, refreshKey, setLoading }) {
   const [rows, setRows] = useState([]);
   const [summary, setSummary] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
-        const res = await fetchSalesInvoices({ limit: 100 });
+        const params = { limit: 100 };
+        if (dateFrom) params.dateFrom = dateFrom;
+        if (dateTo) params.dateTo = dateTo;
+        
+        const res = await fetchSalesInvoices(params);
         if (!cancelled) {
           setRows(res.data || []);
           setSummary(res.summary || null);
@@ -31,12 +34,12 @@ export default function SalesInvoiceTab() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [dateFrom, dateTo, refreshKey, setLoading]);
 
   return (
     <div>
-      <SalesInvoiceKpis summary={summary} />
-      {loading ? <div className="finance-empty">Loading…</div> : <SalesInvoiceTable rows={rows} />}
+      <SalesInvoiceKpiGrid summary={summary} />
+      <SalesInvoiceTable rows={rows} />
     </div>
   );
 }

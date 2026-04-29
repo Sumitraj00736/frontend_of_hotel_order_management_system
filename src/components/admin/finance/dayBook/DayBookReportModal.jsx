@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import DayBookGrid from './DayBookGrid.jsx';
+import DayBookGrid from './components/DayBookGrid.jsx';
 import { closeDaybook } from './dayBookApi.js';
 
 export default function DayBookReportModal({ open, onClose, rowSummary, totals, rangeFrom, rangeTo, dayValue, onSaved }) {
