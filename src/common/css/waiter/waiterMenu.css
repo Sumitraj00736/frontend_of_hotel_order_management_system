@@ -1,0 +1,171 @@
+/* Waiter Menu — modern responsive card grid */
+:root{
+  --wm-bg: #fcfcff;
+  --accent: #fc8019;
+  --muted: #6b7280;
+  --gap: 1.25rem;
+  --radius: 14px;
+}
+
+.waiter-menu-grid{
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--gap);
+  padding: 1.25rem;
+  width: 100%;
+  background: var(--wm-bg);
+  margin: 0 auto;
+}
+
+.waiter-menu-grid *,
+.menu-pos-card *{
+  box-sizing: border-box;
+}
+
+.menu-pos-card{
+  background: linear-gradient(180deg, #ffffff, #fffaf6);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s;
+  border: 1px solid rgba(16,24,40,0.04);
+  cursor: pointer;
+  min-height: 320px;
+  position: relative;
+}
+
+.menu-pos-card:focus{
+  outline: none;
+  box-shadow: 0 10px 30px rgba(16,24,40,0.08);
+  transform: translateY(-6px) scale(1.01);
+}
+
+.menu-pos-card:hover{
+  transform: translateY(-6px);
+  box-shadow: 0 14px 34px rgba(16,24,40,0.08);
+  border-color: rgba(252,128,25,0.12);
+}
+
+.menu-img-wrapper{
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: linear-gradient(180deg,#fffaf0,#fff6ee);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.menu-img-wrapper img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition: transform .6s ease;
+  display:block;
+}
+
+.menu-pos-card:hover .menu-img-wrapper img{
+  transform: scale(1.08);
+}
+
+.menu-img-placeholder{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: linear-gradient(135deg,#fff7f0,#fff2e6);
+  color: var(--accent);
+  font-size:2rem;
+  font-weight:800;
+}
+
+.menu-info{
+  padding: 1rem;
+  display:flex;
+  flex-direction:column;
+  gap: .5rem;
+  flex:1 1 auto;
+}
+
+.menu-meta{ margin-bottom: 0; }
+
+.menu-category-badge{
+  font-size:.65rem;
+  font-weight:700;
+  text-transform:uppercase;
+  color: var(--muted);
+  background: rgba(242,244,246,0.9);
+  padding:4px 8px;
+  border-radius:6px;
+  display:inline-block;
+}
+
+.menu-name{
+  font-size:1rem;
+  font-weight:800;
+  color:#0f1724;
+  margin:0;
+  line-height:1.2;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  min-height:2.6rem;
+}
+
+.menu-price-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:auto;
+}
+
+.price-container{ display:flex; flex-direction:column; }
+
+.price-label{ font-size:.65rem; color:#9aa2a8; font-weight:700; }
+
+.price-amount{ font-size:1.05rem; color:#0f1724; font-weight:900; }
+
+.menu-add-btn{
+  background: linear-gradient(180deg,var(--accent), #e06700);
+  color:#fff;
+  border:none;
+  width:44px;
+  height:44px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow: 0 8px 22px rgba(252,128,25,0.18);
+  transition: transform .15s ease, box-shadow .15s ease;
+  cursor:pointer;
+}
+
+.menu-add-btn:hover, .menu-add-btn:focus{ transform: translateY(-4px) scale(1.03); box-shadow: 0 10px 28px rgba(252,128,25,0.22); outline:none; }
+
+.menu-pos-card:hover .menu-add-btn{ transform: translateY(-6px) scale(1.04); }
+
+.waiter-menu-empty{ padding:2rem; text-align:center; color:#6b7280; font-weight:600; }
+
+@media (max-width:1200px){
+  .waiter-menu-grid{ grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:1rem; padding:1rem; }
+  .menu-pos-card{ min-height:300px; }
+  .menu-add-btn{ width:40px; height:40px; }
+}
+
+@media (max-width:768px){
+  .waiter-menu-grid{ grid-template-columns: repeat(2, 1fr); gap:.75rem; padding:.75rem; }
+  .menu-name{ font-size:.96rem; min-height:2.4rem; }
+  .menu-add-btn{ width:38px; height:38px; }
+  .menu-pos-card{ min-height: unset; }
+}
+
+@media (max-width:420px){
+  .waiter-menu-grid{ grid-template-columns: 1fr; padding:.5rem; gap:.6rem; }
+  .menu-name{ font-size:.98rem; }
+  .menu-img-wrapper{ aspect-ratio: 16/9; }
+  .menu-add-btn{ width:36px; height:36px; }
+}

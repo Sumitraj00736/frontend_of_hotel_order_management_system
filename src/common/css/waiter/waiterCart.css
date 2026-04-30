@@ -252,7 +252,7 @@
 }
 
 .place-order-btn.disabled {
-  background: #ccc;
+  background: #f3c39c;
   cursor: not-allowed;
 }
 

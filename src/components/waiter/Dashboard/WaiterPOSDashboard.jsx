@@ -2,6 +2,7 @@ import React from 'react';
 import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart } from 'lucide-react';
 import MenuSection from '../../../components/admin/orders/create/MenuSection.jsx';
 import WaiterCart from '../../../components/waiter/Cart/WaiterCart.jsx';
+import '../../../common/css/waiter/waiterDashboard.css';
 
 const WaiterPOSDashboard = ({
   canViewMenu,
@@ -38,38 +39,35 @@ const WaiterPOSDashboard = ({
   setSelectedCustomer,
   setMobileCartOpen
 }) => {
-  return (
-    <div className="content waiter-pos-layout position-relative">
-      <div className="pos-menu-section h-100 p-3 overflow-hidden d-flex flex-column">
-        <div className="pos-order-type-toggle p-2 bg-white rounded-pill shadow-sm mb-3 d-flex gap-2 mx-auto flex-wrap justify-content-center" style={{ border: '1px solid #e2e8f0', width: 'auto' }}>
-          <button 
-            className={`btn btn-sm d-flex align-items-center justify-content-center gap-2 py-2 px-3 border-0 shadow-none rounded-pill fw-bold ${orderType === 'dine_in' ? 'bg-primary text-white' : 'text-muted hover-bg-light'}`}
-            onClick={() => setOrderType('dine_in')}
-          >
-            <UtensilsCrossed size={14} /> Dine-in
-          </button>
-          <button 
-            className={`btn btn-sm d-flex align-items-center justify-content-center gap-2 py-2 px-3 border-0 shadow-none rounded-pill fw-bold ${orderType === 'delivery' ? 'bg-primary text-white' : 'text-muted hover-bg-light'}`}
-            onClick={() => setOrderType('delivery')}
-          >
-            <Bike size={14} /> Delivery
-          </button>
-          <button 
-            className={`btn btn-sm d-flex align-items-center justify-content-center gap-2 py-2 px-3 border-0 shadow-none rounded-pill fw-bold ${orderType === 'takeaway' ? 'bg-primary text-white' : 'text-muted hover-bg-light'}`}
-            onClick={() => setOrderType('takeaway')}
-          >
-            <ShoppingBag size={14} /> Takeaway
-          </button>
-          <button 
-            className={`btn btn-sm d-flex align-items-center justify-content-center gap-2 py-2 px-3 border-0 shadow-none rounded-pill fw-bold ${orderType === 'pickup' ? 'bg-primary text-white' : 'text-muted hover-bg-light'}`}
-            onClick={() => setOrderType('pickup')}
-          >
-            <ShoppingCart size={14} /> Pick up
-          </button>
-        </div>
+  
+  const orderTypes = [
+    { id: 'dine_in', label: 'Dine-in', icon: <UtensilsCrossed size={18} /> },
+    { id: 'delivery', label: 'Delivery', icon: <Bike size={18} /> },
+    { id: 'takeaway', label: 'Takeaway', icon: <ShoppingBag size={18} /> },
+    { id: 'pickup', label: 'Pick up', icon: <ShoppingCart size={18} /> },
+  ];
 
-        {canViewMenu ? (
-          <div className="flex-grow-1 overflow-auto rounded-3 bg-white p-3 shadow-sm" style={{ border: '1px solid #eef1f6' }}>
+  return (
+    <div className="pos-container">
+      {/* Main Menu Section */}
+      <main className="pos-main-content">
+        <header className="pos-header">
+          <div className="order-type-selector">
+            {orderTypes.map((type) => (
+              <button
+                key={type.id}
+                className={`type-btn ${orderType === type.id ? 'active' : ''}`}
+                onClick={() => setOrderType(type.id)}
+              >
+                {type.icon}
+                <span>{type.label}</span>
+              </button>
+            ))}
+          </div>
+        </header>
+
+        <section className="pos-menu-grid">
+          {canViewMenu ? (
             <MenuSection
               addSubMenu={addSubMenu}
               menuSubMenus={menuSubMenus}
@@ -88,11 +86,14 @@ const WaiterPOSDashboard = ({
               selectedTableId={selectedTable}
               onTableChange={setSelectedTable}
             />
-          </div>
-        ) : <div />}
-      </div>
-      
-      <div className="pos-cart-section h-100 overflow-hidden d-none d-md-block">
+          ) : (
+            <div className="empty-state">No Menu Access</div>
+          )}
+        </section>
+      </main>
+
+      {/* Sidebar Cart Section */}
+      <aside className="pos-sidebar">
         {canViewOrders ? (
           <WaiterCart
             cart={cart}
@@ -116,8 +117,10 @@ const WaiterPOSDashboard = ({
             onOrderTypeChange={setOrderType}
             onClose={() => setMobileCartOpen(false)}
           />
-        ) : <div />}
-      </div>
+        ) : (
+          <div className="empty-state">No Cart Access</div>
+        )}
+      </aside>
     </div>
   );
 };
