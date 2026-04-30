@@ -32,7 +32,8 @@ import {
   MessageSquare,
   MessageCircle,
   Share2,
-  Wallet
+  Wallet,
+  Plus
 } from 'lucide-react';
 
 import {
@@ -118,7 +119,14 @@ const AdminSidebar = ({
   const activeBranchId = getBranchId() || branches[0]?.branchId || branches[0]?._id;
   const activeBranch = branches.find((b) => (b.branchId || b._id) === activeBranchId);
   const restaurantName =
-    activeBranch?.orgName || branches[0]?.orgName || user?.orgName || user?.organizationName || user?.restaurantName || user?.name || 'Restaurant';
+    activeBranch?.orgName || 
+    branches.find(b => b.orgName)?.orgName || 
+    user?.orgName || 
+    user?.organizationName || 
+    user?.restaurantName || 
+    activeBranch?.branchName ||
+    branches[0]?.branchName ||
+    (user?.name?.toLowerCase() !== 'admin' ? user?.name : 'Restaurant');
 
   useEffect(() => {
     const handleResize = () => {
@@ -286,7 +294,12 @@ const AdminSidebar = ({
             onClick={() => isOpen && setBranchOpen((v) => !v)}
           >
             <div className="location-main">
-              <div className="location-title">{restaurantName}</div>
+              <div className="location-title">
+                <div className="cafe-display-name">{restaurantName}</div>
+                {isOpen && activeBranch?.branchName && (
+                  <div className="branch-subtitle">{activeBranch.branchName.toLowerCase()}</div>
+                )}
+              </div>
               {isOpen && <span className="chevron"><ChevronDown size={14} /></span>}
             </div>
 
@@ -309,6 +322,18 @@ const AdminSidebar = ({
                   {b.branchName || b.name || b.code || 'Branch'}
                 </button>
               ))}
+              {isSuperAdmin && (
+                <button
+                  className="branch-item manage-btn"
+                  onClick={() => {
+                    handleSelect('settings:branches');
+                    setBranchOpen(false);
+                  }}
+                >
+                  <Plus size={14} />
+                  <span>Manage Branches</span>
+                </button>
+              )}
             </div>
           )}
 

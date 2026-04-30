@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ArrowLeft, Settings } from 'lucide-react';
+import { ChevronDown, ArrowLeft, Settings, Plus } from 'lucide-react';
 import { hasPermission, getCurrentUser, getBranches, getBranchId, setBranchId } from '../../../api/session.js';
 
 import '../../../common/css/admin/sidebar/adminSidebar.css';
@@ -11,6 +11,7 @@ const navSections = [
       { id: 'restaurant-details', label: 'Restaurant Details' },
       { id: 'tax-rates', label: 'Tax & Rates' },
       { id: 'notifications', label: 'Notifications' },
+      { id: 'branches', label: 'Branches' },
       { id: 'activity-log', label: 'Activity Log' },
       { id: 'department', label: 'Department' },
       { id: 'billing', label: 'Billing & Subscription' },
@@ -43,7 +44,14 @@ const SettingsSidebar = ({ active, onSelect, onBack }) => {
   const activeBranchId = getBranchId() || branches[0]?.branchId || branches[0]?._id;
   const activeBranch = branches.find((b) => (b.branchId || b._id) === activeBranchId);
   const restaurantName =
-    activeBranch?.orgName || branches[0]?.orgName || user?.orgName || user?.organizationName || user?.restaurantName || user?.name || 'Restaurant';
+    activeBranch?.orgName || 
+    branches.find(b => b.orgName)?.orgName || 
+    user?.orgName || 
+    user?.organizationName || 
+    user?.restaurantName || 
+    activeBranch?.branchName ||
+    branches[0]?.branchName ||
+    (user?.name?.toLowerCase() !== 'admin' ? user?.name : 'Restaurant');
 
   return (
     <div className="sidebar admin-sidebar slide open">
@@ -65,7 +73,12 @@ const SettingsSidebar = ({ active, onSelect, onBack }) => {
         onClick={() => setBranchOpen((v) => !v)}
       >
         <div className="location-main">
-          <div className="location-title">{restaurantName}</div>
+          <div className="location-title">
+            <div className="cafe-display-name">{restaurantName}</div>
+            {activeBranch?.branchName && (
+              <div className="branch-subtitle">{activeBranch.branchName.toLowerCase()}</div>
+            )}
+          </div>
           <span className="chevron"><ChevronDown size={14} /></span>
         </div>
         <div className="pill badge-premium">Premium (Trial)</div>
@@ -84,6 +97,29 @@ const SettingsSidebar = ({ active, onSelect, onBack }) => {
                 {b.branchName || b.name || b.code || 'Branch'}
               </button>
             ))}
+            {user?.role?.toLowerCase() === 'superadmin' && (
+              <button
+                className="branch-item manage-btn"
+                onClick={() => {
+                  onSelect?.('branches');
+                  setBranchOpen(false);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  background: '#f8fafc',
+                  border: '1px dashed #cbd5e1',
+                  color: '#64748b',
+                  marginTop: '4px',
+                  width: '100%'
+                }}
+              >
+                <Plus size={14} />
+                Manage Branches
+              </button>
+            )}
           </div>
         )}
       </div>

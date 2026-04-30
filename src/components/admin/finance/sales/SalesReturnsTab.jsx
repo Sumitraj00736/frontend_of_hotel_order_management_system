@@ -97,7 +97,6 @@ export default function SalesReturnsTab({ dateFrom, dateTo, refreshKey, setLoadi
           </table>
         </div>
       </div>
-
-      </div>
+    </div>
   );
 }

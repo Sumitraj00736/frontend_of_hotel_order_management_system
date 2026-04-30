@@ -156,6 +156,21 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.admin-sidebar .cafe-display-name {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.admin-sidebar .branch-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  margin-top: 1px;
 }
 
 .admin-sidebar .pill {
@@ -634,6 +649,23 @@ body.dark-mode .text-muted {
   border-color: #fc8019;
   color: #fc8019;
   background: #fff5f5;
+}
+
+.admin-sidebar .branch-item.manage-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.admin-sidebar .branch-item.manage-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #475569;
 }
 
 /* ===== Collapsed Desktop Mode ===== */

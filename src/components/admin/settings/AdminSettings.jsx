@@ -6,10 +6,12 @@ import NotificationSettings from './general/NotificationSettings.jsx';
 import ActivityLog from './general/ActivityLog.jsx';
 import BillingSubscription from './general/BillingSubscription.jsx';
 import UsersRole from './general/UsersRole.jsx';
+import { updateOrgName } from '../../../api/session.js';
 import DepartmentSettings from './general/DepartmentSettings.jsx';
 import TrashSettings from './general/TrashSettings.jsx';
 import SupportFeedback from './general/SupportFeedback.jsx';
 import ReleaseNotes from './general/ReleaseNotes.jsx';
+import BranchManagement from './general/BranchManagement.jsx';
 import InvoiceSetting from './order/InvoiceSetting.jsx';
 import KotSetting from './order/KotSetting.jsx';
 import PrinterSetting from './order/PrinterSetting.jsx';
@@ -126,6 +128,9 @@ const AdminSettings = ({ activeView, onNotify }) => {
           onSave={async (payload) => {
             const res = await api.put('/api/settings/restaurant-details', payload);
             setRestaurantDetails(res.data || payload);
+            if (payload.name) {
+              updateOrgName(payload.name);
+            }
           }}
         />
       )}
@@ -263,6 +268,7 @@ const AdminSettings = ({ activeView, onNotify }) => {
         />
       )}
       {view === 'release' && <ReleaseNotes />}
+      {view === 'branches' && <BranchManagement />}
       {view === 'trash' && <TrashSettings />}
     </div>
   );

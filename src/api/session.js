@@ -39,6 +39,10 @@ export const getBranches = () => {
   return raw ? JSON.parse(raw) : [];
 };
 
+export const setBranches = (branches) => {
+  localStorage.setItem(BRANCHES_KEY, JSON.stringify(branches));
+};
+
 export const updateBranchName = (branchId, branchName) => {
   if (!branchId || !branchName) return;
   const branches = getBranches();
@@ -50,6 +54,21 @@ export const updateBranchName = (branchId, branchName) => {
     return b;
   });
   localStorage.setItem(BRANCHES_KEY, JSON.stringify(updated));
+};
+
+export const updateOrgName = (orgName) => {
+  if (!orgName) return;
+  const branches = getBranches();
+  const updated = branches.map((b) => ({ ...b, orgName }));
+  localStorage.setItem(BRANCHES_KEY, JSON.stringify(updated));
+  
+  // Also update user object if it has orgName
+  const user = getCurrentUser();
+  if (user) {
+    user.orgName = orgName;
+    user.organizationName = orgName;
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+  }
 };
 
 export const getBranchPermissions = () => {
