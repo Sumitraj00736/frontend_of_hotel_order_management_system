@@ -1,120 +1,147 @@
 import React from 'react';
-import { LayoutGrid, Search } from 'lucide-react';
+import { LayoutGrid, Search, Star, Heart, Plus } from 'lucide-react';
+import './MenuSection.css';
 
 const MenuSection = ({
   orderTableNumber,
   orderTargetName,
-  selectedTableId,
-  tableOptions = [],
-  onTableChange,
-  addSubMenu,
-  menuSubMenus,
   addSearch,
   onSearchChange,
   addCategory,
   menuCategories,
+  menuSubMenus,
   onCategoryChange,
   filteredMenus,
   onAdd,
   onCustomize
 }) => {
   return (
-    <div className="additem-left">
-      <div className="additem-head">
-        <div className="d-flex align-items-center gap-3">
-          <div className="additem-title h4 fw-bold mb-0">Select Dishes</div>
-          <div className="target-badge d-flex align-items-center gap-2 px-3 py-1 bg-light rounded-pill border">
-            <LayoutGrid size={16} className="text-muted" />
-            <span className="fw-semibold small text-dark">{orderTargetName || orderTableNumber || '-'}</span>
-          </div>
-        </div>
-        <div className="additem-filters d-flex gap-2 flex-grow-1 justify-content-end align-items-center">
-          <div className="filter-group">
-            <select className="form-select form-select-sm border shadow-sm" style={{ minWidth: '150px' }} value="default" onChange={() => {}}>
-              <option value="default">Default Menuset</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <select 
-              className="form-select form-select-sm border shadow-sm" 
-              style={{ minWidth: '150px' }} 
-              value={addSubMenu} 
-              onChange={(e) => onCategoryChange({ subMenu: e.target.value })}
-            >
-              <option value="all">Select Sub Menu</option>
-              {menuSubMenus.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
-          <div className="search-group position-relative" style={{ minWidth: '200px' }}>
-            <Search className="position-absolute text-muted" size={14} style={{ left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
-            <input
-              className="form-control form-control-sm ps-4 border shadow-sm"
-              placeholder="Search here"
-              value={addSearch}
-              onChange={(e) => onSearchChange(e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="additem-tabs">
-        <button className={`tab ${addCategory === 'recommended' ? 'active' : ''}`} onClick={() => onCategoryChange({ category: 'recommended' })}>
-          ⭐ Recommended
-        </button>
-        <button className={`tab ${addCategory === 'all' ? 'active' : ''}`} onClick={() => onCategoryChange({ category: 'all' })}>
-          All Categories
-        </button>
-        {menuCategories.map((c) => (
-          <button key={c} className={`tab ${addCategory === c ? 'active' : ''}`} onClick={() => onCategoryChange({ category: c })}>
-            {c}
-          </button>
-        ))}
-      </div>
-
-      <div className="category-header">
-        {addCategory === 'all' ? 'All Categories' : addCategory === 'recommended' ? 'Recommended' : addCategory}
-        <span>({filteredMenus.length})</span>
-      </div>
-
-      <div className="additem-grid">
-        {filteredMenus.map((m) => {
-          const variantCount = m.variants?.length || 0;
-          const minPrice = variantCount ? Math.min(...m.variants.map((v) => v.price)) : m.price;
-          const maxPrice = variantCount ? Math.max(...m.variants.map((v) => v.price)) : m.price;
-          return (
-            <div key={m._id} className="menu-tile">
-              <div className="tile-fav">♡</div>
-              {m.imageUrl ? (
-                <img src={m.imageUrl} alt={m.name} />
-              ) : (
-                <div className="menu-thumb-placeholder" />
-              )}
-              <div className="menu-name">{m.name}</div>
-              <div className="menu-price">
-                {variantCount ? `Rs ${minPrice} - Rs ${maxPrice}` : `Rs ${m.price}`}
-              </div>
-              <button
-                className="menu-add-btn"
-                onClick={() => {
-                  if (variantCount > 0) {
-                    onCustomize(m);
-                    return;
-                  }
-                  onAdd({ menuItem: m, quantity: 1, priceAtOrderTime: m.price || 0, isComplimentary: false });
-                }}
-              >
-                <span>Add</span>
-                {variantCount > 0 ? <span className="option-count">{variantCount} options</span> : null}
-              </button>
+    <div className="menu-section-container">
+      {/* Header Section */}
+      <header className="menu-header">
+        <div className="header-top">
+          <div className="title-area">
+            <h1 className="h4 fw-bold mb-0">Select Dishes</h1>
+            <div className="target-badge">
+              <LayoutGrid size={14} />
+              <span>{orderTargetName || orderTableNumber || 'Walking Customer'}</span>
             </div>
-          );
-        })}
+          </div>
+
+          <div className="action-controls">
+            <div className="search-wrapper">
+              <Search className="search-icon" size={16} />
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search menu..."
+                value={addSearch}
+                onChange={(e) => onSearchChange(e.target.value)}
+              />
+            </div>
+            
+            <div className="select-wrapper">
+              <select 
+                className="custom-select"
+                onChange={(e) => onCategoryChange({ subMenu: e.target.value })}
+              >
+                <option value="all">Sub Menu</option>
+                {menuSubMenus.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Category Tabs */}
+        <div className="category-scroll-container">
+          <button 
+            className={`category-tab ${addCategory === 'recommended' ? 'active' : ''}`} 
+            onClick={() => onCategoryChange({ category: 'recommended' })}
+          >
+            <Star size={16} /> Recommended
+          </button>
+          <button 
+            className={`category-tab ${addCategory === 'all' ? 'active' : ''}`} 
+            onClick={() => onCategoryChange({ category: 'all' })}
+          >
+            All Items
+          </button>
+          {menuCategories.map((c) => (
+            <button 
+              key={c} 
+              className={`category-tab ${addCategory === c ? 'active' : ''}`} 
+              onClick={() => onCategoryChange({ category: c })}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {/* Main Grid */}
+      <main className="menu-content">
+        <div className="content-info">
+          <h3>{addCategory === 'all' ? 'All Categories' : addCategory}</h3>
+          <span className="item-count">{filteredMenus.length} Items found</span>
+        </div>
+
+        <div className="menu-grid">
+          {filteredMenus.map((m) => {
+            const variantCount = m.variants?.length || 0;
+            const minPrice = variantCount ? Math.min(...m.variants.map((v) => v.price)) : m.price;
+
+            return (
+              <div key={m._id} className="menu-card">
+                <div className="card-image-wrapper">
+                  <button className="favorite-btn"><Heart size={16} /></button>
+                  {m.imageUrl ? (
+                    <img src={m.imageUrl} alt={m.name} className="card-img" />
+                  ) : (
+                    <div className="card-img-placeholder">
+                      <span>{m.name.charAt(0)}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="card-details">
+                  <h4 className="item-name">{m.name}</h4>
+                  <div className="item-footer">
+                    <span className="item-price">Rs {minPrice}{variantCount > 0 && '+'}</span>
+                    <button
+                      className={`add-button ${variantCount > 0 ? 'has-variants' : ''}`}
+                      onClick={() => {
+                        if (variantCount > 0) {
+                          onCustomize(m);
+                          return;
+                        }
+                        onAdd({ menuItem: m, quantity: 1, priceAtOrderTime: m.price || 0, isComplimentary: false });
+                      }}
+                    >
+                      {variantCount > 0 ? (
+                        <span className="btn-text">{variantCount} Options</span>
+                      ) : (
+                        <>
+                          <Plus size={14} />
+                          <span className="btn-text">Add</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         {filteredMenus.length === 0 && (
-          <div className="additem-empty">No items found.</div>
+          <div className="empty-state">
+            <Search size={48} />
+            <p>No dishes found matching your criteria.</p>
+          </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
