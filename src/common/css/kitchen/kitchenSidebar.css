@@ -1,26 +1,432 @@
+:root {
+  --primary-color: #fc8019;
+  --bg-dark: #1a1a1a;
+  --bg-light: #ffffff;
+  --text-main: #333;
+  --text-muted: #888;
+  --transition-speed: 0.3s;
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 80px;
+}
+
 .kitchen-sidebar {
-  background: #ffffff;
-  border: 1px solid #f1f1f1;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+  height: 100vh;
+  background: var(--bg-light);
+  border-right: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  transition: width var(--transition-speed) ease;
   position: sticky;
-  top: 16px;
-  align-self: flex-start;
-  width: 260px;
+  top: 0;
+  z-index: 1000;
+  overflow: visible;
+  position: fixed;
 }
 
-.kitchen-sidebar h5 {
-  margin: 0 0 10px 0;
+.sidebar-open { width: var(--sidebar-width); }
+.sidebar-closed { width: var(--sidebar-collapsed); }
+
+/* Header & Logo */
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* Dark Mode Styles */
-body.dark-mode .kitchen-sidebar {
-  background: #1f2937;
-  border-color: #374151;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-body.dark-mode .kitchen-sidebar h5 {
-  color: #e5e7eb;
+.brand-logo {
+  background: var(--primary-color);
+  color: white;
+  width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.brand-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  color: #222;
+}
+
+.brand-name span { color: var(--primary-color); }
+
+/* 1. Header Structure */
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center;
+  gap: 15px; /* Space between logo and toggle button */
+  transition: all var(--transition-speed);
+}
+
+/* 2. Brand Logic */
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* Hide brand name text when sidebar is closed */
+.sidebar-closed .brand-name {
+  display: none;
+}
+
+/* 3. Toggle Trigger Positioning */
+.toggle-trigger {
+  width: 40px;
+  height: 40px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all var(--transition-speed);
+}
+
+/* In Open State: If you want it side-by-side when open, use this: */
+.sidebar-open .sidebar-header {
+  flex-direction: row; 
+  justify-content: space-between;
+}
+
+/* In Closed State: Force it to be centered and below the logo */
+.sidebar-closed .sidebar-header {
+  flex-direction: column;
+  padding: 20px 0;
+}
+
+.sidebar-closed .toggle-trigger {
+  margin-top: 5px; /* Specific gap below the logo */
+}
+
+.toggle-trigger:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Branch Selector */
+.branch-selector {
+  margin: 10px 15px;
+  position: relative;
+}
+
+.branch-current {
+  background: #fff9f4;
+  border: 1px solid #ffe8d6;
+  padding: 10px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.branch-icon { color: var(--primary-color); }
+
+.branch-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.branch-name-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.branch-status {
+  font-size: 0.65rem;
+  color: var(--primary-color);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.branch-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  margin-top: 5px;
+  z-index: 10;
+  padding: 5px;
+}
+
+.branch-option {
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.branch-option:hover { background: #fdf2e9; }
+.branch-option.active { color: var(--primary-color); font-weight: 600; }
+
+/* Navigation Items */
+.nav-menu {
+  flex: 1;
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.nav-item:hover {
+  background: #fdf2e9;
+  color: var(--primary-color);
+}
+
+.nav-item.active {
+  background: var(--primary-color);
+  color: white;
+  box-shadow: 0 4px 12px rgba(252, 128, 25, 0.3);
+}
+
+.icon-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.unread-dot {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: #ff4d4f;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 10px;
+  border: 2px solid white;
+}
+
+/* Footer / Profile */
+
+/* Ensure the footer is the anchor for the pop-out */
+.sidebar-footer {
+  padding: 15px;
+  border-top: 1px solid #eee;
+  position: relative; /* Anchor for the absolute menu */
+  margin-top: auto; 
+}
+
+/* Hide the menu by default and position it to the right */
+.profile-menu {
+  position: absolute;
+  left: 100%; /* Move it completely outside the sidebar */
+  bottom: 15px; /* Align with footer padding */
+  width: 200px; /* Give it a fixed width for the pop-out */
+  background: white;
+  box-shadow: 10px 0 25px rgba(0,0,0,0.1);
+  border-radius: 0 12px 12px 0; /* Rounded corners on the outer side */
+  padding: 8px;
+  margin-left: 10px;
+  
+  /* Animation properties */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-10px);
+  transition: all var(--transition-speed) ease;
+  pointer-events: none;
+}
+
+/* Show the menu when hovering over the footer */
+.sidebar-footer:hover .profile-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+/* Add a small "arrow" or connector (Optional) */
+.profile-menu::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  background: transparent; /* Creates a bridge so the mouse can move across */
+}
+.user-profile {
+  position: relative;
+}
+
+.profile-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f9f9f9;
+  border: none;
+  padding: 8px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.user-avatar {
+  background: #ddd;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+}
+
+.user-details {
+  text-align: left;
+  overflow: hidden;
+}
+
+.user-name { font-size: 0.85rem; font-weight: 600; margin: 0; }
+.user-email { font-size: 0.7rem; color: var(--text-muted); margin: 0; }
+
+
+
+.profile-menu button {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  border-radius: 8px;
+}
+
+.logout-btn { color: #ff4d4f; }
+.profile-menu button:hover { background: #f5f5f5; }
+
+/* Responsive Settings */
+@media (max-width: 768px) {
+  .kitchen-sidebar {
+    /* Fixed Positioning & Centering */
+    position: fixed;
+    bottom: 0;
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    /* Strict Dimensions */
+    width: 90% !important;
+    max-width: 400px !important;
+    height: 64px !important; 
+    
+    /* Layout */
+    flex-direction: row !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Keeps Nav and Profile separated */
+    
+    /* Aesthetics */
+    background: var(--bg-light);
+    border-radius: 20px;
+    border: 1px solid #eee;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    padding: 0 10px;
+    overflow: visible;
+  }
+
+  /* 1. The Navigation Container: Fixing the Gaps */
+  .nav-menu {
+    flex-direction: row !important;
+    display: flex !important;
+    flex: 1; /* Takes up all space except the profile */
+    justify-content: center; /* Centers the group of icons */
+    align-items: center;
+    gap: 12px; /* EXACT gap between every icon */
+    padding: 0;
+    margin: 0;
+  }
+
+  /* 2. The Navigation Item: Fixing Width/Height */
+  .nav-item {
+    flex: none !important; /* Disables the 'grow' behavior from your old code */
+    width: 46px !important; /* Precise touch target width */
+    height: 46px !important; /* Precise touch target height */
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    transition: background 0.2s;
+  }
+
+  /* 3. The Profile/Footer: Fixing Position */
+  .sidebar-footer {
+    border-top: none !important;
+    padding: 0;
+    margin-left: 10px; /* Gap between icons and profile */
+    width: 50px; 
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .profile-toggle {
+    width: 40px;
+    height: 40px;
+    background: #f5f5f5;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+  }
+
+  /* Hide labels and desktop clutter */
+  .sidebar-header, .branch-selector, .toggle-trigger, .user-details, .brand-name,
+  .nav-item span:not(.unread-dot):not(.icon-wrapper) {
+    display: none !important;
+  }
+
+  /* Fixed Pop-up Menu */
+  .profile-menu {
+    bottom: 75px;
+    left: -68px;
+    width: 180px;
+    border-radius: 15px;
+  }
 }

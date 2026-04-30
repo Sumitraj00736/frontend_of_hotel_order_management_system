@@ -1,111 +1,132 @@
-import React, { useState } from 'react';
-import { ListChecks, Bell, ChevronDown, ChevronRight, LogOut, UserRound } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { ListChecks, Bell, ChevronDown, ChevronRight, LogOut, UserRound, MapPin } from 'lucide-react';
 import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../api/session.js';
-import '../../common/css/admin/sidebar/adminSidebar.css';
+import '../../common/css/kitchen/kitchenSidebar.css';
 
-const iconMap = {
-  orders: <ListChecks size={18} strokeWidth={1.5} />,
-  notifications: <Bell size={18} strokeWidth={1.5} />,
-  profile: <UserRound size={18} strokeWidth={1.5} />
-};
+const navItems = [
+  { id: 'orders', label: 'Orders', icon: ListChecks },
+  { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'profile', label: 'Profile', icon: UserRound }
+];
 
 const KitchenSidebar = ({ activeSection = 'orders', onSelect, isOpen = true, onToggleSidebar, unreadCount = 0 }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [branchOpen, setBranchOpen] = useState(false);
 
   const user = getCurrentUser();
-  const branches = getBranches();
-  const activeBranchId = getBranchId() || branches[0]?.branchId;
-  const activeBranch = branches.find((b) => (b.branchId || b._id) === activeBranchId);
-  const restaurantName = activeBranch?.branchName || user?.restaurantName || user?.name || 'Restaurant';
+  const branches = getBranches() || [];
+  
+  const activeBranch = useMemo(() => {
+    const activeId = getBranchId() || branches[0]?.branchId;
+    return branches.find((b) => (b.branchId || b._id) === activeId);
+  }, [branches]);
+
+  const restaurantName = activeBranch?.branchName || user?.restaurantName || 'Mero Restro';
 
   const handleLogout = () => {
-    clearSession();
-    window.location.href = '/login';
+    if (window.confirm("Are you sure you want to log out?")) {
+      clearSession();
+      window.location.href = '/login';
+    }
+  };
+
+  const handleBranchSwitch = (id) => {
+    setBranchId(id);
+    window.location.reload();
   };
 
   return (
-    <div className={`sidebar admin-sidebar slide ${isOpen ? 'open' : 'closed'}`}>
-      <div className="sidebar-top">
-        <div className="sidebar-brand blocky">
-          <span className="brand-mark">V</span>
-          {isOpen && <span className="brand-text">merorestro</span>}
+    <aside className={`kitchen-sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+      <div className="sidebar-header">
+        <div className="brand-container">
+          <div className="brand-logo">M</div>
+          {isOpen && <h2 className="brand-name">mero<span>restro</span></h2>}
         </div>
-        <button className="collapse-btn" onClick={onToggleSidebar} aria-label="Toggle sidebar">
-          {isOpen ? '«' : '»'}
+        <button className="toggle-trigger" onClick={onToggleSidebar}>
+          {isOpen ? <ChevronDown style={{ transform: 'rotate(90deg)' }} /> : <ChevronRight />}
         </button>
       </div>
 
-      <div className={`location-card ${isOpen ? '' : 'compact'}`} onClick={() => setBranchOpen((v) => !v)}>
-        <div className="location-main">
-          <div className="location-title">{restaurantName}</div>
-          {isOpen && <span className="chevron"><ChevronDown size={14} /></span>}
-        </div>
-        {isOpen && <div className="pill badge-premium">Premium (Trial)</div>}
-        {branchOpen && isOpen && (
-          <div className="branch-popover">
-            {branches.map((b) => (
-              <button
-                key={b.branchId || b._id}
-                className={`branch-item ${activeBranchId === (b.branchId || b._id) ? 'active' : ''}`}
-                onClick={() => {
-                  setBranchId(b.branchId || b._id);
-                  window.location.reload();
-                }}
-              >
-                {b.branchName || b.name || b.code || 'Branch'}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="sidebar-buttons">
-        {['orders', 'notifications', 'profile'].map((section) => (
-          <button
-            key={section}
-            className={`sidebar-button ${activeSection === section ? 'active' : ''} ${isOpen ? '' : 'compact'}`}
-            onClick={() => onSelect?.(section)}
-            title={section.toUpperCase()}
-          >
-            <span className="sidebar-icon">{iconMap[section]}</span>
-            <span className={`sidebar-label ${isOpen ? '' : 'hidden'}`}>
-              {section.charAt(0).toUpperCase() + section.slice(1)}
-            </span>
-            {section === 'notifications' && unreadCount > 0 && (
-              <span className="badge-red">{unreadCount}</span>
+      <div className="sidebar-content">
+        {/* Branch Selection */}
+        <div className={`branch-selector ${isOpen ? '' : 'compact'}`}>
+          <div className="branch-current" onClick={() => isOpen && setBranchOpen(!branchOpen)}>
+            <MapPin size={18} className="branch-icon" />
+            {isOpen && (
+              <>
+                <div className="branch-info">
+                  <span className="branch-name-text">{restaurantName}</span>
+                  <span className="branch-status">Premium Trial</span>
+                </div>
+                <ChevronDown size={14} className={`chevron ${branchOpen ? 'rotated' : ''}`} />
+              </>
             )}
-          </button>
-        ))}
-      </div>
-
-      <div className="sidebar-profile-wrapper" onMouseLeave={() => setProfileOpen(false)}>
-        <button className={`sidebar-profile ${isOpen ? '' : 'compact'}`} onClick={() => setProfileOpen((v) => !v)}>
-          <div className="avatar-circle">{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</div>
-          {isOpen && (
-            <div className="profile-meta">
-              <div className="fw-semibold small">{user?.name || 'User'}</div>
-              <div className="tiny-text text-muted">{user?.email || ''}</div>
+          </div>
+          
+          {branchOpen && isOpen && (
+            <div className="branch-dropdown">
+              {branches.map((b) => (
+                <button
+                  key={b.branchId || b._id}
+                  className={`branch-option ${activeBranch?.branchId === (b.branchId || b._id) ? 'active' : ''}`}
+                  onClick={() => handleBranchSwitch(b.branchId || b._id)}
+                >
+                  {b.branchName || b.name}
+                </button>
+              ))}
             </div>
           )}
-          <span className="sidebar-icon">{profileOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>
-        </button>
-        {profileOpen && (
-          <div className="profile-popover">
-              <div className="profile-popover-body">
-              <button className="profile-panel-item" onClick={() => onSelect?.('profile')}>
-                <span className="sidebar-icon"><UserRound size={14} /></span>
-                Profile
+        </div>
+
+        {/* Navigation */}
+        <nav className="nav-menu">
+          {navItems.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              className={`nav-item ${activeSection === id ? 'active' : ''}`}
+              onClick={() => onSelect?.(id)}
+              title={label}
+            >
+              <div className="icon-wrapper">
+                <Icon size={20} strokeWidth={2} />
+                {id === 'notifications' && unreadCount > 0 && (
+                  <span className="unread-dot">{unreadCount}</span>
+                )}
+              </div>
+              {isOpen && <span className="nav-label">{label}</span>}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* User Profile */}
+      <div className="sidebar-footer">
+        <div className={`user-profile ${profileOpen ? 'active' : ''} ${!isOpen ? 'compact' : ''}`}>
+          <button className="profile-toggle" onClick={() => setProfileOpen(!profileOpen)}>
+            <div className="user-avatar">
+              {user?.name?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            {isOpen && (
+              <div className="user-details">
+                <p className="user-name">{user?.name || 'Chef'}</p>
+                <p className="user-email">{user?.email}</p>
+              </div>
+            )}
+          </button>
+          
+          {profileOpen && (
+            <div className="profile-menu">
+              <button onClick={() => onSelect?.('profile')}>
+                <UserRound size={16} /> Profile Settings
               </button>
-              <button className="sidebar-button sub" onClick={handleLogout}>
-                <span className="sidebar-icon"><LogOut size={14} /></span>
-                Log out
+              <button onClick={handleLogout} className="logout-btn">
+                <LogOut size={16} /> Logout
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </aside>
   );
 };
 
