@@ -22,89 +22,34 @@
 .pos-main-content {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  overflow: hidden;
+  height: 100%;
+  overflow: hidden; /* Main section holds the sticky search and then the scrollable cards */
 }
 
-.pos-header {
-  margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: center;
-}
-
-/* Order Type Toggle Buttons */
-.order-type-selector {
-  display: flex;
-  background: var(--pos-card-bg);
-  padding: 0.5rem;
-  border-radius: 100px;
-  box-shadow: var(--pos-shadow);
-  gap: 0.5rem;
-  border: 1px solid var(--pos-border);
-}
-
-.type-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 1.25rem;
-  border: none;
-  background: transparent;
-  border-radius: 100px;
-  color: var(--pos-text-muted);
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.type-btn.active {
-  background: var(--pos-primary);
-  color: white;
-  box-shadow: 0 4px 12px rgba(252, 128, 25, 0.3);
-}
-
-.type-btn:hover:not(.active) {
-  background: #f1f5f9;
-  color: var(--pos-text-main);
-}
-
-/* Menu Grid Area */
-.pos-menu-grid {
-  flex-grow: 1;
-  background: var(--pos-card-bg);
-  border-radius: 1.25rem;
-  border: 1px solid var(--pos-border);
-  box-shadow: var(--pos-shadow);
+/* New Bordered Body for Cards Only */
+.pos-menu-body {
+  flex: 1;
   overflow-y: auto;
-  padding: 1rem;
+  background: transparent;
+  padding: 24px;
 }
 
-/* Sidebar / Cart */
-.pos-sidebar {
-  background: var(--pos-card-bg);
-  border-left: 1px solid var(--pos-border);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  box-shadow: -4px 0 15px rgba(0,0,0,0.02);
+.pos-menu-section {
+  padding: 24px 24px 0 24px;
 }
 
-/* Empty State Handling */
-.empty-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: var(--pos-text-muted);
-  font-style: italic;
+/* Custom Scrollbar for the Menu Section */
+.pos-menu-body::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* --- Responsive Adjustments --- */
-@media (max-width: 1024px) {
-  .pos-container {
-    grid-template-columns: 1fr 320px;
-  }
+.pos-menu-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.pos-menu-body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 @media (max-width: 768px) {

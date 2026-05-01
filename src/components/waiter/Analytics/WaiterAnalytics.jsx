@@ -1,50 +1,125 @@
 import React from 'react';
 import { TrendingUp, ShoppingBag, DollarSign, Award } from 'lucide-react';
+import WaiterPromotionTimeline from '../PromotionTimeline/WaiterPromotionTimeline';
 
 const WaiterAnalytics = ({ analytics }) => {
   const totalOrders = analytics?.summary?.totalOrders || 0;
   const totalSales = analytics?.summary?.totalSales || 0;
   const averageValue = totalOrders > 0 ? (totalSales / totalOrders) : 0;
 
+  // Custom Styles
+  const primaryColor = '#fc8019';
+  const cardStyle = {
+    background: '#fff',
+    padding: '24px',
+    borderRadius: '20px',
+    border: '1px solid #f1f5f9',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+    transition: 'all 0.3s ease',
+    cursor: 'default',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center'
+  };
+
+  const highlightCardStyle = {
+    ...cardStyle,
+    background: `linear-gradient(135deg, ${primaryColor} 0%, #ff9a44 100%)`,
+    border: 'none',
+    color: '#fff',
+    boxShadow: `0 10px 25px -5px rgba(252, 128, 25, 0.4)`
+  };
+
   return (
-    <div className="analytics-card-container w-100 h-100">
-      <h4 className="fw-bold mb-4" style={{ color: '#0f172a' }}>My Performance Stats</h4>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+    <div className="container-fluid p-0">
+      <div className="d-flex align-items-center justify-content-between mb-4">
+        <h4 className="fw-bold m-0" style={{ color: '#1e293b', letterSpacing: '-0.02em', marginTop: '10px' }}>
+          My Performance Stats
+        </h4>
+        <div className="badge" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor, padding: '8px 12px', borderRadius: '10px' }}>
+          Real-time Updates
+        </div>
+      </div>
+
+      {/* Responsive Grid System */}
+      <div 
+        style={{ 
+          display: 'grid', 
+          gridTemplateColumns: '普及(minmax(250px, 1fr))', // Standard responsive fallback
+          gap: '20px',
+          marginBottom: '30px'
+        }}
+        className="analytics-grid"
+      >
+        <style>{`
+          .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+          }
+          @media (max-width: 768px) {
+            .analytics-grid { grid-template-columns: 1fr; }
+          }
+          .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
+          }
+        `}</style>
         
-        <div style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', padding: '24px', borderRadius: '24px', color: '#fff', boxShadow: '0 10px 30px rgba(16, 185, 129, 0.25)', transition: 'transform 0.2s', cursor: 'default' }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+        {/* Total Sales Card */}
+        <div style={highlightCardStyle} className="stat-card">
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <span style={{ fontSize: '15px', fontWeight: '700', opacity: 0.9, letterSpacing: '0.02em', textTransform: 'uppercase' }}>Total Sales</span>
-            <DollarSign size={24} opacity={0.8} />
+            <span style={{ fontSize: '14px', fontWeight: '700', opacity: 0.9, textTransform: 'uppercase', color:'white' }}>Total Sales</span>
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '8px', borderRadius: '12px' }}>
+              <DollarSign size={20} />
+            </div>
           </div>
-          <h2 style={{ margin: 0, fontWeight: 800, fontSize: '28px' }}>NPR {totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
-        </div>
-
-        <div style={{ background: '#fff', padding: '24px', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', transition: 'transform 0.2s', cursor: 'default' }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <span style={{ fontSize: '15px', fontWeight: '700', color: '#64748b', letterSpacing: '0.02em', textTransform: 'uppercase' }}>Tables Served</span>
-            <ShoppingBag size={24} color="#3b82f6" />
-          </div>
-          <h2 style={{ margin: 0, fontWeight: 800, fontSize: '28px', color: '#0f172a' }}>{totalOrders}</h2>
-        </div>
-
-        <div style={{ background: '#fff', padding: '24px', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', transition: 'transform 0.2s', cursor: 'default' }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <span style={{ fontSize: '15px', fontWeight: '700', color: '#64748b', letterSpacing: '0.02em', textTransform: 'uppercase' }}>Avg. Order</span>
-            <TrendingUp size={24} color="#f59e0b" />
-          </div>
-          <h2 style={{ margin: 0, fontWeight: 800, fontSize: '28px', color: '#0f172a' }}>NPR {averageValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</h2>
-        </div>
-
-        <div style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', padding: '24px', borderRadius: '24px', color: '#fff', boxShadow: '0 10px 30px rgba(59, 130, 246, 0.25)', transition: 'transform 0.2s', cursor: 'default' }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <span style={{ fontSize: '15px', fontWeight: '700', opacity: 0.9, letterSpacing: '0.02em', textTransform: 'uppercase' }}>Current Rank</span>
-            <Award size={24} opacity={0.8} />
-          </div>
-          <h2 style={{ margin: 0, fontWeight: 800, fontSize: '28px' }}>
-            {totalOrders > 50 ? 'Elite' : totalOrders > 20 ? 'Expert' : totalOrders > 5 ? 'Active' : 'Rookie'}
+          <h2 style={{ margin: 0, fontWeight: 800, fontSize: '1.75rem' }}>
+            NPR {totalSales.toLocaleString(undefined, { minimumFractionDigits: 0 })}
           </h2>
         </div>
 
+        {/* Tables Served Card */}
+        <div style={cardStyle} className="stat-card">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <span style={{ fontSize: '14px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Tables Served</span>
+            <div style={{ background: '#f8fafc', padding: '8px', borderRadius: '12px' }}>
+              <ShoppingBag size={20} color={primaryColor} />
+            </div>
+          </div>
+          <h2 style={{ margin: 0, fontWeight: 800, fontSize: '1.75rem', color: '#0f172a' }}>{totalOrders}</h2>
+        </div>
+
+        {/* Avg Order Card */}
+        <div style={cardStyle} className="stat-card">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <span style={{ fontSize: '14px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Avg. Order</span>
+            <div style={{ background: '#f8fafc', padding: '8px', borderRadius: '12px' }}>
+              <TrendingUp size={20} color="#10b981" />
+            </div>
+          </div>
+          <h2 style={{ margin: 0, fontWeight: 800, fontSize: '1.75rem', color: '#0f172a' }}>
+            NPR {averageValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+          </h2>
+        </div>
+
+        {/* Current Rank Card */}
+        <div 
+          style={{...cardStyle, borderLeft: `6px solid ${primaryColor}`}} 
+          className="stat-card"
+        >
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <span style={{ fontSize: '14px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Current Rank</span>
+            <Award size={20} color={primaryColor} />
+          </div>
+          <h2 style={{ margin: 0, fontWeight: 800, fontSize: '1.75rem', color: primaryColor }}>
+            {totalOrders > 50 ? 'Elite' : totalOrders > 20 ? 'Expert' : totalOrders > 5 ? 'Active' : 'Rookie'}
+          </h2>
+        </div>
+      </div>
+
+      {/* Timeline Section */}
+      <div className="mt-4 p-4" style={{ background: '#fff', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
+        <WaiterPromotionTimeline />
       </div>
     </div>
   );
