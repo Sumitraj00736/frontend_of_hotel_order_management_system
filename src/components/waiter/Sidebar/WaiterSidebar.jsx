@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Home, ListChecks, BookOpen, Bell, UserRound, ChevronDown, ChevronRight, LogOut, ShoppingBag, MapPin } from 'lucide-react';
+import { Home, ListChecks, BookOpen, Bell, UserRound, ChevronDown, ChevronRight, LogOut, ShoppingBag, MapPin,TrendingUp } from 'lucide-react';
 import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../../api/session.js';
 import '../../../common/css/waiter/waiterSidebar.css';
 
@@ -11,7 +11,8 @@ const iconMap = {
   menu: BookOpen,
   notifications: Bell,
   profile: UserRound,
-  takeaway: ShoppingBag
+  takeaway: ShoppingBag,
+  analytics: TrendingUp,
 };
 
 const WaiterSidebar = ({ activeSection = 'dashboard', onSelect, isOpen = true, onToggleSidebar, unreadCount = 0, sections }) => {
@@ -42,7 +43,7 @@ const WaiterSidebar = ({ activeSection = 'dashboard', onSelect, isOpen = true, o
       {/* Header */}
       <div className="sidebar-header">
         <div className="brand-container">
-          <div className="brand-logo">V</div>
+          <div className="brand-logo">M</div>
           <h2 className="brand-name">mero<span>restro</span></h2>
         </div>
         <button className="toggle-trigger" onClick={onToggleSidebar}>

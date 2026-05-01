@@ -31,12 +31,12 @@ const WaiterAnalytics = ({ analytics }) => {
   };
 
   return (
-    <div className="container-fluid p-0">
+    <div className="container-fluid p-0" style={{ fontFamily: 'Inter, sans-serif', color: '#1e293b' , marginTop: '40px',padding:'8px'}}>
       <div className="d-flex align-items-center justify-content-between mb-4">
         <h4 className="fw-bold m-0" style={{ color: '#1e293b', letterSpacing: '-0.02em', marginTop: '10px' }}>
           My Performance Stats
         </h4>
-        <div className="badge" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor, padding: '8px 12px', borderRadius: '10px' }}>
+        <div className="badge" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor, padding: '8px 12px', borderRadius: '10px', marginRight:'50px' }}>
           Real-time Updates
         </div>
       </div>
@@ -45,15 +45,19 @@ const WaiterAnalytics = ({ analytics }) => {
       <div 
         style={{ 
           display: 'grid', 
-          gridTemplateColumns: '普及(minmax(250px, 1fr))', // Standard responsive fallback
+          gridTemplateColumns: '(minmax(250px, 1fr))', // Standard responsive fallback
           gap: '20px',
-          marginBottom: '30px'
+          marginTop: '20px',
+          marginBottom: '30px',
+          marginLeft: '0',
+          marginRight: '40px'
         }}
         className="analytics-grid"
       >
         <style>{`
           .analytics-grid {
             display: grid;
+            margin: 0;
             grid-template-columns: repeat(2, 1fr);
           }
           @media (max-width: 768px) {
