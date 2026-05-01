@@ -133,7 +133,7 @@ const WaiterApp = () => {
     };
 
     if (effectiveRole === 'waiter') {
-      return ['dashboard', 'orders', 'menu', 'notifications', 'profile'].filter((section) => {
+      return ['dashboard', 'orders', 'menu', 'notifications', 'profile', 'analytics'].filter((section) => {
         if (section === 'profile') return true;
         const perm = sectionPermissions[section];
         return perm ? can(perm) : true;
@@ -146,6 +146,7 @@ const WaiterApp = () => {
     if (can('dashboard:view')) items.push('dashboard');
     if (can('menu:view')) items.push('menu');
     items.push('profile');
+    items.push('analytics');
     return items;
   }, [allowedPermissions.join('|'), effectiveRole]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -156,12 +157,14 @@ const WaiterApp = () => {
       api.get('/api/tables'),
       api.get('/api/menus'),
       api.get('/api/orders', { params: ordersScope === 'all' ? { scope: 'all' } : {} }),
-      api.get('/api/profile/me')
+      api.get('/api/profile/me'),
+      api.get('/api/analytics/waiter/me').catch(() => ({ data: null })),
+      api.get('/api/promotions/me').catch(() => ({ data: [] }))
     ];
 
     // Optional fetches based on implicit or explicit permissions
     const analyticsIdx = fetchPromises.length;
-    fetchPromises.push(api.get('/api/profile/waiter/analytics').catch(() => ({ data: null })));
+    fetchPromises.push(api.get('/api/waiter/analytics').catch(() => ({ data: null })));
     
     const promoIdx = fetchPromises.length;
     fetchPromises.push(api.get('/api/promotions/me').catch(() => ({ data: [] })));
@@ -175,14 +178,12 @@ const WaiterApp = () => {
       setOrders(Array.isArray(payload?.data) ? payload.data : payload);
     }
     if (results[3].status === 'fulfilled') setProfile(results[3].value.data);
-    
-    // Handle optional results safely
-    if (results[analyticsIdx]?.status === 'fulfilled' && results[analyticsIdx].value.data) {
-      setMyAnalytics(results[analyticsIdx].value.data);
-    }
-    if (results[promoIdx]?.status === 'fulfilled' && results[promoIdx].value.data) {
-      setPromotions(results[promoIdx].value.data);
-    }
+    if (analyticsRes.status === 'fulfilled' && analyticsRes.value.data) {
+    setMyAnalytics(analyticsRes.value.data);
+  }
+  if (promoRes.status === 'fulfilled' && promoRes.value.data) {
+    setPromotions(promoRes.value.data);
+  }
   };
 
   const loadCustomers = async () => {
@@ -838,13 +839,20 @@ const WaiterApp = () => {
           </div>
         )}
 
-        {activeSection === 'profile' && (
-          <div className="content grid-3">
-            <WaiterProfile profile={profile} onLogout={handleLogout} onSave={saveProfile} saving={profileSaving} />
-            <WaiterAnalytics analytics={myAnalytics} />
-            <WaiterPromotionTimeline promotions={promotions} />
-          </div>
-        )}
+       {/* Profile Section */}
+{activeSection === 'profile' && (
+  <div className="content grid-3">
+    <WaiterProfile profile={profile} onLogout={handleLogout} onSave={saveProfile} saving={profileSaving} />
+  </div>
+)}
+
+{/* Analytics Section */}
+{activeSection === 'analytics' && (
+  <div className="content grid-3">
+    <WaiterAnalytics analytics={myAnalytics} />
+    <WaiterPromotionTimeline promotions={promotions} />
+  </div>
+)}
 
         {showFloatingCart && can('orders:view') && (
           <div className="d-md-none">
