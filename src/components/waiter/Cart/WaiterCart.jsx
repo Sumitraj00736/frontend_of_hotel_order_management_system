@@ -26,9 +26,9 @@ const WaiterCart = ({
 }) => {
   const spiceOptions = [
     { value: 'mild', label: 'Mild' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'spicy', label: 'Spicy' },
-    { value: 'extra_spicy', label: 'Extra Spicy' }
+    { value: 'medium', label: 'Med' },
+    { value: 'spicy', label: 'Hot' },
+    { value: 'extra_spicy', label: 'Extra' }
   ];
 
   return (
@@ -175,6 +175,7 @@ const WaiterCart = ({
         </div>
       </div>
 
+      {/* Footer */}
       <div className="pos-cart-footer">
         <div className="total-container">
           <span className="total-label">Subtotal</span>

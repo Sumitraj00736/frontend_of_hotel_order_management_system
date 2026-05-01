@@ -1,51 +1,25 @@
-.admin-shell {
-  background-color: white !important; /* Premium Mint Green Background */
-  min-height: 100vh;
-  padding: 0 !important; /* Force full screen for POS */
+:root {
+  --pos-primary: #fc8019;
+  --pos-primary-dark: #d36f1d;
+  --pos-bg: #f8fafc;
+  --pos-card-bg: #ffffff;
+  --pos-text-main: #1e293b;
+  --pos-text-muted: #64748b;
+  --pos-border: #e2e8f0;
+  --pos-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.admin-body {
-  margin: 0 !important;
-  gap: 0 !important;
-}
-
-.content {
-  padding: 0 !important;
-}
-
-/* High-density text scale for professional waiter dashboard */
-.admin-shell,
-.admin-shell :is(input, select, textarea, button) {
-  font-size: 12px;
-}
-
-@media (max-width: 768px) {
-  .admin-shell,
-  .admin-shell :is(input, select, textarea, button) {
-    font-size: 11px;
-  }
-}
-
-.waiter-pos-layout {
+.pos-container {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 420px;
-  gap: 0;
-  align-items: stretch;
+  grid-template-columns: 1fr 400px;
   height: 100vh;
+  background-color: var(--pos-bg);
   overflow: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-@media (max-width: 768px) {
-  .waiter-pos-layout {
-    grid-template-columns: 1fr;
-    padding-top: 60px; /* Space for the fixed mobile header */
-    height: auto;
-    overflow: visible;
-  }
-}
-
-/* Menu Side Container */
-.pos-menu-section {
+/* Main Content Area */
+.pos-main-content {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -79,409 +53,40 @@
 }
 
 @media (max-width: 768px) {
-  :root {
-    --waiter-mobile-header-height: 62px;
+  .pos-container {
+    grid-template-columns: 1fr; /* Cart becomes an overlay or separate screen */
   }
 
-  /* 0. Reset Global Gaps for Mobile App Feel */
-  .admin-shell {
-    padding: 0 !important;
-    background: #f8fafc;
+  .pos-sidebar {
+    display: none; /* Hide sidebar on mobile - controlled by setMobileCartOpen in your logic */
   }
   
-  .admin-body {
-    display: block !important;
-    padding: 0 !important;
-    padding-bottom: 90px !important; /* Space for Bottom Nav */
-    margin: 0 !important;
-    min-height: 100vh;
+  .order-type-selector {
+    width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    border-radius: 15px;
   }
-
-  .admin-main, .content {
-    width: 100% !important;
-    padding: 12px !important;
-    margin: 0 !important;
+  
+  .type-btn span {
+    display: none; /* Icon only on very small screens if needed */
   }
-
-  .content {
-    padding-top: calc(var(--waiter-mobile-header-height) + 8px) !important;
+  
+  @media (min-width: 480px) {
+    .type-btn span {
+      display: inline;
+    }
   }
+}
 
-  /* Hide Desktop specific things but allow children to render */
-  .sidebar-placeholder {
-    display: block !important;
-    width: 0 !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: visible !important;
-  }
-
-  /* 1. Sidebar to Professional Bottom Nav */
-  .admin-sidebar {
-    position: fixed !important;
-    bottom: 0 !important;
-    top: auto !important; /* Force clear the desktop top:0 */
-    left: 0 !important;
-    width: 100% !important;
-    height: 72px !important; /* Fixed height for tab bar */
-    background: rgba(255, 255, 255, 0.98) !important;
-    backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(226, 232, 240, 0.8) !important;
-    border-right: none !important;
-    padding: 0 8px !important;
-    z-index: 2100 !important; /* Higher than drawer */
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-around !important;
-    align-items: center !important;
-    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.1);
-    padding-bottom: env(safe-area-inset-bottom) !important;
-  }
-
-  .sidebar-top, .location-card, .sidebar-profile-wrapper, .collapse-btn, .sidebar-label {
-    display: none !important;
-  }
-
-  .sidebar {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    overflow: visible !important;
-    height: auto !important;
-    width: 100% !important;
-    z-index: 2500 !important;
-  }
-
-  .sidebar-buttons {
-    position: fixed !important;
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
-    left: 20px !important;
-    right: 20px !important;
-    width: calc(100% - 40px) !important;
-    height: 70px !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
-    border-radius: 24px !important;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-around !important;
-    padding: 0 10px !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
-    z-index: 2501 !important;
-    overflow: visible !important;
-  }
-
-  /* Target the Dashboard (now 1st in array) and move to center via order:3 */
-  .sidebar-button:nth-child(1) {
-    order: 3;
-    margin-top: -30px;
-    height: 64px !important;
-    width: 64px !important;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; /* Changed to Emerald for better contrast */
-    border-radius: 20px !important;
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4) !important;
-    border: 3px solid #ffffff !important;
-    color: #ffffff !important;
-  }
-
-  .sidebar-button:nth-child(2) { order: 1; }
-  .sidebar-button:nth-child(3) { order: 2; }
-  .sidebar-button:nth-child(4) { order: 4; }
-  .sidebar-button:nth-child(5) { order: 5; }
-
-  .sidebar-button:nth-child(1).active {
-    color: #ffffff !important;
-    transform: translateY(-4px) scale(1.05);
-  }
-
-  .sidebar-button {
-    width: 50px !important;
-    height: 50px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: transparent !important;
-    color: #94a3b8 !important;
-    border: none !important;
-    position: relative;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  .sidebar-button.active {
-    color: #1f2937 !important;
-  }
-
-  .sidebar-button.active::after {
-    content: '';
-    position: absolute;
-    bottom: 6px;
-    width: 5px;
-    height: 5px;
-    background: #FFC72C;
-    border-radius: 50%;
-  }
-
-  .sidebar-icon {
-    margin: 0 !important;
-    transition: transform 0.2s;
-  }
-
-  /* 2. Full-Width Components */
-  .pos-search-wrapper {
-    width: 100% !important;
-    border-radius: 12px !important;
-    margin-bottom: 12px !important;
-    padding: 10px 12px !important;
-  }
-
-  .order-toggle-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: 24px !important;
-  }
-
-  /* 3. Ergonomic FAB (Right Side) */
-  .mobile-fab-cart {
-    position: fixed;
-    bottom: 96px; /* Above Bottom Nav */
-    right: 20px;   /* Thumb Zone */
-    left: auto !important;
-    width: 52px;
-    height: 52px;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-    z-index: 1500;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .mobile-fab-cart .badge {
-    top: -6px !important;
-    right: -6px !important;
-    background: #fc8019 !important;
-    font-size: 10px !important;
-    padding: 2px 5px !important;
-    border-radius: 8px !important;
-  }
-
-  /* 4. Layout Specifics */
-  .pos-menu-section {
-    padding: 0 !important;
-  }
-
-  .menu-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 8px !important;
-  }
-
-  .menu-card {
-    border-radius: 12px !important;
-  }
-
-  .menu-card-image {
-    height: 96px !important;
-  }
-
-  .menu-pos-card {
-    border-radius: 12px !important;
-  }
-
-  .menu-info {
-    padding: 8px !important;
-  }
-
-  .menu-name {
-    font-size: 11px !important;
-    margin-bottom: 1px !important;
-  }
-
-  .menu-category {
-    font-size: 9px !important;
-    margin-bottom: 8px !important;
-  }
-
-  .menu-price {
-    font-size: 13px !important;
-  }
-
-  .menu-add-icon {
-    width: 24px !important;
-    height: 24px !important;
-    border-radius: 8px !important;
-  }
-
-  /* 5. Cart Drawer Refinement (Floating Panel) */
-  .pos-cart-section {
-    position: fixed !important;
-    top: auto !important;
-    bottom: -100% !important;
-    left: 20px !important;
-    right: 20px !important;
-    width: calc(100% - 40px) !important;
-    height: auto !important;
-    /* When active, height will be constrained by top/bottom offsets */
-    min-height: 170px;
-    background: #fff;
-    z-index: 2200;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    border-radius: 18px !important;
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
-    display: block !important;
-    overflow: hidden;
-  }
-
-  .pos-cart-section.mobile-open {
-    top: calc(var(--waiter-mobile-header-height) + 88px) !important;
-    bottom: 104px !important;
-  }
-
-  /* Reset inner sidebar for mobile drawer */
-  .pos-cart-sidebar {
-    height: 100% !important;
-    width: 100% !important;
-    margin: 0 !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
-
-  .pos-cart-section.mobile-open {
-    bottom: 96px !important;
-  }
-
-  .mobile-drawer-handle {
-    width: 48px;
-    height: 6px;
-    background: #e2e8f0;
-    margin: 12px auto 8px;
-  }
-
-  /* 6. Mobile Branding Header */
-  .mobile-branding-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid #f1f5f9;
-    padding: 0 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    z-index: 2500; /* Above everything except maybe modals */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  }
-
-  .brand-icon-mini {
-    width: 34px;
-    height: 34px;
-    background: #FFC72C; /* Match McDonalds Gold */
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(255, 199, 44, 0.3);
-  }
-
-  /* Fix for search bar and menu overlapping header */
-  .pos-search-wrapper {
-    position: sticky !important;
-    top: calc(var(--waiter-mobile-header-height) + 6px) !important;
-    z-index: 1500 !important;
-    margin: 8px 10px 12px 10px !important;
-    width: calc(100% - 20px) !important;
-    padding: 10px 14px !important;
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 16px !important; /* Premium rounded edges instead of cut look */
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  }
-
-  /* Remove outer padding from menu section on mobile to allow full-width search bar */
-  .pos-menu-section {
-    padding: 0 !important;
-  }
-
-  .pos-menu-body {
-    padding: 12px !important;
-    padding-top: 56px !important;
-    overflow: visible !important; /* Let main page handle scroll */
-  }
-
-  .order-toggle-container {
-    margin-bottom: 16px !important;
-    padding: 4px !important;
-    position: sticky;
-    top: calc(var(--waiter-mobile-header-height) + 8px);
-    z-index: 1300;
-    border-radius: 999px !important;
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
-  }
-
-  .waiter-order-toggle-btn {
-    font-size: 11px !important;
-    padding: 7px 0 !important;
-  }
-
-  .waiter-orders-content {
-    padding: calc(var(--waiter-mobile-header-height) + 14px) 10px 108px !important;
-  }
-
-  .waiter-orders-content .card.glass-card {
-    border-radius: 14px;
-    padding: 10px !important;
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
-  }
-
-  .waiter-orders-content .card.glass-card h5 {
-    font-size: 13px;
-    margin-bottom: 8px !important;
-  }
-
-  .waiter-orders-content .kot-grid {
-    gap: 12px;
-  }
-
-  .waiter-orders-content .kot-card {
-    border-radius: 12px;
-    padding: 10px 10px 8px;
-    gap: 8px;
-  }
-
-  .waiter-orders-content .kot-title {
-    font-size: 14px;
-  }
-
-  .waiter-orders-content .kot-meta,
-  .waiter-orders-content .kot-item {
-    font-size: 12px;
-  }
-
-  .waiter-orders-content .kot-actions .ghost-btn {
-    min-height: 34px;
-    font-size: 12px;
-    padding: 6px 8px;
-  }
-
-  .content.grid-3 {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding: calc(var(--waiter-mobile-header-height) + 14px) 10px 108px !important;
-  }
+/* Custom Scrollbar for a cleaner look */
+.pos-menu-grid::-webkit-scrollbar {
+  width: 6px;
+}
+.pos-menu-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pos-menu-grid::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
 }
