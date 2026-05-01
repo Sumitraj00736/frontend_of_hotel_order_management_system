@@ -159,7 +159,7 @@ const WaiterApp = () => {
       api.get('/api/orders', { params: ordersScope === 'all' ? { scope: 'all' } : {} }),
       api.get('/api/profile/me'),
       api.get('/api/analytics/waiter/me').catch(() => ({ data: null })),
-      api.get('/api/promotions/me').catch(() => ({ data: [] }))
+      api.get('/api/analytics/promotions/me').catch(() => ({ data: [] }))
     ];
 
     // Optional fetches based on implicit or explicit permissions
@@ -167,7 +167,7 @@ const WaiterApp = () => {
     fetchPromises.push(api.get('/api/waiter/analytics').catch(() => ({ data: null })));
     
     const promoIdx = fetchPromises.length;
-    fetchPromises.push(api.get('/api/promotions/me').catch(() => ({ data: [] })));
+    fetchPromises.push(api.get('/api/analytics/promotions/me').catch(() => ({ data: [] })));
 
     const results = await Promise.allSettled(fetchPromises);
 
@@ -180,9 +180,6 @@ const WaiterApp = () => {
     if (results[3].status === 'fulfilled') setProfile(results[3].value.data);
     if (analyticsRes.status === 'fulfilled' && analyticsRes.value.data) {
     setMyAnalytics(analyticsRes.value.data);
-  }
-  if (promoRes.status === 'fulfilled' && promoRes.value.data) {
-    setPromotions(promoRes.value.data);
   }
   };
 
@@ -850,7 +847,6 @@ const WaiterApp = () => {
 {activeSection === 'analytics' && (
   <div className="content grid-3">
     <WaiterAnalytics analytics={myAnalytics} />
-    <WaiterPromotionTimeline promotions={promotions} />
   </div>
 )}
 

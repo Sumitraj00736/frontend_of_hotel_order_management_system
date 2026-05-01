@@ -1,5 +1,7 @@
 import React from 'react';
 import { TrendingUp, ShoppingBag, DollarSign, Award } from 'lucide-react';
+import '../PromotionTimeline/WaiterPromotionTimeline';
+import WaiterPromotionTimeline from '../PromotionTimeline/WaiterPromotionTimeline';
 
 const WaiterAnalytics = ({ analytics }) => {
   const totalOrders = analytics?.summary?.totalOrders || 0;
@@ -7,6 +9,7 @@ const WaiterAnalytics = ({ analytics }) => {
   const averageValue = totalOrders > 0 ? (totalSales / totalOrders) : 0;
 
   return (
+    <div className="analytics-card-container w-100 h-100">
     <div className="analytics-card-container w-100 h-100">
       <h4 className="fw-bold mb-4" style={{ color: '#0f172a' }}>My Performance Stats</h4>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -46,6 +49,8 @@ const WaiterAnalytics = ({ analytics }) => {
         </div>
 
       </div>
+    </div>
+    <WaiterPromotionTimeline/>
     </div>
   );
 };
