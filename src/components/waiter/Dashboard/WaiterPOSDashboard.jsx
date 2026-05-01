@@ -2,7 +2,7 @@ import React from 'react';
 import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart, Search } from 'lucide-react';
 import MenuSection from '../../../components/admin/orders/create/MenuSection.jsx';
 import WaiterCart from '../../../components/waiter/Cart/WaiterCart.jsx';
-import '../../../common/css/waiter/waiterDashboard.css';
+import '../../../common/css/waiter/waiterposdashboard.css';
 
 const WaiterPOSDashboard = ({
   canViewMenu,
@@ -41,22 +41,22 @@ const WaiterPOSDashboard = ({
 }) => {
   
   const orderTypes = [
-    { id: 'dine_in', label: 'Dine-in', icon: <UtensilsCrossed size={18} /> },
-    { id: 'delivery', label: 'Delivery', icon: <Bike size={18} /> },
-    { id: 'takeaway', label: 'Takeaway', icon: <ShoppingBag size={18} /> },
-    { id: 'pickup', label: 'Pick up', icon: <ShoppingCart size={18} /> },
+    { id: 'dine_in', label: 'Dine-in', icon: <UtensilsCrossed size={16} /> },
+    { id: 'delivery', label: 'Delivery', icon: <Bike size={16} /> },
+    { id: 'takeaway', label: 'Takeaway', icon: <ShoppingBag size={16} /> },
+    { id: 'pickup', label: 'Pick up', icon: <ShoppingCart size={16} /> },
   ];
 
   return (
-    <div className="pos-container">
+    <div className="pos-dashboard-container">
       {/* Main Menu Section */}
       <main className="pos-main-content">
-        <header className="pos-header">
-          <div className="order-type-selector">
+        <header className="pos-top-bar">
+          <div className="order-type-nav">
             {orderTypes.map((type) => (
               <button
                 key={type.id}
-                className={`type-btn ${orderType === type.id ? 'active' : ''}`}
+                className={`nav-type-btn ${orderType === type.id ? 'active' : ''}`}
                 onClick={() => setOrderType(type.id)}
               >
                 {type.icon}
@@ -66,7 +66,7 @@ const WaiterPOSDashboard = ({
           </div>
         </header>
 
-        <section className="pos-menu-grid">
+        <div className="pos-menu-wrapper">
           {canViewMenu ? (
             <MenuSection
               addSubMenu={addSubMenu}
@@ -87,13 +87,13 @@ const WaiterPOSDashboard = ({
               onTableChange={setSelectedTable}
             />
           ) : (
-            <div className="empty-state">No Menu Access</div>
+            <div className="pos-empty-state">No menu permissions</div>
           )}
-        </section>
+        </div>
       </main>
 
       {/* Sidebar Cart Section */}
-      <aside className="pos-sidebar">
+      <aside className={`pos-sidebar-section ${/* logic for mobile open could go here */ ''}`}>
         {canViewOrders ? (
           <WaiterCart
             cart={cart}
@@ -117,10 +117,14 @@ const WaiterPOSDashboard = ({
             onOrderTypeChange={setOrderType}
             onClose={() => setMobileCartOpen(false)}
           />
-        ) : (
-          <div className="empty-state">No Cart Access</div>
-        )}
+        ) : null}
       </aside>
+
+      {/* Mobile Floating Cart Trigger (Visible only on mobile) */}
+      <button className="mobile-cart-toggle d-md-none" onClick={() => setMobileCartOpen(true)}>
+        <div className="cart-count-badge">{cart.reduce((acc, item) => acc + item.quantity, 0)}</div>
+        <ShoppingCart color="white" />
+      </button>
     </div>
   );
 };
