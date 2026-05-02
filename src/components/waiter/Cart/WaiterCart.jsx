@@ -1,6 +1,6 @@
 import React from 'react';
 import { Minus, Plus, Trash2, Users, ReceiptText, Flame, MessageSquare, ClipboardList, UtensilsCrossed, ShoppingBag, X } from 'lucide-react';
-import './WaiterCart.css'; // Import the new CSS
+import '../../../common/css/waiter/dashboard/waiterCart.css'; // Import the new CSS
 
 const WaiterCart = ({
   cart,
