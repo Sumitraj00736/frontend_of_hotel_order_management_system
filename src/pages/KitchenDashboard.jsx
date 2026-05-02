@@ -16,6 +16,7 @@ const KitchenDashboard = () => {
   const [profileSaving, setProfileSaving] = useState(false);
   const [activeSection, setActiveSection] = useState('orders');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
   const [notificationFilters, setNotificationFilters] = useState({});
   const [toasts, setToasts] = useState([]);
   const [soundEnabled, setSoundEnabled] = useState(false);
@@ -122,6 +123,16 @@ const KitchenDashboard = () => {
   }, [statusFilter]);
 
   useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 992);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  useEffect(() => {
+    setSidebarOpen(!isMobile);
+  }, [isMobile]);
+
+  useEffect(() => {
     loadNotifications(notificationFilters);
   }, [notificationFilters]);
 
@@ -192,7 +203,7 @@ const KitchenDashboard = () => {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="admin-shell staff-app-shell">
+    <div className={`admin-shell ${isMobile ? 'mobile-app-shell' : ''} staff-app-shell`}>
       <NotificationToasts notifications={toasts} />
 
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
