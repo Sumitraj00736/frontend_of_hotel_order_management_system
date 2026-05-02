@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
-import '../../../common/css/waiter/waiterMenu.css';
+import '../../../common/css/waiter/dashboard/waiterMenu.css';
 
 const WaiterMenu = ({ menuItems = [], onAdd = () => {} }) => {
   if (!Array.isArray(menuItems) || menuItems.length === 0) {

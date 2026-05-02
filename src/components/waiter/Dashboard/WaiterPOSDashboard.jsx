@@ -2,7 +2,7 @@ import React from 'react';
 import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart, Search } from 'lucide-react';
 import MenuSection from '../../../components/admin/orders/create/MenuSection.jsx';
 import WaiterCart from '../../../components/waiter/Cart/WaiterCart.jsx';
-import '../../../common/css/waiter/waiterposdashboard.css';
+import '../../../common/css/waiter/dashboard/waiterposdashboard.css';
 
 const WaiterPOSDashboard = ({
   canViewMenu,

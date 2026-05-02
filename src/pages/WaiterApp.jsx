@@ -23,7 +23,7 @@ import WaiterPromotionTimeline from '../components/waiter/PromotionTimeline/Wait
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import MenuSection from '../components/admin/orders/create/MenuSection.jsx';
 import CustomizeDishModal from '../components/admin/orders/create/CustomizeDishModal.jsx';
-import '../common/css/waiter/waiterDashboard.css';
+import '../common/css/waiter/dashboard/waiterDashboard.css';
 
 const WaiterApp = () => {
   const currentUser = getCurrentUser();
