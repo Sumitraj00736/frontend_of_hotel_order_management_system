@@ -27,6 +27,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error?.response?.status === 403 && error.response.data?.code === 'PLAN_LIMIT_REACHED') {
+      // Global event for plan limit reached
+      window.dispatchEvent(new CustomEvent('app:plan-limit-reached', { detail: error.response.data }));
+    }
     if (error?.response?.status === 401) {
       // Clear potentially stale credentials and let routing redirect to login
       clearSession();

@@ -450,7 +450,20 @@ const AdminDashboard = () => {
     loadAll();
     loadNotifications();
     loadRoles();
-  }, []);
+
+    const handlePlanLimit = (e) => {
+      const { message } = e.detail || {};
+      pushToast({
+        title: 'Subscription Limit',
+        message: message || 'You have reached your plan limit. Please upgrade.',
+        type: 'error',
+        duration: 6000
+      });
+    };
+
+    window.addEventListener('app:plan-limit-reached', handlePlanLimit);
+    return () => window.removeEventListener('app:plan-limit-reached', handlePlanLimit);
+  }, [pushToast]);
 
   useEffect(() => {
     loadAll(dashboardOptions);
@@ -672,9 +685,10 @@ const AdminDashboard = () => {
       });
       loadAll();
     } catch (error) {
+      if (error.response?.data?.code === 'PLAN_LIMIT_REACHED') return;
       pushToast({
-        title: 'User already exists',
-        message: error.response?.data?.message || 'Email or phone already exists. Please invite instead.',
+        title: 'User creation failed',
+        message: error.response?.data?.message || 'Email or phone already exists.',
         type: 'error'
       });
     }
@@ -750,6 +764,7 @@ const AdminDashboard = () => {
       });
       loadCustomers();
     } catch (error) {
+      if (error.response?.data?.code === 'PLAN_LIMIT_REACHED') return;
       pushToast({
         title: 'Customer error',
         message: error.response?.data?.message || 'Failed to add customer',
@@ -800,6 +815,7 @@ const AdminDashboard = () => {
       setTableForm({ tableNumber: '', name: '', type: '', capacity: '', charge: '' });
       loadAll();
     } catch (error) {
+      if (error.response?.data?.code === 'PLAN_LIMIT_REACHED') return;
       alert(error.response?.data?.message || 'Failed to add table');
     }
   };
@@ -931,6 +947,7 @@ const AdminDashboard = () => {
       setMenus((prev) => [res.data, ...prev]);
       setMenuForm({ name: '', category: '', price: '', imageUrl: '' });
     } catch (error) {
+      if (error.response?.data?.code === 'PLAN_LIMIT_REACHED') return;
       alert(error.response?.data?.message || 'Failed to add menu');
     } finally {
       menuCreateRef.current = false;
@@ -942,6 +959,7 @@ const AdminDashboard = () => {
       await api.post('/api/menus', payload);
       loadAll();
     } catch (error) {
+      if (error.response?.data?.code === 'PLAN_LIMIT_REACHED') return;
       alert(error.response?.data?.message || 'Failed to add dish');
     }
   };
