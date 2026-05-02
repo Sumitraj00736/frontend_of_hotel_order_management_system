@@ -640,6 +640,9 @@
   .sidebar-placeholder.closed {
     width: 0;
   }
+  .admin-shell.mobile-app-shell .admin-body {
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
 }
 
 /* Dark Mode Styles */
