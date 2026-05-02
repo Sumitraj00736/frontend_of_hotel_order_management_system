@@ -27,8 +27,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error?.response?.status === 403 && error.response.data?.code === 'PLAN_LIMIT_REACHED') {
-      // Global event for plan limit reached
+    if (error?.response?.status === 403 && ['PLAN_LIMIT_REACHED', 'SUBSCRIPTION_EXPIRED', 'FEATURE_LOCKED'].includes(error.response.data?.code)) {
+      // Global event for plan/subscription issues
       window.dispatchEvent(new CustomEvent('app:plan-limit-reached', { detail: error.response.data }));
     }
     if (error?.response?.status === 401) {

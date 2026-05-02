@@ -452,10 +452,14 @@ const AdminDashboard = () => {
     loadRoles();
 
     const handlePlanLimit = (e) => {
-      const { message } = e.detail || {};
+      const { message, code } = e.detail || {};
+      let title = 'Subscription Limit';
+      if (code === 'SUBSCRIPTION_EXPIRED') title = 'Subscription Expired';
+      if (code === 'FEATURE_LOCKED') title = 'Feature Locked';
+
       pushToast({
-        title: 'Subscription Limit',
-        message: message || 'You have reached your plan limit. Please upgrade.',
+        title,
+        message: message || 'Please upgrade your plan to continue.',
         type: 'error',
         duration: 6000
       });
