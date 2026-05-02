@@ -70,7 +70,7 @@ const AdminOrders = ({
   }, [orders, searchTerm]);
 
   return (
-    <div className="card glass-card full-screen-card p-4 border-0 shadow-sm" style={{ backgroundColor: '#ffffff', borderRadius: '24px' }}>
+    <div className="card glass-card full-screen-card p-0 border-0">
       <div className="sticky-top pt-2 pb-3" style={{ 
         zIndex: 1020, 
         margin: '-24px -24px 24px -24px', 

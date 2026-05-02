@@ -1,6 +1,6 @@
 .admin-shell {
   min-height: 100vh;
-  padding: 0;
+  padding: 2px 12px 2px 0;
   background: #ffffff;
 }
 
@@ -11,7 +11,7 @@
 }
 
 .sidebar-placeholder {
-  width: 280px;
+  width: 260px;
   transition: width 0.25s ease;
 }
 
@@ -26,7 +26,7 @@
 .content {
   position: relative;
   z-index: auto;
-  min-width: 0;
+  width: 100%;
 }
 
 
@@ -633,6 +633,7 @@
   /* //sidebar and content adjustments */
   .admin-body {
     grid-template-columns: 280px minmax(0, 1fr);
+    padding: 0 0 32px;
   }
   .admin-body.sidebar-collapsed {
     grid-template-columns: 90px minmax(0, 1fr);
