@@ -351,7 +351,7 @@
     transform: translateX(-50%);
     
     /* Strict Dimensions */
-    width: 90% !important;
+    width: 100% !important;
     max-width: 400px !important;
     height: 64px !important; 
     
@@ -359,13 +359,8 @@
     flex-direction: row !important;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Keeps Nav and Profile separated */
-    
-    /* Aesthetics */
+    justify-content: space-between;
     background: var(--bg-light);
-    border-radius: 20px;
-    border: 1px solid #eee;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     padding: 0 10px;
     overflow: visible;
   }
@@ -425,7 +420,7 @@
   /* Fixed Pop-up Menu */
   .profile-menu {
     bottom: 75px;
-    left: -68px;
+    left: -90px;
     width: 180px;
     border-radius: 15px;
   }

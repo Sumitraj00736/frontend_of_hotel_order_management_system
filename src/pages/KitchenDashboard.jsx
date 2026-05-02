@@ -7,7 +7,6 @@ import KitchenSidebar from '../components/kitchen/KitchenSidebar.jsx';
 import KitchenOrdersGrid from '../components/kitchen/KitchenOrdersGrid.jsx';
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import UserSelfProfile from '../components/profile/UserSelfProfile.jsx';
-import '../common/css/admin/common/adminLayout.css';
 
 const KitchenDashboard = () => {
   const [orders, setOrders] = useState([]);
