@@ -1,0 +1,133 @@
+/* Custom Variable for easy branding */
+:root {
+  --primary-color: #fc8019;
+  --primary-hover: #e67316;
+  --bg-light: #f8f9fc;
+  --text-dark: #1e293b;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Container Styling */
+.orders-header-wrap {
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Typography & Headings */
+.orders-header-wrap h4 {
+  color: var(--text-dark);
+}
+
+.fw-900 { font-weight: 900; }
+.fw-700 { font-weight: 700; }
+.fw-600 { font-weight: 600; }
+
+/* Custom Search Input Enhancement */
+.orders-header-wrap input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.orders-header-wrap input:focus {
+  box-shadow: 0 0 0 3px rgba(252, 128, 25, 0.15);
+  background-color: #fff !important;
+  border: 1px solid var(--primary-color) !important;
+}
+
+/* Button & Dropdown Styles */
+.orders-header-wrap .btn-light {
+  background-color: #fff;
+  border-color: var(--border-color);
+  color: var(--text-dark);
+  transition: all 0.2s ease;
+}
+
+.orders-header-wrap .btn-light:hover {
+  background-color: var(--bg-light);
+  border-color: #cbd5e1;
+}
+
+/* Ripple Animation for "Add Table" */
+.orders-table-ripple {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.4);
+  width: 100px;
+  height: 100px;
+  margin-left: -50px;
+  margin-top: -50px;
+  border-radius: 50%;
+  animation: ripple-animation 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes ripple-animation {
+  from {
+    transform: scale(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* More Menu Dropdown Items */
+.dropdown-item {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  padding: 0.6rem 1rem;
+  transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #fff7ed;
+  color: var(--primary-color);
+}
+
+/* Responsive Handling */
+@media (max-width: 768px) {
+  .orders-header-wrap {
+    padding: 1rem;
+  }
+
+  .sm-flex-column {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .sm-gap-2 {
+    gap: 1rem;
+  }
+
+  .d-flex.gap-2.align-items-center.flex-wrap {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Make buttons more touch-friendly on mobile */
+  .btn {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+  }
+  
+  /* Ensure search expansion doesn't break layout */
+  .position-relative[style*="70vw"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Footer Stats Polish */
+.orders-header-wrap .border-top {
+  border-color: #f1f5f9 !important;
+}
+
+.small.fw-700 {
+  letter-spacing: 0.01em;
+  color: #64748b;
+}

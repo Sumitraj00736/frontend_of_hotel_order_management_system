@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart, ChevronDown, MoreVertical, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import '../../../../common/css/admin/orders/OrdersHeader.css';
 
 const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChange, searchTerm, onSearchChange }) => {
   const [rippling, setRippling] = useState(false);
