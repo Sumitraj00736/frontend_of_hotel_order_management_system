@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import AdminProfileMenu from '../../admin/header/AdminProfileMenu.jsx';
 import { getBranches, getBranchId, setBranchId } from '../../../api/session.js';
-import '../../../common/css/admin/common/adminLayout.css';
 
 const WaiterHeader = ({ user, onLogout }) => {
   const branches = getBranches();

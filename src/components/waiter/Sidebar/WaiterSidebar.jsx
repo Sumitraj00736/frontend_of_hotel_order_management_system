@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Home, ListChecks, BookOpen, Bell, UserRound, ChevronDown, ChevronRight, LogOut, ShoppingBag, MapPin,TrendingUp } from 'lucide-react';
 import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../../api/session.js';
-import '../../../common/css/waiter/waiterSidebar.css';
+import '../../../common/css/waiter/sidebar/waiterSidebar.css';
 
 const iconMap = {
   dashboard: Home,
