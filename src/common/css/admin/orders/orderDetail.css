@@ -441,6 +441,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
+  padding: 0 24px 2px 0;
 }
 
 .order-card {
