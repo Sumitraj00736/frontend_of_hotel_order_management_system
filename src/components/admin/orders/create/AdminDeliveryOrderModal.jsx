@@ -3,6 +3,7 @@ import { Bike, Clock3, MapPinned, Search, ChevronRight, User, Package, Minus, Pl
 import CustomizeDishModal from './CustomizeDishModal.jsx';
 // Import the new consolidated CSS
 import '../../../../common/css/admin/orders/AdminDeliveryOrderModal.css'; 
+import '../../../../common/css/admin/orders/CustomizeDishModal.css';
 
 // Utility to generate thumbnail placeholder (e.g., 'B' for 'Burger')
 const getPlaceholder = (name) => (name ? name.charAt(0).toUpperCase() : '?');

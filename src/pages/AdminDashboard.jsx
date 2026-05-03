@@ -1827,7 +1827,7 @@ const AdminDashboard = () => {
             <div className="checkout-overlay">
               <div
                 className="checkout-panel text-center p-5"
-                style={{ maxWidth: '400px', height: 'auto' }}
+                style={{ maxWidth: '400px', height: 'auto', borderRadius: '12px', background: '#fff' }}
               >
                 <div className="mb-4 text-success">
                   <div
