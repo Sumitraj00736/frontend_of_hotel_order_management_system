@@ -18,7 +18,7 @@ const GoogleIcon = () => (
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, loginWithGoogle, setupRecaptcha, signInWithPhone, verifyOtp } = useAuth();
+  const { login, loginWithGoogle, setupRecaptcha, signInWithPhone, verifyOtp, isAuthenticated, userData } = useAuth();
 
   const [loginMethod, setLoginMethod] = useState("email"); // "email" or "phone"
   const [identifier, setIdentifier] = useState("");
@@ -45,6 +45,13 @@ const LoginPage = () => {
     waiter: "/waiter",
     kitchen: "/kitchen",
   };
+
+  React.useEffect(() => {
+    if (isAuthenticated && userData) {
+      const role = userData?.user?.role?.toLowerCase();
+      navigate(roleRedirectMap[role] || "/admin");
+    }
+  }, [isAuthenticated, userData, navigate]);
 
   const finalizeLogin = (data) => {
     const { user, branches = [], token } = data;

@@ -7,7 +7,14 @@ import "../common/css/Login.css";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, isAuthenticated, userData } = useAuth();
+
+  React.useEffect(() => {
+    if (isAuthenticated && userData) {
+      const role = userData?.user?.role?.toLowerCase();
+      navigate(role === 'superadmin' || role === 'admin' ? "/admin" : "/");
+    }
+  }, [isAuthenticated, userData, navigate]);
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
