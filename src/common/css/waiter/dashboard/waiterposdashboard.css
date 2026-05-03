@@ -11,8 +11,10 @@
 .pos-dashboard-container {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   background-color: var(--bg-body);
   overflow: hidden;
+  min-width: 0;
 }
 
 /* Main Content Area */
@@ -22,6 +24,7 @@
   flex-direction: column;
   overflow: hidden;
   padding: 1.5rem;
+  min-width: 0;
 }
 
 .pos-top-bar {
@@ -70,11 +73,12 @@
 .pos-menu-wrapper {
   flex: 1;
   background: white;
-  border-radius: 20px;
+  border-radius: 14px;
   padding: 1.5rem;
   box-shadow: var(--card-shadow);
   overflow-y: auto;
   border: 1px solid var(--border-color);
+  min-height: 0;
 }
 
 /* Sidebar Section */
@@ -98,42 +102,51 @@
 
 /* Mobile Adjustments */
 @media (max-width: 992px) {
-  .pos-sidebar-section {
-    width: 320px;
-  }
-}
-
-@media (max-width: 768px) {
   .pos-dashboard-container {
-    flex-direction: column;
+    height: calc(100dvh - 74px - 80px);
+    min-height: 0;
   }
-  
+
   .pos-main-content {
-    padding: 1rem;
+    padding: 12px;
+  }
+
+  .pos-menu-wrapper {
+    padding: 0;
+    border-radius: 12px;
+    box-shadow: none;
   }
 
   .pos-sidebar-section {
-    position: fixed;
-    right: -100%;
-    top: 0;
-    width: 100%;
-    transition: right 0.3s ease;
-  }
-
-  /* When mobile-open class is added via JS */
-  .pos-sidebar-section.mobile-open {
-    right: 0;
+    display: none;
   }
 
   .order-type-nav {
     width: 100%;
     overflow-x: auto;
     justify-content: flex-start;
+    border-radius: 14px;
+    box-shadow: none;
   }
   
   .nav-type-btn {
     white-space: nowrap;
     padding: 8px 15px;
+    min-height: 42px;
+  }
+}
+
+@media (max-width: 420px) {
+  .pos-main-content {
+    padding: 8px;
+  }
+
+  .pos-top-bar {
+    margin-bottom: 10px;
+  }
+
+  .nav-type-btn {
+    padding: 8px 12px;
   }
 }
 
