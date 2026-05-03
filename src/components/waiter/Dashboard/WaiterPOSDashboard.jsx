@@ -1,5 +1,5 @@
 import React from 'react';
-import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart, Search } from 'lucide-react';
+import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart } from 'lucide-react';
 import MenuSection from '../../../components/admin/orders/create/MenuSection.jsx';
 import WaiterCart from '../../../components/waiter/Cart/WaiterCart.jsx';
 import '../../../common/css/waiter/dashboard/waiterposdashboard.css';
@@ -93,7 +93,7 @@ const WaiterPOSDashboard = ({
       </main>
 
       {/* Sidebar Cart Section */}
-      <aside className={`pos-sidebar-section ${/* logic for mobile open could go here */ ''}`}>
+      <aside className="pos-sidebar-section">
         {canViewOrders ? (
           <WaiterCart
             cart={cart}
@@ -119,12 +119,6 @@ const WaiterPOSDashboard = ({
           />
         ) : null}
       </aside>
-
-      {/* Mobile Floating Cart Trigger (Visible only on mobile) */}
-      <button className="mobile-cart-toggle d-md-none" onClick={() => setMobileCartOpen(true)}>
-        <div className="cart-count-badge">{cart.reduce((acc, item) => acc + item.quantity, 0)}</div>
-        <ShoppingCart color="white" />
-      </button>
     </div>
   );
 };

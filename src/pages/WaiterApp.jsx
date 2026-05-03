@@ -23,6 +23,8 @@ import WaiterPromotionTimeline from '../components/waiter/PromotionTimeline/Wait
 import NotificationPage from '../components/admin/notifications/NotificationPage.jsx';
 import MenuSection from '../components/admin/orders/create/MenuSection.jsx';
 import CustomizeDishModal from '../components/admin/orders/create/CustomizeDishModal.jsx';
+import '../common/css/admin/common/adminLayout.css';
+import '../common/css/admin/common/adminResponsive.css';
 import '../common/css/waiter/dashboard/waiterDashboard.css';
 
 const WaiterApp = () => {
@@ -177,9 +179,18 @@ const WaiterApp = () => {
       setOrders(Array.isArray(payload?.data) ? payload.data : payload);
     }
     if (results[3].status === 'fulfilled') setProfile(results[3].value.data);
-    if (analyticsRes.status === 'fulfilled' && analyticsRes.value.data) {
-    setMyAnalytics(analyticsRes.value.data);
-  }
+    const waiterAnalyticsRes = results[analyticsIdx];
+    const promotionsRes = results[promoIdx];
+    if (waiterAnalyticsRes?.status === 'fulfilled' && waiterAnalyticsRes.value.data) {
+      setMyAnalytics(waiterAnalyticsRes.value.data);
+    } else if (results[4]?.status === 'fulfilled' && results[4].value.data) {
+      setMyAnalytics(results[4].value.data);
+    }
+    if (promotionsRes?.status === 'fulfilled') {
+      setPromotions(promotionsRes.value.data || []);
+    } else if (results[5]?.status === 'fulfilled') {
+      setPromotions(results[5].value.data || []);
+    }
   };
 
   const loadCustomers = async () => {
@@ -451,8 +462,11 @@ const WaiterApp = () => {
   }, [menus, addCategory, addSubMenu, search]);
 
   const addToCart = (itemPayload) => {
-    const itemId = itemPayload.menuItem?._id || itemPayload.menuItem || itemPayload._id;
-    const item = itemPayload.onAdd ? itemPayload : menus.find(m => m._id === itemId);
+    const payloadMenuItem = itemPayload.menuItem;
+    const itemId = payloadMenuItem?._id || payloadMenuItem || itemPayload._id;
+    const item = payloadMenuItem && typeof payloadMenuItem === 'object'
+      ? payloadMenuItem
+      : (itemPayload._id ? itemPayload : menus.find(m => m._id === itemId));
     if (!item || item.isAvailable === false) {
       alert('This item is unavailable');
       return;
@@ -461,7 +475,9 @@ const WaiterApp = () => {
     // Handle variants from MenuSection
     const variantId = itemPayload.variantId || null;
     const variantName = itemPayload.variantName || null;
-    const variantPrice = itemPayload.variantPrice || null;
+    const variantPrice = itemPayload.variantPrice ?? null;
+    const basePrice = typeof item.price === 'object' ? (item.price?.base ?? item.price?.amount ?? 0) : item.price;
+    const price = variantPrice ?? itemPayload.priceAtOrderTime ?? basePrice ?? 0;
 
     setCart((prev) => {
       const existing = prev.find((c) => 
@@ -480,11 +496,12 @@ const WaiterApp = () => {
         { 
           menuItem: item._id, 
           name: item.name, 
-          price: variantPrice ?? item.price, 
+          price, 
           quantity: itemPayload.quantity || 1,
           variantId,
           variantName,
-          variantPrice
+          variantPrice,
+          itemNote: itemPayload.itemNote
         }
       ];
     });
@@ -525,7 +542,12 @@ const WaiterApp = () => {
   const placeOrder = async () => {
     const payload = {
       table: orderType === 'dine_in' ? selectedTable : undefined,
-      items: cart.map((c) => ({ menuItem: c.menuItem, quantity: c.quantity })),
+      items: cart.map((c) => ({
+        menuItem: c.menuItem,
+        quantity: c.quantity,
+        variantId: c.variantId || undefined,
+        itemNote: c.itemNote || undefined
+      })),
       spiceLevel,
       specialInstructions: instructions,
       customerName: selectedCustomer || (orderType !== 'dine_in' ? `${orderType.charAt(0).toUpperCase() + orderType.slice(1).replace('_', ' ')} Order` : undefined),
@@ -647,7 +669,7 @@ const WaiterApp = () => {
             }
           `}</style>
           <div className="bg-white overflow-hidden d-flex flex-column shadow-lg edit-modal-box" style={{ width: '95vw', maxWidth: '1600px', height: '90vh', borderRadius: '24px' }}>
-            <div className="d-flex justify-content-between align-items-center p-4 border-bottom bg-light">
+            <div className="d-flex justify-content-between align-items-center p-4 border-bottom bg-light edit-modal-header">
               <h4 className="m-0 fw-bold text-dark">Edit Order Details (KOT {editingOrderId?.slice(-4)})</h4>
               <button 
                 className="btn btn-outline-dark rounded-circle fw-bold" 
@@ -771,7 +793,7 @@ const WaiterApp = () => {
 
 
         {/* Global Mobile Header - Persistent across all tabs */}
-        <div className="d-md-none">
+        <div className="waiter-mobile-header-slot">
           <WaiterHeader user={currentUser} onLogout={handleLogout} />
         </div>
 
@@ -860,7 +882,7 @@ const WaiterApp = () => {
 )}
 
         {showFloatingCart && can('orders:view') && (
-          <div className="d-md-none">
+          <div className="waiter-mobile-cart-shell">
             <div className="mobile-fab-cart" onClick={() => setMobileCartOpen(true)}>
               <ShoppingCart size={24} />
               {cart.length > 0 && <span className="badge">{cart.length}</span>}

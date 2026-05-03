@@ -31,44 +31,64 @@ const WaiterAnalytics = ({ analytics }) => {
   };
 
   return (
-    <div className="container-fluid p-0" style={{ fontFamily: 'Inter, sans-serif', color: '#1e293b' , marginTop: '40px',padding:'8px'}}>
-      <div className="d-flex align-items-center justify-content-between mb-4">
+    <div className="waiter-analytics-page container-fluid p-0" style={{ fontFamily: 'Inter, sans-serif', color: '#1e293b' }}>
+      <style>{`
+        .waiter-analytics-page {
+          padding: 8px !important;
+        }
+        .waiter-analytics-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        .analytics-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 20px;
+          margin-bottom: 30px;
+        }
+        .waiter-promo-panel {
+          background: #fff;
+          border-radius: 16px;
+          border: 1px solid #f1f5f9;
+          padding: 20px;
+        }
+        .stat-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
+        }
+        @media (max-width: 768px) {
+          .waiter-analytics-page {
+            padding: 0 !important;
+          }
+          .waiter-analytics-head {
+            align-items: flex-start;
+            margin-bottom: 12px;
+          }
+          .analytics-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+          }
+          .waiter-promo-panel {
+            padding: 12px;
+            border-radius: 12px;
+          }
+        }
+      `}</style>
+      <div className="waiter-analytics-head">
         <h4 className="fw-bold m-0" style={{ color: '#1e293b', letterSpacing: '-0.02em', marginTop: '10px' }}>
           My Performance Stats
         </h4>
-        <div className="badge" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor, padding: '8px 12px', borderRadius: '10px', marginRight:'50px' }}>
+        <div className="badge" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor, padding: '8px 12px', borderRadius: '10px' }}>
           Real-time Updates
         </div>
       </div>
 
       {/* Responsive Grid System */}
-      <div 
-        style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '(minmax(250px, 1fr))', // Standard responsive fallback
-          gap: '20px',
-          marginTop: '20px',
-          marginBottom: '30px',
-          marginLeft: '0',
-          marginRight: '40px'
-        }}
-        className="analytics-grid"
-      >
-        <style>{`
-          .analytics-grid {
-            display: grid;
-            margin: 0;
-            grid-template-columns: repeat(2, 1fr);
-          }
-          @media (max-width: 768px) {
-            .analytics-grid { grid-template-columns: 1fr; }
-          }
-          .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
-          }
-        `}</style>
-        
+      <div className="analytics-grid">
         {/* Total Sales Card */}
         <div style={highlightCardStyle} className="stat-card">
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -122,7 +142,7 @@ const WaiterAnalytics = ({ analytics }) => {
       </div>
 
       {/* Timeline Section */}
-      <div className="mt-4 p-4" style={{ background: '#fff', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
+      <div className="waiter-promo-panel">
         <WaiterPromotionTimeline />
       </div>
     </div>

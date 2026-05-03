@@ -10,7 +10,7 @@
 .orders-container {
   padding: 20px;
   background-color: var(--bg-light);
-  min-height: 100vh;
+  min-height: 100%;
   font-family: 'Inter', -apple-system, sans-serif;
 }
 
@@ -33,6 +33,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
+  align-items: start;
 }
 
 /* Card Styling */
@@ -94,6 +95,13 @@
   gap: 6px;
   color: var(--text-muted);
   font-size: 0.85rem;
+  min-width: 0;
+}
+
+.info-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Items Section */
@@ -124,8 +132,8 @@
   color: var(--text-dark);
 }
 
-.item-name { font-weight: 500; }
-.item-qty { font-weight: 700; color: var(--primary-orange); }
+.kot-card .item-name { font-weight: 500; }
+.kot-card .item-qty { font-weight: 700; color: var(--primary-orange); }
 
 .kot-summary {
   display: flex;
@@ -173,8 +181,35 @@
 @media (max-width: 600px) {
   .kot-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
   .orders-container {
-    padding: 10px;
+    padding: 0;
+  }
+
+  .orders-header {
+    margin-bottom: 12px;
+  }
+
+  .orders-header h2 {
+    font-size: 1.05rem;
+  }
+
+  .kot-card {
+    border-radius: 10px;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
+  }
+
+  .kot-card-header,
+  .kot-body {
+    padding: 12px;
+  }
+
+  .kot-info-row {
+    gap: 10px;
+  }
+
+  .kot-actions button {
+    min-height: 42px;
   }
 }

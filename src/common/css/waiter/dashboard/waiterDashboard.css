@@ -90,3 +90,185 @@
   background: #cbd5e1;
   border-radius: 10px;
 }
+
+/* Waiter app shell refinements */
+.staff-app-shell {
+  min-height: 100vh;
+  background: #f4f7f9;
+}
+
+.staff-app-shell .admin-body {
+  min-height: 100vh;
+}
+
+.waiter-mobile-header-slot {
+  display: none;
+}
+
+.checkout-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(4px);
+}
+
+.checkout-modal-box,
+.success-animation-box {
+  width: min(460px, 100%);
+  max-height: 88dvh;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+}
+
+.checkout-modal-box h4 {
+  margin: 0 0 16px;
+  font-weight: 800;
+  color: #172033;
+}
+
+.checkout-summary {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  margin-bottom: 14px;
+}
+
+.checkout-summary p {
+  margin: 0;
+}
+
+.checkout-items-preview {
+  display: grid;
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.checkout-preview-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.checkout-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pos-btn-submit {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  background: #fc8019;
+  color: #fff;
+  font-weight: 700;
+}
+
+.success-animation-box {
+  text-align: center;
+}
+
+.success-pop-icon {
+  animation: waiterSuccessPop 0.35s ease;
+}
+
+@keyframes waiterSuccessPop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 992px) {
+  .staff-app-shell {
+    padding: 0;
+  }
+
+  .staff-app-shell .admin-body {
+    display: grid;
+    grid-template-columns: 0 minmax(0, 1fr);
+    min-height: 100dvh;
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+
+  .staff-app-shell .sidebar-placeholder {
+    width: 0;
+  }
+
+  .waiter-mobile-header-slot {
+    display: block;
+  }
+
+  .staff-app-shell .content,
+  .waiter-orders-content {
+    min-height: calc(100dvh - 74px - 80px);
+    padding: 10px !important;
+    overflow: visible;
+  }
+
+  .edit-modal-box {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+  }
+
+  .edit-modal-header {
+    padding: 14px !important;
+  }
+
+  .edit-modal-header h4 {
+    font-size: 1rem;
+  }
+
+  .waiter-pos-layout {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px !important;
+    overflow: auto !important;
+  }
+
+  .waiter-pos-layout .pos-menu-section,
+  .waiter-pos-layout .pos-cart-section {
+    height: auto !important;
+    min-height: 420px;
+    overflow: visible !important;
+  }
+
+  .checkout-modal-overlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .checkout-modal-box,
+  .success-animation-box {
+    width: 100%;
+    border-radius: 18px 18px 0 0;
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-modal-actions {
+    flex-direction: column;
+  }
+
+  .checkout-modal-actions > button {
+    width: 100%;
+  }
+}

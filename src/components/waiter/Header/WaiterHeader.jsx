@@ -4,7 +4,7 @@ import AdminProfileMenu from '../../admin/header/AdminProfileMenu.jsx';
 import { getBranches, getBranchId, setBranchId } from '../../../api/session.js';
 
 const WaiterHeader = ({ user, onLogout }) => {
-  const branches = getBranches();
+  const branches = getBranches() || [];
   const activeBranchId = getBranchId();
   const [branchOpen, setBranchOpen] = useState(false);
   const activeBranch =
