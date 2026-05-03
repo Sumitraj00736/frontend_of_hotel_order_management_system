@@ -11,7 +11,7 @@ import {
   ChevronDown,
   FileText,
   Phone,
-  Printer
+  RotateCcw
 } from 'lucide-react';
 
 const AdminDeliveryCartPanel = ({
@@ -32,6 +32,7 @@ const AdminDeliveryCartPanel = ({
   onAssignStaff,
   assignedRiderId,
   onAssignRider,
+  onResetDetails,
   onConfirm,
   onUpdateItemQuantity,
   onClearCart,
@@ -39,6 +40,17 @@ const AdminDeliveryCartPanel = ({
 }) => {
   const selectedStaff = staffOptions.find((s) => s._id === assignedStaffId);
   const selectedRider = staffOptions.find((s) => s._id === assignedRiderId);
+  const hasDetails = Boolean(
+    customerName?.trim() ||
+    customerPhone?.trim() ||
+    deliveryAddress?.trim() ||
+    notes?.trim() ||
+    assignedStaffId ||
+    assignedRiderId
+  );
+  const isConfirmDisabled = onConfirmDisabled || items.length === 0;
+
+  const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(2)}`;
 
   return (
     <aside className="delivery-cart-panel">
@@ -57,7 +69,7 @@ const AdminDeliveryCartPanel = ({
           <div className="delivery-cart-empty">
             <ShoppingBag size={26} className="delivery-cart-empty-icon" />
             <div className="delivery-cart-empty-title">No items added yet</div>
-            
+            <div className="delivery-cart-empty-text">Select dishes from the menu to start this delivery order.</div>
           </div>
         ) : (
           <div className="delivery-cart-item-list">
@@ -65,14 +77,18 @@ const AdminDeliveryCartPanel = ({
               <div key={idx} className="delivery-cart-item">
                 <div className="delivery-cart-item-info">
                   <span className="delivery-cart-item-name">{item.menuItem?.name || 'Item'}</span>
+                  {item.variantName && <span className="delivery-cart-item-meta">{item.variantName}</span>}
+                  {item.itemNote && <span className="delivery-cart-item-note">{item.itemNote}</span>}
                   <span className="delivery-cart-item-price">
-                    Rs {(item.priceAtOrderTime || 0) * (item.quantity || 0)}
+                    {formatCurrency((item.priceAtOrderTime || 0) * (item.quantity || 0))}
                   </span>
                 </div>
                 <div className="delivery-cart-item-actions">
                   <div className="delivery-cart-qty-control">
                     <button
                       className="delivery-cart-qty-btn"
+                      type="button"
+                      aria-label={`Decrease ${item.menuItem?.name || 'item'} quantity`}
                       onClick={() => onUpdateItemQuantity(idx, item.quantity - 1)}
                     >
                       {item.quantity === 1 ? <Trash2 size={12} className="text-danger" /> : <Minus size={12} />}
@@ -80,6 +96,8 @@ const AdminDeliveryCartPanel = ({
                     <span className="delivery-cart-qty-value">{item.quantity}</span>
                     <button
                       className="delivery-cart-qty-btn"
+                      type="button"
+                      aria-label={`Increase ${item.menuItem?.name || 'item'} quantity`}
                       onClick={() => onUpdateItemQuantity(idx, item.quantity + 1)}
                     >
                       <Plus size={12} />
@@ -90,7 +108,7 @@ const AdminDeliveryCartPanel = ({
             ))}
             <div className="delivery-cart-total-row">
               <span>Total ({cartQty} items)</span>
-              <span>Rs {cartTotal}</span>
+              <span>{formatCurrency(cartTotal)}</span>
             </div>
           </div>
         )}
@@ -134,7 +152,8 @@ const AdminDeliveryCartPanel = ({
               <ChevronDown size={12} className="text-muted" />
             </div>
             <input
-              type="text"
+              type="tel"
+              inputMode="numeric"
               className="delivery-form-input delivery-phone-input"
               placeholder="98XXXXXXXX"
               value={customerPhone}
@@ -225,11 +244,11 @@ const AdminDeliveryCartPanel = ({
         </div>
 
         <div className="delivery-action-bar">
-          <button className="delivery-secondary-btn" onClick={() => {}}>
-            <Printer size={15} />
-            <span>Confirm & Print</span>
+          <button className="delivery-secondary-btn" type="button" disabled={!hasDetails} onClick={onResetDetails}>
+            <RotateCcw size={15} />
+            <span>Reset Details</span>
           </button>
-          <button className="delivery-primary-btn" onClick={onConfirm} disabled={onConfirmDisabled || items.length === 0}>
+          <button className="delivery-primary-btn" type="button" onClick={onConfirm} disabled={isConfirmDisabled}>
             Confirm Order
           </button>
         </div>
