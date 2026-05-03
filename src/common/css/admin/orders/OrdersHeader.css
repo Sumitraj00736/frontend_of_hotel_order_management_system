@@ -11,10 +11,7 @@
 
 /* Container Styling */
 .orders-header-wrap {
-  padding: 1.5rem;
-  background: #ffffff;
-  border-radius: 1rem;
-  box-shadow: var(--shadow-sm);
+  padding: 2px 24px 2px 0;
 }
 
 /* Typography & Headings */
