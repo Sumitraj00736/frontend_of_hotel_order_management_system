@@ -199,14 +199,14 @@
   }
 
   .staff-app-shell .admin-body {
-    display: grid;
-    grid-template-columns: 0 minmax(0, 1fr);
+    display: block;
     min-height: 100dvh;
     padding-bottom: calc(76px + env(safe-area-inset-bottom));
   }
 
   .staff-app-shell .sidebar-placeholder {
     width: 0;
+    height: 0;
   }
 
   .waiter-mobile-header-slot {
