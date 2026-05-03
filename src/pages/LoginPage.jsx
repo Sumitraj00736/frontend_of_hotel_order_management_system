@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext.jsx";
-import { saveSession, setBranchId } from "../api/session.js";
+import { setBranchId } from "../api/session.js";
 import { Mail, Lock, Phone, User, Store, Eye, EyeOff, Loader2 } from "lucide-react";
 import axios from "axios";
 import "../common/css/Login.css";
@@ -54,8 +54,7 @@ const LoginPage = () => {
   }, [isAuthenticated, userData, navigate]);
 
   const finalizeLogin = (data) => {
-    const { user, branches = [], token } = data;
-    saveSession(token, user, branches);
+    const { user, branches = [] } = data;
 
     if (branches.length > 0) {
       setBranchId(branches[0].branchId);
