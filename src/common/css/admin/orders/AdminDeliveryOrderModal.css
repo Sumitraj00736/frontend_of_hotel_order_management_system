@@ -308,7 +308,7 @@
 
 /* Top bar (image matched) */
 .cart-top-bar {
-  padding: 16px 20px;
+  padding: 2px 20px;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -337,7 +337,7 @@
 .cart-items-scrollable {
   flex: 1;
   overflow-y: auto;
-  padding: 0 20px;
+  padding: 12px 20px;
 }
 
 .cart-item-row {
@@ -399,7 +399,7 @@
 
 /* --- Customer & Logistics (Image matched) --- */
 .cart-customer-section {
-  padding: 20px;
+  padding: 12px;
   background: var(--delivery-bg-main);
   border-top: 1px solid var(--delivery-border);
   display: flex;

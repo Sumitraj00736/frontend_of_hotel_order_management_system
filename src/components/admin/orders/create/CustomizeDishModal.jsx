@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../../../../common/css/admin/orders/CustomizeDishModal.css';
 
 const CustomizeDishModal = ({ open, item, onClose, onAdd }) => {
   const [qty, setQty] = useState(1);
