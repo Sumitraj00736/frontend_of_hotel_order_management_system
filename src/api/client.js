@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { clearSession, getToken, getBranchId, getBranches, setBranchId } from './session.js';
+import { clearSession, getToken, getBranchId, getBranches, setBranchId, getRefreshToken, getAuthProvider, getCurrentUser } from './session.js';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://hotel-order-management-system.onrender.com'
@@ -24,17 +24,101 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+
     if (error?.response?.status === 403 && ['PLAN_LIMIT_REACHED', 'SUBSCRIPTION_EXPIRED', 'FEATURE_LOCKED'].includes(error.response.data?.code)) {
-      // Global event for plan/subscription issues
       window.dispatchEvent(new CustomEvent('app:plan-limit-reached', { detail: error.response.data }));
     }
-    if (error?.response?.status === 401) {
-      // Clear potentially stale credentials and let routing redirect to login
+
+    if (error?.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const refreshToken = getRefreshToken();
+      const provider = getAuthProvider();
+
+      if (provider === 'backend' && refreshToken) {
+        try {
+          const res = await axios.post(`${import.meta.env.VITE_API_URL || 'https://hotel-order-management-system.onrender.com'}/api/auth/refresh`, {
+            refreshToken
+          });
+
+          if (res.status === 200) {
+            const { token, refreshToken: newRefreshToken } = res.data;
+            const branches = getBranches();
+            const user = getCurrentUser();
+            
+            saveSession(token, user, branches, 'backend', newRefreshToken);
+            processQueue(null, token);
+
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          }
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          clearSession();
+          window.location.href = '/login';
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
+      } else if (provider === 'firebase') {
+        try {
+          const { auth } = await import('../utils/firebase');
+          const user = auth.currentUser;
+          if (user) {
+            const newToken = await user.getIdToken(true);
+            const branches = getBranches();
+            const userData = getCurrentUser();
+            
+            saveSession(newToken, userData, branches, 'firebase');
+            processQueue(null, newToken);
+
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return api(originalRequest);
+          }
+        } catch (fbRefreshError) {
+          processQueue(fbRefreshError, null);
+          clearSession();
+          window.location.href = '/login';
+          return Promise.reject(fbRefreshError);
+        } finally {
+          isRefreshing = false;
+        }
+      }
+
+      isRefreshing = false;
       clearSession();
     }
+
     return Promise.reject(error);
   }
 );

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext.jsx";
-import { saveSession, setBranchId } from "../api/session.js";
+import { setBranchId } from "../api/session.js";
 import { Mail, Lock, Phone, User, Store, Eye, EyeOff, Loader2 } from "lucide-react";
 import axios from "axios";
 import "../common/css/Login.css";
@@ -18,7 +18,7 @@ const GoogleIcon = () => (
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, loginWithGoogle, setupRecaptcha, signInWithPhone, verifyOtp } = useAuth();
+  const { login, loginWithGoogle, setupRecaptcha, signInWithPhone, verifyOtp, isAuthenticated, userData } = useAuth();
 
   const [loginMethod, setLoginMethod] = useState("email"); // "email" or "phone"
   const [identifier, setIdentifier] = useState("");
@@ -46,9 +46,15 @@ const LoginPage = () => {
     kitchen: "/kitchen",
   };
 
+  React.useEffect(() => {
+    if (isAuthenticated && userData) {
+      const role = userData?.user?.role?.toLowerCase();
+      navigate(roleRedirectMap[role] || "/admin");
+    }
+  }, [isAuthenticated, userData, navigate]);
+
   const finalizeLogin = (data) => {
-    const { user, branches = [], token } = data;
-    saveSession(token, user, branches);
+    const { user, branches = [] } = data;
 
     if (branches.length > 0) {
       setBranchId(branches[0].branchId);

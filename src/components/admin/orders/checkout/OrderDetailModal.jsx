@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import AddItemsModal from '../addItems/AddItemsModal.jsx';
 import OrderHeader from './OrderHeader.jsx';
@@ -246,163 +247,183 @@ const OrderDetailModal = ({
   if (!localOrder) return null;
 
   return createPortal(
-    <div className="checkout-overlay" onClick={onClose}>
-      <div className="checkout-panel" onClick={(e) => e.stopPropagation()}>
-        <OrderHeader
-          title={`Checkout - Table ${order.table?.tableNumber || '-'}`}
-          onClose={onClose}
-          onPrint={() => onPrint(order._id)}
-        />
-
-        <div className="checkout-body">
-          <div className="checkout-left">
-            <div className="section-title-row">
-              <div className="section-title">Items</div>
-              {order.status !== 'paid' && (
-                <div className="section-actions">
-                  <button className="ghost-btn small">Complimentary</button>
-                  <button className="ghost-btn small" onClick={() => setShowAddItem(true)}>+ Add Item</button>
-                </div>
-              )}
-            </div>
-
-            <OrderItemsTable
-              items={items}
-              onQtyChange={updateItemQuantity}
-              onToggleComplimentary={toggleComplimentary}
-              onRemove={(menuId, variantId) => updateItemQuantity(menuId, variantId, 0)}
-              isPaid={order.status === 'paid'}
-            />
-
-            <OrderCustomerPanel
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              customerName={customerName}
-              customerId={customerId}
-              customers={customers}
-              onCustomerChange={(id, name) => {
-                setCustomerId(id);
-                setCustomerName(name);
-                scheduleOrderSync({ customerName: name, customerId: id });
-              }}
-            />
-
-            <div className="remarks-card">
-              <input placeholder="Add remarks to invoice" />
-            </div>
-
-            <OrderPaymentPanel
-              paymentStatus={paymentStatus}
-              onStatusChange={setPaymentStatus}
-              payments={payments}
-              onUpdatePayments={setPayments}
-              totalToPay={total}
-            />
-          </div>
-
-          <OrderSummaryPanel
-            subtotal={subtotal}
-            discountType={discountType}
-            discount={discount}
-            onDiscountTypeChange={setDiscountType}
-            onDiscountChange={setDiscount}
-            taxRate={taxRate}
-            onTaxRateChange={setTaxRate}
-            tipsAmount={tipsAmount}
-            onTipsChange={setTipsAmount}
-            tenderAmount={tenderAmount}
-            onTenderAmountChange={setTenderAmount}
-            total={total}
+    <AnimatePresence>
+      <motion.div 
+        className="checkout-overlay" 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      >
+        <motion.div 
+          className="checkout-panel" 
+          initial={{ y: -60, opacity: 0, scale: 0.98 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: 60, opacity: 0, scale: 0.98 }}
+          transition={{ 
+            type: "spring", 
+            damping: 25, 
+            stiffness: 300,
+            duration: 0.3
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <OrderHeader
+            title={`Checkout - Table ${order.table?.tableNumber || '-'}`}
+            onClose={onClose}
+            onPrint={() => onPrint(order._id)}
           />
 
-          <div className="checkout-right">
-            <OrderInvoicePanel
-              order={localOrder}
-              total={total}
-              staff={staff}
-              previewState={{
-                subtotal,
-                discountType,
-                discountValue: discount,
-                taxableAmount,
-                taxRate,
-                taxAmount,
-                tipsAmount,
-                roundOff: 0,
-                tenderAmount: Number(tenderAmount || 0),
-                paymentStatus,
-                paymentMethod: payments[0]?.method,
-                payments,
-                customerName,
-                assignedStaffId
-              }}
-            />
-            <div className="net-card">
-              <div>
-                <div className="text-muted small">
-                  {isSyncing ? 'Syncing changes...' : `Last saved: ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-                </div>
-                <div className="fw-semibold">Rs {total.toFixed(2)}</div>
+          <div className="checkout-body">
+            <div className="checkout-left">
+              <div className="section-title-row">
+                <div className="section-title">Items</div>
+                {order.status !== 'paid' && (
+                  <div className="section-actions">
+                    <button className="ghost-btn small">Complimentary</button>
+                    <button className="ghost-btn small" onClick={() => setShowAddItem(true)}>+ Add Item</button>
+                  </div>
+                )}
               </div>
-              {order.status !== 'paid' && (
-                <div className="d-flex gap-2">
-                  <button 
-                    className={`btn ${isSyncing ? 'btn-light' : 'btn-outline-primary'}`}
-                    onClick={handleManualSave}
-                    disabled={isSyncing}
-                    style={{ minWidth: '120px' }}
-                  >
-                    {isSyncing ? (
-                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-                    ) : null}
-                    {isSyncing ? 'Saving...' : 'Save Changes'}
-                  </button>
-                  <button className="btn btn-danger" onClick={handleConfirmPay} disabled={isSyncing}>
-                    {isSyncing ? 'Processing...' : 'Confirm Checkout'}
-                  </button>
+
+              <OrderItemsTable
+                items={items}
+                onQtyChange={updateItemQuantity}
+                onToggleComplimentary={toggleComplimentary}
+                onRemove={(menuId, variantId) => updateItemQuantity(menuId, variantId, 0)}
+                isPaid={order.status === 'paid'}
+              />
+
+              <OrderCustomerPanel
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                customerName={customerName}
+                customerId={customerId}
+                customers={customers}
+                onCustomerChange={(id, name) => {
+                  setCustomerId(id);
+                  setCustomerName(name);
+                  scheduleOrderSync({ customerName: name, customerId: id });
+                }}
+              />
+
+              <div className="remarks-card">
+                <input placeholder="Add remarks to invoice" />
+              </div>
+
+              <OrderPaymentPanel
+                paymentStatus={paymentStatus}
+                onStatusChange={setPaymentStatus}
+                payments={payments}
+                onUpdatePayments={setPayments}
+                totalToPay={total}
+              />
+            </div>
+
+            <OrderSummaryPanel
+              subtotal={subtotal}
+              discountType={discountType}
+              discount={discount}
+              onDiscountTypeChange={setDiscountType}
+              onDiscountChange={setDiscount}
+              taxRate={taxRate}
+              onTaxRateChange={setTaxRate}
+              tipsAmount={tipsAmount}
+              onTipsChange={setTipsAmount}
+              tenderAmount={tenderAmount}
+              onTenderAmountChange={setTenderAmount}
+              total={total}
+            />
+
+            <div className="checkout-right">
+              <OrderInvoicePanel
+                order={localOrder}
+                total={total}
+                staff={staff}
+                previewState={{
+                  subtotal,
+                  discountType,
+                  discountValue: discount,
+                  taxableAmount,
+                  taxRate,
+                  taxAmount,
+                  tipsAmount,
+                  roundOff: 0,
+                  tenderAmount: Number(tenderAmount || 0),
+                  paymentStatus,
+                  paymentMethod: payments[0]?.method,
+                  payments,
+                  customerName,
+                  assignedStaffId
+                }}
+              />
+              <div className="net-card">
+                <div>
+                  <div className="text-muted small">
+                    {isSyncing ? 'Syncing changes...' : `Last saved: ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                  </div>
+                  <div className="fw-semibold">Rs {total.toFixed(2)}</div>
                 </div>
-              )}
-              {order.status === 'paid' && (
-                <button className="btn btn-outline-success" onClick={() => {
-                   setFinalOrder(order);
-                   setShowReceipt(true);
-                }}>Print Receipt</button>
-              )}
+                {order.status !== 'paid' && (
+                  <div className="d-flex gap-2">
+                    <button 
+                      className={`btn ${isSyncing ? 'btn-light' : 'btn-outline-primary'}`}
+                      onClick={handleManualSave}
+                      disabled={isSyncing}
+                      style={{ minWidth: '120px' }}
+                    >
+                      {isSyncing ? (
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                      ) : null}
+                      {isSyncing ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button className="btn btn-danger" onClick={handleConfirmPay} disabled={isSyncing}>
+                      {isSyncing ? 'Processing...' : 'Confirm Checkout'}
+                    </button>
+                  </div>
+                )}
+                {order.status === 'paid' && (
+                  <button className="btn btn-outline-success" onClick={() => {
+                     setFinalOrder(order);
+                     setShowReceipt(true);
+                  }}>Print Receipt</button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {showAddItem && (
-          <AddItemsModal
-            open={showAddItem}
-            onClose={() => setShowAddItem(false)}
-            menus={menus}
-            staff={staff}
-            assignedStaffId={assignedStaffId}
-            onAssignStaff={assignStaff}
-            orderTableNumber={order.table?.tableNumber}
-            items={items}
-            onAddItem={handleAddItem}
-            onUpdateItemQuantity={updateItemQuantity}
-            onUpdateItemNote={updateItemNote}
-            categories={categories}
-          />
-        )}
+          {showAddItem && (
+            <AddItemsModal
+              open={showAddItem}
+              onClose={() => setShowAddItem(false)}
+              menus={menus}
+              staff={staff}
+              assignedStaffId={assignedStaffId}
+              onAssignStaff={assignStaff}
+              orderTableNumber={order.table?.tableNumber}
+              items={items}
+              onAddItem={handleAddItem}
+              onUpdateItemQuantity={updateItemQuantity}
+              onUpdateItemNote={updateItemNote}
+              categories={categories}
+            />
+          )}
 
-        {showReceipt && finalOrder && (
-          <ThermalReceiptModal 
-             isOpen={showReceipt}
-             order={finalOrder}
-             storeName={finalOrder.branchName || finalOrder.orgName || 'Restaurant'}
-             storePhone={finalOrder.branchPhone || ''}
-             onClose={() => {
-               setShowReceipt(false);
-               onClose();
-             }}
-          />
-        )}
-      </div>
-    </div>,
+          {showReceipt && finalOrder && (
+            <ThermalReceiptModal 
+               isOpen={showReceipt}
+               order={finalOrder}
+               storeName={finalOrder.branchName || finalOrder.orgName || 'Restaurant'}
+               storePhone={finalOrder.branchPhone || ''}
+               onClose={() => {
+                 setShowReceipt(false);
+                 onClose();
+               }}
+            />
+          )}
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>,
     document.body
   );
 };

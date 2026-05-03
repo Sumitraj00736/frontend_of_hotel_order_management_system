@@ -18,7 +18,8 @@ import {
   getBranches,
   getCurrentUser,
   getToken,
-  saveSession
+  saveSession,
+  getRefreshToken
 } from '../api/session.js';
 
 const AuthContext = createContext();
@@ -42,7 +43,7 @@ export const AuthProvider = ({ children }) => {
       });
       const payload = response.data;
       setUserData(payload);
-      saveSession(payload.token, payload.user, payload.branches, 'backend');
+      saveSession(payload.token, payload.user, payload.branches, 'backend', payload.refreshToken);
       return payload;
     } catch (err) {
       // Only fall back to Firebase if it's an auth failure; otherwise rethrow.
@@ -155,7 +156,6 @@ export const AuthProvider = ({ children }) => {
       const result = await confirmationResult.confirm(code);
       const user = result.user;
       const idToken = await user.getIdToken();
-      
       const response = await axios.post(`${API_BASE_URL}/api/auth/firebase-login`, { idToken });
       const payload = { ...response.data, token: idToken };
       
@@ -175,11 +175,21 @@ export const AuthProvider = ({ children }) => {
       const token = getToken();
       const user = getCurrentUser();
       const branches = getBranches();
+      const provider = getAuthProvider();
 
       if (token && user) {
         setUserData({ user, branches, token });
+        // Only stop loading if it's NOT a firebase session. 
+        // Firebase sessions must wait for the onAuthStateChanged listener to verify/refresh.
+        if (provider !== 'firebase') {
+          setLoading(false);
+        }
+      } else {
+        // No session at all, we can stop loading (unless we expect a firebase redirect/sync)
+        if (provider !== 'firebase') {
+          setLoading(false);
+        }
       }
-      setLoading(false);
     };
 
     restoreSession();
@@ -188,7 +198,6 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       
-      // Prevent auto-login race condition during registration
       if (user && !isRegistering.current) {
         try {
           const idToken = await user.getIdToken();
@@ -200,16 +209,16 @@ export const AuthProvider = ({ children }) => {
           saveSession(idToken, payload.user, payload.branches, 'firebase');
         } catch (err) {
           console.error('[AuthContext] Session sync failed:', err);
-          // Only clear if it was meant to be a firebase session
           if (getAuthProvider() === 'firebase') {
             clearSession();
             setUserData(null);
           }
         }
       } else if (!user && !getToken()) {
-        // Only clear if there's no legacy token either
         setUserData(null);
       }
+      
+      // Always stop loading after the first firebase auth event
       setLoading(false);
     });
 

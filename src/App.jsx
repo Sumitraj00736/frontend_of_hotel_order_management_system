@@ -88,6 +88,9 @@ const adminPaths = [
 ];
 
 const App = () => {
+  const { userData, isAuthenticated } = useAuth();
+  const role = userData?.user?.role?.toLowerCase();
+
   const adminRouteElement = (
     <ProtectedRoute permissions={['dashboard:view']}>
       <AdminDashboard />
@@ -96,7 +99,14 @@ const App = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route 
+        path="/" 
+        element={
+          isAuthenticated 
+            ? <Navigate to={role === 'waiter' ? '/waiter' : (role === 'kitchen' ? '/kitchen' : '/admin')} replace /> 
+            : <Navigate to="/login" replace />
+        } 
+      />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
