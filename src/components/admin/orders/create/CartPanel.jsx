@@ -1,5 +1,6 @@
 import React from 'react';
 import { User, Users } from 'lucide-react';
+import '../../../../common/css/admin/orders/Additemsmodal.css'
 
 const CartPanel = ({
   items,
