@@ -222,7 +222,7 @@
     border-radius: 14px;
   }
 
-  .sidebar-header, .branch-selector, .nav-label, .user-details, .toggle-trigger, .sidebar-footer {
+  .sidebar-header, .branch-selector, .nav-label, .user-details, .toggle-trigger {
     display: none !important;
   }
 }
