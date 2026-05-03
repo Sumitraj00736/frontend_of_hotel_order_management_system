@@ -1,13 +1,17 @@
 import { DEFAULT_ROLE_PERMISSIONS } from '../common/permissions.js';
 
 const TOKEN_KEY = 'hotel_token';
+const REFRESH_TOKEN_KEY = 'hotel_refresh_token';
 const USER_KEY = 'hotel_user';
 const BRANCH_KEY = 'hotel_branch';
 const BRANCHES_KEY = 'hotel_branches';
 const PROVIDER_KEY = 'hotel_auth_provider'; // 'backend' | 'firebase'
 
-export const saveSession = (token, user, branches = [], provider = 'backend') => {
+export const saveSession = (token, user, branches = [], provider = 'backend', refreshToken = null) => {
   localStorage.setItem(TOKEN_KEY, token);
+  if (refreshToken) {
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  }
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   localStorage.setItem(BRANCHES_KEY, JSON.stringify(branches));
   localStorage.setItem(PROVIDER_KEY, provider);
@@ -18,6 +22,7 @@ export const saveSession = (token, user, branches = [], provider = 'backend') =>
 
 export const clearSession = () => {
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
   localStorage.removeItem(BRANCH_KEY);
   localStorage.removeItem(BRANCHES_KEY);
@@ -25,6 +30,7 @@ export const clearSession = () => {
 };
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
+export const getRefreshToken = () => localStorage.getItem(REFRESH_TOKEN_KEY);
 export const getAuthProvider = () => localStorage.getItem(PROVIDER_KEY) || 'backend';
 
 export const getCurrentUser = () => {
