@@ -44,8 +44,8 @@
 .checkout-panel {
   width: min(1500px, 96vw);
   height: min(880px, 94vh);
-  background: var(--checkout-bg); /* Controlled by theme */
-  color: var(--checkout-text);    /* Controlled by theme */
+  background: white;
+  color: black;
   border-radius: 16px;
   padding: 20px 24px;
   overflow: auto;
