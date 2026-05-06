@@ -28,7 +28,7 @@
 
 .additem-card {
   background: var(--bg-body);
-  width: 90%;
+  width: 100vw;
   max-width: 1400px;
   height: 90vh;
   border-radius: var(--radius-lg);
@@ -89,7 +89,7 @@
 /* Card Grid Styling */
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   padding: 24px;
   overflow-y: auto;
