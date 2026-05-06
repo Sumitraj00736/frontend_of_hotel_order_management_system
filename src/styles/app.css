@@ -1138,7 +1138,7 @@ a:visited {
     padding: 16px;
     border-radius: 14px;
   }
-
+/*............................................................................*/
   .orders-grid {
     grid-template-columns: 1fr;
     gap: 12px;
