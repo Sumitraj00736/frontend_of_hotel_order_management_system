@@ -1,0 +1,135 @@
+/* Customize Modal Action Bar */
+.customize-actions {
+  padding: 20px 24px;
+  background: var(--delivery-bg-main);
+  border-top: 1px solid var(--delivery-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+}
+
+/* Cancel Button */
+.ghost-btn {
+  background: transparent;
+  border: 1px solid var(--delivery-border);
+  color: var(--delivery-text-muted);
+  padding: 10px 20px;
+  border-radius: var(--delivery-radius-md);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.ghost-btn:hover {
+  background: #f1f3f5;
+  color: var(--delivery-text-main);
+}
+
+/* Primary Add to Cart Button */
+.confirm-btn {
+  background: var(--delivery-primary); /* #fc8019 */
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: var(--delivery-radius-md);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(252, 128, 25, 0.2);
+  transition: transform 0.1s active, background 0.2s ease;
+}
+
+.confirm-btn:hover {
+  background: var(--delivery-primary-hover);
+  box-shadow: 0 4px 8px rgba(252, 128, 25, 0.3);
+}
+
+.confirm-btn:active {
+  transform: scale(0.98);
+}
+
+/* Price Label inside button */
+.btn-price-tag {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  margin-left: 4px;
+}
+
+/* admindeliveryordermodal */
+/* --- Mobile Responsive Overrides --- */
+@media (max-width: 768px) {
+  .delivery-workspace-panel {
+    height: 100vh; /* Full screen on mobile */
+    border-radius: 20px;
+    max-width: 100%;
+    margin-top: 20px;
+  }
+
+  .delivery-workspace-body {
+    grid-template-columns: 1fr; /* Stack menu and cart */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .delivery-menu-section {
+    padding: 16px;
+    flex: none; /* Allow it to take natural height */
+  }
+
+  .delivery-cart-aside {
+    border-left: none;
+    border-top: 1px solid var(--delivery-border);
+    flex: none;
+    background: #fff; /* Ensure it stands out when scrolled to */
+  }
+
+  /* Adjust Grid for Mobile Cards */
+  .dishes-grid-scrollable {
+    display: grid;
+    grid-template-columns: 1fr; /* Single column for better tap targets[cite: 1] */
+    gap: 8px;
+    overflow-y: visible; /* Let the parent handle scrolling */
+  }
+
+  .dish-card {
+    padding: 12px;
+  }
+
+  /* Summary Bar Wrap */
+  .delivery-summary-bar {
+    padding: 8px 16px;
+    gap: 8px;
+    overflow-x: auto; /* Allow horizontal swiping of pills[cite: 1] */
+    white-space: nowrap;
+    flex-wrap: nowrap;
+  }
+
+  .delivery-summary-pill {
+    flex-shrink: 0;
+  }
+
+  /* Header adjustments */
+  .dw-header-titles h4 {
+    font-size: 1.1rem;
+  }
+
+  /* Form groups on mobile */
+  .dw-inline-form-group {
+    grid-template-columns: 1fr; /* Stack name and phone */
+  }
+
+  /* Floating Action Button (Optional) */
+  .dw-action-bar {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 16px;
+    border-top: 1px solid var(--delivery-border);
+    margin-top: 0;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+  }
+}

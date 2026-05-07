@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import MenuSection from '../create/MenuSection.jsx';
 import CartPanel from '../create/CartPanel.jsx';
 import CustomizeDishModal from '../create/CustomizeDishModal.jsx';
-import '../../../../common/css/admin/orders/orderDetail.css';
+import '../../../../common/css/admin/orders/Additemsmodal.css';
 
 const AddItemsModal = ({
   open,

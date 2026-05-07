@@ -18,7 +18,7 @@ const AdminOrderConfirmModal = ({
 
   return createPortal(
     <div className="checkout-overlay">
-      <div className="checkout-panel" style={{ maxWidth: '500px', height: 'auto', maxHeight: '90vh' }}>
+      <div className="checkout-panel" style={{ maxWidth: '500px', height: 'auto', maxHeight: '90vh', borderRadius: '20px', background: '#fff' }}>
         <div className="checkout-header p-4 border-bottom d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center gap-2">
             <div className="icon-circle bg-success-soft text-success">

@@ -53,11 +53,9 @@ const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChang
       <div className="d-flex justify-content-between align-items-center mb-3 sm-flex-column sm-gap-2">
         <div>
           <h4 className="fw-900 m-0 text-dark" style={{ letterSpacing: '-0.03em', fontSize: '1.6rem' }}>
-            Orders Management
+            {title || 'Orders'}
           </h4>
-          <div className="text-muted small fw-600 mt-1">
-            Real-time order tracking & administration
-          </div>
+          <div className="text-muted small fw-600 mt-1">Real-time order tracking & administration</div>
         </div>
 
         <div className="d-flex gap-2 align-items-center flex-wrap">
