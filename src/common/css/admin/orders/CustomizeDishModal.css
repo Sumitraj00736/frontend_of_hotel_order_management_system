@@ -63,6 +63,7 @@
 @media (max-width: 768px) {
   .delivery-workspace-panel {
     height: 100vh; /* Full screen on mobile */
+    width: 100vw;
     border-radius: 20px;
     max-width: 100%;
     margin-top: 20px;

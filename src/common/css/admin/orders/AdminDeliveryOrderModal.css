@@ -31,7 +31,7 @@
 
 .delivery-workspace-panel {
   background: var(--delivery-bg-main);
-  width: 90%;
+  width: 100%;
   max-width: 1200px; /* SaaS dashboard feel */
   height: 100vh;
   border-radius: var(--delivery-radius-lg);
@@ -58,6 +58,18 @@
     border-left: none !important;
     border-top: 1px solid var(--delivery-border);
   }
+  .dw-header-right {
+  display: flex;
+  align-items: right;
+  gap: 12px;
+}
+.dw-header-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--delivery-text-muted);
+  cursor: pointer;
+  padding: 0;
 }
 
 /* --- Header Section (Matched to Image) --- */

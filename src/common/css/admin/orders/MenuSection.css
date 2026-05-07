@@ -281,27 +281,6 @@
   background: #fff;
 }
 
-@media (max-width: 768px) {
-  .search-wrapper {
-    min-width: 100%;
-  }
-
-  .custom-select {
-    min-width: 100%;
-  }
-
-  .action-controls {
-    width: 100%;
-  }
-
-  .menu-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 14px;
-  }
-}
-
-
-
 /*order header page */
 /* Custom Variable for easy branding */
 :root {
@@ -392,39 +371,6 @@
   color: var(--primary-color);
 }
 
-/* Responsive Handling */
-@media (max-width: 768px) {
-  .orders-header-wrap {
-    padding: 1rem;
-  }
-
-  .sm-flex-column {
-    flex-direction: column;
-    align-items: flex-start !important;
-  }
-
-  .sm-gap-2 {
-    gap: 1rem;
-  }
-
-  .d-flex.gap-2.align-items-center.flex-wrap {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  /* Make buttons more touch-friendly on mobile */
-  .btn {
-    padding-top: 0.6rem;
-    padding-bottom: 0.6rem;
-  }
-  
-  /* Ensure search expansion doesn't break layout */
-  .position-relative[style*="70vw"] {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-}
-
 /* Footer Stats Polish */
 .orders-header-wrap .border-top {
   border-color: #f1f5f9 !important;
@@ -434,3 +380,4 @@
   letter-spacing: 0.01em;
   color: #64748b;
 }
+
