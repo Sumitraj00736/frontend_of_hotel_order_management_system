@@ -41,7 +41,7 @@
 }
 
 .confirm-btn:hover {
-  background: var(--delivery-primary-hover);
+  background: #c06317;
   box-shadow: 0 4px 8px rgba(252, 128, 25, 0.3);
 }
 
