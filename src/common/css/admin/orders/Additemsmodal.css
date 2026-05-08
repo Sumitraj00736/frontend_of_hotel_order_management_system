@@ -843,8 +843,8 @@
 
   .mobile-cart-panel {
     width: 100%;
-    max-height: 85vh;
-    max-height: 85dvh;
+    height: 65vh; /* Occupy exactly 65% of screen */
+    height: 65dvh;
     background: var(--surface);
     border-radius: 20px 20px 0 0;
     display: flex;
@@ -891,10 +891,18 @@
 
   .mobile-cart-panel .cart-panel {
     flex: 1;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: auto; /* Prevent 100% height from clipping footer */
   }
   .mobile-cart-panel .cart-list {
-    max-height: 45vh;
+    flex: 1;
+    overflow-y: auto;
+    max-height: none;
+  }
+  .mobile-cart-panel .cart-footer {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
   }
 }
 

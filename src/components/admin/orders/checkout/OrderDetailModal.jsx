@@ -189,9 +189,10 @@ const OrderDetailModal = ({
     });
     if (idx >= 0) {
       existing[idx] = { ...existing[idx], quantity: (existing[idx].quantity || 0) + payload.quantity };
+      console.log('Updated quantity for existing item:', existing[idx]);
     } else {
       existing.push(payload);
-      console.log('Adding new item to order:', payload);
+      
     }
     scheduleOrderSync({ items: existing });
   };
