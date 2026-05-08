@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import '../../../common/css/admin/tables/tables.css';
 
 const AdminQrCodes = ({ qrData, search, setSearch }) => {
   const items = qrData?.items || [];

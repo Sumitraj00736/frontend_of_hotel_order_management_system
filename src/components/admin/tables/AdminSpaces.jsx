@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import '../../../common/css/admin/tables/tables.css';
 
 const AdminSpaces = ({ spaces = [], spaceForm, setSpaceForm, onCreateSpace, onUpdateSpace, onDeleteSpace }) => {
   const [editing, setEditing] = useState(null);

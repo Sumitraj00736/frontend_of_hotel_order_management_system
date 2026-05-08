@@ -4,7 +4,6 @@ import UserTabs from './UserTabs.jsx';
 import UserTable from './UserTable.jsx';
 import UserInviteModal from './UserInviteModal.jsx';
 import UserEditModal from './UserEditModal.jsx';
-import '../../../common/css/admin/users/users.css';
 
 const AdminUsers = ({
   users,

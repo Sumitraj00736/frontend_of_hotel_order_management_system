@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
-import '../../../../../common/css/admin/tables/tables.css';
 import { deleteSpace, fetchSpaces } from './spacesApi.js';
 import CreateSpaceModal from './CreateSpaceModal.jsx';
 import EditSpaceModal from './EditSpaceModal.jsx';

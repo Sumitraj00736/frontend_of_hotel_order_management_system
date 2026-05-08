@@ -6,7 +6,6 @@ import OrdersGrid from '../filters/OrdersGrid.jsx';
 import OrderAnalytics from './OrderAnalytics.jsx';
 import KotTicketCard from '../cards/KotTicketCard.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
-import '../../../../common/css/admin/orders/kotCards.css';
 
 const AdminOrders = ({
   orders = [],

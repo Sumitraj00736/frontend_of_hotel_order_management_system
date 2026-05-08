@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import '../../../common/css/admin/tables/tables.css';
 
 const AdminTableList = ({ tables = [], spaces = [], tableForm, setTableForm, onCreateTable, onFreeTable, onUpdateTable, onDeleteTable, autoOpenAddModal, onAddModalClosed }) => {
   const [addOpen, setAddOpen] = useState(false);

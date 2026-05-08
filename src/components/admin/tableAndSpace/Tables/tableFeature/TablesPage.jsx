@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
-import '../../../../../common/css/admin/tables/tables.css';
 import { fetchTables, freeTable, moveToTrash } from './tablesApi.js';
 import CreateTableModal from './CreateTableModal.jsx';
 import EditTableModal from './EditTableModal.jsx';
