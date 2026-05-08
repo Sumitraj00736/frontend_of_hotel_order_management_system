@@ -58,6 +58,8 @@
     border-left: none !important;
     border-top: 1px solid var(--delivery-border);
   }
+}
+
   .dw-header-right {
   display: flex;
   align-items: right;

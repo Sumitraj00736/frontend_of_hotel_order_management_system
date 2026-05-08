@@ -49,6 +49,8 @@ import { canAccessSection } from '../../../common/accessControl.js';
 import ThemeToggle from '../../ThemeToggle.jsx';
 import '../../../common/css/admin/sidebar/adminSidebar.css';
 
+const MOBILE_BREAKPOINT = 900;
+
 const iconMap = {
   dashboard: <Home size={18} strokeWidth={1.7} />,
   orders: <ListChecks size={18} strokeWidth={1.7} />,
@@ -111,7 +113,7 @@ const AdminSidebar = ({
   const [profileOpen, setProfileOpen] = useState(false);
   const [dateMode, setDateMode] = useState('AD');
   const [branchOpen, setBranchOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= MOBILE_BREAKPOINT);
 
   const user = getCurrentUser();
   const isSuperAdmin = user?.role?.toLowerCase() === 'superadmin';
@@ -130,7 +132,7 @@ const AdminSidebar = ({
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 992);
+      setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
     };
 
     window.addEventListener('resize', handleResize);

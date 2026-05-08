@@ -1,4 +1,6 @@
 .admin-shell {
+  --admin-sidebar-open-width: 260px;
+  --admin-sidebar-closed-width: 78px;
   min-height: 100vh;
   padding: 2px 12px 2px 0;
   background: #ffffff;
@@ -6,21 +8,21 @@
 
 .admin-body {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: var(--admin-sidebar-open-width) minmax(0, 1fr);
   margin-top: 0;
 }
 
 .sidebar-placeholder {
-  width: 260px;
+  width: var(--admin-sidebar-open-width);
   transition: width 0.25s ease;
 }
 
 .sidebar-placeholder.closed {
-  width: 72px;
+  width: var(--admin-sidebar-closed-width);
 }
 
 .admin-body.sidebar-collapsed {
-  grid-template-columns: 90px minmax(0, 1fr);
+  grid-template-columns: var(--admin-sidebar-closed-width) minmax(0, 1fr);
 }
 
 .content {
@@ -632,11 +634,11 @@
 
   /* //sidebar and content adjustments */
   .admin-body {
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: var(--admin-sidebar-open-width) minmax(0, 1fr);
     padding: 0 0 32px;
   }
   .admin-body.sidebar-collapsed {
-    grid-template-columns: 90px minmax(0, 1fr);
+    grid-template-columns: var(--admin-sidebar-closed-width) minmax(0, 1fr);
   }
   .sidebar-placeholder.closed {
     width: 0;

@@ -48,6 +48,8 @@ import {
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/admin/common/adminResponsive.css';
 
+const MOBILE_BREAKPOINT = 900;
+
 const AdminDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -137,7 +139,7 @@ const AdminDashboard = () => {
   const [customers, setCustomers] = useState([]);
   const [customerRewards, setCustomerRewards] = useState({ salesAmount: 0, rewardPoints: 0 });
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= MOBILE_BREAKPOINT);
   const [branchOpen, setBranchOpen] = useState(false);
   const [financeFilters, setFinanceFilters] = useState({ dateFrom: '', dateTo: '' });
   const [dashboardOptions, setDashboardOptions] = useState({
@@ -1167,7 +1169,7 @@ const AdminDashboard = () => {
   }, [history]);
 
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= 992);
+    const onResize = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
