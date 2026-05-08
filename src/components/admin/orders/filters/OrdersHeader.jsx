@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { UtensilsCrossed, Bike, ShoppingBag, ShoppingCart, ChevronDown, MoreVertical, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import '../../../../common/css/admin/orders/menuSection.css';
+import '../../../../common/css/admin/orders/ordersHeader.css';
 
 const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChange, searchTerm, onSearchChange }) => {
   const [rippling, setRippling] = useState(false);
@@ -198,7 +198,7 @@ const OrdersHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChang
 
             {showMoreMenu && (
               <div
-                className="position-absolute bg-white rounded-3 shadow-lg py-2"
+                className="showmoremenuoption position-absolute bg-white rounded-3 shadow-lg py-2"
                 style={{
                   top: 'calc(100% + 8px)',
                   right: 0,

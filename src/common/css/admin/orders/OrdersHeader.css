@@ -113,11 +113,16 @@
     padding-bottom: 0.6rem;
   }
   
-  /* Ensure search expansion doesn't break layout */
-  .position-relative[style*="70vw"] {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
+.showmoremenuoption {
+  top: 'calc(100% + 8px)';
+  left: 50px;
+  zIndex: 1050;
+  minWidth: '180px';
+  border: '1px solid #eaeaea';
+  background: #ffffff !important;
+  border: 1px solid var(--primary-color) !important;
+}
+
 }
 
 /* Footer Stats Polish */
