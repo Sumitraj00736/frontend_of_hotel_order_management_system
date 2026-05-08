@@ -17,6 +17,7 @@ import './common/css/admin/orders/kotTicketCard.css';
 import './common/css/admin/orders/recentOrderCard.css';
 import './common/css/admin/orders/orderDetail.css';
 import './common/css/admin/orders/Additemsmodal.css';
+import './common/css/admin/orders/CartPanel.css';
 import './common/css/admin/orders/AdminDeliveryOrderModal.css';
 import './common/css/admin/orders/CustomizeDishModal.css';
 import './common/css/admin/orders/MenuSection.css';
