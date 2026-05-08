@@ -31,6 +31,8 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
   });
 }
 
+
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider>
