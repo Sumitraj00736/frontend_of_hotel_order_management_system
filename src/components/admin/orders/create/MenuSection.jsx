@@ -1,6 +1,7 @@
 import React from 'react';
 import { LayoutGrid, Search, Star, Heart, Plus } from 'lucide-react';
 import '../../../../common/css/admin/orders/MenuSection.css';
+import '../../../../common/css/admin/orders/AddItemsModal.css';
 
 const MenuSection = ({
   orderTableNumber,
