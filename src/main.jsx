@@ -33,6 +33,12 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
 
 
 
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then((reg) => console.log('Firebase SW registered:', reg))
+    .catch((err) => console.error('Firebase SW error:', err));
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider>
