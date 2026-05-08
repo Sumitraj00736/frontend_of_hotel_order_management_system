@@ -63,7 +63,7 @@ export const subscribePush = async () => {
   const deviceId = getDeviceId();
 
   // 2. Register Service Worker (IMPORTANT FIX)
-  await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+  await navigator.serviceWorker.register('/firebase-messaging-sw.js', { updateViaCache: 'none' });
   const registration = await navigator.serviceWorker.ready;
 
   // 3. Firebase messaging instance
@@ -129,7 +129,7 @@ export const getCurrentBrowserToken = async () => {
     if (!messaging) return null;
     
     // Register SW first to ensure registration is available
-    await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    await navigator.serviceWorker.register('/firebase-messaging-sw.js', { updateViaCache: 'none' });
     const registration = await navigator.serviceWorker.ready;
 
     const configRes = await api.get('/api/push/config');
