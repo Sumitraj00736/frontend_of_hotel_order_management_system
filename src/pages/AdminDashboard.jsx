@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import { CheckCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api/client.js';
@@ -107,6 +108,7 @@ const AdminDashboard = () => {
   };
   
   const [activeSection, setActiveSection] = useState(getInitialSection);
+  const { logout } = useAuth();
   const isInitialMount = React.useRef(true);
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
@@ -1310,9 +1312,15 @@ const AdminDashboard = () => {
     }
   }, [activeSection]);
 
-  const handleMobileLogout = () => {
-    clearSession();
-    window.location.href = '/login';
+  const handleMobileLogout = async () => {
+    try {
+      await logout();
+      window.location.href = '/login';
+    } catch (err) {
+      console.error('Mobile logout failed:', err);
+      clearSession();
+      window.location.href = '/login';
+    }
   };
 
   return (
