@@ -9,7 +9,6 @@ import OrderPaymentPanel from './OrderPaymentPanel.jsx';
 import OrderSummaryPanel from './OrderSummaryPanel.jsx';
 import OrderInvoicePanel from './OrderInvoicePanel.jsx';
 import ThermalReceiptModal from './ThermalReceiptModal.jsx';
-import '../../../../common/css/admin/orders/orderDetail.css';
 
 const OrderDetailModal = ({
   order,

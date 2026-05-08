@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Printer } from 'lucide-react';
-import '../../../../common/css/admin/orders/kotTicketCard.css';
 
 const KotTicketCard = ({ order, onStatusChange, onPrint }) => {
   const [showStatusMenu, setShowStatusMenu] = useState(false);
