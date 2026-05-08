@@ -47,6 +47,10 @@ import {
 } from '../common/accessControl.js';
 import '../common/css/admin/common/adminLayout.css';
 import '../common/css/admin/common/adminResponsive.css';
+import '../common/css/admin/orders/kotCards.css';
+import '../common/css/admin/orders/recentOrderCard.css';
+import '../common/css/admin/tables/tables.css';
+import '../common/css/admin/users/users.css';
 
 const MOBILE_BREAKPOINT = 900;
 
