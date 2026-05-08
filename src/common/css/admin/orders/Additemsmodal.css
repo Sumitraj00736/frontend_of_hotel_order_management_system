@@ -893,11 +893,16 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    min-height: 0;
+    height: auto; /* Prevent 100% height from clipping footer */
   }
   .mobile-cart-panel .cart-list {
     flex: 1;
+    overflow-y: auto;
     max-height: none;
+  }
+  .mobile-cart-panel .cart-footer {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
   }
 }
 
