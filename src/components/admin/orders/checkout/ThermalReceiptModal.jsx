@@ -39,9 +39,10 @@ const ThermalReceiptModal = ({
   const items        = order.items || [];
   const total        = order.totalAmount ?? order.total ?? order.grandTotal ?? 0;
   const invoiceNo    = order.invoiceNo  || order.invoiceId || order._id?.slice(-6) || '-';
-  const customerName = order.customerName || 'Cash Customer';
   const orderType    = order.orderType   || 'dine_in';
   const tableNo      = order.table?.tableNumber;
+  const customerPhone = order.customerPhone || '';
+  const deliveryAddress = order.deliveryAddress || '';
 
   const totalItems   = items.length;
   const totalQty     = items.reduce((s, i) => s + (i.quantity || 0), 0);
@@ -129,10 +130,27 @@ const ThermalReceiptModal = ({
                 Date: {new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
               </span>
             </div>
-            <div style={{ marginBottom: 12, fontSize: 13 }}>
+            <div style={{ marginBottom: 4, fontSize: 13 }}>
               <span style={{ color: '#94a3b8' }}>Delivery: </span>
               <strong>{deliveryLabel}</strong>
             </div>
+
+            {orderType === 'delivery' && (
+              <div style={{ marginBottom: 12, fontSize: 13, padding: '8px', background: '#f8fafc', borderRadius: '4px', border: '1px dashed #cbd5e1' }}>
+                {customerPhone && (
+                  <div style={{ marginBottom: 4 }}>
+                    <span style={{ color: '#64748b' }}>Phone: </span>
+                    <strong>{customerPhone}</strong>
+                  </div>
+                )}
+                {deliveryAddress && (
+                  <div>
+                    <span style={{ color: '#64748b' }}>Address: </span>
+                    <strong style={{ fontSize: 12 }}>{deliveryAddress}</strong>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Items Table */}
             <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', marginBottom: 8 }}>

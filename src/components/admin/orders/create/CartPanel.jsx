@@ -13,6 +13,7 @@ const CartPanel = ({
   onAssignStaff,
   onUpdateItemQuantity,
   onUpdateItemNote,
+  onClearCart,
   onConfirm
 }) => {
   return (
@@ -20,7 +21,7 @@ const CartPanel = ({
       <div className="cart-panel">
         <div className="cart-head">
           <div className="cart-title">Cart Items</div>
-          <button className="cart-clear" disabled>Clear Cart</button>
+          <button className="cart-clear" onClick={onClearCart}>Clear Cart</button>
         </div>
         <div className="cart-list">
           {items.length === 0 && (
@@ -55,83 +56,78 @@ const CartPanel = ({
             );
           })}
         </div>
-        <div className="cart-footer p-3 border-top bg-white">
-          <div className="d-flex flex-column gap-3">
-            <div className="d-flex gap-2">
-              <div className="flex-grow-1">
-                <div 
-                  className="assign-staff-trigger border rounded-3 p-2 d-flex align-items-center justify-content-between cursor-pointer bg-light"
-                  onClick={onToggleStaffList}
-                  style={{ fontSize: '13px' }}
-                >
-                  <div className="d-flex align-items-center gap-2">
-                    <User size={16} className="text-muted" />
-                    <span className="fw-semibold">{staffOptions.find(s => s._id === assignedStaffId)?.name || 'Assign Staff'}</span>
+        <div className="cart-footer">
+          {/* Staff + Guest row */}
+          <div className="cart-meta-row">
+            <div className="cart-meta-btn" onClick={onToggleStaffList}>
+              <User size={14} />
+              <span style={{ flex: 1, fontSize: '0.75rem', fontWeight: 600 }}>
+                {staffOptions?.find(s => s._id === assignedStaffId)?.name || 'Assign Staff'}
+              </span>
+              <span style={{ color: '#94a3b8', fontSize: '0.7rem' }}>›</span>
+              {showStaffList && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '110%',
+                  left: 0,
+                  width: '200px',
+                  background: '#fff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
+                  zIndex: 200,
+                  overflow: 'hidden'
+                }}>
+                  <div style={{ padding: '8px 12px', borderBottom: '1px solid #f1f5f9', fontSize: '0.72rem', fontWeight: 700, color: '#64748b' }}>Select Staff</div>
+                  <div style={{ maxHeight: '160px', overflowY: 'auto' }}>
+                    {staffOptions?.map(s => (
+                      <div
+                        key={s._id}
+                        onClick={(e) => { e.stopPropagation(); onAssignStaff?.(s._id); onToggleStaffList?.(); }}
+                        style={{
+                          padding: '8px 12px',
+                          fontSize: '0.78rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          color: assignedStaffId === s._id ? '#fc8019' : '#1e293b',
+                          background: assignedStaffId === s._id ? '#fff4eb' : 'transparent',
+                          transition: 'background 0.15s'
+                        }}
+                      >
+                        {s.name}
+                        <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 500 }}>{s.role}</div>
+                      </div>
+                    ))}
                   </div>
-                  <span className="text-muted">›</span>
                 </div>
-                {showStaffList && (
-                  <div className="staff-dropdown-overlay shadow-lg border rounded-3 mt-1 bg-white" style={{ position: 'absolute', bottom: '100px', width: '250px', zIndex: 100 }}>
-                    <div className="p-2 border-bottom fw-bold small text-muted">Select Staff</div>
-                    <div className="p-1 overflow-auto" style={{ maxHeight: '200px' }}>
-                      {staffOptions.map((s) => (
-                        <div 
-                          key={s._id} 
-                          className={`p-2 rounded-2 cursor-pointer staff-item-hover ${assignedStaffId === s._id ? 'bg-primary-soft text-primary' : ''}`}
-                          onClick={() => { onAssignStaff?.(s._id); onToggleStaffList?.(); }}
-                        >
-                          <div className="fw-bold small">{s.name}</div>
-                          <div className="tiny text-muted">{s.role}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="flex-grow-1">
-                <div className="input-group input-group-sm border rounded-3 overflow-hidden bg-light h-100">
-                  <span className="input-group-text bg-transparent border-0"><Users size={14} /></span>
-                  <input 
-                    type="number" 
-                    className="form-control border-0 bg-transparent flex-grow-1" 
-                    placeholder="Enter No. of guests" 
-                    style={{ fontSize: '13px' }}
-                  />
-                </div>
-              </div>
+              )}
             </div>
+            <div className="cart-meta-btn">
+              <Users size={14} />
+              <input type="number" className="cart-meta-input" placeholder="No. of guests" />
+            </div>
+          </div>
 
-            <div className="cart-totals border-top pt-3">
-              <div className="d-flex justify-content-between align-items-center mb-1">
-                <span className="text-muted small">Total Qty</span>
-                <span className="fw-bold">{cartQty}</span>
-              </div>
-              <div className="d-flex justify-content-between align-items-center">
-                <span className="fw-bold">Total Amount</span>
-                <span className="h5 mb-0 fw-800" style={{ color: '#FC8019' }}>Rs {cartTotal.toFixed(2)}</span>
-              </div>
+          {/* Totals */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div className="cart-totals-row">
+              <span>Total Qty</span>
+              <span style={{ fontWeight: 700, color: '#1e293b' }}>{cartQty}</span>
             </div>
+            <div className="cart-totals-row">
+              <span className="total-amount-label">Total Amount</span>
+              <span className="total-amount-value">Rs {cartTotal?.toFixed(2)}</span>
+            </div>
+          </div>
 
-            <div className="d-flex gap-2">
-              <button 
-                className="btn btn-light border py-2 fw-bold text-muted w-100" 
-                style={{ fontSize: '14px' }}
-                onClick={() => onConfirm?.({ print: true })}
-              >
-                Confirm & Print
-              </button>
-              <button 
-                className="btn py-2 fw-800 w-100 shadow-sm text-white"
-                style={{ 
-                  fontSize: '14px', 
-                  background: 'linear-gradient(135deg, #FFB87A 0%, #FC8019 100%)', 
-                  border: 'none' 
-                }}
-                onClick={() => onConfirm?.({ print: false })}
-              >
-                Confirm Order
-              </button>
-            </div>
+          {/* Action buttons */}
+          <div className="cart-action-row">
+            <button className="btn-print" onClick={() => onConfirm?.({ print: true })}>
+              Confirm & Print
+            </button>
+            <button className="btn-confirm" onClick={() => onConfirm?.({ print: false })}>
+              Confirm Order
+            </button>
           </div>
         </div>
       </div>

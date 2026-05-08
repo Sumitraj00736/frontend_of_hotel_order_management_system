@@ -57,6 +57,8 @@ const OrderDetailModal = ({
         items: (result?.items?.length ? result.items : localOrder?.items) || [],
         totalAmount: total,
         customerName,
+        customerPhone: localOrder.customerPhone,
+        deliveryAddress: localOrder.deliveryAddress
       };
       setFinalOrder(merged);
       setShowReceipt(true);

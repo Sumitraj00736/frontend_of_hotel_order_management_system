@@ -124,162 +124,40 @@
 }
 
 .menu-content {
+  flex: 1;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 10px;
+  padding: 10px 12px 12px;
 }
 
 .content-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .content-info h3 {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: 0.82rem;
+  font-weight: 700;
   color: #1e293b;
   text-transform: capitalize;
 }
 
 .item-count {
   color: #64748b;
-  font-size: 0.86rem;
+  font-size: 0.72rem;
   font-weight: 600;
-}
-
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 18px;
-}
-
-.menu-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 22px;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-}
-
-.menu-card:hover {
-  transform: translateY(-4px);
-  border-color: #fed7aa;
-  box-shadow: 0 16px 30px rgba(252, 128, 25, 0.12);
-}
-
-.card-image-wrapper {
-  position: relative;
-  aspect-ratio: 1.2 / 1;
-  background: linear-gradient(135deg, #fff8f1 0%, #ffe9d2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.favorite-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 34px;
-  height: 34px;
-  border: none;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.88);
-  color: #f97316;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
-}
-
-.card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.card-img-placeholder {
-  width: 72px;
-  height: 72px;
-  border-radius: 22px;
-  background: rgba(252, 128, 25, 0.16);
-  color: #c2410c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.8rem;
-  font-weight: 800;
-}
-
-.card-details {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.item-name {
-  margin: 0;
-  font-size: 0.96rem;
-  font-weight: 800;
-  color: #1e293b;
-}
-
-.item-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.item-price {
-  color: #0f172a;
-  font-size: 0.92rem;
-  font-weight: 800;
-}
-
-.add-button {
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #ffb87a 0%, #fc8019 100%);
-  color: #fff;
-  padding: 10px 14px;
-  font-size: 0.82rem;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 8px 18px rgba(252, 128, 25, 0.18);
-}
-
-.add-button.has-variants {
-  background: #fff7ed;
-  color: #c2410c;
-  border: 1px solid #fdba74;
-  box-shadow: none;
-}
-
-.btn-text {
-  line-height: 1;
-}
-
-.empty-state {
-  min-height: 240px;
-  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
+  padding: 2px 8px;
   border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: #64748b;
-  background: #fff;
+  border: 1px solid #e2e8f0;
 }
+/* Grid and card styles are defined in Additemsmodal.css to avoid conflicts */
+
 
 /*order header page */
 /* Custom Variable for easy branding */

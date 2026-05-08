@@ -1487,30 +1487,6 @@ const AdminDashboard = () => {
           );
         })()}
 
-          {activeSection === 'orders:delivery' && canAccessAdminSection('orders') && (
-            <AdminDeliveryOrderModal
-              open={true}
-              onClose={() => setActiveSection('orders')}
-              deliveryPlatform={deliveryPlatform}
-              menus={menus}
-              categories={categories}
-              staff={users}
-              items={adminOrderItems}
-              onAddItem={(item) => setAdminOrderItems((prev) => [...prev, item])}
-              onUpdateItemQuantity={(index, qty) => {
-                if (qty < 1) {
-                  setAdminOrderItems((prev) => prev.filter((_, i) => i !== index));
-                } else {
-                  setAdminOrderItems((prev) =>
-                    prev.map((i, idx) => (idx === index ? { ...i, quantity: qty } : i))
-                  );
-                }
-              }}
-              onClearCart={() => setAdminOrderItems([])}
-              onConfirmDeliveryOrder={handleAdminSubmitDeliveryOrder}
-              confirmDisabled={adminOrderItems.length === 0}
-            />
-          )}
 
           {activeSection === 'users' && canAccessAdminSection('users') && (
             <>
@@ -1719,27 +1695,42 @@ const AdminDashboard = () => {
              }}
           />
 
-          <AdminDeliveryOrderModal
-             open={showAdminDeliveryOrderModal}
-             onClose={() => setShowAdminDeliveryOrderModal(false)}
-             deliveryPlatform={deliveryPlatform}
-             menus={menus}
-             categories={categories}
-             staff={users}
-             items={adminOrderItems}
-             onAddItem={(item) => {
+          {showAdminDeliveryOrderModal && (
+            <AdminDeliveryOrderModal
+              open={showAdminDeliveryOrderModal}
+              onClose={() => setShowAdminDeliveryOrderModal(false)}
+              deliveryPlatform={deliveryPlatform}
+              menus={menus}
+              categories={categories}
+              staff={users}
+              customers={customers}
+              items={adminOrderItems}
+              onAddItem={(item) => {
+                const menuItem = menus.find(m => m._id === (item.menuItem?._id || item.menuItem || item._id));
+                const enrichedItem = {
+                  ...item,
+                  menuItem: {
+                    _id: menuItem?._id,
+                    name: menuItem?.name || 'Item'
+                  },
+                  quantity: item.quantity || 1,
+                  priceAtOrderTime: item.variantPrice || menuItem?.price || 0
+                };
+
                 const updated = [...adminOrderItems];
-                const exist = updated.find(
-                  (i) => i.menuItem?._id === item.menuItem && i.variantId === item.variantId
+                const existIdx = updated.findIndex(
+                  (i) => (i.menuItem?._id || i.menuItem) === (enrichedItem.menuItem?._id || enrichedItem.menuItem) && 
+                         (i.variantId || null) === (enrichedItem.variantId || null)
                 );
-                if (exist) {
-                  exist.quantity += item.quantity || 1;
+                
+                if (existIdx >= 0) {
+                  updated[existIdx].quantity += enrichedItem.quantity;
                 } else {
-                  updated.push(item);
+                  updated.push(enrichedItem);
                 }
                 setAdminOrderItems(updated);
-             }}
-             onUpdateItemQuantity={(idx, q) => {
+              }}
+              onUpdateItemQuantity={(idx, q) => {
                 if (q <= 0) {
                   setAdminOrderItems(adminOrderItems.filter((_, i) => i !== idx));
                 } else {
@@ -1747,11 +1738,12 @@ const AdminDashboard = () => {
                   updated[idx].quantity = q;
                   setAdminOrderItems(updated);
                 }
-             }}
-             onClearCart={() => setAdminOrderItems([])}
-             onConfirmDeliveryOrder={handleAdminSubmitDeliveryOrder}
-             confirmDisabled={adminOrderItems.length === 0}
-          />
+              }}
+              onClearCart={() => setAdminOrderItems([])}
+              onConfirmDeliveryOrder={handleAdminSubmitDeliveryOrder}
+              confirmDisabled={adminOrderItems.length === 0}
+            />
+          )}
 
           {/* Step 2: Dish Selection Modal */}
           {showAdminOrderModal && (

@@ -29,15 +29,10 @@ const MenuSection = ({
           </div>
 
           <div className="action-controls">
-            <div className="search-wrapper">
-              <Search className="search-icon" size={16} />
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Search menu..."
-                value={addSearch}
-                onChange={(e) => onSearchChange(e.target.value)}
-              />
+            <div className="select-wrapper">
+              <select className="custom-select">
+                <option>Default Menuset</option>
+              </select>
             </div>
             
             <div className="select-wrapper">
@@ -45,11 +40,22 @@ const MenuSection = ({
                 className="custom-select"
                 onChange={(e) => onCategoryChange({ subMenu: e.target.value })}
               >
-                <option value="all">Sub Menu</option>
+                <option value="all">Select Sub Menu</option>
                 {menuSubMenus.map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="search-wrapper">
+              <Search className="search-icon" size={16} />
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search here"
+                value={addSearch}
+                onChange={(e) => onSearchChange(e.target.value)}
+              />
             </div>
           </div>
         </div>
@@ -95,7 +101,7 @@ const MenuSection = ({
             return (
               <div key={m._id} className="menu-card">
                 <div className="card-image-wrapper">
-                  <button className="favorite-btn"><Heart size={16} /></button>
+                  <div className="availability-dot" style={{ backgroundColor: m.isVeg ? '#10b981' : '#ef4444' }}></div>
                   {m.imageUrl ? (
                     <img src={m.imageUrl} alt={m.name} className="card-img" />
                   ) : (
@@ -107,28 +113,27 @@ const MenuSection = ({
                 
                 <div className="card-details">
                   <h4 className="item-name">{m.name}</h4>
-                  <div className="item-footer">
-                    <span className="item-price">Rs {minPrice}{variantCount > 0 && '+'}</span>
-                    <button
-                      className={`add-button ${variantCount > 0 ? 'has-variants' : ''}`}
-                      onClick={() => {
-                        if (variantCount > 0) {
-                          onCustomize(m);
-                          return;
-                        }
-                        onAdd({ menuItem: m, quantity: 1, priceAtOrderTime: m.price || 0, isComplimentary: false });
-                      }}
-                    >
-                      {variantCount > 0 ? (
-                        <span className="btn-text">{variantCount} Options</span>
-                      ) : (
-                        <>
-                          <Plus size={14} />
-                          <span className="btn-text">Add</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  <div className="item-price">Rs {minPrice}{variantCount > 0 && ` - Rs ${Math.max(...m.variants.map(v => v.price))}`}</div>
+                  
+                  <button
+                    className={`add-button-sleek ${variantCount > 0 ? 'has-variants' : ''}`}
+                    onClick={() => {
+                      if (variantCount > 0) {
+                        onCustomize(m);
+                        return;
+                      }
+                      onAdd({ menuItem: m, quantity: 1, priceAtOrderTime: m.price || 0, isComplimentary: false });
+                    }}
+                  >
+                    {variantCount > 0 ? (
+                      <div className="btn-content-sleek">
+                        <span className="btn-main-text">Add</span>
+                        <span className="btn-sub-text">{variantCount} options</span>
+                      </div>
+                    ) : (
+                      <span className="btn-main-text">Add</span>
+                    )}
+                  </button>
                 </div>
               </div>
             );

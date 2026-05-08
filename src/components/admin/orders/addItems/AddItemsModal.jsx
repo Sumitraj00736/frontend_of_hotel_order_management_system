@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import MenuSection from '../create/MenuSection.jsx';
 import CartPanel from '../create/CartPanel.jsx';
 import CustomizeDishModal from '../create/CustomizeDishModal.jsx';
@@ -71,13 +72,10 @@ const AddItemsModal = ({
       if (m.isAvailable === false) return false;
       if (addCategory === 'recommended' && !m.isRecommended) return false;
       if (addCategory !== 'all' && cat !== addCategory) return false;
-      if (addSubMenu !== 'all' && sub !== addSubMenu) return false;
       if (addSearch && !name.includes(addSearch.toLowerCase())) return false;
       return true;
     });
   }, [menus, addCategory, addSubMenu, addSearch]);
-
-  if (!open) return null;
 
   const cartQty = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
   const cartTotal = items.reduce(
@@ -86,60 +84,77 @@ const AddItemsModal = ({
   );
 
   return (
-    <div className="additem-overlay" onClick={onClose}>
-      <div className="additem-card" onClick={(e) => e.stopPropagation()}>
-        <button className="additem-close" onClick={onClose}>×</button>
-        <div className="additem-layout">
-          <MenuSection
-            orderTableNumber={orderTableNumber}
-            orderTargetName={orderTargetName}
-            selectedTableId={selectedTableId}
-            tableOptions={tableOptions}
-            onTableChange={onTableChange}
-            addSubMenu={addSubMenu}
-            menuSubMenus={menuSubMenus}
-            addSearch={addSearch}
-            onSearchChange={setAddSearch}
-            addCategory={addCategory}
-            menuCategories={menuCategories}
-            onCategoryChange={({ category, subMenu }) => {
-              if (category) setAddCategory(category);
-              if (subMenu !== undefined) setAddSubMenu(subMenu);
-            }}
-            filteredMenus={filteredMenus}
+    <AnimatePresence>
+      {open && (
+        <motion.div 
+          className="additem-overlay" 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+        >
+          <motion.div 
+            className="additem-card" 
+            initial={{ y: -100, opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -100, opacity: 0, scale: 0.95 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button className="additem-close" onClick={onClose}>×</button>
+            <div className="additem-layout">
+              <MenuSection
+                orderTableNumber={orderTableNumber}
+                orderTargetName={orderTargetName}
+                selectedTableId={selectedTableId}
+                tableOptions={tableOptions}
+                onTableChange={onTableChange}
+                addSubMenu={addSubMenu}
+                menuSubMenus={menuSubMenus}
+                addSearch={addSearch}
+                onSearchChange={setAddSearch}
+                addCategory={addCategory}
+                menuCategories={menuCategories}
+                onCategoryChange={({ category, subMenu }) => {
+                  if (category) setAddCategory(category);
+                  if (subMenu !== undefined) setAddSubMenu(subMenu);
+                }}
+                filteredMenus={filteredMenus}
+                onAdd={onAddItem}
+                onCustomize={setCustomizeItem}
+              />
+
+              <CartPanel
+                items={items}
+                cartQty={cartQty}
+                cartTotal={cartTotal}
+                showAssignStaff={showAssignStaff}
+                assignedStaffId={assignedStaffId}
+                staffOptions={staffOptions}
+                showStaffList={showStaffList}
+                onToggleStaffList={() => setShowStaffList((prev) => !prev)}
+                onAssignStaff={onAssignStaff}
+                onUpdateItemQuantity={onUpdateItemQuantity}
+                onUpdateItemNote={onUpdateItemNote}
+                onClearCart={onClearCart}
+                clearLabel={clearLabel}
+                onConfirm={onConfirm || onClose}
+                confirmLabel={confirmLabel}
+                confirmDisabled={confirmDisabled}
+              />
+            </div>
+
+            <div className="additem-footer-spacer" />
+          </motion.div>
+          <CustomizeDishModal
+            open={Boolean(customizeItem)}
+            item={customizeItem}
+            onClose={() => setCustomizeItem(null)}
             onAdd={onAddItem}
-            onCustomize={setCustomizeItem}
           />
-
-          <CartPanel
-            items={items}
-            cartQty={cartQty}
-            cartTotal={cartTotal}
-            showAssignStaff={showAssignStaff}
-            assignedStaffId={assignedStaffId}
-            staffOptions={staffOptions}
-            showStaffList={showStaffList}
-            onToggleStaffList={() => setShowStaffList((prev) => !prev)}
-            onAssignStaff={onAssignStaff}
-            onUpdateItemQuantity={onUpdateItemQuantity}
-            onUpdateItemNote={onUpdateItemNote}
-            onClearCart={onClearCart}
-            clearLabel={clearLabel}
-            onConfirm={onConfirm || onClose}
-            confirmLabel={confirmLabel}
-            confirmDisabled={confirmDisabled}
-          />
-        </div>
-
-        <div className="additem-footer-spacer" />
-      </div>
-      <CustomizeDishModal
-        open={Boolean(customizeItem)}
-        item={customizeItem}
-        onClose={() => setCustomizeItem(null)}
-        onAdd={onAddItem}
-      />
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
