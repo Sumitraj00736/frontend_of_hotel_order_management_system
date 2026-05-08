@@ -1,6 +1,6 @@
 import React from 'react';
-import { User, Users } from 'lucide-react';
-import '../../../../common/css/admin/orders/AddItemsModal.css';
+import { User, Users, ReceiptText } from 'lucide-react';
+import '../../../../common/css/admin/orders/addItemsModal.css';
 
 const CartPanel = ({
   items,
@@ -20,44 +20,15 @@ const CartPanel = ({
     <div className="additem-right">
       <div className="cart-panel">
         <div className="cart-head">
-          <div className="cart-title">Cart Items</div>
+          <div className="d-flex align-items-center gap-2">
+            <div className="header-icon-box">
+              <ReceiptText size={20} />
+            </div>
+            <h5 className="m-0 fw-bold">Order Details</h5>
+          </div>
           <button className="cart-clear" onClick={onClearCart}>Clear Cart</button>
         </div>
-        <div className="cart-list">
-          {items.length === 0 && (
-            <div className="cart-empty">
-              <div className="cart-empty-icon">🧾</div>
-              <div>No items added yet</div>
-            </div>
-          )}
-          {items.map((item) => {
-            const name = item.menuItem?.name || 'Item';
-            const variant = item.variantName ? ` (${item.variantName})` : '';
-            const menuId = item.menuItem?._id || item.menuItem;
-            const variantId = item.variantId || item.variant?._id || null;
-            return (
-              <div key={item._id || `${menuId}-${variantId || 'base'}`} className="cart-row">
-                <div className="cart-info">
-                  <div className="cart-name">{name}{variant}</div>
-                  <div className="cart-price">Rs {item.priceAtOrderTime || 0}</div>
-                  <input
-                    className="cart-note"
-                    placeholder="Add remarks to dish"
-                    defaultValue={item.itemNote || ''}
-                    onBlur={(e) => onUpdateItemNote?.(menuId, variantId, e.target.value)}
-                  />
-                </div>
-                <div className="qty-control">
-                  <button className="qty-btn" onClick={() => onUpdateItemQuantity?.(menuId, variantId, (item.quantity || 1) - 1)}>-</button>
-                  <span className="qty-value">{item.quantity}</span>
-                  <button className="qty-btn" onClick={() => onUpdateItemQuantity?.(menuId, variantId, (item.quantity || 1) + 1)}>+</button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="cart-footer">
-          {/* Staff + Guest row */}
+  {/* Staff + Guest row */}
           <div className="cart-meta-row">
             <div className="cart-meta-btn" onClick={onToggleStaffList}>
               <User size={14} />
@@ -107,6 +78,50 @@ const CartPanel = ({
               <input type="number" className="cart-meta-input" placeholder="No. of guests" />
             </div>
           </div>
+        <div className="cart-footer">
+
+          <div className="cart-items-scroll">
+        {items.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">
+              <ReceiptText size={48} />
+            </div>
+            <h6>Your cart is empty</h6>
+            <p>Add items from the menu</p>
+          </div>
+        ) : (
+          <div className="items-list">
+            {items.map((item) => {
+              const menuId = item.menuItem?._id || item.menuItem;
+              const variantId = item.variantId || item.variant?._id || null;
+              return (
+                <div key={item._id || `${menuId}-${variantId}`} className="cart-item-card">
+                  <div className="item-top">
+                    <span className="item-name">
+                        {item.menuItem?.name || 'Item'}
+                        {item.variantName ? <small> ({item.variantName})</small> : ''}
+                    </span>
+                    <div className="qty-stepper">
+                      <button onClick={() => onUpdateItemQuantity?.(menuId, variantId, (item.quantity || 1) - 1)}>-</button>
+                      <span>{item.quantity}</span>
+                      <button onClick={() => onUpdateItemQuantity?.(menuId, variantId, (item.quantity || 1) + 1)}>+</button>
+                    </div>
+                  </div>
+                  <div className="item-bottom">
+                    <input 
+                      className="remark-input"
+                      placeholder="Add remarks to dish"
+                      defaultValue={item.itemNote || ''}
+                      onBlur={(e) => onUpdateItemNote?.(menuId, variantId, e.target.value)}
+                    />
+                    <span className="item-price">Rs {(item.priceAtOrderTime * item.quantity).toFixed(2)}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
           {/* Totals */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
