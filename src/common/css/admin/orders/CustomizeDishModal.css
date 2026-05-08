@@ -27,11 +27,11 @@
 
 /* Primary Add to Cart Button */
 .confirm-btn {
-  background: var(--delivery-primary); /* #fc8019 */
+  background:#fc8019;
   color: white;
   border: none;
   padding: 10px 24px;
-  border-radius: var(--delivery-radius-md);
+  border-radius: 8px;
   font-weight: 700;
   display: flex;
   align-items: center;

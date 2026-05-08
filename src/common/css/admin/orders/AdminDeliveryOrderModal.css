@@ -285,8 +285,10 @@
 }
 
 .clear-btn{
-  border-radius: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
   color: #e67316;
+  padding: 6px 12px;
 }
 .dw-cart-item {
   display: flex;
