@@ -6,30 +6,28 @@
 }
 
 .recent-order-title {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
-  padding-left: 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  opacity: 0.8;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .recent-order-card {
-  background: white;
-  border: 1.5px solid #f1f5f9;
+  background: transparent;
+  border: 1.5px solid #eef1f6;
   border-radius: 16px;
   overflow: hidden;
   height: 310px;
   position: relative;
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: none;
   border-top: 4px solid transparent;
 }
 
 .recent-order-card:hover {
-  box-shadow: 0 20px 40px rgba(252, 128, 25, 0.12);
+  background: white;
+  box-shadow: 0 12px 24px rgba(252, 128, 25, 0.08);
   border-color: #ffedd5;
   border-top-color: #FC8019;
   transform: translateY(-6px);
@@ -46,19 +44,21 @@
 .roc-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
   border-bottom: 1px solid #f1f5f9;
 }
 
 .roc-type {
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #334155;
+  color: #64748b;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .roc-time {

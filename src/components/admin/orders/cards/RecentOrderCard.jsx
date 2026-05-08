@@ -47,8 +47,6 @@ const RecentOrderCard = ({ order, onOpen, onPrint }) => {
 
   return (
     <div className="recent-order-container">
-      <h5 className="recent-order-title">{identifierStr}</h5>
-      
       <div 
         className="recent-order-card"
         onMouseEnter={() => setIsHovered(true)}
@@ -65,11 +63,16 @@ const RecentOrderCard = ({ order, onOpen, onPrint }) => {
               className="roc-normal-state"
             >
               <div className="roc-header">
-                <span className="roc-type">
-                  <TypeIcon size={16} strokeWidth={2.5} color="#FC8019" />
-                  {typeStr}
-                </span>
-                <span className="roc-time">{timeStr}</span>
+                <div className="d-flex flex-column gap-1" style={{ minHeight: '44px', justifyContent: 'center' }}>
+                  <h5 className="recent-order-title m-0 text-truncate" style={{ maxWidth: '160px' }}>{identifierStr}</h5>
+                  <span className="roc-type">
+                    <TypeIcon size={13} strokeWidth={2.5} color="#FC8019" />
+                    {typeStr}
+                  </span>
+                </div>
+                <div className="d-flex flex-column align-items-end gap-1">
+                  <span className="roc-time">{timeStr}</span>
+                </div>
               </div>
               
               <div className="roc-items-wrapper">

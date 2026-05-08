@@ -136,6 +136,7 @@ const AdminDashboard = () => {
   const [transactions, setTransactions] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [customerRewards, setCustomerRewards] = useState({ salesAmount: 0, rewardPoints: 0 });
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= MOBILE_BREAKPOINT);
   const [branchOpen, setBranchOpen] = useState(false);
@@ -280,7 +281,10 @@ const AdminDashboard = () => {
     setUsers(normalizedUsers);
     setTables(data.tables || []);
     setMenus(data.menus || []);
-    setOrders(data.orders || []);
+    // Only update orders if not in orders-specific sections to avoid overwriting paginated/filtered data
+    if (activeSection !== 'orders' && activeSection !== 'orders:delivery') {
+      setOrders(data.orders || []);
+    }
     setReport(data.report || null);
     setHistory(data.history || []);
     setOverview(data.overview || { activeByWaiter: [] });
@@ -559,22 +563,27 @@ const AdminDashboard = () => {
   }, [activeSection, loadDashboardExtras]);
 
   const loadOrdersPage = async (page = ordersPage, limit = ordersLimit, category = ordersFilter, orderType = orderTypeFilter) => {
-    const res = await api.get('/api/orders', { params: { paginate: 1, page, limit, category, orderType } });
-    const payload = res.data;
-    if (payload.success && Array.isArray(payload.data)) {
-      setOrders(payload.data);
-      setOrdersTotal(payload.pagination?.total || 0);
-      setOrdersPage(payload.pagination?.page || page);
-      setOrdersLimit(payload.pagination?.limit || limit);
-      return;
-    }
-    // Fallback if success is true but data is direct array (shouldn't happen with new API)
-    if (Array.isArray(payload.data)) {
-      setOrders(payload.data);
-    } else if (Array.isArray(payload)) {
-      setOrders(payload);
-    } else {
+    setOrdersLoading(true);
+    try {
+      const res = await api.get('/api/orders', { params: { paginate: 1, page, limit, category, orderType } });
+      const payload = res.data;
+      if (payload.success && Array.isArray(payload.data)) {
+        setOrders(payload.data);
+        setOrdersTotal(payload.pagination?.total || 0);
+        setOrdersPage(payload.pagination?.page || page);
+        setOrdersLimit(payload.pagination?.limit || limit);
+      } else if (Array.isArray(payload.data)) {
+        setOrders(payload.data);
+      } else if (Array.isArray(payload)) {
+        setOrders(payload);
+      } else {
+        setOrders([]);
+      }
+    } catch (err) {
+      console.error('Failed to load orders:', err);
       setOrders([]);
+    } finally {
+      setOrdersLoading(false);
     }
   };
 
@@ -1400,11 +1409,12 @@ const AdminDashboard = () => {
           )}
           {activeSection === 'orders' && canAccessAdminSection('orders') && (() => {
             const activeKots = orders
-              .filter(o => ['pending', 'preparing', 'ready'].includes(o.status))
+              .filter(o => ['pending', 'preparing', 'ready', 'served'].includes(o.status))
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             return (
               <AdminOrders
                 orders={orders}
+                loading={ordersLoading}
                 kots={activeKots}
               customers={customers}
               menus={menus}

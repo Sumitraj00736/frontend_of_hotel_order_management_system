@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Loader2 } from 'lucide-react';
 import OrderDetailModal from '../checkout/OrderDetailModal.jsx';
 import OrdersHeader from '../filters/OrdersHeader.jsx';
 import OrdersFilterTabs from '../filters/OrdersFilterTabs.jsx';
@@ -9,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminOrders = ({
   orders = [],
+  loading = false,
   kots = [],
   customers = [],
   menus = [],
@@ -69,16 +71,17 @@ const AdminOrders = ({
   }, [orders, searchTerm]);
 
   return (
-    <div className="card glass-card full-screen-card p-0 border-0">
+    <div className="full-screen-card px-4 pt-1 pb-5 border-0" style={{ marginTop: '20px' }}>
       <div className="sticky-top pt-2 pb-3" style={{ 
         zIndex: 1020, 
-        margin: '-24px -24px 24px -24px', 
-        padding: '24px 24px 16px 24px', 
-        borderBottom: '1px solid #f1f5f9',
-        background: 'rgba(255, 255, 255, 0.85)',
+        margin: '-24px -24px 20px -24px', 
+        padding: '24px 24px 20px 24px', 
+        borderBottom: '1px solid #eef1f6',
+        background: 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(12px)',
-        borderTopLeftRadius: '24px',
-        borderTopRightRadius: '24px'
+        borderTopLeftRadius: '20px',
+        borderTopRightRadius: '20px',
+        boxShadow: '0 4px 12px rgba(15, 23, 42, 0.03)'
       }}>
         <OrdersHeader 
           title="Orders" 
@@ -114,8 +117,16 @@ const AdminOrders = ({
         </div>
       )}
 
-      <div className="orders-data-section">
-
+      <div className="orders-data-section position-relative" style={{ minHeight: '400px' }}>
+      
+      {loading && (
+        <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white bg-opacity-50" style={{ zIndex: 10, borderRadius: '16px', backdropFilter: 'blur(2px)' }}>
+          <div className="d-flex flex-column align-items-center gap-3">
+             <Loader2 className="animate-spin text-primary" size={42} />
+             <div className="fw-700 text-dark opacity-75">Fetching latest data...</div>
+          </div>
+        </div>
+      )}
 
       {filter === 'analytics' ? (
         <OrderAnalytics orders={orders} />

@@ -2,7 +2,7 @@ import React from 'react';
 
 const OrdersFilterTabs = ({ filter, onChange }) => {
   return (
-    <div className="d-flex gap-2 mb-3">
+    <div className="d-flex gap-2 mb-2 overflow-auto noscrollbar pb-1" style={{ whiteSpace: 'nowrap' }}>
       <button 
         className={`btn orders-filter-btn ${filter === 'active' ? 'active' : ''}`} 
         onClick={() => onChange('active')}
