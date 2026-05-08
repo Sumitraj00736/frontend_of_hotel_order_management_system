@@ -1,12 +1,6 @@
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js");
 
-importScripts("https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js");
-
-workbox.core.clientsClaim();
-workbox.precaching.cleanupOutdatedCaches();
-workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || []);
-
 const firebaseConfig = {
   apiKey: "AIzaSyDfE1U47NN332AkEczyUncL-KxnEIHw0dE",
   authDomain: "hoteloms-8563c.firebaseapp.com",
