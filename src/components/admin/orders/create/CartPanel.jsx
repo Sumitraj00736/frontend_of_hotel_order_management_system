@@ -45,16 +45,16 @@ const CartPanel = ({
               </div>
               <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }}>Order Details</h3>
             </div>
-            <button className="btn-clear" onClick={onClearCart} aria-label="Clear Cart">
+            <button className="prem-btn-clear" onClick={onClearCart} aria-label="Clear Cart">
               <Trash2 size={16} />
               <span>Clear</span>
             </button>
           </header>
 
           {/* Quick Actions Row */}
-          <div className="meta-actions-grid">
-            <div className="meta-dropdown-wrapper">
-              <button className={`meta-btn ${selectedStaff ? 'active' : ''}`} onClick={onToggleStaffList}>
+          <div className="prem-meta-actions-grid">
+            <div className="prem-meta-dropdown-wrapper">
+              <button className={`prem-meta-btn ${selectedStaff ? 'active' : ''}`} onClick={onToggleStaffList}>
                 <User size={16} />
                 <span className="truncate">{selectedStaff?.name || 'Assign Staff'}</span>
                 <ChevronRight size={14} className={`arrow ${showStaffList ? 'rotate' : ''}`} />
@@ -81,9 +81,9 @@ const CartPanel = ({
               )}
             </div>
 
-            <div className="meta-input-wrapper">
+            <div className="prem-meta-input-wrapper">
               <Users size={16} />
-              <input type="number" placeholder="Guests" min="1" className="guest-input" />
+              <input type="number" placeholder="Guests" min="1" className="prem-guest-input" />
             </div>
           </div>
 
@@ -150,10 +150,10 @@ const CartPanel = ({
             </div>
 
             <div className="action-buttons-group">
-              <button className="btn-secondary" onClick={() => onConfirm?.({ print: true })}>
+              <button className="prem-btn-secondary" onClick={() => onConfirm?.({ print: true })}>
                 Print
               </button>
-              <button className="btn-primary" onClick={() => onConfirm?.({ print: false })}>
+              <button className="prem-btn-primary" onClick={() => onConfirm?.({ print: false })}>
                 Confirm Order
               </button>
             </div>
