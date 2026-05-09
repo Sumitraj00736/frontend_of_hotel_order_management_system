@@ -5,7 +5,7 @@ import {
   UserCheck, X, ShoppingBag, MapPin, Phone
 } from 'lucide-react';
 import CustomizeDishModal from './CustomizeDishModal.jsx';
-import './AdminDeliveryOrderModal.css';
+import './adminDeliveryOrderModal.css';
 
 const getPlaceholder = (name) => (name ? name.charAt(0).toUpperCase() : '?');
 
