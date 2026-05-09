@@ -418,6 +418,15 @@
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .additem-layout {
+    grid-template-columns: 1fr; /* Stack on mobile */
+  }
+  .additem-cart-desktop {
+    display: none !important; /* Hide desktop cart on mobile */
+  }
+}
+
 
 /* ── Cart Panel Styling (Consolidated) ─────────────────────── */
 
