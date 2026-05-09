@@ -23,6 +23,7 @@ const CartPanel = ({
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   
   const selectedStaff = staffOptions?.find(s => s._id === assignedStaffId);
+  console.log('CartPanel Rendered with items:', items, 'Assigned Staff:', selectedStaff);
 
   return (
     <>
