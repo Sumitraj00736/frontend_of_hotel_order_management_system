@@ -744,35 +744,62 @@ display: none;
   transform: scale(0.98);
 }
 
-/* Desktop handling */
-@media (min-width: 768px) {
-  .action-buttons-group {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .cart-container {
-    max-width: 400px;
-    margin-left: auto;
-  }
-}
-
-/* Empty State */
-.empty-cart-state {
-  height: 100%;
+/* Ensure the FAB uses your brand color #fc8019 */
+.mobile-cart-fab {
+  position: fixed;
+  bottom: 20px;
+  left: 15px;
+  right: 15px;
+  background: #fc8019; /* Merorestro Brand Color */
+  color: white;
+  padding: 14px 20px;
+  border-radius: 12px;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
+  z-index: 1001; /* Above modal overlay */
+  box-shadow: 0 8px 24px rgba(252, 128, 25, 0.3);
 }
 
-.empty-illustration {
-  margin-bottom: 1rem;
-  opacity: 0.3;
-}
-
-.empty-text {
+.mobile-cart-header {
+  display: none; /* Hidden by default on desktop */
+  padding: 15px;
+  background: #f8f9fa;
   font-weight: 700;
-  margin: 0;
-  color: var(--text-main);
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #e9e9eb;
+}
+
+@media (max-width: 768px) {
+  /* Cart hides on mobile unless .mobile-visible is added */
+  .cart-container {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    z-index: 2005;
+    background: white;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .cart-container.mobile-visible {
+    transform: translateY(0);
+  }
+
+  .mobile-cart-header {
+    display: flex;
+  }
+/*optimize acction buttons for small screens*/
+  .action-buttons-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-cart-fab {
+    display: none; /* Only show on mobile devices */
+  }
 }
