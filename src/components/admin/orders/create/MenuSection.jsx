@@ -14,7 +14,8 @@ const MenuSection = ({
   onCategoryChange,
   filteredMenus,
   onAdd,
-  onCustomize
+  onCustomize,
+  onClose
 }) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
@@ -33,11 +34,18 @@ const MenuSection = ({
                 </div>
               </div>
               <div className="header-actions">
-                <button 
-                  className="mobile-search-trigger" 
+                <button
+                  className="mobile-search-trigger"
                   onClick={() => setIsSearchExpanded(true)}
                 >
                   <Search size={20} />
+                </button>
+                {/*  Added Mobile Close Button */}
+                <button
+                  className="page-close-button"
+                  onClick={() => onClose()}
+                >
+                  <X size={24} />
                 </button>
               </div>
             </>
@@ -68,7 +76,7 @@ const MenuSection = ({
             <select className="custom-select">
               <option>Default Menu</option>
             </select>
-            <select 
+            <select
               className="custom-select"
               onChange={(e) => onCategoryChange({ subMenu: e.target.value })}
             >
@@ -82,23 +90,23 @@ const MenuSection = ({
 
         {/* Category Tabs: Scrollable on Mobile */}
         <div className="category-nav">
-          <button 
-            className={`category-tab ${addCategory === 'recommended' ? 'active' : ''}`} 
+          <button
+            className={`category-tab ${addCategory === 'recommended' ? 'active' : ''}`}
             onClick={() => onCategoryChange({ category: 'recommended' })}
           >
-            <Star size={14} fill={addCategory === 'recommended' ? "white" : "none"} /> 
+            <Star size={14} fill={addCategory === 'recommended' ? "white" : "none"} />
             <span>Recommended</span>
           </button>
-          <button 
-            className={`category-tab ${addCategory === 'all' ? 'active' : ''}`} 
+          <button
+            className={`category-tab ${addCategory === 'all' ? 'active' : ''}`}
             onClick={() => onCategoryChange({ category: 'all' })}
           >
             All
           </button>
           {menuCategories.map((c) => (
-            <button 
-              key={c} 
-              className={`category-tab ${addCategory === c ? 'active' : ''}`} 
+            <button
+              key={c}
+              className={`category-tab ${addCategory === c ? 'active' : ''}`}
               onClick={() => onCategoryChange({ category: c })}
             >
               {c}
@@ -142,7 +150,7 @@ const MenuSection = ({
                     <Plus size={18} />
                   </button>
                 </div>
-                
+
                 <div className="card-info">
                   <h4 className="item-title">{m.name}</h4>
                   <div className="price-row">

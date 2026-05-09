@@ -70,20 +70,24 @@ const AddItemsModal = ({
     0
   );
 
+  const handleConfirmAction = (options) => {
+    onConfirm?.(options);
+    setMobileCartOpen(false);
+  };
+
   return (
     <AnimatePresence>
       {open && (
-        <div className="additem-overlay" style={{ backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+        <div className="additem-overlay">
           <motion.div
             className="additem-card"
-            style={{ display: 'flex', flexDirection: 'column' }}
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <button className="additem-close" onClick={onClose}>
+            {/* Desktop Only Close */}
+            <button className="additem-close desktop-only" onClick={onClose}>
               <X size={20} />
             </button>
 
@@ -107,9 +111,9 @@ const AddItemsModal = ({
                 filteredMenus={filteredMenus}
                 onAdd={onAddItem}
                 onCustomize={setCustomizeItem}
+                onClose={onClose}
               />
 
-              {/* Desktop cart — hidden on mobile */}
               <div className="additem-cart-desktop">
                 <CartPanel
                   items={items}
@@ -124,27 +128,12 @@ const AddItemsModal = ({
                   onUpdateItemQuantity={onUpdateItemQuantity}
                   onUpdateItemNote={onUpdateItemNote}
                   onClearCart={onClearCart}
-                  clearLabel={clearLabel}
-                  onConfirm={onConfirm || onClose}
+                  onConfirm={handleConfirmAction}
                   confirmLabel={confirmLabel}
                   confirmDisabled={confirmDisabled}
                 />
               </div>
             </div>
-
-            {/* Mobile Floating Cart Button */}
-            {cartQty > 0 && !mobileCartOpen && (
-              <motion.button
-                className="mobile-cart-fab"
-                initial={{ scale: 0, y: 40 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0, y: 40 }}
-                onClick={() => setMobileCartOpen(true)}
-              >
-                <ShoppingCart size={18} />
-                <span className="fab-label">View Cart ({cartQty})</span>
-              </motion.button>
-            )}
 
             {/* Mobile Cart Overlay */}
             <AnimatePresence>
@@ -154,21 +143,16 @@ const AddItemsModal = ({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  onClick={() => setMobileCartOpen(false)}
                 >
                   <motion.div
                     className="mobile-cart-panel"
                     initial={{ y: '100%' }}
                     animate={{ y: 0 }}
                     exit={{ y: '100%' }}
-                    transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-                    onClick={(e) => e.stopPropagation()}
                   >
-                    <div className="mobile-cart-handle">
+                    <div className="mobile-cart-handle" onClick={() => setMobileCartOpen(false)}>
                       <div className="handle-bar" />
-                      <button className="mobile-cart-close" onClick={() => setMobileCartOpen(false)}>
-                        <X size={18} />
-                      </button>
+                      <X size={18} />
                     </div>
                     <CartPanel
                       items={items}
@@ -183,17 +167,27 @@ const AddItemsModal = ({
                       onUpdateItemQuantity={onUpdateItemQuantity}
                       onUpdateItemNote={onUpdateItemNote}
                       onClearCart={onClearCart}
-                      clearLabel={clearLabel}
-                      onConfirm={onConfirm || onClose}
+                      onConfirm={handleConfirmAction}
                       confirmLabel={confirmLabel}
                       confirmDisabled={confirmDisabled}
+                      isMobileView={true}
                     />
                   </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Customize Modal */}
+            {/* Mobile FAB */}
+            {cartQty > 0 && !mobileCartOpen && (
+              <div className="mobile-cart-fab" onClick={() => setMobileCartOpen(true)}>
+                <div className="fab-content">
+                  <ShoppingCart size={20} />
+                  <span>{cartQty} Items • Rs {cartTotal}</span>
+                </div>
+                <span>View Cart</span>
+              </div>
+            )}
+
             <CustomizeDishModal
               open={Boolean(customizeItem)}
               item={customizeItem}

@@ -224,7 +224,38 @@
   color: var(--primary);
   display: block;
 }
+/* 1. Hide the button by default (Desktop & Tablet) */
+.page-close-button {
+  display: none; 
+  background: #f3f4f6;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.2s;
+}
 
+/* 2. Show the button ONLY on Mobile (Screens smaller than 768px) */
+@media (max-width: 768px) {
+  .page-close-button {
+    display: flex; /* This makes it visible on mobile */
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* 3. Ensure it stays hidden if search is expanded (Optional) */
+.mobile-search-overlay .page-close-button {
+  display: none;
+}
 /* --- DESKTOP BREAKPOINTS --- */
 @media (min-width: 768px) {
   .menu-grid {
