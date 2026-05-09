@@ -26,11 +26,11 @@ const CartPanel = ({
 
   return (
     <>
-      /* ASIDE CONTAINER: Added mobile-specific conditional classes */
+      {/* ASIDE CONTAINER: Added mobile-specific conditional classes */}
       <aside className={`cart-container ${isMobileCartOpen ? 'mobile-visible' : ''}`}>
         <div className="cart-card">
           
-          {/*MOBILE HEADER: To allow users to go back to the menu */}
+          {/* MOBILE HEADER: To allow users to go back to the menu */}
           <div className="mobile-cart-header" onClick={() => setIsMobileCartOpen(false)}>
             <ChevronDown size={20} /> 
             <span>Back to Menu</span>
