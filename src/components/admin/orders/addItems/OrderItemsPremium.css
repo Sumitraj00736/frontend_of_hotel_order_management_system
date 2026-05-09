@@ -1,5 +1,5 @@
 /* ============================================================
-   ADD ITEMS MODAL — PREMIUM ENTERPRISE DESIGN
+   ADD ITEMS MODAL - PREMIUM ENTERPRISE DESIGN
    ============================================================ */
 
 :root {
@@ -19,7 +19,7 @@
   --shadow-card: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-/* ── Overlay ─────────────────────────────────────────────── */
+/* Overlay */
 .additem-overlay {
   position: fixed;
   inset: 0;
@@ -33,7 +33,7 @@
   padding: 10px;
 }
 
-/* ── Modal Shell — near-fullscreen ────────────────────────── */
+/* Modal Shell - near-fullscreen */
 .additem-card {
   background: var(--bg-muted);
   width: 100%;
@@ -73,7 +73,7 @@
   border-color: #fca5a5;
 }
 
-/* ── Layout: 2 columns ───────────────────────────────────── */
+/* Layout: 2 columns */
 .additem-layout {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -81,7 +81,7 @@
   overflow: hidden;
 }
 
-/* ── LEFT: Menu Panel ────────────────────────────────────── */
+/* LEFT: Menu Panel */
 .menu-section-container {
   display: flex;
   flex-direction: column;
@@ -270,14 +270,14 @@
   border: 1px solid var(--border);
 }
 
-/* ── Menu Grid: 4 cards per row, always ──────────────────── */
+/* - Menu Grid: 4 cards per row, always ---------- */
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr) !important;
   gap: 8px;
 }
 
-/* ── Menu Card ────────────────────────────────────────────── */
+/* - Menu Card ----------------------- */
 .menu-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -410,7 +410,7 @@
   font-size: 0.85rem;
 }
 
-/* ── RIGHT: Cart Panel ────────────────────────────────────── */
+/* - RIGHT: Cart Panel ------------------- */
 .additem-right {
   display: flex;
   flex-direction: column;
@@ -419,7 +419,7 @@
 }
 
 
-/* ── Cart Panel Styling (Consolidated) ─────────────────────── */
+/* - Cart Panel Styling (Consolidated) ----------- */
 
 :root {
   --primary: #fc8019;

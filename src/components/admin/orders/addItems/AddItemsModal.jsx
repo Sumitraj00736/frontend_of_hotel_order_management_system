@@ -87,25 +87,22 @@ const AddItemsModal = ({
   );
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div 
-          className="additem-overlay" 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
-          <motion.div 
-            className="additem-card" 
-            initial={{ y: -60, opacity: 0, scale: 0.97 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -60, opacity: 0, scale: 0.97 }}
-            transition={{ type: "spring", damping: 28, stiffness: 320 }}
+    <div className="additem-overlay" style={{ backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="additem-card"
+            style={{ display: 'flex', flexDirection: 'column' }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <button className="additem-close" onClick={onClose}>×</button>
-            <div className="additem-layout">
+            <button className="additem-close" onClick={onClose}>
+              <X size={20} />
+            </button>
+            <div className="additem-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', height: '100%', overflow: 'hidden' }}>
               <MenuSection
                 orderTableNumber={orderTableNumber}
                 orderTargetName={orderTargetName}
