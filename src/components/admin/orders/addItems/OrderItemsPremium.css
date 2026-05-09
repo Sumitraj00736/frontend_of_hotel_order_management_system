@@ -1,5 +1,5 @@
 /* ============================================================
-   ADD ITEMS MODAL — PREMIUM ENTERPRISE DESIGN
+   ADD ITEMS MODAL - PREMIUM ENTERPRISE DESIGN
    ============================================================ */
 
 :root {
@@ -19,7 +19,7 @@
   --shadow-card: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-/* ── Overlay ─────────────────────────────────────────────── */
+/* Overlay */
 .additem-overlay {
   position: fixed;
   inset: 0;
@@ -33,7 +33,7 @@
   padding: 10px;
 }
 
-/* ── Modal Shell — near-fullscreen ────────────────────────── */
+/* Modal Shell - near-fullscreen */
 .additem-card {
   background: var(--bg-muted);
   width: 100%;
@@ -73,7 +73,7 @@
   border-color: #fca5a5;
 }
 
-/* ── Layout: 2 columns ───────────────────────────────────── */
+/* Layout: 2 columns */
 .additem-layout {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -81,7 +81,7 @@
   overflow: hidden;
 }
 
-/* ── LEFT: Menu Panel ────────────────────────────────────── */
+/* LEFT: Menu Panel */
 .menu-section-container {
   display: flex;
   flex-direction: column;
@@ -270,14 +270,14 @@
   border: 1px solid var(--border);
 }
 
-/* ── Menu Grid: 4 cards per row, always ──────────────────── */
+/* - Menu Grid: 4 cards per row, always ---------- */
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr) !important;
   gap: 8px;
 }
 
-/* ── Menu Card ────────────────────────────────────────────── */
+/* - Menu Card ----------------------- */
 .menu-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -410,7 +410,7 @@
   font-size: 0.85rem;
 }
 
-/* ── RIGHT: Cart Panel ────────────────────────────────────── */
+/* - RIGHT: Cart Panel ------------------- */
 .additem-right {
   display: flex;
   flex-direction: column;
@@ -428,7 +428,7 @@
 }
 
 
-/* ── Cart Panel Styling (Consolidated) ─────────────────────── */
+/* - Cart Panel Styling (Consolidated) ----------- */
 
 :root {
   --primary: #fc8019;
@@ -491,7 +491,7 @@ display: none;
   color: var(--text-main);
 }
 
-.btn-clear {
+.prem-btn-clear {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -506,12 +506,12 @@ display: none;
   transition: background 0.2s;
 }
 
-.btn-clear:hover {
+.prem-btn-clear:hover {
   background: #fef2f2;
 }
 
 /* Meta Actions Row */
-.meta-actions-grid {
+.prem-meta-actions-grid {
   padding: 1rem;
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -520,11 +520,11 @@ display: none;
   border-bottom: 1px solid var(--border-color);
 }
 
-.meta-dropdown-wrapper {
+.prem-meta-dropdown-wrapper {
   position: relative;
 }
 
-.meta-btn {
+.prem-meta-btn {
   width: 100%;
   display: flex;
   align-items: center;
@@ -537,13 +537,13 @@ display: none;
   text-align: left;
 }
 
-.meta-btn.active {
+.prem-meta-btn.active {
   border-color: var(--primary);
   background: var(--primary-light);
   color: var(--primary);
 }
 
-.meta-btn .truncate {
+.prem-meta-btn .truncate {
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -552,7 +552,7 @@ display: none;
   font-weight: 600;
 }
 
-.meta-input-wrapper {
+.prem-meta-input-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -563,7 +563,7 @@ display: none;
   color: var(--text-muted);
 }
 
-.guest-input {
+.prem-guest-input {
   border: none;
   background: transparent;
   width: 100%;
@@ -573,7 +573,7 @@ display: none;
   padding: 10px 0;
 }
 
-.guest-input:focus { outline: none; }
+.prem-guest-input:focus { outline: none; }
 
 /* Items List */
 .cart-body {
@@ -729,27 +729,28 @@ display: none;
   gap: 6px;
 }
 
-.btn-primary, .btn-secondary {
-  padding: 2px;
+.prem-btn-primary, .prem-btn-secondary {
+  padding: 10px;
   border-radius: 12px;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: transform 0.1s;
   border: none;
 }
 
-.btn-primary {
+.prem-btn-primary {
   background: var(--primary);
   color: white;
 }
 
-.btn-secondary {
+.prem-btn-secondary {
   background: white;
   color: var(--primary);
   border: 2px solid var(--primary);
 }
 
-.btn-primary:active, .btn-secondary:active {
+.prem-btn-primary:active, .prem-btn-secondary:active {
   transform: scale(0.98);
 }
 
@@ -781,6 +782,14 @@ display: none;
 }
 
 @media (max-width: 768px) {
+  .additem-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .additem-cart-desktop {
+    display: none;
+  }
+
   /* Cart hides on mobile unless .mobile-visible is added */
   .cart-container {
     position: fixed;

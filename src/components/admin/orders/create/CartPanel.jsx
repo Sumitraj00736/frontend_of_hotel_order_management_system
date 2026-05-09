@@ -3,7 +3,7 @@ import {
   User, Users, ReceiptText, Trash2, ChevronRight, 
   Minus, Plus, ChevronDown, ShoppingBag 
 } from 'lucide-react';
-import '../../../../common/css/admin/orders/addItemsModal.css';
+import '../addItems/OrderItemsPremium.css';
 
 const CartPanel = ({
   items = [],
@@ -23,37 +23,38 @@ const CartPanel = ({
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   
   const selectedStaff = staffOptions?.find(s => s._id === assignedStaffId);
+  console.log('CartPanel Rendered with items:', items, 'Assigned Staff:', selectedStaff);
 
   return (
     <>
       {/* ASIDE CONTAINER: Added mobile-specific conditional classes */}
-      <aside className={`cart-container ${isMobileCartOpen ? 'mobile-visible' : ''}`}>
-        <div className="cart-card">
+      <aside className={`cart-container ${isMobileCartOpen ? 'mobile-visible' : ''}`} style={{ height: '100%', padding: '1rem', background: '#f8fafc' }}>
+        <div className="cart-card" style={{ background: '#fff', borderRadius: '16px', height: '88%', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           
-          {/* MOBILE HEADER: To allow users to go back to the menu */}
-          <div className="mobile-cart-header" onClick={() => setIsMobileCartOpen(false)}>
+          {/* MOBILE HEADER */}
+          <div className="mobile-cart-header" onClick={() => setIsMobileCartOpen(false)} style={{ background: '#f8f9fa', padding: '15px', fontWeight: 700, borderBottom: '1px solid #e9e9eb' }}>
             <ChevronDown size={20} /> 
             <span>Back to Menu</span>
           </div>
 
           {/* Header */}
-          <header className="cart-header">
-            <div className="header-title">
-              <div className="icon-badge">
+          <header className="cart-header" style={{ padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0' }}>
+            <div className="header-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div className="icon-badge" style={{ background: '#fff4eb', color: '#fc8019', padding: '8px', borderRadius: '8px', display: 'flex' }}>
                 <ReceiptText size={18} />
               </div>
-              <h3>Order Details</h3>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }}>Order Details</h3>
             </div>
-            <button className="btn-clear" onClick={onClearCart} aria-label="Clear Cart">
+            <button className="prem-btn-clear" onClick={onClearCart} aria-label="Clear Cart">
               <Trash2 size={16} />
               <span>Clear</span>
             </button>
           </header>
 
           {/* Quick Actions Row */}
-          <div className="meta-actions-grid">
-            <div className="meta-dropdown-wrapper">
-              <button className={`meta-btn ${selectedStaff ? 'active' : ''}`} onClick={onToggleStaffList}>
+          <div className="prem-meta-actions-grid">
+            <div className="prem-meta-dropdown-wrapper">
+              <button className={`prem-meta-btn ${selectedStaff ? 'active' : ''}`} onClick={onToggleStaffList}>
                 <User size={16} />
                 <span className="truncate">{selectedStaff?.name || 'Assign Staff'}</span>
                 <ChevronRight size={14} className={`arrow ${showStaffList ? 'rotate' : ''}`} />
@@ -80,9 +81,9 @@ const CartPanel = ({
               )}
             </div>
 
-            <div className="meta-input-wrapper">
+            <div className="prem-meta-input-wrapper">
               <Users size={16} />
-              <input type="number" placeholder="Guests" min="1" className="guest-input" />
+              <input type="number" placeholder="Guests" min="1" className="prem-guest-input" />
             </div>
           </div>
 
@@ -149,10 +150,10 @@ const CartPanel = ({
             </div>
 
             <div className="action-buttons-group">
-              <button className="btn-secondary" onClick={() => onConfirm?.({ print: true })}>
+              <button className="prem-btn-secondary" onClick={() => onConfirm?.({ print: true })}>
                 Print
               </button>
-              <button className="btn-primary" onClick={() => onConfirm?.({ print: false })}>
+              <button className="prem-btn-primary" onClick={() => onConfirm?.({ print: false })}>
                 Confirm Order
               </button>
             </div>
