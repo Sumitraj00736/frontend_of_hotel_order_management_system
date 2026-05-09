@@ -9,74 +9,58 @@ import CustomizeDishModal from '../create/CustomizeDishModal.jsx';
 const AddItemsModal = ({
   open,
   onClose,
-  menus = [],
-  categories = [],
-  staff = [],
-  showAssignStaff = true,
-  assignedStaffId,
-  onAssignStaff,
-  selectedTableId,
-  tableOptions = [],
-  onTableChange,
-  orderTableNumber,
-  orderTargetName,
   items = [],
   onAddItem,
   onUpdateItemQuantity,
   onUpdateItemNote,
   onClearCart,
+  menus = [],
+  tableOptions = [],
+  selectedTableId,
+  onTableChange,
+  orderTableNumber,
+  orderTargetName,
+  staffOptions = [],
+  assignedStaffId,
+  onAssignStaff,
+  confirmDisabled = false,
   onConfirm,
   confirmLabel = 'Confirm Order',
-  confirmDisabled = false,
-  clearLabel = 'Clear Cart'
+  clearLabel = 'Clear',
+  showAssignStaff = true
 }) => {
   const [addSearch, setAddSearch] = useState('');
-  const [addCategory, setAddCategory] = useState('all');
-  const [addSubMenu, setAddSubMenu] = useState('all');
+  const [addCategory, setAddCategory] = useState('All');
+  const [addSubMenu, setAddSubMenu] = useState('');
   const [customizeItem, setCustomizeItem] = useState(null);
   const [showStaffList, setShowStaffList] = useState(false);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
 
-  const staffOptions = useMemo(
-    () => staff.filter((s) => s && s._id),
-    [staff]
-  );
-
   const menuCategories = useMemo(() => {
-    const names = new Set();
-    const catMap = new Map(categories.map(c => [c._id, c.name]));
+    const cats = new Set(['All']);
     menus.forEach((m) => {
-      const catId = m.category?._id || (typeof m.category === 'string' ? m.category : null);
-      const label = m.category?.name || catMap.get(catId) || m.categoryName || (catId && catId.length !== 24 ? catId : null) || 'Uncategorized';
-      if (label && label !== 'Uncategorized') names.add(label);
+      if (m.category?.name) cats.add(m.category.name);
     });
-    const result = Array.from(names);
-    if (result.length) result.push('Uncategorized');
-    return result;
-  }, [menus, categories]);
-
-  const menuSubMenus = useMemo(() => {
-    const names = new Set();
-    menus.forEach((m) => {
-      const label = m.subMenu?.name || m.subMenuName || (typeof m.subMenu === 'string' && m.subMenu.length !== 24 ? m.subMenu : null) || '';
-      if (label) names.add(label);
-    });
-    return Array.from(names);
+    return Array.from(cats);
   }, [menus]);
 
+  const menuSubMenus = useMemo(() => {
+    if (addCategory === 'All') return [];
+    const subs = new Set();
+    menus.forEach((m) => {
+      if (m.category?.name === addCategory && m.subMenu?.name) {
+        subs.add(m.subMenu.name);
+      }
+    });
+    return Array.from(subs);
+  }, [menus, addCategory]);
+
   const filteredMenus = useMemo(() => {
-    const catMap = new Map(categories.map(c => [c._id, c.name]));
     return menus.filter((m) => {
-      const name = (m.name || '').toLowerCase();
-      const catId = m.category?._id || (typeof m.category === 'string' ? m.category : null);
-      const cat = m.category?.name || catMap.get(catId) || m.categoryName || (catId && catId.length !== 24 ? catId : null) || 'Uncategorized';
-      const sub = m.subMenu?.name || m.subMenuName || (typeof m.subMenu === 'string' && m.subMenu.length !== 24 ? m.subMenu : null) || '';
-      if (m.isAvailable === false) return false;
-      if (addCategory === 'recommended' && !m.isRecommended) return false;
-      if (addCategory !== 'all' && cat !== addCategory) return false;
-      if (addSubMenu !== 'all' && sub !== addSubMenu) return false;
-      if (addSearch && !name.includes(addSearch.toLowerCase())) return false;
-      return true;
+      const matchesSearch = m.name.toLowerCase().includes(addSearch.toLowerCase());
+      const matchesCategory = addCategory === 'All' || m.category?.name === addCategory;
+      const matchesSubMenu = !addSubMenu || m.subMenu?.name === addSubMenu;
+      return matchesSearch && matchesCategory && matchesSubMenu;
     });
   }, [menus, addCategory, addSubMenu, addSearch]);
 
@@ -87,9 +71,9 @@ const AddItemsModal = ({
   );
 
   return (
-    <div className="additem-overlay" style={{ backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
-      <AnimatePresence>
-        {open && (
+    <AnimatePresence>
+      {open && (
+        <div className="additem-overlay" style={{ backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
           <motion.div
             className="additem-card"
             style={{ display: 'flex', flexDirection: 'column' }}
@@ -102,6 +86,7 @@ const AddItemsModal = ({
             <button className="additem-close" onClick={onClose}>
               <X size={20} />
             </button>
+
             <div className="additem-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', height: '100%', overflow: 'hidden' }}>
               <MenuSection
                 orderTableNumber={orderTableNumber}
@@ -147,7 +132,7 @@ const AddItemsModal = ({
               </div>
             </div>
 
-            {/* ── Mobile Floating Cart Button ── */}
+            {/* Mobile Floating Cart Button */}
             {cartQty > 0 && !mobileCartOpen && (
               <motion.button
                 className="mobile-cart-fab"
@@ -157,13 +142,11 @@ const AddItemsModal = ({
                 onClick={() => setMobileCartOpen(true)}
               >
                 <ShoppingCart size={18} />
-                <span className="fab-label">View Cart</span>
-                <span className="fab-badge">{cartQty}</span>
-                <span className="fab-total">Rs {cartTotal.toFixed(0)}</span>
+                <span className="fab-label">View Cart ({cartQty})</span>
               </motion.button>
             )}
 
-            {/* ── Mobile Cart Slide-Up Panel ── */}
+            {/* Mobile Cart Overlay */}
             <AnimatePresence>
               {mobileCartOpen && (
                 <motion.div
@@ -209,15 +192,16 @@ const AddItemsModal = ({
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
 
-          <CustomizeDishModal
-            open={Boolean(customizeItem)}
-            item={customizeItem}
-            onClose={() => setCustomizeItem(null)}
-            onAdd={onAddItem}
-          />
-        </motion.div>
+            {/* Customize Modal */}
+            <CustomizeDishModal
+              open={Boolean(customizeItem)}
+              item={customizeItem}
+              onClose={() => setCustomizeItem(null)}
+              onAdd={onAddItem}
+            />
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );
