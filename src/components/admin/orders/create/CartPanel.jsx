@@ -3,7 +3,7 @@ import {
   User, Users, ReceiptText, Trash2, ChevronRight, 
   Minus, Plus, ChevronDown, ShoppingBag 
 } from 'lucide-react';
-import '../../../../common/css/admin/orders/OrderItemsPremium.css';
+import '../addItems/OrderItemsPremium.css';
 
 const CartPanel = ({
   items = [],

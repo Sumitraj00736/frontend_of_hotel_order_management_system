@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, X } from 'lucide-react';
-import '../../../../common/css/admin/orders/OrderItemsPremium.css';
+import './OrderItemsPremium.css';
 import MenuSection from '../create/MenuSection.jsx';
 import CartPanel from '../create/CartPanel.jsx';
 import CustomizeDishModal from '../create/CustomizeDishModal.jsx';

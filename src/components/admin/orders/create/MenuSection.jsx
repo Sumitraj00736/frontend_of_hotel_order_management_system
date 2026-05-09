@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LayoutGrid, Search, Star, Plus, X, ChevronRight } from 'lucide-react';
-import '../../../../common/css/admin/orders/MenuSection.css';
+import './MenuSection.css';
 
 
 const MenuSection = ({
