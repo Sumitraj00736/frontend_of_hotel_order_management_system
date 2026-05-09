@@ -16,7 +16,7 @@ import './common/css/admin/orders/kotCards.css';
 import './common/css/admin/orders/kotTicketCard.css';
 import './common/css/admin/orders/recentOrderCard.css';
 import './common/css/admin/orders/orderDetail.css';
-import './common/css/admin/orders/AddItemsModal.css';
+import './common/css/admin/orders/OrderItemsPremium.css';
 import './common/css/admin/tables/tables.css';
 import './common/css/admin/users/users.css';
 import App from './App.jsx';
