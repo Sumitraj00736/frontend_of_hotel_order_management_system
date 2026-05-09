@@ -28,7 +28,7 @@ const CartPanel = ({
   return (
     <>
       {/* ASIDE CONTAINER: Added mobile-specific conditional classes */}
-      <aside className={`cart-container ${isMobileCartOpen ? 'mobile-visible' : ''}`} style={{ height: '100%', padding: '1rem', background: '#f8fafc' }}>
+      <aside className={`cart-container ${isMobileCartOpen ? 'mobile-visible' : ''}`} style={{ height: '100%' }}>
         <div className="cart-card" style={{ background: '#fff', borderRadius: '16px', height: '88%', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           
           {/* MOBILE HEADER */}
