@@ -87,7 +87,7 @@ const AddItemsModal = ({
               <X size={20} />
             </button>
 
-            <div className="additem-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', height: '100%', overflow: 'hidden' }}>
+            <div className="additem-layout">
               <MenuSection
                 orderTableNumber={orderTableNumber}
                 orderTargetName={orderTargetName}

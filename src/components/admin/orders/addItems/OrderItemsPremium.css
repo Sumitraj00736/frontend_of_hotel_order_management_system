@@ -773,6 +773,14 @@ display: none;
 }
 
 @media (max-width: 768px) {
+  .additem-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .additem-cart-desktop {
+    display: none;
+  }
+
   /* Cart hides on mobile unless .mobile-visible is added */
   .cart-container {
     position: fixed;
