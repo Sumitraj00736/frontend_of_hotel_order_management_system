@@ -393,3 +393,56 @@ body.dark-mode .user-avatar {
 body.dark-mode .users-search input::placeholder {
   color: #9ca3af !important;
 }
+
+
+
+
+/******************************usereditmodal**************************/
+/* --- Mobile Responsiveness for UserEditModal --- */
+
+@media (max-width: 768px) {
+  .users-modal {
+    width: 95% !important;
+    max-height: 95vh !important;
+    margin: 10px auto;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .users-modal-grid {
+    /* Force the grid into 1 column for mobile */
+    grid-template-columns: 1fr !important; 
+    gap: 15px !important;
+    padding: 15px !important;
+    overflow-y: auto; /* Allow scrolling within the form */
+    max-height: calc(95vh - 150px); /* Subtract header and footer height */
+  }
+
+  .users-modal-header {
+    padding: 15px !important;
+  }
+
+  .users-modal-title {
+    font-size: 1.2rem !important;
+  }
+
+  .users-modal-actions {
+    padding: 15px !important;
+    flex-direction: column-reverse; /* Stack buttons: Save on top, Cancel on bottom */
+    gap: 10px !important;
+  }
+
+  .users-modal-actions button {
+    width: 100% !important; /* Full width buttons for easier tapping */
+    margin: 0 !important;
+    padding: 12px !important;
+  }
+
+  /* Ensure inputs are easily tappable on touch screens */
+  .users-modal-grid input, 
+  .users-modal-grid select {
+    font-size: 16px !important; /* Prevents iOS auto-zoom on focus */
+    padding: 10px !important;
+  }
+}
