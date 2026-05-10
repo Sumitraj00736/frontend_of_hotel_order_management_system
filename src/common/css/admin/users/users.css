@@ -314,6 +314,9 @@
   .users-modal-grid {
     grid-template-columns: 1fr;
   }
+  .users-table{
+    height: 100vh;
+  }
 }
 
 /* Dark mode overrides */
