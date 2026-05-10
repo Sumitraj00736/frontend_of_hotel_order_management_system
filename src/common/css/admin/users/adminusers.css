@@ -6,13 +6,19 @@
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
 }
 
+
+body.modal-active .sidebar, 
+body.modal-active .main-content,
+body.modal-active .users-panel > *:not(.modal-overlay) {
+  filter: blur(8px);
+  pointer-events: none;
+  transition: filter 0.3s ease;
+}
+
 .users-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(252, 128, 25, 0.1);
+  background: var(--bg-white);
+  min-height: 100vh;
+  padding: 8px; /* No padding as requested */
 }
 
 /* Header & Search */
@@ -94,13 +100,23 @@
 .modal-overlay.fullscreen {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
+  z-index: 10000;
+}
+
+.modal-panel.fullscreen.small {
+  background: #fff;
+  width: 95%;
+  max-width: 550px;
+  max-height: 90vh;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(252, 128, 25, 0.1);
+  display: flex;
+  flex-direction: column;
 }
 
 /* The Professional Modal Panel */
