@@ -64,7 +64,7 @@
 }
 
 .users-tab.active {
-  background: #ef4444;
+  background: #fc8019;
   color: #fff;
 }
 
@@ -111,7 +111,7 @@
   height: 34px;
   border-radius: 50%;
   background: #fff7ed;
-  color: #f5a524;
+  color: #fc8019;
   display: flex;
   align-items: center;
   justify-content: center;
