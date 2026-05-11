@@ -67,67 +67,75 @@ const AdminCustomers = ({
   };
 
   return (
-    <div className="card glass-card full-width-card customers-panel">
-      <div className="customers-menu">
-        <CustomerHeader
-          search={search}
-          onSearch={setSearch}
-          onAdd={openCreate}
-          onMenuToggle={() => setShowMenu((v) => !v)}
-        />
-        {showMenu && (
-          <div className="customers-menu-panel" onMouseLeave={() => setShowMenu(false)}>
-            <button onClick={() => setShowRewards(true)}>Rewards Setting</button>
-            <button>Export</button>
-            <button>Overview Cards</button>
+    <div className="admin-page-container">
+      <div className="glass-card customers-panel">
+        <div className="customers-header-section">
+          <CustomerHeader
+            search={search}
+            onSearch={setSearch}
+            onAdd={openCreate}
+            onMenuToggle={() => setShowMenu((v) => !v)}
+          />
+          {showMenu && (
+            <div className="floating-menu" onMouseLeave={() => setShowMenu(false)}>
+              <button onClick={() => setShowRewards(true)}>
+                <i className="fas fa-gift"></i> Rewards Setting
+              </button>
+              <button><i className="fas fa-file-export"></i> Export</button>
+              <button><i className="fas fa-chart-pie"></i> Overview Cards</button>
+            </div>
+          )}
+        </div>
+
+        <div className="customers-body-content">
+          <CustomerKpiGrid totals={totals} />
+          <div className="table-container-card">
+            <CustomerTable
+              customers={filtered}
+              onEdit={(c) => {
+                if (!c?._id) return openCreate();
+                setEditCustomer(c);
+                setForm({
+                  name: c.name || '',
+                  email: c.email || '',
+                  phone: c.phone || '',
+                  loyaltyDiscount: c.loyaltyDiscount || '',
+                  openingBalanceType: c.openingBalanceType || 'dr',
+                  openingAmount: c.openingAmount || '',
+                  legalName: c.legalName || '',
+                  taxNumber: c.taxNumber || '',
+                  creditLimit: c.creditLimit || '',
+                  creditTermDays: c.creditTermDays || '',
+                  dob: c.dob ? new Date(c.dob).toISOString().slice(0, 10) : '',
+                  address: c.address || ''
+                });
+                setShowModal(true);
+              }}
+            />
           </div>
+        </div>
+
+        {showModal && (
+          <CustomerModal
+            form={form}
+            setForm={setForm}
+            onClose={() => setShowModal(false)}
+            onSave={handleSave}
+          />
+        )}
+
+        {showRewards && (
+          <RewardsModal
+            rewards={rewards}
+            setRewards={setRewards}
+            onClose={() => setShowRewards(false)}
+            onSave={async () => {
+              await onSaveRewards();
+              setShowRewards(false);
+            }}
+          />
         )}
       </div>
-
-      <CustomerKpiGrid totals={totals} />
-      <CustomerTable
-        customers={filtered}
-        onEdit={(c) => {
-          if (!c?._id) return openCreate();
-          setEditCustomer(c);
-          setForm({
-            name: c.name || '',
-            email: c.email || '',
-            phone: c.phone || '',
-            loyaltyDiscount: c.loyaltyDiscount || '',
-            openingBalanceType: c.openingBalanceType || 'dr',
-            openingAmount: c.openingAmount || '',
-            legalName: c.legalName || '',
-            taxNumber: c.taxNumber || '',
-            creditLimit: c.creditLimit || '',
-            creditTermDays: c.creditTermDays || '',
-            dob: c.dob ? new Date(c.dob).toISOString().slice(0, 10) : '',
-            address: c.address || ''
-          });
-          setShowModal(true);
-        }}
-      />
-
-      {showModal && (
-        <CustomerModal
-          form={form}
-          setForm={setForm}
-          onClose={() => setShowModal(false)}
-          onSave={handleSave}
-        />
-      )}
-
-      {showRewards && (
-        <RewardsModal
-          rewards={rewards}
-          setRewards={setRewards}
-          onClose={() => setShowRewards(false)}
-          onSave={async () => {
-            await onSaveRewards();
-            setShowRewards(false);
-          }}
-        />
-      )}
     </div>
   );
 };

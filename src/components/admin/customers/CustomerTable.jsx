@@ -1,50 +1,71 @@
 import React from 'react';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, User, Mail, Phone, Calendar, Percent, Banknote, UserPlus } from 'lucide-react';
 
 const formatDate = (value) => {
   if (!value) return '-';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '-';
-  return date.toLocaleDateString();
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
 const CustomerTable = ({ customers, onEdit }) => {
   if (!customers.length) {
     return (
-      <div className="customers-table customers-empty">
-        <h4>No customer found</h4>
+      <div className="customers-empty-state">
+        <div className="empty-icon-container">
+          <UserPlus size={48} color="#fc8019" />
+        </div>
+        <h4>No customers found</h4>
         <p>Create a new customer or import a new data.</p>
-        <button className="btn-primary" onClick={onEdit}>+ Add New Customer</button>
+        <button className="add-first-btn" onClick={() => onEdit()}>
+          + Add New Customer
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="customers-table">
-      <div className="customers-table-head">
-        <div>SN</div>
-        <div>Customer</div>
-        <div>Email</div>
-        <div>Phone Number</div>
-        <div>DOB</div>
-        <div>Loyalty Dis</div>
-        <div>Due Amount</div>
-        <div />
-      </div>
-      {customers.map((c, idx) => (
-        <div className="customers-row" key={c._id || c.id || idx}>
-          <div>{idx + 1}</div>
-          <div>{c.name || '-'}</div>
-          <div>{c.email || '-'}</div>
-          <div>{c.phone || '-'}</div>
-          <div>{formatDate(c.dob)}</div>
-          <div>{c.loyaltyDiscount || 0}%</div>
-          <div>{c.dueAmount ? `Rs ${c.dueAmount}` : 'Rs 0'}</div>
-          <button className="icon-btn" onClick={() => onEdit(c)}>
-            <MoreHorizontal size={18} />
-          </button>
-        </div>
-      ))}
+    <div className="table-responsive-wrapper">
+      <table className="modern-customer-table">
+        <thead>
+          <tr>
+            <th>SN</th>
+            <th><User size={14} /> Customer</th>
+            <th><Mail size={14} /> Email</th>
+            <th><Phone size={14} /> Phone</th>
+            <th><Calendar size={14} /> DOB</th>
+            <th><Percent size={14} /> Loyalty</th>
+            <th><Banknote size={14} /> Due Amount</th>
+            <th className="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customers.map((c, idx) => (
+            <tr key={c._id || c.id || idx}>
+              <td><span className="sn-badge">{idx + 1}</span></td>
+              <td className="font-bold text-dark">{c.name || '-'}</td>
+              <td className="text-muted">{c.email || '-'}</td>
+              <td>{c.phone || '-'}</td>
+              <td>{formatDate(c.dob)}</td>
+              <td>
+                <span className="loyalty-pill">
+                  {c.loyaltyDiscount || 0}%
+                </span>
+              </td>
+              <td>
+                <span className={`due-amount-badge ${Number(c.dueAmount) > 0 ? 'has-due' : 'no-due'}`}>
+                  Rs {Number(c.dueAmount || 0).toLocaleString('en-IN')}
+                </span>
+              </td>
+              <td className="text-right">
+                <button className="action-row-btn" onClick={() => onEdit(c)}>
+                  <MoreHorizontal size={18} />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

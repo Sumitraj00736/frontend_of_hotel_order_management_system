@@ -1,25 +1,35 @@
 import React from 'react';
-import { Search, MoreHorizontal } from 'lucide-react';
+import { Search, MoreHorizontal, Plus } from 'lucide-react';
 
 const CustomerHeader = ({ search, onSearch, onAdd, onMenuToggle }) => (
-  <div className="customers-header">
-    <div>
-      <div className="customers-title">Customers</div>
-      <div className="customers-subtitle">Manage customer accounts</div>
+  <div className="customers-header-container">
+    <div className="header-title-group">
+      <h1 className="customers-title">Customers</h1>
+      <p className="customers-subtitle">Manage customer accounts and balances</p>
     </div>
-    <div className="customers-actions">
-      <div className="customers-search">
-        <Search size={16} />
+    
+    <div className="customers-actions-group">
+      <div className="customers-search-wrapper">
+        <Search size={18} className="search-icon" />
         <input
+          type="text"
+          className="header-search-input"
           value={search}
           onChange={(e) => onSearch(e.target.value)}
-          placeholder="Search"
+          placeholder="Search by name, email, or phone..."
         />
       </div>
-      <button className="btn-primary" onClick={onAdd}>+ Add New</button>
-      <button className="icon-btn" onClick={onMenuToggle}>
-        <MoreHorizontal size={18} />
-      </button>
+      
+      <div className="button-group">
+        <button className="add-customer-btn" onClick={onAdd}>
+          <Plus size={18} />
+          <span>Add New</span>
+        </button>
+        
+        <button className="header-menu-btn" onClick={onMenuToggle} aria-label="More options">
+          <MoreHorizontal size={20} />
+        </button>
+      </div>
     </div>
   </div>
 );
