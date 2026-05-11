@@ -170,10 +170,11 @@ input:focus, select:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap; /* Allows wrapping on small screens */
+  flex-wrap: nowrap; /* Desktop/smaller devices should stay in one row */
   gap: 20px;
   padding: 10px 5px;
 }
+
 
 /* Title Section */
 .header-title-group {
@@ -199,8 +200,21 @@ input:focus, select:focus {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
+
+/* Ensure header button group stays in a single row on all devices */
+.customers-actions-group .button-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.customers-actions-group .button-group > button {
+  white-space: nowrap;
+}
+
 
 /* Search Input Styling */
 .customers-search-wrapper {
@@ -280,6 +294,8 @@ input:focus, select:focus {
 }
 
 /* --- Responsiveness --- */
+
+/* For Tablets (approx 768px) */
 
 /* For Tablets (approx 768px) */
 @media (max-width: 850px) {
