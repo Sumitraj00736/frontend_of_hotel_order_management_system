@@ -7,7 +7,7 @@ const RewardsModal = ({ rewards, setRewards, onClose, onSave }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="reward-modal-overlay" onClick={onClose}>
       <div className="modal-content rewards-modal-glass" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="header-icon-title">

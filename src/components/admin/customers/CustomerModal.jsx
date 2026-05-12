@@ -9,7 +9,7 @@ const CustomerModal = ({ form, setForm, onClose, onSave }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="customer-modal-overlay" onClick={onClose}>
       <div className="modal-content glass-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h3>{form._id ? 'Edit Customer' : 'Add New Customer'}</h3>

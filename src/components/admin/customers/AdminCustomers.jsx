@@ -55,6 +55,7 @@ const AdminCustomers = ({
   const openCreate = () => {
     setEditCustomer(null);
     setShowModal(true);
+    document.body.classList.add('modal-active');
   };
 
   const handleSave = async () => {
@@ -78,7 +79,12 @@ const AdminCustomers = ({
           />
           {showMenu && (
             <div className="floating-menu" onMouseLeave={() => setShowMenu(false)}>
-              <button onClick={() => setShowRewards(true)}>
+              <button
+                onClick={() => {
+                  setShowRewards(true);
+                  document.body.classList.add('modal-active');
+                }}
+              >
                 <i className="fas fa-gift"></i> Rewards Setting
               </button>
               <button><i className="fas fa-file-export"></i> Export</button>
@@ -119,8 +125,14 @@ const AdminCustomers = ({
           <CustomerModal
             form={form}
             setForm={setForm}
-            onClose={() => setShowModal(false)}
-            onSave={handleSave}
+            onClose={() => {
+              setShowModal(false);
+              document.body.classList.remove('modal-active');
+            }}
+            onSave={async () => {
+              await handleSave();
+              document.body.classList.remove('modal-active');
+            }}
           />
         )}
 
@@ -128,10 +140,14 @@ const AdminCustomers = ({
           <RewardsModal
             rewards={rewards}
             setRewards={setRewards}
-            onClose={() => setShowRewards(false)}
+            onClose={() => {
+              setShowRewards(false);
+              document.body.classList.remove('modal-active');
+            }}
             onSave={async () => {
               await onSaveRewards();
               setShowRewards(false);
+              document.body.classList.remove('modal-active');
             }}
           />
         )}
