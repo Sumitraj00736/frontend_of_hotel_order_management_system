@@ -638,6 +638,14 @@ body.dark-mode .tables-actions .form-control {
     text-align: center;
   }
   
+  .tables-checkbox-row {
+    padding: 10px 12px;
+  }
+  
+  .tables-type-select {
+    width: 100%;
+  }
+  
   .qr-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
@@ -652,7 +660,6 @@ body.dark-mode .tables-actions .form-control {
     height: 150px;
   }
 }
-
 @media (max-width: 480px) {
   .tables-panel {
     padding: 8px;
@@ -700,6 +707,10 @@ body.dark-mode .tables-actions .form-control {
     align-self: flex-end;
   }
   
+  .tables-checkbox-row {
+    padding: 8px 10px;
+  }
+  
   .qr-grid {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -722,6 +733,7 @@ body.dark-mode .tables-actions .form-control {
     width: 100%;
   }
 }
+
 
 /* Animation for items */
 @keyframes slideIn {

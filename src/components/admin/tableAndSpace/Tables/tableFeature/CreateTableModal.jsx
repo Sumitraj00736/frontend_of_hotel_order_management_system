@@ -74,11 +74,22 @@ export default function CreateTableModal({ open, onClose, spaces, onSaved }) {
           <div className="tables-modal-grid">
             <div>
               <label className="form-label">Table Number *</label>
-              <input className="form-control" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)} />
+              <input
+                className="form-control"
+                inputMode="numeric"
+                value={tableNumber}
+                onChange={(e) => setTableNumber(e.target.value)}
+                placeholder="e.g. 1"
+              />
             </div>
             <div>
               <label className="form-label">Name</label>
-              <input className="form-control" value={name} onChange={(e) => setName(e.target.value)} placeholder="Cabin 1" />
+              <input
+                className="form-control"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Cabin 1"
+              />
             </div>
             <div>
               <label className="form-label">Space</label>
@@ -93,11 +104,23 @@ export default function CreateTableModal({ open, onClose, spaces, onSaved }) {
             </div>
             <div>
               <label className="form-label">Capacity</label>
-              <input className="form-control" value={capacity} onChange={(e) => setCapacity(e.target.value)} />
+              <input
+                className="form-control"
+                inputMode="numeric"
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+                placeholder="e.g. 4"
+              />
             </div>
             <div>
               <label className="form-label">Charge</label>
-              <input className="form-control" value={charge} onChange={(e) => setCharge(e.target.value)} />
+              <input
+                className="form-control"
+                inputMode="decimal"
+                value={charge}
+                onChange={(e) => setCharge(e.target.value)}
+                placeholder="e.g. 250"
+              />
             </div>
             <div>
               <label className="form-label">Table Status</label>
@@ -106,21 +129,27 @@ export default function CreateTableModal({ open, onClose, spaces, onSaved }) {
                 <option value="occupied">Occupied</option>
               </select>
             </div>
+
             <div>
               <label className="form-label">Available</label>
-              <div className="d-flex align-items-center gap-2">
-                <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />
-                <span className="text-muted small">{active ? 'Yes' : 'No'}</span>
+              <div className="tables-checkbox-row">
+                <input type="checkbox" id="table-active" checked={active} onChange={(e) => setActive(e.target.checked)} />
+                <label htmlFor="table-active" className="tables-checkbox-label">
+                  {active ? 'Yes' : 'No'}
+                </label>
               </div>
             </div>
+
             <div>
               <label className="form-label">Table Type</label>
-              <TableTypeSelect
-                value={tableTypeId}
-                options={tableTypes}
-                onChange={setTableTypeId}
-                onCreate={() => setShowCreateType(true)}
-              />
+              <div className="tables-type-select">
+                <TableTypeSelect
+                  value={tableTypeId}
+                  options={tableTypes}
+                  onChange={setTableTypeId}
+                  onCreate={() => setShowCreateType(true)}
+                />
+              </div>
             </div>
           </div>
 

@@ -16,7 +16,7 @@ const AdminQrCodes = ({ qrData, search, setSearch }) => {
   };
 
   return (
-    <div className="card glass-card full-width-card tables-panel">
+    <div className="tables-panel">
       <div className="tables-header">
         <div>
           <h4 className="mb-1">QR Codes</h4>
