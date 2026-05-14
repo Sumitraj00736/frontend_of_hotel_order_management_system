@@ -41,58 +41,58 @@ const AdminDishesList = ({
       </div>
 
       <div className="menu-dishes-stats">
-  {/* Total Stats Card */}
-  <div className="menu-stat-card">
-    <div className="stat-header">
-      <div className="stat-info">
-        <span className="stat-large-number">10</span>
-        <span className="stat-label">Total</span>
-      </div>
-      <div className="stat-value-display">
-        <span className="stat-main-val">{stats.total}</span>
-        <span className="stat-total-limit">/1000</span>
-      </div>
-    </div>
-    <div className="stat-progress-container">
-      <div className="stat-progress-bar" style={{ width: `${(stats.total / 1000) * 100}%` }}></div>
-    </div>
-    <div className="stat-sub-text">{stats.active} Active</div>
-  </div>
+        {/* Total Stats Card */}
+        <div className="menu-stat-card">
+          <div className="stat-header">
+            <div className="stat-info">
+              <span className="stat-large-number">10</span>
+              <span className="stat-label">Total</span>
+            </div>
+            <div className="stat-value-display">
+              <span className="stat-main-val">{stats.total}</span>
+              <span className="stat-total-limit">/1000</span>
+            </div>
+          </div>
+          <div className="stat-progress-container">
+            <div className="stat-progress-bar" style={{ width: `${(stats.total / 1000) * 100}%` }}></div>
+          </div>
+          <div className="stat-sub-text">{stats.active} Active</div>
+        </div>
 
-  {/* Top Sold Card */}
-  <div className="menu-stat-card">
-    <div className="stat-header">
-      <div className="stat-info">
-        <span className="stat-large-number">1</span>
-        <span className="stat-label">Top Sold</span>
-      </div>
-      <div className="stat-value-display orange-text">
-        {stats.topSold || 'Burger'}
-      </div>
-    </div>
-    <div className="stat-progress-container">
-      <div className="stat-progress-bar highlight" style={{ width: '70%' }}></div>
-    </div>
-    <div className="stat-sub-text">1 Order</div>
-  </div>
+        {/* Top Sold Card */}
+        <div className="menu-stat-card">
+          <div className="stat-header">
+            <div className="stat-info">
+              <span className="stat-large-number">1</span>
+              <span className="stat-label">Top Sold</span>
+            </div>
+            <div className="stat-value-display orange-text">
+              {stats.topSold || 'Burger'}
+            </div>
+          </div>
+          <div className="stat-progress-container">
+            <div className="stat-progress-bar highlight" style={{ width: '70%' }}></div>
+          </div>
+          <div className="stat-sub-text">1 Order</div>
+        </div>
 
-  {/* Top Dish Type Card */}
-  <div className="menu-stat-card">
-    <div className="stat-header">
-      <div className="stat-info">
-        <span className="stat-large-number">1</span>
-        <span className="stat-label">Top Dish Type</span>
+        {/* Top Dish Type Card */}
+        <div className="menu-stat-card">
+          <div className="stat-header">
+            <div className="stat-info">
+              <span className="stat-large-number">1</span>
+              <span className="stat-label">Top Dish Type</span>
+            </div>
+            <div className="stat-value-display orange-text">
+              {stats.topType || 'Veg'}
+            </div>
+          </div>
+          <div className="stat-progress-container">
+            <div className="stat-progress-bar highlight" style={{ width: '85%' }}></div>
+          </div>
+          <div className="stat-sub-text">1 Dish</div>
+        </div>
       </div>
-      <div className="stat-value-display orange-text">
-        {stats.topType || 'Veg'}
-      </div>
-    </div>
-    <div className="stat-progress-container">
-      <div className="stat-progress-bar highlight" style={{ width: '85%' }}></div>
-    </div>
-    <div className="stat-sub-text">1 Dish</div>
-  </div>
-</div>
 
       <div className="dishes-table-wrap">
         <table className="dishes-table">
@@ -107,6 +107,7 @@ const AdminDishesList = ({
               <th>Preparation Time</th>
               <th>KOT Type</th>
               <th>Available</th>
+              <th>Manage</th>
               <th />
             </tr>
           </thead>

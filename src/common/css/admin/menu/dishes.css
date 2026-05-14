@@ -172,8 +172,328 @@
 
 /**********************************Dishes-table********************/
 
+/* ============ Table UI (Admin Dishes List) ============ */
+
+/* Wrap: make table look like a panel and allow horizontal scroll */
+.dishes-table-wrap {
+  background: #fff;
+  border: 1px solid #eef1f6;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+/* Table base */
+.dishes-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.dishes-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, #fbfbff 0%, #ffffff 100%);
+  padding: 12px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: none;
+  letter-spacing: 0.2px;
+  border-bottom: 1px solid #eef1f6;
+  white-space: nowrap;
+}
+
+/* Body cells */
+.dishes-table tbody td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+  font-size: 13px;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+/* Row hover */
+.dishes-table tbody tr {
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+.dishes-table tbody tr:hover {
+  background: #fff7f0;
+}
+
+/* Card-like spacing between rows */
+.dishes-table tbody tr td:first-child,
+.dishes-table tbody tr td:last-child {
+  /* keep table edges aligned */
+}
+
+/* SN column */
+.dishes-table tbody td:first-child {
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Dish name + avatar */
+.dish-name-cell {
+  min-width: 220px;
+}
+
+.dish-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(214, 135, 70, 0.18), rgba(99, 102, 241, 0.12));
+  border: 1px solid rgba(252, 128, 25, 0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  flex: 0 0 auto;
+}
+
+.dish-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dish-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dish-avatar span {
+  font-size: 12px;
+  font-weight: 800;
+  color: #b45309;
+}
+
+.dish-name {
+  font-weight: 700;
+  color: #0f172a;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Price */
+.price-cell {
+  color: #0b3a24;
+  font-weight: 800;
+}
+
+/* Category / type / submenu display */
+.dishes-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #e6e8ef;
+  background: #fff;
+  color: #334155;
+  font-weight: 650;
+}
+
+/* We'll style plain text cells too (without changing markup) */
+.dishes-table tbody td:nth-child(4) {
+  color: #334155;
+}
+
+.dishes-table tbody td:nth-child(4),
+.dishes-table tbody td:nth-child(5),
+.dishes-table tbody td:nth-child(6) {
+  border-left: none;
+}
+
+/* Preparation time */
+.dishes-table tbody td:nth-child(7) {
+  color: #475569;
+  font-weight: 650;
+}
+
+/* KOT type subtle badge */
+.dishes-table tbody td:nth-child(8) {
+  font-weight: 800;
+  color: #6d28d9;
+}
+
+/* Switch */
+.switch-lite {
+  display: inline-flex;
+  align-items: center;
+}
+
+.switch-lite input {
+  appearance: none;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  transition: background 160ms ease;
+}
+
+.switch-lite input::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 6px 14px rgba(2, 6, 23, 0.15);
+  transition: transform 160ms ease;
+}
+
+.switch-lite input:checked {
+  background: rgba(252, 128, 25, 0.95);
+}
+
+.switch-lite input:checked::after {
+  transform: translateX(18px);
+}
+
+/* Actions dropdown */
+.actions-cell {
+  min-width: 120px;
+}
+
+.action-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.action-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: #fff;
+  border: 1px solid #eef1f6;
+  border-radius: 14px;
+  padding: 6px;
+  min-width: 140px;
+  box-shadow: 0 20px 60px rgba(2, 6, 23, 0.16);
+  z-index: 5;
+}
+
+.action-dropdown button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 10px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.action-dropdown button:hover {
+  background: #f8fafc;
+}
+
+.action-dropdown button.danger {
+  color: #dc2626;
+}
+
+.action-dropdown button.danger:hover {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+/* Empty state row */
+.empty-row {
+  text-align: center;
+  padding: 26px 12px !important;
+  color: #64748b;
+  font-weight: 650;
+}
+
+/* Footer */
+.table-footer {
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #64748b;
+  border-top: 1px solid #eef1f6;
+  background: #fafbff;
+}
+
+/* Default alignment for last icon */
+.dishes-table thead th:last-child,
+.dishes-table tbody td:last-child {
+  width: 56px;
+}
+
+/* Mobile Responsiveness: reduce complexity */
+@media (max-width: 980px) {
+  .dishes-table-wrap {
+    overflow-x: auto;
+  }
+  .dishes-table {
+    min-width: 1060px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Keep the full desktop-style columns, but allow horizontal scrolling */
+  .dishes-table-wrap {
+    border-radius: 14px;
+  }
+
+  .dishes-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dishes-table {
+    min-width: 1060px; /* matches tablet min-width so columns stay aligned */
+  }
+
+  /* Reduce padding for tighter mobile spacing */
+  .dishes-table thead th {
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+
+  .dishes-table tbody td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .dish-avatar {
+    width: 34px;
+    height: 34px;
+    margin-right: 8px;
+  }
+
+  .dish-name {
+    max-width: 180px;
+  }
+
+  .action-dropdown {
+    min-width: 128px;
+  }
+
+  .table-footer {
+    padding: 10px 12px;
+  }
+}
+
+
 /* Form */
 .dish-form {
+
   background: #fff;
   border-radius: 16px;
   padding: 20px;
