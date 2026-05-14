@@ -51,7 +51,6 @@ const AdminCategoryList = ({
       <div className="category-stats">
         <div className="stat-card">
           <div className="stat-title">
-            <span className="stat-icon">🍽️</span>
             Total
             <span className="stat-info"><Info size={14} /></span>
           </div>
@@ -59,7 +58,6 @@ const AdminCategoryList = ({
         </div>
         <div className="stat-card">
           <div className="stat-title">
-            <span className="stat-icon orange">★</span>
             Top Sold
             <span className="stat-pill blue">1 order</span>
             <span className="stat-info"><Info size={14} /></span>
@@ -68,7 +66,6 @@ const AdminCategoryList = ({
         </div>
         <div className="stat-card">
           <div className="stat-title">
-            <span className="stat-icon red">⬤</span>
             Most Dishes
             <span className="stat-pill blue">{stats.mostDishesCount} dishes</span>
             <span className="stat-info"><Info size={14} /></span>
@@ -77,7 +74,6 @@ const AdminCategoryList = ({
         </div>
         <div className="stat-card">
           <div className="stat-title">
-            <span className="stat-icon purple">♨</span>
             Avg. Dishes Per Category
           </div>
           <div className="stat-value">{stats.avg}</div>

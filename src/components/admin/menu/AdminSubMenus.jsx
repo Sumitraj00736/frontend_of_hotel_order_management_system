@@ -86,19 +86,19 @@ const AdminSubMenus = ({ submenus, menus, combos, onCreate, onUpdate, onDelete }
 
       <div className="submenus-stats">
         <div className="stat-card">
-          <div className="stat-title"><span className="stat-icon">📄</span> Total <span className="stat-pill green">{stats.active} Active</span> <span className="stat-info"><Info size={14} /></span></div>
+          <div className="stat-title"> Total <span className="stat-pill green">{stats.active} Active</span> <span className="stat-info"><Info size={14} /></span></div>
           <div className="stat-value">{stats.total}/20</div>
         </div>
         <div className="stat-card">
-          <div className="stat-title"><span className="stat-icon orange">★</span> Top Sold <span className="stat-pill blue">1 orders</span></div>
+          <div className="stat-title"> Top Sold <span className="stat-pill blue">1 orders</span></div>
           <div className="stat-value">{stats.top}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-title"><span className="stat-icon purple">♨</span> Avg. Dishes Per Sub Menu</div>
+          <div className="stat-title"> c Avg. Dishes Per Sub Menu</div>
           <div className="stat-value">{stats.avg}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-title"><span className="stat-icon red">⛔</span> Unused Sub Menu</div>
+          <div className="stat-title"> Unused Sub Menu</div>
           <div className="stat-value">{stats.unused}</div>
         </div>
       </div>

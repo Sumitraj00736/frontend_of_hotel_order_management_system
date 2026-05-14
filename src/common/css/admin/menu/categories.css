@@ -107,32 +107,9 @@
   align-items: center;
   gap: 8px;
   color: #495057;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 13px;
   width: 100%;
-}
-
-.stat-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #ecf7f3;
-  font-size: 12px;
-}
-
-.stat-icon.orange {
-  background: #fff3e0;
-}
-
-.stat-icon.red {
-  background: #ffe3e3;
-}
-
-.stat-icon.purple {
-  background: #f2e8ff;
 }
 
 .stat-pill {
@@ -140,7 +117,6 @@
   font-size: 12px;
   border-radius: 999px;
   padding: 4px 8px;
-  background: #eef2ff;
   color: #2563eb;
 }
 
@@ -149,9 +125,6 @@
   color: #7aa7ff;
 }
 
-.stat-title .stat-pill + .stat-info {
-  margin-left: 6px;
-}
 
 .stat-value {
   font-size: 20px;

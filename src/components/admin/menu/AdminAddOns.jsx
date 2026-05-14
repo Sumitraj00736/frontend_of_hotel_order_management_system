@@ -82,15 +82,15 @@ const AdminAddOns = ({ addOns, menus, onCreate, onUpdate, onDelete, onRefresh })
 
       <div className="addons-stats">
         <div className="stat-card">
-          <div className="stat-title"><span className="stat-icon">🧂</span> Total <span className="stat-pill green">{stats.active} Active</span> <span className="stat-info"><Info size={14} /></span></div>
+          <div className="stat-title"> Total <span className="stat-pill green">{stats.active} Active</span> <span className="stat-info"><Info size={14} /></span></div>
           <div className="stat-value">{stats.total}/250</div>
         </div>
         <div className="stat-card">
-          <div className="stat-title"><span className="stat-icon red">❤</span> Most Used <span className="stat-pill blue">1 dishes</span></div>
+          <div className="stat-title"> Most Used <span className="stat-pill blue">1 dishes</span></div>
           <div className="stat-value">{stats.top}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-title"><span className="stat-icon gray">⬤</span> Top Add-Ons Type <span className="stat-pill blue">5</span> <span className="stat-info"><Info size={14} /></span></div>
+          <div className="stat-title"> Top Add-Ons Type <span className="stat-pill blue">5</span> <span className="stat-info"><Info size={14} /></span></div>
           <div className="stat-value">{stats.topType}</div>
         </div>
       </div>

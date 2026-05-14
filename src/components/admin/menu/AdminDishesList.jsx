@@ -43,7 +43,6 @@ const AdminDishesList = ({
       <div className="dishes-stats">
         <div className="stat-card">
           <div className="stat-title">
-            <span className="stat-icon">🍽️</span>
             Total
             <span className="stat-pill green">{stats.active} Active</span>
           </div>
@@ -51,7 +50,6 @@ const AdminDishesList = ({
         </div>
         <div className="stat-card">
           <div className="stat-title">
-            <span className="stat-icon orange">★</span>
             Top Sold
             <span className="stat-pill blue">1 order</span>
           </div>
@@ -59,7 +57,6 @@ const AdminDishesList = ({
         </div>
         <div className="stat-card">
           <div className="stat-title">
-            <span className="stat-icon red">●</span>
             Top Dish Type
             <span className="stat-pill blue">1 dish</span>
           </div>
