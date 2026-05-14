@@ -175,7 +175,7 @@
   font-size: 0.95rem;
   color: #1a1a1a;
   font-weight: 500;
-}
+
   border: 1px solid #eef1f6;
   border-radius: 14px;
   padding: 16px;
@@ -485,7 +485,7 @@
 }
 
 .btn-primary {
-  background: #f1999a;
+  background: #e28b08;
   border: none;
   color: #fff;
   padding: 10px 18px;
@@ -537,7 +537,7 @@ body.dark-mode .btn-light {
   color: #cbd5e1;
 }
 body.dark-mode .btn-primary {
-  background: #e53a2d;
+  background: #fc8019;
 }
 body.dark-mode .modal-close {
   background: #2c3e50;

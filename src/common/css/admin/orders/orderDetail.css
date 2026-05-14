@@ -275,7 +275,7 @@
 
 .payment-card .pay-tabs button.active,
 .payment-card .pay-options button.active {
-  border: 1px solid #e53935;
+  border: 1px solid #fc8019;
   background: #fff7ed;
   color: #FC8019;
 }
@@ -650,7 +650,7 @@
 }
 
 .comp-btn.active {
-  border-color: #e53935;
+  border-color: #f08018;
   background: #fff7ed;
   color: #FC8019;
 }
@@ -926,7 +926,7 @@
 }
 
 .assign-staff-item.active {
-  border-color: #e53935;
+  border-color: #e0840b;
   background: #ffe9e6;
 }
 
@@ -1055,7 +1055,7 @@
 }
 
 .variant-card.active {
-  border-color: #e53935;
+  border-color: #e08113;
   background: #ffe9e6;
 }
 

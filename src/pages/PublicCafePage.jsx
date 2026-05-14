@@ -3,7 +3,7 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import '../common/css/public/cafePublic.css';
 
 const PALETTES = {
-  light:  { bg: '#fff6f1', accent: '#e53a2d', card: '#ffffff', text: '#1f2933', muted: '#667085' },
+  light:  { bg: '#fff6f1', accent: '#fc8019', card: '#ffffff', text: '#1f2933', muted: '#667085' },
   dark:   { bg: '#0f172a', accent: '#f97316', card: '#1e293b', text: '#f1f5f9', muted: '#94a3b8' },
   rustic: { bg: '#fdf6ec', accent: '#92400e', card: '#fffbf5', text: '#292524', muted: '#78716c' },
   green:  { bg: '#f0fdf4', accent: '#15803d', card: '#ffffff', text: '#14532d', muted: '#4b7a5a' }
