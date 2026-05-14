@@ -51,8 +51,8 @@
   cursor: pointer;
 }
 
-.btn-add {
-  background: #e53935;
+.dishes-list .btn-add {
+  background: #fc8019;
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -71,208 +71,106 @@
   font-size: 11px;
 }
 
-.dishes-stats {
+/****************stat-grid**********************/
+.menu-dishes-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin: 20px 0;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
 }
 
-.stat-card {
-  border: 1px solid #eef1f6;
-  border-radius: 14px;
-  padding: 16px;
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
-}
-
-.stat-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #495057;
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.stat-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #ecf7f3;
-  font-size: 12px;
-}
-
-.stat-icon.orange {
-  background: #fff3e0;
-}
-
-.stat-icon.red {
-  background: #ffe3e3;
-}
-
-.stat-pill {
-  margin-left: auto;
-  font-size: 12px;
-  border-radius: 999px;
-  padding: 4px 8px;
-  background: #eef2ff;
-  color: #2563eb;
-}
-
-.stat-pill.green {
-  background: #e7f7ee;
-  color: #1a9c5f;
-}
-
-.stat-value {
-  font-size: 20px;
-  font-weight: 700;
-  margin-top: 8px;
-}
-
-.dishes-table-wrap {
-  background: #fff;
+.menu-stat-card {
+  background: #ffffff;
   border-radius: 12px;
-  border: 1px solid #eef1f6;
-  overflow: hidden;
-}
-
-.dishes-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.dishes-table thead {
-  background: #fafafa;
-}
-
-.dishes-table th,
-.dishes-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid #f1f3f8;
-}
-
-.dish-name-cell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.dish-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #fff4ec;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: #d3542a;
-  overflow: hidden;
-}
-
-.dish-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.price-cell {
-  color: #1aa44b;
-  font-weight: 600;
-}
-
-.switch-lite {
-  position: relative;
-  width: 42px;
-  height: 22px;
-  display: inline-block;
-}
-
-.switch-lite input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.switch-lite span {
-  position: absolute;
-  inset: 0;
-  background: #e9f5ec;
-  border-radius: 999px;
-}
-
-.switch-lite span::after {
-  content: '';
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  background: #28a745;
-  border-radius: 50%;
-  top: 2px;
-  left: 2px;
-  transition: all 0.2s ease;
-}
-
-.switch-lite input:checked + span::after {
-  transform: translateX(20px);
-}
-
-.actions-cell {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.action-menu {
-  position: relative;
-}
-
-.action-dropdown {
-  position: absolute;
-  right: 0;
-  top: 30px;
-  background: #fff;
-  border: 1px solid #eef1f6;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  padding: 1.25rem;
+  border: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
-  min-width: 120px;
-  z-index: 10;
+  justify-content: space-between;
+  min-height: 120px;
 }
 
-.action-dropdown button {
-  border: none;
-  background: #fff;
-  padding: 8px 12px;
-  text-align: left;
-  cursor: pointer;
+/* Header with Large Numbers and Labels */
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
 }
 
-.action-dropdown button:hover {
-  background: #f8f9fb;
+.stat-info {
+  display: flex;
+  flex-direction: column;
 }
 
-.action-dropdown .danger {
-  color: #d32f2f;
+.stat-large-number {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fc8019; /* Primary Brand Color */
+  line-height: 1;
 }
 
-.empty-row {
-  text-align: center;
+.stat-label {
+  font-size: 0.85rem;
+  color: #333;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Right Side Values */
+.stat-value-display {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #444;
+}
+
+.stat-value-display.orange-text {
+  color: #fc8019;
+}
+
+.stat-total-limit {
   color: #999;
+  font-size: 0.9rem;
+  font-weight: 400;
 }
 
-.table-footer {
-  padding: 12px 14px;
-  font-size: 12px;
-  color: #8b8f98;
+/* Progress Bar Styling */
+.stat-progress-container {
+  width: 100%;
+  height: 6px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  margin: 12px 0;
+  position: relative;
+  overflow: hidden;
 }
+
+.stat-progress-bar {
+  height: 100%;
+  background-color: #e0e0e0; /* Gray base progress */
+  border-radius: 10px;
+}
+
+.stat-progress-bar.highlight {
+  background-color: #e8d5c5; /* Muted orange-tint for highlight bars */
+}
+
+/* Bottom Sub-text */
+.stat-sub-text {
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .menu-dishes-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/**********************************Dishes-table********************/
 
 /* Form */
 .dish-form {
@@ -660,151 +558,4 @@
 .btn-primary.ghost {
   background: #f8c9c8;
   color: #d84343;
-}
-
-body.dark-mode .dishes-table-wrap {
-  border-color: #2d3748;
-  background: #2d3748;
-}
-body.dark-mode .dishes-table thead {
-  background: #1a202c;
-}
-body.dark-mode .dishes-table th,
-body.dark-mode .dishes-table td {
-  border-color: #2d3748;
-}
-body.dark-mode .dish-avatar {
-  background: #4a5568;
-  color: #cbd5e0;
-}
-body.dark-mode .switch-lite span {
-  background: #4a5568;
-}
-body.dark-mode .switch-lite span::after {
-  background: #68d391;
-}
-body.dark-mode .action-dropdown {
-  background: #2d3748;
-  border-color: #4a5568;
-}
-body.dark-mode .action-dropdown button {
-  color: #cbd5e0;
-  background: #2d3748;
-}
-body.dark-mode .stat-card {
-  background: #2d3748;
-  border-color: #4a5568;
-}
-body.dark-mode .stat-title {
-  color: #cbd5e0;
-}
-body.dark-mode .stat-icon {
-  background: #4a5568;
-}
-body.dark-mode .stat-pill {
-  background: #4a5568;
-  color: #68d391;
-}
-body.dark-mode .btn-filter{
-  border-color: #4a5568;
-  background: #2d3748;
-  color: #cbd5e0;
-}
-body.dark-mode .dishes-search {
-  border-color: #4a5568;
-  background: #2d3748;
-}
-body.dark-mode .dishes-search input {
-  background: #2d3748;
-  color: #cbd5e0;
-}
-body.dark-mode .dish-form {
-  background: #2d3748;
-  border-color: #4a5568;
-}
-body.dark-mode .form-field input,
-body.dark-mode .form-field select {
-  background: #2d3748;
-  border-color: #4a5568;
-  color: #cbd5e0;
-}
-body.dark-mode .upload-btn {
-  background: #2d3748;
-  border-color: #4a5568;
-  color: #cbd5e0;
-}
-body.dark-mode .price-meta {
-  color: #cbd5e0;
-}
-body.dark-mode .price-meta .profit {
-  color: #68d391;
-}
-body.dark-mode .stock-link {
-  color: #63b3ed;
-}
-body.dark-mode .variant-card {
-  background: #2d3748;
-  border-color: #4a5568;
-}
-body.dark-mode .variant-drag {
-  color: #718096;
-}
-body.dark-mode .variant-delete {
-  color: #e53e3e;
-}
-body.dark-mode .dish-price-summary {
-  color: #cbd5e0;
-}
-body.dark-mode .form-card {
-  background: #2d3748;
-  border-color: #4a5568;
-}
-body.dark-mode .form-card-title {
-  color: #cbd5e0;
-}
-body.dark-mode .addon-banner {
-  background: #2f855a;
-  border-color: #2c7a7b;
-}
-body.dark-mode .addon-banner .badge {
-  background: #2c7a7b;
-  color: #e6fffa;
-}
-body.dark-mode .back-btn {
-  background: #2d3748;
-  border-color: #4a5568;
-  color: #cbd5e0;
-}
-body.dark-mode .btn-outline {
-  background: #2d3748;
-  border-color: #4a5568;
-  color: #cbd5e0;
-}
-body.dark-mode .btn-primary.ghost {
-  background: #c53030;
-  color: #fff5f5;
-}
-body.dark-mode .btn-primary {
-  background: #c53030;
-  color: #fff5f5;
-}
-body.dark-mode .btn-light {
-  background: #2d3748;
-  border-color: #4a5568;
-  color: #cbd5e0;
-}
-
-
-@media (max-width: 1100px) {
-  .dish-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .variant-card-grid {
-    grid-template-columns: 24px 24px 1fr 1fr;
-  }
-
-  .variant-card-grid .form-field:nth-child(3) {
-    grid-column: 3/5;
-  }
 }
