@@ -194,40 +194,49 @@ const AdminCategoryList = ({
                   </td>
                   <td className="category-count-cell">{cat.count}</td>
                   <td className="category-actions-cell">
-                    <div className="category-action-menu">
-                      <IconButton
-                        className="category-dots-btn"
-                        onClick={() => setOpenMenuId(openMenuId === cat._id ? null : cat._id)}
-                        title="Manage category"
-                      >
-                        <MoreHorizontal size={18} />
-                      </IconButton>
+  {/* Add a dynamic z-index so the active row is always on top of the ones below it */}
+  <div 
+    className="action-container" 
+    style={{ zIndex: openMenuId === cat._id ? 100 : 1 }}
+  >
+    <button
+      type="button"
+      className={`dots-menu-btn ${openMenuId === cat._id ? 'active' : ''}`}
+      onClick={(e) => {
+        e.stopPropagation(); // Prevents click from bubbling up
+        setOpenMenuId(openMenuId === cat._id ? null : cat._id);
+      }}
+      aria-label="Manage"
+    >
+      <MoreHorizontal size={20} />
+    </button>
 
-                      {openMenuId === cat._id && (
-                        <div className="action-dropdown">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setOpenMenuId(null);
-                              onEdit(cat);
-                            }}
-                          >
-                            Edit Category
-                          </button>
-                          <button
-                            type="button"
-                            className="danger"
-                            onClick={() => {
-                              setOpenMenuId(null);
-                              onDelete(cat._id);
-                            }}
-                          >
-                            Delete Category
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </td>
+    {openMenuId === cat._id && (
+      <>
+        {/* Invisible backdrop to detect clicks outside */}
+        <div className="menu-backdrop" onClick={() => setOpenMenuId(null)} />
+        
+        <div className="action-dropdown">
+          <div className="dropdown-header">Category Options</div>
+          <button
+            type="button"
+            className="menu-item"
+            onClick={() => { setOpenMenuId(null); onEdit(cat); }}
+          >
+            <Pencil size={16} /> <span>Edit Details</span>
+          </button>
+          <button
+            type="button"
+            className="menu-item danger"
+            onClick={() => { setOpenMenuId(null); onDelete(cat._id); }}
+          >
+            <Trash2 size={16} /> <span>Delete Category</span>
+          </button>
+        </div>
+      </>
+    )}
+  </div>
+</td>
                 </tr>
               ))}
 
