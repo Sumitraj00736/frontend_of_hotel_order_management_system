@@ -13,6 +13,22 @@
 .addons-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; }
 .header-info h2 { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-main); }
 .breadcrumb { margin-top: 4px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.addons-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e6e8ef;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.addons-search input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  width: 180px;
+}
 
 /* Actions */
 .addons-actions { display: flex; gap: 10px; align-items: center; }

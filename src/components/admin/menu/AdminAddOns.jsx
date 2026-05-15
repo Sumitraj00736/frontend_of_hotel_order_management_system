@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { uploadToCloudinary } from '../../../api/upload.js';
+import '../../../common/css/admin/menu/addons.css'
 import { 
   MoreHorizontal, 
   SlidersHorizontal, 
