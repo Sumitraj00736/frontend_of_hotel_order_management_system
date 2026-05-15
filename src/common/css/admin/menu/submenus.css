@@ -187,27 +187,183 @@ input:checked + .slider:before { transform: translateX(18px); }
 .action-dropdown button.danger { color: #ef4444; }
 
 /* Modal Refinement */
+/* 1. Modal Overlay - The Blur Engine */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4); /* Dark semi-transparent */
+  backdrop-filter: blur(8px); /* BLURS EVERYTHING (SIDEBAR INCLUDED) */
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Highest priority */
+  padding: 20px;
 }
-.modal-container {
-  background: white; width: 100%; max-width: 480px; border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-}
-.modal-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
-.modal-header h3 { margin: 0; font-size: 18px; font-weight: 800; }
-.modal-body { padding: 24px; }
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
-.form-group input {
-  width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px;
-  outline: none; transition: 0.2s;
-}
-.form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); }
 
-.upload-zone {
-  height: 120px; border: 2px dashed var(--border); border-radius: 16px;
-  display: flex; align-items: center; justify-content: center; background: #f8fafc;
+/* 2. Modal Container - Modern & Polished */
+.modal-container {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 28px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.upload-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-muted); cursor: pointer; }
+
+/* Animation */
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 3. Modern Modal Components */
+.modal-header {
+  padding: 32px 32px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modal-title { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; }
+.modal-subtitle { font-size: 14px; color: #64748b; margin: 4px 0 0; }
+
+.close-btn-circle {
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.close-btn-circle:hover { background: #e2e8f0; color: #0f172a; }
+
+.modal-body { padding: 0 32px 32px; }
+
+.modern-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #f1f5f9;
+  border-radius: 14px;
+  font-size: 15px;
+  transition: 0.2s;
+}
+.modern-input:focus {
+  border-color: #fc8019;
+  outline: none;
+  background: #fff;
+}
+
+/* 4. Improved Upload Zone */
+.upload-zone-modern {
+  height: 160px;
+  border: 2px dashed #e2e8f0;
+  border-radius: 20px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: 0.2s;
+}
+
+.upload-placeholder-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.upload-icon-circle {
+  width: 48px;
+  height: 48px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fc8019;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 12px;
+}
+
+.upload-text { font-weight: 700; font-size: 14px; color: #0f172a; }
+.upload-hint { font-size: 12px; color: #94a3b8; }
+
+.image-preview-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.image-preview-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.change-image-btn {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.8);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* 5. Modern Footer */
+.modal-footer-modern {
+  padding: 24px 32px;
+  background: #f8fafc;
+  display: flex;
+  gap: 12px;
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  background: #e2e8f0;
+  color: #475569;
+  font-weight: 700;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.btn-submit {
+  flex: 2;
+  padding: 14px;
+  border: none;
+  background: #fc8019;
+  color: white;
+  font-weight: 700;
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 14px rgba(252, 128, 25, 0.3);
+}
+
+.spinner { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
