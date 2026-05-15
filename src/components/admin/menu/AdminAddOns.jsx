@@ -1,7 +1,17 @@
 import React, { useMemo, useState } from 'react';
 import { uploadToCloudinary } from '../../../api/upload.js';
-import '../../../common/css/admin/menu/addons.css';
-import { MoreHorizontal, SlidersHorizontal, Info } from 'lucide-react';
+import { 
+  MoreHorizontal, 
+  SlidersHorizontal, 
+  Plus, 
+  RefreshCw, 
+  Pencil, 
+  Trash2, 
+  Upload, 
+  Loader2, 
+  X,
+  ChevronRight
+} from 'lucide-react';
 import SearchInput from '../../ui/SearchInput.jsx';
 import IconButton from '../../ui/IconButton.jsx';
 
@@ -12,16 +22,14 @@ const AdminAddOns = ({ addOns, menus, onCreate, onUpdate, onDelete, onRefresh })
   const [uploading, setUploading] = useState(false);
   const [search, setSearch] = useState('');
   const [openMenuId, setOpenMenuId] = useState(null);
-  const blurOnWheel = (e) => {
-    // Prevent accidental number changes while scrolling.
-    e.currentTarget.blur();
-  };
 
+  // Search Logic
   const filtered = useMemo(
     () => addOns.filter((a) => a.name.toLowerCase().includes(search.toLowerCase())),
     [addOns, search]
   );
 
+  // Calculate usage frequency from menus
   const usedMap = useMemo(() => {
     const map = new Map();
     (menus || []).forEach((menu) => {
@@ -32,6 +40,7 @@ const AdminAddOns = ({ addOns, menus, onCreate, onUpdate, onDelete, onRefresh })
     return map;
   }, [menus]);
 
+  // Statistics Calculation
   const stats = useMemo(() => {
     const total = addOns.length;
     const active = addOns.filter((a) => a.active).length;
@@ -42,12 +51,22 @@ const AdminAddOns = ({ addOns, menus, onCreate, onUpdate, onDelete, onRefresh })
       acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
-    const topType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Uncategorized';
+    const topType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Misc';
     return { total, active, top, topType };
-  }, [addOns]);
+  }, [addOns, usedMap]);
 
-  const startAdd = () => { setForm({ name: '', type: '', price: '', imageUrl: '' }); setEditId(null); setOpen(true); };
-  const startEdit = (row) => { setForm({ name: row.name, type: row.type || '', price: row.price, imageUrl: row.imageUrl || '' }); setEditId(row._id); setOpen(true); };
+  // Handlers
+  const startAdd = () => { 
+    setForm({ name: '', type: '', price: '', imageUrl: '' }); 
+    setEditId(null); 
+    setOpen(true); 
+  };
+  
+  const startEdit = (row) => { 
+    setForm({ name: row.name, type: row.type || '', price: row.price, imageUrl: row.imageUrl || '' }); 
+    setEditId(row._id); 
+    setOpen(true); 
+  };
 
   const submit = async () => {
     if (!form.name.trim()) return alert('Name required');
@@ -70,122 +89,199 @@ const AdminAddOns = ({ addOns, menus, onCreate, onUpdate, onDelete, onRefresh })
 
   return (
     <div className="addons-page">
+      {/* Header Section */}
       <div className="addons-header">
-        <h2>Add-Ons & Extras</h2>
+        <div className="header-info">
+          <h2>Add-Ons & Extras</h2>
+          <p className="breadcrumb">Dashboard <ChevronRight size={12} /> Menu <ChevronRight size={12} /> Add-Ons</p>
+        </div>
         <div className="addons-actions">
           <SearchInput value={search} onChange={setSearch} className="addons-search" />
           <button className="btn-filter"><SlidersHorizontal size={16} /> Filter</button>
-          <button className="btn-add" onClick={startAdd}>+ Add New <span className="btn-badge">N</span></button>
-          <IconButton onClick={onRefresh}><MoreHorizontal size={18} /></IconButton>
+          <button className="btn-add" onClick={startAdd}>
+            <Plus size={18} /> Add New <span className="btn-badge">N</span>
+          </button>
+          <IconButton onClick={onRefresh} title="Refresh"><RefreshCw size={18} /></IconButton>
         </div>
       </div>
 
-      <div className="addons-stats">
-        <div className="stat-card">
-          <div className="stat-title"> Total <span className="stat-pill green">{stats.active} Active</span> <span className="stat-info"><Info size={14} /></span></div>
-          <div className="stat-value">{stats.total}/250</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-title"> Most Used <span className="stat-pill blue">1 dishes</span></div>
-          <div className="stat-value">{stats.top}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-title"> Top Add-Ons Type <span className="stat-pill blue">5</span> <span className="stat-info"><Info size={14} /></span></div>
-          <div className="stat-value">{stats.topType}</div>
-        </div>
+      {/* Stats Grid */}
+      <div className="addons-stats-grid">
+        <StatCard 
+          label="Total Add-Ons" 
+          mainVal={stats.total} 
+          limit="/250" 
+          subText={`${stats.active} Items Active`} 
+          progress={(stats.active / stats.total) * 100} 
+        />
+        <StatCard 
+          label="Most Popular" 
+          mainVal={stats.top} 
+          subText="Used across most dishes" 
+          highlight 
+        />
+        <StatCard 
+          label="Dominant Category" 
+          mainVal={stats.topType} 
+          subText="Highest variety type" 
+          highlight 
+        />
       </div>
 
-      <div className="addons-table">
-        <div className="table-head">
-          <div>SN</div>
-          <div>Add-On Name</div>
-          <div>Price</div>
-          <div>Type</div>
-          <div>Used In</div>
-          <div>Available</div>
-          <div />
-        </div>
-        {filtered.map((a, idx) => (
-          <div key={a._id} className="table-row">
-            <div>{idx + 1}</div>
-            <div className="table-name">
-              <div className="addon-avatar">{a.name.slice(0, 2).toUpperCase()}</div>
-              <div>{a.name}</div>
-            </div>
-            <div className="price">Rs {a.price}</div>
-            <div>{a.type || '-'}</div>
-            <div>{usedMap.get(a._id) || 0} Dishes</div>
-            <div>
-              <label className="switch-lite">
-                <input
-                  type="checkbox"
-                  checked={!!a.active}
-                  onChange={() => onUpdate(a._id, { active: !a.active })}
-                />
-                <span />
-              </label>
-            </div>
-            <div className="table-actions">
-              <IconButton className="dots-btn" onClick={() => setOpenMenuId(openMenuId === a._id ? null : a._id)}>
-                <MoreHorizontal size={18} />
-              </IconButton>
-              {openMenuId === a._id && (
-                <div className="action-dropdown">
-                  <button onClick={() => { setOpenMenuId(null); startEdit(a); }}>Edit</button>
-                  <button className="danger" onClick={() => { setOpenMenuId(null); onDelete(a._id); }}>Delete</button>
-                </div>
-              )}
-            </div>
+      {/* Table Section */}
+      <div className="addons-table-container">
+        <table className="addons-table">
+          <thead>
+            <tr>
+              <th style={{ width: '60px' }}>SN</th>
+              <th>Add-On Item</th>
+              <th>Price</th>
+              <th>Type</th>
+              <th>Usage</th>
+              <th>Available</th>
+              <th className="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((a, idx) => (
+              <tr key={a._id}>
+                <td className="text-muted">{String(idx + 1).padStart(2, '0')}</td>
+                <td>
+                  <div className="addon-info-cell">
+                    <div className="addon-avatar">
+                      {a.imageUrl ? <img src={a.imageUrl} alt="" /> : a.name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <span className="addon-name">{a.name}</span>
+                  </div>
+                </td>
+                <td className="price-text">Rs {a.price}</td>
+                <td><span className="type-badge">{a.type || 'Standard'}</span></td>
+                <td><span className="used-count">{usedMap.get(a._id) || 0} Dishes</span></td>
+                <td>
+                  <label className="ios-switch">
+                    <input
+                      type="checkbox"
+                      checked={!!a.active}
+                      onChange={() => onUpdate(a._id, { active: !a.active })}
+                    />
+                    <span className="slider"></span>
+                  </label>
+                </td>
+                <td className="text-right">
+                  <div className="action-wrapper">
+                    <IconButton 
+                      className={openMenuId === a._id ? 'dots-btn active' : 'dots-btn'} 
+                      onClick={() => setOpenMenuId(openMenuId === a._id ? null : a._id)}
+                    >
+                      <MoreHorizontal size={18} />
+                    </IconButton>
+
+                    {openMenuId === a._id && (
+                      <>
+                        <div className="menu-backdrop" onClick={() => setOpenMenuId(null)} />
+                        <div className="action-dropdown">
+                          <button onClick={() => { setOpenMenuId(null); startEdit(a); }}>
+                            <Pencil size={14} /> Edit Item
+                          </button>
+                          <div className="dropdown-divider" />
+                          <button className="danger" onClick={() => { 
+                             if(window.confirm("Delete this add-on?")) {
+                               setOpenMenuId(null); 
+                               onDelete(a._id); 
+                             }
+                          }}>
+                            <Trash2 size={14} /> Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {filtered.length === 0 && (
+          <div className="empty-state">
+            <p>No add-ons found matching "{search}"</p>
           </div>
-        ))}
-        {filtered.length === 0 && <div className="empty-note">No add-ons found.</div>}
+        )}
+        <div className="table-footer">
+          Showing {filtered.length} items out of {addOns.length}
+        </div>
       </div>
 
-      <div className="table-footer">0 of {filtered.length} row(s) selected.</div>
-
+      {/* Form Modal */}
       {open && (
-        <div className="modal-overlay addons-modal-overlay" onClick={() => setOpen(false)}>
-          <div className="modal-panel addons-modal animate-in" onClick={(e) => e.stopPropagation()}>
-            <div className="d-flex justify-content-between align-items-center mb-3 modal-header-line">
-              <h5 className="mb-0">{editId ? 'Edit Add-On' : 'Add Add-On'}</h5>
-              <button className="btn btn-outline-light" onClick={() => setOpen(false)}>Close</button>
+        <div className="modal-overlay" onClick={() => setOpen(false)}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <h3>{editId ? 'Modify Add-On' : 'New Add-On'}</h3>
+                <p>Set pricing and categories for your extras.</p>
+              </div>
+              <button className="close-btn" onClick={() => setOpen(false)}><X size={20} /></button>
             </div>
-            <div className="mb-2">
-              <label className="form-label">Name</label>
-              <input className="form-control" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            </div>
-            <div className="mb-2">
-              <label className="form-label">Type</label>
-              <input className="form-control" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} />
-            </div>
-            <div className="mb-2">
-              <label className="form-label">Price</label>
-              <input
-                className="form-control"
-                type="number"
-                value={form.price}
-                onWheel={blurOnWheel}
-                onChange={(e) => setForm({ ...form, price: e.target.value })}
-              />
-            </div>
-            <div className="mb-2">
-              <label className="form-label">Image URL</label>
-              <div className="d-flex gap-2 align-items-center">
-                <label className="btn btn-outline-light mb-0">
-                  {uploading ? 'Uploading...' : form.imageUrl ? 'Change Image' : 'Upload Image'}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="d-none"
-                    onChange={(e) => e.target.files?.[0] && handleImage(e.target.files[0])}
+            
+            <div className="modal-body">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Item Name *</label>
+                  <input 
+                    placeholder="e.g. Extra Cheese" 
+                    value={form.name} 
+                    onChange={(e) => setForm({ ...form, name: e.target.value })} 
                   />
-                </label>
-                {form.imageUrl && <img src={form.imageUrl} alt="preview" style={{ height: 46, borderRadius: 8 }} />}
+                </div>
+                <div className="form-group">
+                  <label>Price (NPR) *</label>
+                  <input 
+                    type="number" 
+                    placeholder="0.00" 
+                    value={form.price} 
+                    onChange={(e) => setForm({ ...form, price: e.target.value })} 
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Add-On Type</label>
+                <input 
+                  placeholder="e.g. Toppings, Sides" 
+                  value={form.type} 
+                  onChange={(e) => setForm({ ...form, type: e.target.value })} 
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Display Image</label>
+                <div className={`upload-box ${form.imageUrl ? 'has-image' : ''}`}>
+                  {uploading ? (
+                    <div className="upload-loading"><Loader2 className="spinner" /></div>
+                  ) : form.imageUrl ? (
+                    <div className="image-preview">
+                      <img src={form.imageUrl} alt="" />
+                      <label className="change-image-overlay">
+                        <Upload size={16} /> 
+                        <input type="file" hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleImage(e.target.files[0])} />
+                      </label>
+                    </div>
+                  ) : (
+                    <label className="upload-placeholder">
+                      <Upload size={24} />
+                      <span>Upload Image</span>
+                      <input type="file" hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleImage(e.target.files[0])} />
+                    </label>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="d-flex justify-content-end gap-2 mt-3">
-              <button className="btn btn-outline-light" onClick={() => setOpen(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={submit}>{editId ? 'Save' : 'Create'}</button>
+
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setOpen(false)}>Cancel</button>
+              <button className="btn-save" onClick={submit} disabled={uploading}>
+                {editId ? 'Save Changes' : 'Create Item'}
+              </button>
             </div>
           </div>
         </div>
@@ -193,5 +289,19 @@ const AdminAddOns = ({ addOns, menus, onCreate, onUpdate, onDelete, onRefresh })
     </div>
   );
 };
+
+// Internal Component for Stats
+const StatCard = ({ label, mainVal, limit, subText, progress, highlight }) => (
+  <div className="stat-card-modern">
+    <div className="stat-top">
+      <span className="stat-label">{label}</span>
+      <div className={`stat-val-main ${highlight ? 'orange' : ''}`}>{mainVal}{limit}</div>
+    </div>
+    <div className="stat-bar-bg">
+      <div className={`stat-bar-fill ${highlight ? 'orange' : ''}`} style={{ width: `${progress || 100}%` }}></div>
+    </div>
+    <div className="stat-bottom-text">{subText}</div>
+  </div>
+);
 
 export default AdminAddOns;
