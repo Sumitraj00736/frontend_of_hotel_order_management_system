@@ -1,0 +1,193 @@
+:root {
+  --reports-gap: 20px;
+  --reports-card-radius: 14px;
+  --reports-card-border: rgba(226, 232, 240, 0.8);
+  --reports-bg-card: #ffffff;
+  --reports-glow: rgba(37, 99, 235, 0.05);
+  --transition-smooth: all 0.2s ease-in-out;
+}
+
+/* Master Layout Grid Settings */
+.reports-grid {
+  display: grid;
+  gap: var(--reports-gap);
+  width: 100%;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+/* Component Container Configuration */
+.reports-card {
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Base Modifier Layout Controls */
+.reports-grid .stat-card {
+  grid-column: span 12; /* Default Mobile First Column Allocation */
+  background: var(--reports-bg-card);
+  border: 1px solid var(--reports-card-border);
+  border-radius: var(--reports-card-radius);
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: var(--transition-smooth);
+  overflow: hidden;
+  position: relative;
+}
+
+.reports-grid .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+/* Custom Grid Columns Distribution rules */
+.reports-grid .span-full {
+  grid-column: span 12 !important;
+}
+
+/* Layout Specific Views Structure definitions */
+.reports-grid-company .chart-card-wrapper { grid-column: span 12; }
+.reports-grid-waiter .stat-card, .reports-grid-kitchen .stat-card { grid-column: span 12; }
+.reports-grid-stock .chart-card-wrapper { grid-column: span 12; }
+
+/* Custom Badge Pill Overlays */
+.info-pill {
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+}
+
+/* Scroll Areas Configurations */
+.scrollable-tight {
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.scrollable-tight::-webkit-scrollbar {
+  width: 5px;
+}
+.scrollable-tight::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+.scrollable-tight::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* Recharts Wrapper Box Structural Constraints */
+.report-chart-box {
+  position: relative;
+  height: 280px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.report-chart-box-tall {
+  height: 340px;
+}
+
+/* Ledger Tables Styling Adjustments */
+.stock-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.stock-table-wrap table th {
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 10px;
+}
+
+.stock-table-wrap table td {
+  padding: 10px;
+  font-size: 0.875rem;
+}
+
+/* Small UI Typography Controls */
+.tiny-text {
+  font-size: 0.75rem !important;
+}
+
+/* ==========================================================================
+   BREAKPOINTS MANAGEMENTS (RESPONSIVE GRID)
+   ========================================================================== */
+
+/* Medium Devices and Tablets (Landscape and Portrait) */
+@media (min-width: 768px) {
+  /* Company View Layout */
+  .reports-grid-company .chart-card-wrapper { grid-column: span 6; }
+  .reports-grid-company .stat-card:not(.span-full):not(.span-half) { grid-column: span 6; }
+  .reports-grid-company .span-half { grid-column: span 6; }
+  
+  /* Waiters / Kitchen View Layout */
+  .reports-grid-waiter .stat-card:nth-child(1),
+  .reports-grid-waiter .stat-card:nth-child(2),
+  .reports-grid-waiter .stat-card:nth-child(3),
+  .reports-grid-kitchen .stat-card:nth-child(1),
+  .reports-grid-kitchen .stat-card:nth-child(2),
+  .reports-grid-kitchen .stat-card:nth-child(3) {
+    grid-column: span 4;
+  }
+  
+  .reports-grid-waiter .chart-card-wrapper,
+  .reports-grid-kitchen .chart-card-wrapper {
+    grid-column: span 6;
+  }
+
+  /* Stock View Layout */
+  .reports-grid-stock .chart-card-wrapper { grid-column: span 7; }
+  .reports-grid-stock .stat-card:nth-child(2) { grid-column: span 5; }
+}
+
+/* Large Displays and Desktop Configurations */
+@media (min-width: 1200px) {
+  .reports-grid-company .chart-card-wrapper { grid-column: span 4; }
+  .reports-grid-company .stat-card:not(.span-full):not(.span-half) { grid-column: span 6; }
+}
+
+/* Smart Handling for Small Screen Interfaces & Form Inputs */
+@media (max-width: 576px) {
+  .reports-card {
+    padding: 14px;
+  }
+  
+  .reports-grid .stat-card {
+    padding: 16px;
+  }
+  
+  .filter-inputs-row, .controls-row {
+    width: 100% !important;
+    flex-direction: column;
+    gap: 6px !important;
+  }
+  
+  .filter-inputs-row input, 
+  .filter-inputs-row button,
+  .controls-row select {
+    width: 100% !important;
+  }
+  
+  .nav-tabs-wrapper, .btn-group {
+    width: 100%;
+  }
+  
+  .btn-group .btn {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 6px 4px;
+  }
+  
+  .report-chart-box {
+    height: 220px;
+  }
+}
