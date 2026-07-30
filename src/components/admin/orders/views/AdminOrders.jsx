@@ -69,9 +69,9 @@ const AdminOrders = ({
   }, [orders, searchTerm]);
 
   return (
-    <div className="w-full min-h-screen px-4 pb-12 bg-slate-50/30">
+    <div className="flex flex-col h-screen bg-slate-50/30 overflow-hidden">
       {/* Sticky Header Wrapper */}
-      <div className="sticky top-0 z-[100] pt-4 pb-2 bg-slate-50/80 backdrop-blur-md mb-6 border-b border-slate-100/50">
+      <div className="shrink-0 pt-4 pb-2 bg-slate-50/80 backdrop-blur-md mb-6 border-b border-slate-100/50">
         <OrderHeader 
           title="Orders" 
           countLabel={countLabel} 
@@ -86,9 +86,11 @@ const AdminOrders = ({
         </div>
       </div>
       
-      {/* Mode Filters (for History filters) */}
-      {['all', 'paid', 'cancelled'].includes(filter) && (
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-none">
+      {/* Scrollable Main Content */}
+      <div className="flex-1 overflow-y-auto px-4 pb-12">
+        {/* Mode Filters (for History filters) */}
+        {['all', 'paid', 'cancelled'].includes(filter) && (
+          <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-none">
           {[
             { id: '', label: 'All Modes' },
             { id: 'dine_in', label: 'Dine In' },
@@ -207,6 +209,7 @@ const AdminOrders = ({
           onClose={closeDetails}
         />
       )}
+      </div>
     </div>
   );
 };

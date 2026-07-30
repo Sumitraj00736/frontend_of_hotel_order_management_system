@@ -41,7 +41,7 @@ const AdminUsers = ({
   }), [users]);
 
   return (
-    <div className="min-h-screen bg-slate-50/60">
+    <div className="flex flex-col h-screen bg-slate-50/60 overflow-hidden">
       {/* Sticky Header */}
       <UserHeader
         search={search}
@@ -53,16 +53,18 @@ const AdminUsers = ({
       <UserTabs tab={tab} counts={counts} onChange={setTab} />
 
       {/* User Table */}
-      <UserTable
-        users={filtered}
-        roles={roles}
-        onEdit={(user) => { setEditUser(user); setEditOpen(true); }}
-        onLoadPromotions={onLoadPromotions}
-        onSetStatus={onSetStatus}
-        onAssignRole={onAssignRole}
-        onDelete={onDeleteUser}
-        canEdit={canEdit}
-      />
+      <div className="flex-1 overflow-y-auto pb-6">
+        <UserTable
+          users={filtered}
+          roles={roles}
+          onEdit={(user) => { setEditUser(user); setEditOpen(true); }}
+          onLoadPromotions={onLoadPromotions}
+          onSetStatus={onSetStatus}
+          onAssignRole={onAssignRole}
+          onDelete={onDeleteUser}
+          canEdit={canEdit}
+        />
+      </div>
 
       {/* Modals */}
       {openModal && (

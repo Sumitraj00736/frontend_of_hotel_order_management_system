@@ -132,7 +132,7 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/60">
+    <div className="flex flex-col h-screen bg-slate-50/60 overflow-hidden">
       {/* Sticky Header */}
       <NotificationHeader
         tab={tab}
@@ -167,14 +167,16 @@ const NotificationPage = ({ notifications = [], onMarkAll, filters, onFilterChan
       )}
 
       {/* Notification list */}
-      <div className="flex flex-col gap-4 py-5">
-        {Object.keys(grouped).length === 0 ? (
-          <NotificationEmpty />
-        ) : (
-          Object.entries(grouped).map(([day, items]) => (
-            <NotificationGroup key={day} day={day} items={items} tab={tab} />
-          ))
-        )}
+      <div className="flex-1 overflow-y-auto">
+        <div className="flex flex-col gap-4 py-5">
+          {Object.keys(grouped).length === 0 ? (
+            <NotificationEmpty />
+          ) : (
+            Object.entries(grouped).map(([day, items]) => (
+              <NotificationGroup key={day} day={day} items={items} tab={tab} />
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

@@ -29,7 +29,7 @@ const AdminOverview = ({
   const [tab, setTab] = useState('overview');
 
   return (
-    <div className="min-h-screen bg-slate-50/60">
+    <div className="flex flex-col h-screen bg-slate-50/60 overflow-hidden">
       {/* Dashboard Header */}
       <div className="sticky top-0 z-30 bg-white border-b border-slate-100 px-6 pt-5 pb-0 shadow-sm">
         {/* Top Row: Tabs + Alert */}
@@ -123,7 +123,7 @@ const AdminOverview = ({
       </div>
 
       {/* Tab Content */}
-      <div className="p-6">
+      <div className="flex-1 overflow-y-auto p-6">
         {tab === 'overview' && (
           <OverviewDashboard
             report={report}

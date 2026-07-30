@@ -90,7 +90,7 @@ const AdminCustomers = ({
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-50/60">
+    <div className="relative flex flex-col h-screen bg-slate-50/60 overflow-hidden">
       {/* Sticky Header */}
       <CustomerHeader
         search={search}
@@ -107,11 +107,14 @@ const AdminCustomers = ({
         />
       )}
 
-      {/* KPI Grid */}
-      <CustomerKpiGrid totals={totals} />
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto pb-6 relative">
+        {/* KPI Grid */}
+        <CustomerKpiGrid totals={totals} />
 
-      {/* Table */}
-      <CustomerTable customers={filtered} onEdit={openEdit} />
+        {/* Table */}
+        <CustomerTable customers={filtered} onEdit={openEdit} />
+      </div>
 
       {/* Modals */}
       {showModal && (
