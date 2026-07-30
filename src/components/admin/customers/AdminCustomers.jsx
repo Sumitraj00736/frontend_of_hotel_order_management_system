@@ -1,11 +1,36 @@
-import React, { useMemo, useState } from 'react';
-import CustomerHeader from './CustomerHeader.jsx';
-import CustomerKpiGrid from './CustomerKpiGrid.jsx';
-import CustomerTable from './CustomerTable.jsx';
-import CustomerModal from './CustomerModal.jsx';
-import RewardsModal from './RewardsModal.jsx';
-import '../../../common/css/admin/customers/customers.css';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
+import { Gift, FileDown, LayoutGrid } from 'lucide-react';
+import CustomerHeader   from './header/CustomerHeader.jsx';
+import CustomerKpiGrid  from './CustomerKpiGrid.jsx';
+import CustomerTable    from './table/CustomerTable.jsx';
+import CustomerModal    from './modals/CustomerModal.jsx';
+import RewardsModal     from './modals/RewardsModal.jsx';
 
+/* ── Options floating menu ─────────────────────────────────── */
+const OptionsMenu = ({ onOpenRewards, onClose }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, [onClose]);
+
+  return (
+    <div ref={ref} className="absolute right-6 top-[72px] w-52 bg-white border border-slate-100 rounded-2xl shadow-lg shadow-slate-200/60 z-40 py-1.5">
+      <button onClick={onOpenRewards} className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition-colors">
+        <Gift size={15} className="text-amber-500" /> Rewards Setting
+      </button>
+      <button className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+        <FileDown size={15} className="text-slate-400" /> Export
+      </button>
+      <button className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+        <LayoutGrid size={15} className="text-slate-400" /> Overview Cards
+      </button>
+    </div>
+  );
+};
+
+/* ── AdminCustomers ─────────────────────────────────────────── */
 const AdminCustomers = ({
   customers = [],
   rewards,
@@ -14,144 +39,92 @@ const AdminCustomers = ({
   form,
   setForm,
   onCreateCustomer,
-  onUpdateCustomer
+  onUpdateCustomer,
 }) => {
-  const [search, setSearch] = useState('');
-  const [showMenu, setShowMenu] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [showRewards, setShowRewards] = useState(false);
+  const [search,       setSearch]       = useState('');
+  const [showMenu,     setShowMenu]     = useState(false);
+  const [showModal,    setShowModal]    = useState(false);
+  const [showRewards,  setShowRewards]  = useState(false);
   const [editCustomer, setEditCustomer] = useState(null);
 
-  const filtered = useMemo(() => {
-    return customers
-      .filter((c) => {
-        const haystack = `${c.name || ''} ${c.email || ''} ${c.phone || ''}`.toLowerCase();
-        return haystack.includes(search.toLowerCase());
-      })
-      .map((c) => ({
-        ...c,
-        dueAmount: Number(c.openingAmount || 0)
-      }));
-  }, [customers, search]);
+  const filtered = useMemo(() =>
+    customers
+      .filter((c) =>
+        `${c.name || ''} ${c.email || ''} ${c.phone || ''}`.toLowerCase().includes(search.toLowerCase())
+      )
+      .map((c) => ({ ...c, dueAmount: Number(c.openingAmount || 0) })),
+    [customers, search]
+  );
 
   const totals = useMemo(() => {
-    let toReceive = 0;
-    let toPay = 0;
+    let toReceive = 0, toPay = 0;
     customers.forEach((c) => {
       const amt = Number(c.openingAmount || 0);
-      if ((c.openingBalanceType || 'dr') === 'cr') {
-        toPay += amt;
-      } else {
-        toReceive += amt;
-      }
+      if ((c.openingBalanceType || 'dr') === 'cr') toPay += amt;
+      else toReceive += amt;
     });
-    return {
-      toReceive,
-      toPay,
-      netToReceive: toReceive - toPay
-    };
+    return { toReceive, toPay, netToReceive: toReceive - toPay };
   }, [customers]);
 
-  const openCreate = () => {
-    setEditCustomer(null);
+  const openCreate = () => { setEditCustomer(null); setShowModal(true); };
+
+  const openEdit = (c) => {
+    if (!c?._id) return openCreate();
+    setEditCustomer(c);
+    setForm({
+      name: c.name || '', email: c.email || '', phone: c.phone || '',
+      loyaltyDiscount: c.loyaltyDiscount || '', openingBalanceType: c.openingBalanceType || 'dr',
+      openingAmount: c.openingAmount || '', legalName: c.legalName || '',
+      taxNumber: c.taxNumber || '', creditLimit: c.creditLimit || '',
+      creditTermDays: c.creditTermDays || '',
+      dob: c.dob ? new Date(c.dob).toISOString().slice(0, 10) : '',
+      address: c.address || '',
+    });
     setShowModal(true);
-    document.body.classList.add('modal-active');
   };
 
   const handleSave = async () => {
-    if (editCustomer) {
-      await onUpdateCustomer(editCustomer._id, form);
-    } else {
-      await onCreateCustomer();
-    }
+    if (editCustomer) await onUpdateCustomer(editCustomer._id, form);
+    else await onCreateCustomer();
     setShowModal(false);
   };
 
   return (
-    <div className="admin-page-container">
-      <div className="glass-card customers-panel">
-        <div className="customers-header-section">
-          <CustomerHeader
-            search={search}
-            onSearch={setSearch}
-            onAdd={openCreate}
-            onMenuToggle={() => setShowMenu((v) => !v)}
-          />
-          {showMenu && (
-            <div className="floating-menu" onMouseLeave={() => setShowMenu(false)}>
-              <button
-                onClick={() => {
-                  setShowRewards(true);
-                  document.body.classList.add('modal-active');
-                }}
-              >
-                <i className="fas fa-gift"></i> Rewards Setting
-              </button>
-              <button><i className="fas fa-file-export"></i> Export</button>
-              <button><i className="fas fa-chart-pie"></i> Overview Cards</button>
-            </div>
-          )}
-        </div>
+    <div className="relative min-h-screen bg-slate-50/60">
+      {/* Sticky Header */}
+      <CustomerHeader
+        search={search}
+        onSearch={setSearch}
+        onAdd={openCreate}
+        onMenuToggle={() => setShowMenu((v) => !v)}
+      />
 
-        <div className="customers-body-content">
-          <CustomerKpiGrid totals={totals} />
-          <div className="table-container-card">
-            <CustomerTable
-              customers={filtered}
-              onEdit={(c) => {
-                if (!c?._id) return openCreate();
-                setEditCustomer(c);
-                setForm({
-                  name: c.name || '',
-                  email: c.email || '',
-                  phone: c.phone || '',
-                  loyaltyDiscount: c.loyaltyDiscount || '',
-                  openingBalanceType: c.openingBalanceType || 'dr',
-                  openingAmount: c.openingAmount || '',
-                  legalName: c.legalName || '',
-                  taxNumber: c.taxNumber || '',
-                  creditLimit: c.creditLimit || '',
-                  creditTermDays: c.creditTermDays || '',
-                  dob: c.dob ? new Date(c.dob).toISOString().slice(0, 10) : '',
-                  address: c.address || ''
-                });
-                setShowModal(true);
-              }}
-            />
-          </div>
-        </div>
+      {/* Floating options menu */}
+      {showMenu && (
+        <OptionsMenu
+          onOpenRewards={() => { setShowRewards(true); setShowMenu(false); }}
+          onClose={() => setShowMenu(false)}
+        />
+      )}
 
-        {showModal && (
-          <CustomerModal
-            form={form}
-            setForm={setForm}
-            onClose={() => {
-              setShowModal(false);
-              document.body.classList.remove('modal-active');
-            }}
-            onSave={async () => {
-              await handleSave();
-              document.body.classList.remove('modal-active');
-            }}
-          />
-        )}
+      {/* KPI Grid */}
+      <CustomerKpiGrid totals={totals} />
 
-        {showRewards && (
-          <RewardsModal
-            rewards={rewards}
-            setRewards={setRewards}
-            onClose={() => {
-              setShowRewards(false);
-              document.body.classList.remove('modal-active');
-            }}
-            onSave={async () => {
-              await onSaveRewards();
-              setShowRewards(false);
-              document.body.classList.remove('modal-active');
-            }}
-          />
-        )}
-      </div>
+      {/* Table */}
+      <CustomerTable customers={filtered} onEdit={openEdit} />
+
+      {/* Modals */}
+      {showModal && (
+        <CustomerModal form={form} setForm={setForm} onClose={() => setShowModal(false)} onSave={handleSave} />
+      )}
+      {showRewards && (
+        <RewardsModal
+          rewards={rewards}
+          setRewards={setRewards}
+          onClose={() => setShowRewards(false)}
+          onSave={async () => { await onSaveRewards(); setShowRewards(false); }}
+        />
+      )}
     </div>
   );
 };
