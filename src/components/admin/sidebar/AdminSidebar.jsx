@@ -124,7 +124,7 @@ const AdminSidebar = ({
       <aside
         className={`
           ${sidebarWidth} ${mobileSlide}
-          ${isMobile ? 'fixed' : 'relative'}
+          fixed
           left-0 top-0 h-screen z-50
           flex flex-col bg-white border-r border-slate-100
           transition-all duration-300 ease-in-out overflow-hidden
