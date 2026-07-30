@@ -1,5 +1,5 @@
 import React from 'react';
-import TransactionHistoryTable from '../common/TransactionHistoryTable.jsx';
+import TransactionHistoryTable from '../reusable/TransactionHistoryTable.jsx';
 
 const FinanceTransactionHistory = (props) => <TransactionHistoryTable {...props} />;
 

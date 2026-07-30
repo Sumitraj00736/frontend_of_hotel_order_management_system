@@ -1,27 +1,40 @@
 import React from 'react';
 import { ReceiptIndianRupee } from 'lucide-react';
 
+const breakdownItems = [
+  { label: 'Dish Discount',    value: 0, color: 'bg-indigo-500' },
+  { label: 'General Discount', value: 0, color: 'bg-violet-500' },
+  { label: 'Loyalty Discount', value: 0, color: 'bg-blue-500' },
+  { label: 'Service Charge',   value: 0, color: 'bg-sky-300' },
+];
+
 const CheckoutBreakdownPanel = () => (
-  <div className="panel">
-    <div className="panel-heading">
-      <div className="panel-title">
-        <span className="panel-icon orange"><ReceiptIndianRupee size={18} /></span>
+  <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-4">
+    {/* Header */}
+    <div>
+      <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
+        <span className="p-2 rounded-xl bg-orange-50 border border-orange-100 text-orange-500">
+          <ReceiptIndianRupee size={16} />
+        </span>
         Checkout Breakdown
       </div>
-      <div className="panel-sub">Checkout breakdown of sales.</div>
+      <p className="text-xs font-semibold text-slate-400 mt-1">Checkout breakdown of sales.</p>
     </div>
-    <div className="empty-illustration">No data yet</div>
-    <div className="breakdown">
-      {[
-        { label: 'Dish Discount', value: 0, color: '#4f46e5' },
-        { label: 'General Discount', value: 0, color: '#6366f1' },
-        { label: 'Loyalty Discount', value: 0, color: '#3b82f6' },
-        { label: 'Service Charge', value: 0, color: '#93c5fd' }
-      ].map((row) => (
-        <div key={row.label} className="breakdown-row">
-          <span className="dot" style={{ background: row.color }} />
-          <span>{row.label}</span>
-          <span className="fw-600">Rs {row.value}</span>
+
+    {/* Empty state */}
+    <div className="flex items-center justify-center bg-slate-50/60 rounded-xl border border-dashed border-slate-200 py-6 text-xs font-semibold text-slate-400">
+      No data yet
+    </div>
+
+    {/* Breakdown rows */}
+    <div className="flex flex-col gap-2">
+      {breakdownItems.map((row) => (
+        <div key={row.label} className="flex items-center justify-between py-2 px-3 rounded-xl hover:bg-slate-50 transition-colors">
+          <div className="flex items-center gap-2">
+            <span className={`w-2.5 h-2.5 rounded-full ${row.color}`} />
+            <span className="text-xs font-semibold text-slate-700">{row.label}</span>
+          </div>
+          <strong className="text-xs font-black text-slate-800">Rs {row.value}</strong>
         </div>
       ))}
     </div>

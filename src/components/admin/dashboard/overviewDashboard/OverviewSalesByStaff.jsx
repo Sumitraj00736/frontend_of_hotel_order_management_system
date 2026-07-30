@@ -3,50 +3,65 @@ import { Users } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const OverviewSalesByStaff = ({ items = [] }) => {
-  const maxSales = Math.max(...items.map((row) => Number(row.sales) || 0), 1);
   const topFive = items.slice(0, 5);
-
   const chartData = topFive.map((row) => ({
     name: (row.name || 'Staff').split(' ')[0],
     sales: Number(row.sales) || 0,
   }));
 
   return (
-    <div className="panel panel-staff">
-      <div className="panel-heading">
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <div className="panel-title">
-            <span className="panel-icon orange"><Users size={18} /></span>
+          <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
+            <span className="p-2 rounded-xl bg-orange-50 border border-orange-100 text-orange-500">
+              <Users size={16} />
+            </span>
             Sales by Staff
           </div>
-          <div className="panel-sub">Top staffs</div>
+          <p className="text-xs font-semibold text-slate-400 mt-1">Top performing staff members</p>
         </div>
-        <button className="panel-link">View All</button>
+        <button className="text-xs font-bold text-orange-500 hover:underline">View All</button>
       </div>
+
       {items.length === 0 ? (
-        <div className="empty-illustration">No orders by staff yet.</div>
+        <div className="flex items-center justify-center bg-slate-50/60 rounded-xl border border-slate-100 py-10 text-xs font-semibold text-slate-400">
+          No orders by staff yet.
+        </div>
       ) : (
-        <div className="staff-panel-body">
-          <div className="staff-chart" style={{ width: '100%', height: 300 }}>
+        <>
+          {/* Bar Chart */}
+          <div style={{ width: '100%', height: 240 }}>
             <ResponsiveContainer>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip formatter={(value) => [`Rs ${value.toLocaleString()}`, 'Sales']} />
-                <Bar dataKey="sales" fill="#ff7300" />
+              <BarChart data={chartData} barSize={24}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 600, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fontWeight: 600, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  formatter={(value) => [`Rs ${value.toLocaleString()}`, 'Sales']}
+                  contentStyle={{ fontSize: 12, fontWeight: 700, borderRadius: 10, border: '1px solid #f1f5f9' }}
+                />
+                <Bar dataKey="sales" fill="#f97316" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="list-stack compact">
+
+          {/* Staff List */}
+          <div className="flex flex-col gap-1 mt-1">
             {topFive.map((row, index) => (
-              <div key={row._id || row.name || index} className="list-row list-row-strong">
-                <span>{row.name || 'Staff'}</span>
-                <span className="fw-600">Rs {(Number(row.sales) || 0).toLocaleString()}</span>
+              <div key={row._id || row.name || index} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 transition-colors">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-orange-100 text-orange-600 text-[10px] font-black flex items-center justify-center">
+                    {index + 1}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-700">{row.name || 'Staff'}</span>
+                </div>
+                <span className="text-xs font-black text-slate-800">Rs {(Number(row.sales) || 0).toLocaleString()}</span>
               </div>
             ))}
           </div>
-        </div>
+        </>
       )}
     </div>
   );
