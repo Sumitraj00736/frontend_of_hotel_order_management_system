@@ -29,10 +29,8 @@ import AdminHistory from '../components/admin/history/AdminHistory.jsx';
 import AdminPromotionTimeline from '../components/admin/promotions/AdminPromotionTimeline.jsx';
 import AdminInventory from '../components/admin/inventory/AdminInventory.jsx';
 import AdminFinance from '../components/admin/finance/AdminFinance.jsx';
-import FinanceSidebar from '../components/admin/finance/FinanceSidebar.jsx';
 import AdminWebsite from '../components/admin/website/AdminWebsite.jsx';
 import AdminSettings from '../components/admin/settings/AdminSettings.jsx';
-import SettingsSidebar from '../components/admin/settings/SettingsSidebar.jsx';
 import AdminCustomers from '../components/admin/customers/AdminCustomers.jsx';
 import AdminOrderConfirmModal from '../components/admin/orders/create/AdminOrderConfirmModal.jsx';
 import AdminAddOrderModal from '../components/admin/orders/create/AdminAddOrderModal.jsx';
@@ -1346,31 +1344,13 @@ const AdminDashboard = () => {
       />
       <div className={`admin-body ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
         <div className={`sidebar-placeholder ${sidebarOpen ? '' : 'closed'}`}>
-          {activeSection.startsWith('settings') &&
-          !isMobile &&
-          canAccessAdminSection('settings:restaurant-details') ? (
-            <SettingsSidebar
-              active={activeSection.split(':')[1] || 'restaurant-details'}
-              onSelect={(view) => setActiveSection(`settings:${view}`)}
-              onBack={() => setActiveSection('dashboard')}
-            />
-          ) : activeSection.startsWith('finance') &&
-            !isMobile &&
-            canAccessAdminSection(activeSection) ? (
-            <FinanceSidebar
-              section={activeSection}
-              onNavigate={(s) => setActiveSection(s.includes(':') ? s : `finance:${s}`)}
-              onBack={() => setActiveSection('dashboard')}
-            />
-          ) : (
-            <AdminSidebar
-              activeSection={activeSection}
-              onSelect={setActiveSection}
-              isOpen={sidebarOpen}
-              onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
-              unreadCount={unreadCount}
-            />
-          )}
+          <AdminSidebar
+            activeSection={activeSection}
+            onSelect={setActiveSection}
+            isOpen={sidebarOpen}
+            onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+            unreadCount={unreadCount}
+          />
         </div>
 
         <div className="content">

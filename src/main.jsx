@@ -10,7 +10,6 @@ import './customcss/form.css';
 // Admin Core Styles
 import './common/css/admin/common/adminLayout.css';
 import './common/css/admin/common/adminResponsive.css';
-import './common/css/admin/sidebar/adminSidebar.css';
 
 // Admin Section Styles
 import './common/css/admin/orders/kotCards.css';
