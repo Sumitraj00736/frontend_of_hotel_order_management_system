@@ -1,12 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import OrderDetailModal from '../checkout/OrderDetailModal.jsx';
-import OrdersHeader from '../filters/OrdersHeader.jsx';
-import OrdersFilterTabs from '../filters/OrdersFilterTabs.jsx';
-import OrdersGrid from '../filters/OrdersGrid.jsx';
+import OrderHeader from './OrderHeader.jsx';
+import OrdersFilterTabs from './OrdersFilterTabs.jsx';
+import OrdersGrid from './OrdersGrid.jsx';
 import OrderAnalytics from './OrderAnalytics.jsx';
-import KotTicketCard from '../cards/KotTicketCard.jsx';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminOrders = ({
   orders = [],
@@ -15,7 +13,7 @@ const AdminOrders = ({
   customers = [],
   menus = [],
   staff = [],
-  paymentMethods,
+  paymentMethods = {},
   onChangePaymentMethod,
   onPay,
   onPrint,
@@ -71,19 +69,10 @@ const AdminOrders = ({
   }, [orders, searchTerm]);
 
   return (
-    <div className="full-screen-card px-4 pt-1 pb-5 border-0" style={{ marginTop: '20px' }}>
-      <div className="sticky-top pt-2 pb-3" style={{ 
-        zIndex: 1020, 
-        margin: '-24px -24px 20px -24px', 
-        padding: '24px 24px 20px 24px', 
-        borderBottom: '1px solid #eef1f6',
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(12px)',
-        borderTopLeftRadius: '20px',
-        borderTopRightRadius: '20px',
-        boxShadow: '0 4px 12px rgba(15, 23, 42, 0.03)'
-      }}>
-        <OrdersHeader 
+    <div className="w-full min-h-screen px-4 pb-12 bg-slate-50/30">
+      {/* Sticky Header Wrapper */}
+      <div className="sticky top-0 z-[100] pt-4 pb-2 bg-slate-50/80 backdrop-blur-md mb-6 border-b border-slate-100/50">
+        <OrderHeader 
           title="Orders" 
           countLabel={countLabel} 
           onNewOrder={onNewOrder} 
@@ -92,23 +81,28 @@ const AdminOrders = ({
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
         />
-        <div className="mt-4">
+        <div className="mt-2">
           <OrdersFilterTabs filter={filter} onChange={onFilterChange} />
         </div>
       </div>
       
+      {/* Mode Filters (for History filters) */}
       {['all', 'paid', 'cancelled'].includes(filter) && (
-        <div className="d-flex gap-2 mb-3 overflow-auto pb-2 noscrollbar">
+        <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-none">
           {[
             { id: '', label: 'All Modes' },
             { id: 'dine_in', label: 'Dine In' },
             { id: 'delivery', label: 'Delivery' },
             { id: 'takeaway', label: 'Takeaway' },
             { id: 'pickup', label: 'Pickup' }
-          ].map(t => (
+          ].map((t) => (
             <button
               key={t.id}
-              className={`btn orders-filter-btn ${orderTypeFilter === t.id ? 'active' : ''}`}
+              className={`px-4 py-1.5 text-xs font-bold rounded-lg border transition-all ${
+                orderTypeFilter === t.id 
+                  ? 'bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-500/10' 
+                  : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600'
+              }`}
               onClick={() => onOrderTypeChange?.(t.id)}
             >
               {t.label}
@@ -117,86 +111,79 @@ const AdminOrders = ({
         </div>
       )}
 
-      <div className="orders-data-section position-relative" style={{ minHeight: '400px' }}>
-      
-      {loading && (
-        <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white bg-opacity-50" style={{ zIndex: 10, borderRadius: '16px', backdropFilter: 'blur(2px)' }}>
-          <div className="d-flex flex-column align-items-center gap-3">
-             <Loader2 className="animate-spin text-primary" size={42} />
-             <div className="fw-700 text-dark opacity-75">Fetching latest data...</div>
+      {/* Main Content Area */}
+      <div className="relative min-h-[400px] w-full">
+        {loading && (
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] rounded-2xl z-50 flex items-center justify-center transition-all">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="animate-spin text-orange-500" size={36} />
+              <div className="text-xs font-bold text-slate-600">Fetching latest data...</div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {filter === 'analytics' ? (
-        <OrderAnalytics orders={orders} />
-      ) : filter === 'kot' ? (
-        <div className="kot-grid">
-          {kots.length > 0 ? (
-            kots.map(kot => (
-              <KotTicketCard 
-                key={kot._id}
-                order={kot} 
-                onStatusChange={onKotStatusUpdate}
-                onPrint={onKotPrint}
-              />
-            ))
-          ) : (
-            <div className="text-center py-5 w-100">
-              <h5 className="text-muted">No active KOTs found</h5>
-            </div>
-          )}
-        </div>
-      ) : (
-        <>
+        {filter === 'analytics' ? (
+          <OrderAnalytics orders={orders} />
+        ) : filter === 'kot' ? (
           <OrdersGrid 
-            orders={displayOrders} 
+            orders={kots} 
             onOpen={openDetails} 
-            filter={filter} 
-            onPrint={onPrint}
-            onStatusChange={async (orderId, status) => {
-              await onUpdateOrder({ orderId, status });
-            }}
+            filter="kot" 
+            onPrint={onKotPrint}
+            onStatusChange={onKotStatusUpdate}
           />
-          {filter !== 'active' && (
-            <div className="orders-pagination mt-4 d-flex justify-content-between align-items-center">
-              <div className="orders-page-info fw-600 text-muted small">
-                Page {page} of {totalPages}
+        ) : (
+          <>
+            <OrdersGrid 
+              orders={displayOrders} 
+              onOpen={openDetails} 
+              filter={filter} 
+              onPrint={onPrint}
+              onStatusChange={async (orderId, status) => {
+                await onUpdateOrder({ orderId, status });
+              }}
+            />
+            
+            {/* Pagination Controls */}
+            {filter !== 'active' && (
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mt-8 border-t border-slate-100 pt-6">
+                <div className="text-xs font-bold text-slate-400">
+                  Page {page} of {totalPages}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="px-3.5 py-1.5 text-xs font-bold border border-slate-200 rounded-lg bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-50 transition-colors"
+                    disabled={page <= 1}
+                    onClick={() => onPageChange?.(Math.max(1, page - 1))}
+                  >
+                    Prev
+                  </button>
+                  <button
+                    className="px-3.5 py-1.5 text-xs font-bold border border-slate-200 rounded-lg bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-50 transition-colors"
+                    disabled={page >= totalPages}
+                    onClick={() => onPageChange?.(Math.min(totalPages, page + 1))}
+                  >
+                    Next
+                  </button>
+                  <select
+                    className="text-xs font-bold border border-slate-200 rounded-lg bg-white px-2 py-1.5 text-slate-600 focus:outline-none focus:border-orange-500 transition-colors"
+                    value={limit}
+                    onChange={(e) => onLimitChange?.(Number(e.target.value))}
+                  >
+                    {[6, 12, 24, 48].map((size) => (
+                      <option key={size} value={size}>
+                        {size} / page
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div className="orders-page-controls d-flex gap-2">
-                <button
-                  className="btn btn-sm btn-light border px-3"
-                  disabled={page <= 1}
-                  onClick={() => onPageChange?.(Math.max(1, page - 1))}
-                >
-                  Prev
-                </button>
-                <button
-                  className="btn btn-sm btn-light border px-3"
-                  disabled={page >= totalPages}
-                  onClick={() => onPageChange?.(Math.min(totalPages, page + 1))}
-                >
-                  Next
-                </button>
-                <select
-                  className="form-select form-select-sm border shadow-sm"
-                  style={{ width: 'auto' }}
-                  value={limit}
-                  onChange={(e) => onLimitChange?.(Number(e.target.value))}
-                >
-                  {[6, 12, 24, 48].map((size) => (
-                    <option key={size} value={size}>
-                      {size} / page
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
       </div>
 
+      {/* Details Modal */}
       {selected && (
         <OrderDetailModal
           order={selected}

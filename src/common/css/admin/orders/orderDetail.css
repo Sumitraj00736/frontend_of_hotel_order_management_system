@@ -2301,6 +2301,7 @@
     flex-direction: column;
     gap: 2px;
   }
+}
 
 /* Small Mobile */
 @media (max-width: 480px) {
