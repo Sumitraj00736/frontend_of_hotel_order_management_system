@@ -1,88 +1,66 @@
 import React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Banknote, CreditCard, Smartphone, Landmark } from 'lucide-react';
 
-const OrderPaymentPanel = ({
-  paymentStatus,
-  onStatusChange,
-  payments,
-  onUpdatePayments,
-  totalToPay
-}) => {
-  const handleAddPayment = () => {
-    onUpdatePayments([...payments, { method: 'cash', amount: 0 }]);
+const PAYMENT_TYPES = [
+  { value: 'cash',    label: 'Cash',          Icon: Banknote    },
+  { value: 'card',    label: 'Card',          Icon: CreditCard  },
+  { value: 'fonepay', label: 'Fonepay',       Icon: Smartphone  },
+  { value: 'bank',    label: 'Bank Transfer', Icon: Landmark    },
+];
+
+const OrderPaymentPanel = ({ payments, onUpdatePayments, totalToPay }) => {
+  const selectedType = payments[0]?.type || 'cash';
+
+  const handleTypeSelect = (type) => {
+    // Amount is always fixed = total, no manual editing
+    onUpdatePayments([{ type, amount: totalToPay }]);
   };
-
-  const handleRemovePayment = (index) => {
-    const updated = [...payments];
-    updated.splice(index, 1);
-    onUpdatePayments(updated);
-  };
-
-  const handleChange = (index, field, value) => {
-    const updated = [...payments];
-    updated[index][field] = value;
-    onUpdatePayments(updated);
-  };
-
-  const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-  const remaining = Math.max(0, totalToPay - totalPaid);
 
   return (
-    <div className="payment-card">
-      <div className="label">Payment Mode</div>
-      <div className="pay-tabs">
-        <button className={paymentStatus === 'paid' ? 'active' : ''} onClick={() => onStatusChange('paid')}>Paid (Full/Split)</button>
-        <button className={paymentStatus === 'unpaid_credit' ? 'active' : ''} onClick={() => onStatusChange('unpaid_credit')}>Unpaid / Credit</button>
+    <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+        <CreditCard size={14} className="text-primary" />
+        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+          Payment Method
+        </span>
       </div>
-      
-      {paymentStatus === 'paid' && (
-        <div className="multi-pay-section mt-3">
-          {payments.map((p, idx) => (
-            <div key={idx} className="d-flex align-items-center gap-2 mb-2">
-              <select
-                className="form-select form-select-sm"
-                value={p.method}
-                onChange={(e) => handleChange(idx, 'method', e.target.value)}
-                style={{ width: '120px' }}
-              >
-                <option value="cash">Cash</option>
-                <option value="card">Card</option>
-                <option value="fonepay">Fonepay</option>
-                <option value="bank">Bank</option>
-              </select>
-              <input
-                type="number"
-                className="form-control form-control-sm"
-                placeholder="Amount"
-                value={p.amount === 0 ? '' : p.amount}
-                onChange={(e) => handleChange(idx, 'amount', e.target.value)}
-                style={{ flex: 1 }}
+
+      {/* Type selector grid */}
+      <div className="p-3 grid grid-cols-2 gap-2">
+        {PAYMENT_TYPES.map(({ value, label, Icon }) => {
+          const isActive = selectedType === value;
+          return (
+            <button
+              key={value}
+              onClick={() => handleTypeSelect(value)}
+              className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                isActive
+                  ? 'bg-primary/10 border-primary text-primary shadow-sm'
+                  : 'bg-white border-gray-200 text-gray-500 hover:border-primary/40 hover:bg-primary/5'
+              }`}
+            >
+              <Icon
+                size={16}
+                strokeWidth={1.8}
+                className={isActive ? 'text-primary' : 'text-gray-400'}
               />
-              <button 
-                className="btn btn-sm btn-outline-danger" 
-                onClick={() => handleRemovePayment(idx)}
-                disabled={payments.length === 1}
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
-          ))}
-          
-          <button 
-            className="btn btn-sm btn-outline-primary mt-2 w-100" 
-            onClick={handleAddPayment}
-          >
-            <Plus size={14} className="me-1" /> Add Payment Method
-          </button>
-          
-          {remaining > 0 && totalToPay > 0 && payments.length > 0 && (
-            <div className="text-secondary small mt-2 d-flex justify-content-between">
-              <span>Remaining to match bill:</span>
-              <span className="fw-bold cursor-pointer text-primary" onClick={() => handleChange(payments.length-1, 'amount', Number(payments[payments.length-1].amount || 0) + remaining)}>Rs {remaining.toFixed(2)}</span>
-            </div>
-          )}
-        </div>
-      )}
+              <span>{label}</span>
+              {isActive && (
+                <span className="ml-auto w-2 h-2 rounded-full bg-primary shrink-0" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Fixed amount display — read-only */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50 border-t border-gray-100">
+        <span className="text-xs text-gray-500">Amount to collect</span>
+        <span className="text-sm font-bold text-gray-800">
+          Rs {(totalToPay || 0).toFixed(2)}
+        </span>
+      </div>
     </div>
   );
 };
