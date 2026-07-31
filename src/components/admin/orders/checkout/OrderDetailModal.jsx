@@ -180,10 +180,11 @@ const OrderDetailModal = ({
   const handleAddItem = (payload) => {
     // Use latestItemsRef (not stale `items` state) to avoid duplicate rows
     const existing = latestItemsRef.current.map((i) => ({ ...i }));
+    const payloadMenuId = payload.menuItem?._id || payload.menuItem;
     const idx = existing.findIndex((i) => {
       const menuId = i.menuItem?._id || i.menuItem;
       const variantId = i.variantId || i.variant?._id || null;
-      return menuId === payload.menuItem && (variantId || null) === (payload.variantId || null);
+      return menuId === payloadMenuId && (variantId || null) === (payload.variantId || null);
     });
     if (idx >= 0) {
       existing[idx] = { ...existing[idx], quantity: (existing[idx].quantity || 0) + payload.quantity };

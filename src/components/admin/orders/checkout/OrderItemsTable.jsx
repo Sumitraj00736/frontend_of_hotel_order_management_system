@@ -29,7 +29,7 @@ const OrderItemsTable = ({
             const isComplimentary = Boolean(item.isComplimentary);
             return (
               <tr
-                key={item._id || `${menuId}-${variantId || 'base'}`}
+                key={item._id || `${menuId}-${variantId || 'base'}-${idx}`}
                 className={`hover:bg-gray-50 transition ${isComplimentary ? 'opacity-60' : ''}`}
               >
                 <td className="px-3 py-2 text-gray-400">{idx + 1}</td>
