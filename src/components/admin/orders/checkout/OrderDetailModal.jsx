@@ -418,6 +418,14 @@ const OrderDetailModal = ({
           onUpdateItemQuantity={updateItemQuantity}
           onUpdateItemNote={updateItemNote}
           categories={categories}
+          onClearCart={() => scheduleOrderSync({ items: [] })}
+          onConfirm={(options) => {
+            if (options?.print) {
+              onPrint(order._id);
+            }
+            setShowAddItem(false);
+          }}
+          confirmDisabled={isSyncing}
         />
       )}
 

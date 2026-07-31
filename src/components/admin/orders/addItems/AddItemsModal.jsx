@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, X, LayoutGrid } from 'lucide-react';
 import MenuSection from './MenuSection.jsx';
 import CartPanel from './CartPanel.jsx';
 import CustomizeDishModal from './CustomizeDishModal.jsx';
@@ -70,6 +70,16 @@ const AddItemsModal = ({
     0
   );
 
+  // Compute quantity map for visual cart indicators
+  const cartItemQuantities = useMemo(() => {
+    const map = {};
+    items.forEach((item) => {
+      const menuId = item.menuItem?._id || item.menuItem;
+      map[menuId] = (map[menuId] || 0) + (item.quantity || 0);
+    });
+    return map;
+  }, [items]);
+
   const handleConfirmAction = (options) => {
     onConfirm?.(options);
     setMobileCartOpen(false);
@@ -87,16 +97,28 @@ const AddItemsModal = ({
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Unified Top Header Bar */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white shrink-0 shadow-sm">
+              <div className="flex items-center gap-3">
+                <h2 className="text-base font-bold text-gray-800 tracking-tight">Add Items to Order</h2>
+                <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                  <LayoutGrid size={11} />
+                  <span>{orderTargetName || orderTableNumber || 'Walk-in'}</span>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
             {/* Main content grid */}
             <div className="flex-1 flex overflow-hidden p-4 gap-4">
               {/* Menu Area */}
               <div className="flex-1 min-w-0 h-full">
                 <MenuSection
-                  orderTableNumber={orderTableNumber}
-                  orderTargetName={orderTargetName}
-                  selectedTableId={selectedTableId}
-                  tableOptions={tableOptions}
-                  onTableChange={onTableChange}
                   addSubMenu={addSubMenu}
                   menuSubMenus={menuSubMenus}
                   addSearch={addSearch}
@@ -111,6 +133,7 @@ const AddItemsModal = ({
                   onAdd={onAddItem}
                   onCustomize={setCustomizeItem}
                   onClose={onClose}
+                  cartItemQuantities={cartItemQuantities}
                 />
               </div>
 
