@@ -340,6 +340,13 @@ const WaiterApp = () => {
           tag: 'waiter-order-paid'
         });
       }
+      if (payload.type === 'order:status') {
+        pushSystemNotification({
+          title: 'Order Status Updated',
+          body: payload.message || 'Kitchen changed order status.',
+          tag: `waiter-order-status-${payload.orderId || Date.now()}`
+        });
+      }
     });
 
     const initPush = async () => {

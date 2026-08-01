@@ -179,7 +179,7 @@
   background: #fff;
   border: 1px solid #eef1f6;
   border-radius: 16px;
-  overflow: hidden;
+  overflow: visible !important;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
 }
 
@@ -384,7 +384,7 @@
   padding: 6px;
   min-width: 140px;
   box-shadow: 0 20px 60px rgba(2, 6, 23, 0.16);
-  z-index: 5;
+  z-index: 100;
 }
 
 .action-dropdown button {

@@ -1,132 +1,127 @@
-import React, { useState, useMemo } from 'react';
-import { ListChecks, Bell, ChevronDown, ChevronRight, LogOut, UserRound, MapPin } from 'lucide-react';
+/**
+ * KitchenSidebar.jsx
+ * Thin orchestrator — composes KitchenSidebarHeader, Location, Nav, Footer.
+ * All styling via Tailwind CSS (no custom CSS imports).
+ */
+import React, { useState, useMemo, useEffect } from 'react';
 import { clearSession, getBranchId, getBranches, getCurrentUser, setBranchId } from '../../api/session.js';
-import '../../common/css/kitchen/kitchenSidebar.css';
 
-const navItems = [
-  { id: 'orders', label: 'Orders', icon: ListChecks },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'profile', label: 'Profile', icon: UserRound }
-];
+import KitchenSidebarHeader   from './sidebar/KitchenSidebarHeader.jsx';
+import KitchenSidebarLocation from './sidebar/KitchenSidebarLocation.jsx';
+import KitchenSidebarNav      from './sidebar/KitchenSidebarNav.jsx';
+import KitchenSidebarFooter   from './sidebar/KitchenSidebarFooter.jsx';
 
-const KitchenSidebar = ({ activeSection = 'orders', onSelect, isOpen = true, onToggleSidebar, unreadCount = 0 }) => {
+const MOBILE_BREAKPOINT = 992;
+
+const KitchenSidebar = ({
+  activeSection = 'orders',
+  onSelect,
+  isOpen = true,
+  onToggleSidebar,
+  unreadCount = 0,
+}) => {
   const [profileOpen, setProfileOpen] = useState(false);
-  const [branchOpen, setBranchOpen] = useState(false);
+  const [branchOpen,  setBranchOpen]  = useState(false);
+  const [isMobile,    setIsMobile]    = useState(window.innerWidth <= MOBILE_BREAKPOINT);
 
-  const user = getCurrentUser();
+  /* ─── session data ─── */
+  const user     = getCurrentUser();
   const branches = getBranches() || [];
-  
-  const activeBranch = useMemo(() => {
-    const activeId = getBranchId() || branches[0]?.branchId;
-    return branches.find((b) => (b.branchId || b._id) === activeId);
-  }, [branches]);
 
-  const restaurantName = activeBranch?.branchName || user?.restaurantName || 'Mero Restro';
+  const activeBranchId = getBranchId() || branches[0]?.branchId || branches[0]?._id;
+  const activeBranch   = useMemo(
+    () => branches.find((b) => (b.branchId || b._id) === activeBranchId),
+    [branches, activeBranchId],
+  );
+
+  const restaurantName =
+    activeBranch?.orgName ||
+    branches.find((b) => b.orgName)?.orgName ||
+    user?.orgName || user?.restaurantName ||
+    activeBranch?.branchName || branches[0]?.branchName ||
+    'Mero Restro';
+
+  /* ─── responsive ─── */
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  /* ─── handlers ─── */
+  const handleSelect = (section) => {
+    onSelect?.(section);
+    if (isMobile && isOpen) onToggleSidebar?.();
+  };
 
   const handleLogout = () => {
-    if (window.confirm("Are you sure you want to log out?")) {
+    if (window.confirm('Are you sure you want to log out?')) {
       clearSession();
       window.location.href = '/login';
     }
   };
 
-  const handleBranchSwitch = (id) => {
-    setBranchId(id);
-    window.location.reload();
-  };
+  /* ─── layout ─── */
+  const sidebarWidth = isMobile ? 'w-72' : isOpen ? 'w-64' : 'w-[72px]';
+  const mobileSlide  = isMobile && !isOpen ? '-translate-x-full' : 'translate-x-0';
 
   return (
-    <aside className={`kitchen-sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-      <div className="sidebar-header">
-        <div className="brand-container">
-          <div className="brand-logo">M</div>
-          {isOpen && <h2 className="brand-name">mero<span>restro</span></h2>}
-        </div>
-        <button className="toggle-trigger" onClick={onToggleSidebar}>
-          {isOpen ? <ChevronDown style={{ transform: 'rotate(90deg)' }} /> : <ChevronRight />}
-        </button>
-      </div>
+    <>
+      {/* Mobile backdrop */}
+      {isMobile && isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm"
+          onClick={onToggleSidebar}
+        />
+      )}
 
-      <div className="sidebar-content">
-        {/* Branch Selection */}
-        <div className={`branch-selector ${isOpen ? '' : 'compact'}`}>
-          <div className="branch-current" onClick={() => isOpen && setBranchOpen(!branchOpen)}>
-            <MapPin size={18} className="branch-icon" />
-            {isOpen && (
-              <>
-                <div className="branch-info">
-                  <span className="branch-name-text">{restaurantName}</span>
-                  <span className="branch-status">Premium Trial</span>
-                </div>
-                <ChevronDown size={14} className={`chevron ${branchOpen ? 'rotated' : ''}`} />
-              </>
-            )}
-          </div>
-          
-          {branchOpen && isOpen && (
-            <div className="branch-dropdown">
-              {branches.map((b) => (
-                <button
-                  key={b.branchId || b._id}
-                  className={`branch-option ${activeBranch?.branchId === (b.branchId || b._id) ? 'active' : ''}`}
-                  onClick={() => handleBranchSwitch(b.branchId || b._id)}
-                >
-                  {b.branchName || b.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+      <aside
+        className={`
+          ${sidebarWidth} ${mobileSlide}
+          fixed left-0 top-0 h-screen z-50
+          flex flex-col bg-white border-r border-slate-100
+          transition-all duration-300 ease-in-out overflow-hidden
+        `}
+      >
+        {/* Brand + toggle */}
+        <KitchenSidebarHeader
+          isOpen={isOpen}
+          isMobile={isMobile}
+          onToggleSidebar={onToggleSidebar}
+        />
+
+        {/* Restaurant / branch */}
+        <KitchenSidebarLocation
+          isOpen={isOpen}
+          branchOpen={branchOpen}
+          setBranchOpen={setBranchOpen}
+          activeBranch={activeBranch}
+          activeBranchId={activeBranchId}
+          restaurantName={restaurantName}
+          branches={branches}
+          setBranchId={setBranchId}
+        />
 
         {/* Navigation */}
-        <nav className="nav-menu">
-          {navItems.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              className={`nav-item ${activeSection === id ? 'active' : ''}`}
-              onClick={() => onSelect?.(id)}
-              title={label}
-            >
-              <div className="icon-wrapper">
-                <Icon size={20} strokeWidth={2} />
-                {id === 'notifications' && unreadCount > 0 && (
-                  <span className="unread-dot">{unreadCount}</span>
-                )}
-              </div>
-              {isOpen && <span className="nav-label">{label}</span>}
-            </button>
-          ))}
-        </nav>
-      </div>
+        <KitchenSidebarNav
+          isOpen={isOpen}
+          activeSection={activeSection}
+          onSelect={handleSelect}
+          unreadCount={unreadCount}
+        />
 
-      {/* User Profile */}
-      <div className="sidebar-footer">
-        <div className={`user-profile ${profileOpen ? 'active' : ''} ${!isOpen ? 'compact' : ''}`}>
-          <button className="profile-toggle" onClick={() => setProfileOpen(!profileOpen)}>
-            <div className="user-avatar">
-              {user?.name?.charAt(0).toUpperCase() || 'U'}
-            </div>
-            {isOpen && (
-              <div className="user-details">
-                <p className="user-name">{user?.name || 'Chef'}</p>
-                <p className="user-email">{user?.email}</p>
-              </div>
-            )}
-          </button>
-          
-          {profileOpen && (
-            <div className="profile-menu">
-              <button onClick={() => onSelect?.('profile')}>
-                <UserRound size={16} /> Profile Settings
-              </button>
-              <button onClick={handleLogout} className="logout-btn">
-                <LogOut size={16} /> Logout
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </aside>
+        {/* Profile card */}
+        <KitchenSidebarFooter
+          isOpen={isOpen}
+          isMobile={isMobile}
+          user={user}
+          profileOpen={profileOpen}
+          setProfileOpen={setProfileOpen}
+          onLogout={handleLogout}
+          onProfileSelect={handleSelect}
+        />
+      </aside>
+    </>
   );
 };
 

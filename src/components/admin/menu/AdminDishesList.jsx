@@ -141,10 +141,16 @@ const AdminDishesList = ({
                       <MoreHorizontal size={18} />
                     </IconButton>
                     {openMenuId === d._id && (
-                      <div className="action-dropdown">
-                        <button onClick={() => { setOpenMenuId(null); onEdit(d); }}>Edit</button>
-                        <button className="danger" onClick={() => { setOpenMenuId(null); onDelete(d._id); }}>Delete</button>
-                      </div>
+                      <>
+                        <div
+                          style={{ position: 'fixed', inset: 0, zIndex: 90 }}
+                          onClick={() => setOpenMenuId(null)}
+                        />
+                        <div className="action-dropdown" style={{ zIndex: 100 }}>
+                          <button onClick={() => { setOpenMenuId(null); onEdit(d); }}>Edit</button>
+                          <button className="danger" onClick={() => { setOpenMenuId(null); onDelete(d._id); }}>Delete</button>
+                        </div>
+                      </>
                     )}
                   </div>
                 </td>
