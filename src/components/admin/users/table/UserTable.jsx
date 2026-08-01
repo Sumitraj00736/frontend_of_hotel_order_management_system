@@ -15,7 +15,7 @@ const UserTableEmpty = () => (
 );
 
 const UserTableHead = () => (
-  <div className="grid grid-cols-[40px_1fr_120px_110px_140px_160px_48px] items-center gap-4 px-5 py-3 border-b border-slate-100 bg-slate-50/80">
+  <div className="grid grid-cols-[40px_1fr_120px_110px_140px_160px_48px] items-center gap-4 px-5 py-3 border-b border-slate-100 bg-slate-50/80 rounded-t-2xl">
     {COL_HEADERS.map((h, i) => (
       <span key={i} className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{h}</span>
     ))}
@@ -23,7 +23,7 @@ const UserTableHead = () => (
 );
 
 const UserTable = ({ users, roles, onEdit, onLoadPromotions, onSetStatus, onAssignRole, onDelete, canEdit }) => (
-  <div className="bg-white rounded-2xl border border-slate-100 shadow-sm mx-6 my-5 overflow-hidden">
+  <div className="bg-white rounded-2xl border border-slate-100 shadow-sm mx-6 my-5 relative">
     <UserTableHead />
     {users.length === 0
       ? <UserTableEmpty />
