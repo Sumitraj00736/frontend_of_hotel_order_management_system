@@ -1037,9 +1037,13 @@ const AdminDashboard = () => {
         type: 'success'
       });
 
-      await loadAll();
+      void loadAll().catch((err) => {
+        console.error('Background dashboard refresh failed:', err);
+      });
       if (activeSection === 'orders') {
-        await loadOrdersPage(ordersPage, ordersLimit, ordersFilter);
+        void loadOrdersPage(ordersPage, ordersLimit, ordersFilter).catch((err) => {
+          console.error('Background orders refresh failed:', err);
+        });
       }
       
       return updatedOrder;

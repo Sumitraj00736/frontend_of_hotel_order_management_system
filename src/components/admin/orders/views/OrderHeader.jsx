@@ -31,7 +31,7 @@ const OrderHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChange
   ];
 
   return (
-    <div className="bg-white/95 backdrop-blur-md border border-slate-100 rounded-2xl p-6 shadow-sm mb-6 transition-all duration-300">
+    <div className="relative z-[1200] bg-white/95 backdrop-blur-md border border-slate-100 rounded-2xl p-6 shadow-sm mb-6 transition-all duration-300">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Title and Subtitle */}
         <div>
@@ -88,7 +88,7 @@ const OrderHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChange
           {/* Create Order Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
-              className={`flex items-center gap-1.5 px-4 py-2 border rounded-lg text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-2 px-4 py-3 border rounded-2xl text-sm font-semibold transition-all shadow-sm ${
                 showDropdown 
                   ? 'bg-orange-500 border-orange-500 text-white' 
                   : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -105,23 +105,23 @@ const OrderHeader = ({ title, countLabel, onNewOrder, onAddTable, onFilterChange
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 mt-2 bg-white rounded-xl shadow-xl border border-slate-100 p-3 w-56 z-[1050]"
+                  className="absolute right-0 top-full mt-3 z-[2000] bg-white rounded-[28px] shadow-[0_28px_80px_rgba(15,23,42,0.08)] border border-slate-200 p-4 w-[280px]"
                 >
-                  <h4 className="text-xxs font-extrabold text-slate-400 uppercase tracking-wider mb-2 px-2">Select Order Mode</h4>
-                  <div className="flex flex-col gap-1">
+                  <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.26em] mb-3">Select Order Mode</h4>
+                  <div className="space-y-2">
                     {orderTypes.map((type) => (
                       <button
                         key={type.id}
-                        className="flex items-center gap-2.5 w-full text-left px-2 py-2 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-orange-600 transition-colors"
+                        className="flex items-center gap-3 w-full text-left rounded-[22px] px-3 py-3 text-sm font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 transition-colors"
                         onClick={() => {
                           setShowDropdown(false);
                           onNewOrder?.(type.id);
                         }}
                       >
-                        <div className="flex items-center justify-center bg-orange-50 rounded-md p-1.5">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-orange-50 text-orange-500">
                           {type.icon}
                         </div>
-                        {type.label}
+                        <span>{type.label}</span>
                       </button>
                     ))}
                   </div>

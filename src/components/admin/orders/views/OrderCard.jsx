@@ -44,7 +44,7 @@ const OrderCard = ({ order, onOpen, onPrint }) => {
 
   return (
     <div 
-      className="relative w-full h-[320px] bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-orange-200 transition-all duration-300 overflow-hidden group"
+      className="relative z-0 w-full h-[320px] bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-orange-200 transition-all duration-300 overflow-hidden group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
