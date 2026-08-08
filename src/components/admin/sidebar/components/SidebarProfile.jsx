@@ -88,6 +88,17 @@ const SidebarProfile = ({
         )}
       </button>
 
+      {/* ── Sidebar logout button ── */}
+      <button
+        onClick={onLogout}
+        className={`mt-3 w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[13px] font-semibold transition-all duration-200 ${compact ? 'justify-center' : 'justify-start'} text-rose-600 bg-rose-50 border border-rose-100 hover:bg-rose-100`}
+      >
+        <span className="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center shrink-0">
+          <LogOut size={14} className="text-rose-600" />
+        </span>
+        {!compact && 'Logout'}
+      </button>
+
       {/* ── Profile popover ── */}
       {profileOpen && (
         <div
